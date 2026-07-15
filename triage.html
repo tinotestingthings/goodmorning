@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Digest — Triage</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <h1>Daily Digest</h1>
+    <div class="step-indicator">Step 1 of 3 · Triage</div>
+  </div>
+  <div class="topbar-right">
+    <div id="feedStatus" class="feed-status"></div>
+    <a href="practice.html" class="skip-link">Skip step →</a>
+  </div>
+</header>
+
+<main id="deckArea"></main>
+
+<section id="importPanel" class="import-panel hidden">
+  <label for="importText">Paste feed.json contents</label>
+  <textarea id="importText" rows="8" placeholder='{ "generated": "...", "daily": [...] }'></textarea>
+  <div class="import-actions">
+    <button id="importLoadBtn" class="btn btn-primary">Load pasted feed</button>
+    <button id="importCancelBtn" class="btn btn-ghost">Cancel</button>
+  </div>
+  <p id="importError" class="import-error hidden"></p>
+</section>
+
+<footer class="bottombar">
+  <button id="importToggleBtn" class="btn btn-ghost">Import feed</button>
+  <button id="revertFeedBtn" class="btn btn-ghost hidden">Use committed feed.json</button>
+</footer>
+
+<script src="loop.js"></script>
+<script src="triage.js"></script>
+</body>
+</html>

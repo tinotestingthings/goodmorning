@@ -1,0 +1,37 @@
+{
+  "generated": "2026-07-15T08:00",
+  "daily": [
+    {
+      "id": "2026-07-15-ai-scribe-mdr-klasse-iia-classificatie",
+      "title": "AI-scribe software valt onder MDR klasse IIa",
+      "source": "Ius Mentis",
+      "url": "https://www.iusmentis.com/",
+      "date": "2026-07-15",
+      "summary": "Een Nederlandse toezichthouder heeft duidelijk gemaakt dat AI-scribe software die medische notities genereert uit gesprekken, kwalificeert als medisch hulpmiddel klasse IIa onder de MDR.\n\nDit betekent dat leveranciers een CE-markering nodig hebben en een kwaliteitsmanagementsysteem moeten voeren. Voor de praktijk betekent dit dat klanten die dit soort software overwegen te kopen, moeten controleren of de leverancier hieraan voldoet voordat een contract wordt getekend.\n\nDe uitspraak is relevant voor lopende adviestrajecten rond AI in de zorg."
+    },
+    {
+      "id": "2026-07-15-camperverhuurder-ai-chatbot-aansprakelijkheid",
+      "title": "Camperverhuurder aansprakelijk voor foutief AI-chatbot advies",
+      "source": "Recht.nl",
+      "url": "https://www.recht.nl/",
+      "date": "2026-07-15",
+      "summary": "Een rechtbank heeft geoordeeld dat een camperverhuurbedrijf aansprakelijk is voor onjuist advies gegeven door hun website-chatbot, ook al was er een disclaimer aanwezig.\n\nDe rechter oordeelde dat de disclaimer niet prominent genoeg was en dat consumenten redelijkerwijs mochten vertrouwen op de chatbot als representatief voor het bedrijf. Relevant precedent voor klanten die AI-chatbots inzetten voor klantenservice."
+    },
+    {
+      "id": "2026-07-15-eu-us-data-privacy-framework-at-risk",
+      "title": "EU-US Data Privacy Framework opnieuw ter discussie",
+      "source": "IAPP",
+      "url": "https://iapp.org/",
+      "date": "2026-07-15",
+      "summary": "Privacyorganisaties hebben een nieuwe juridische uitdaging ingediend tegen het EU-US Data Privacy Framework, met het argument dat de onderliggende surveillance-waarborgen nog steeds onvoldoende zijn.\n\nMocht dit slagen, dan zouden duizenden bedrijven die op het framework leunen voor transatlantische dataoverdracht opnieuw naar SCC's of BCR's moeten overstappen. Nog geen directe actie vereist, maar het is de moeite waard dit te blijven volgen."
+    },
+    {
+      "id": "2026-07-15-ai-act-high-risk-classification-consultation-closing",
+      "title": "Consultatie over AI Act hoog-risico classificatie sluit volgende week",
+      "source": "European Commission",
+      "url": "https://digital-strategy.ec.europa.eu/",
+      "date": "2026-07-15",
+      "summary": "De Europese Commissie sluit volgende week de publieke consultatie over aanvullende richtsnoeren voor de classificatie van hoog-risico AI-systemen onder de AI Act.\n\nDit is relevant voor klanten die twijfelen of hun AI-systeem in de hoog-risico categorie valt. De uiteindelijke richtsnoeren zullen naar verwachting eind dit jaar gepubliceerd worden."
+    }
+  ]
+}
