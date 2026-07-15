@@ -18,22 +18,14 @@
   </div>
 </header>
 
-<main class="practice-links">
-  <a href="https://tinotestingthings.github.io/gamify-note-reading/" target="_blank" rel="noopener noreferrer" class="practice-link-card" data-practice-link="notesprint">
-    <div>
-      <b>NoteSprint</b>
-      <div class="card-meta">Note-reading practice</div>
-    </div>
-    <span class="practice-link-check">Opened ✓</span>
-  </a>
+<div class="practice-switcher">
+  <button class="practice-tab" data-app="notesprint">NoteSprint</button>
+  <button class="practice-tab" data-app="eartraining">ChordSprint</button>
+  <a id="openInNewTab" class="practice-openlink" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+</div>
 
-  <a href="ear-training/index.html" target="_blank" rel="noopener noreferrer" class="practice-link-card" data-practice-link="eartraining">
-    <div>
-      <b>ChordSprint</b>
-      <div class="card-meta">Chord progression ear training</div>
-    </div>
-    <span class="practice-link-check">Opened ✓</span>
-  </a>
+<main class="practice-frame-wrap">
+  <iframe id="practiceFrame" class="practice-frame" title="Practice app" allow="autoplay"></iframe>
 </main>
 
 <footer class="bottombar">

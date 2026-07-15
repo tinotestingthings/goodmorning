@@ -107,39 +107,51 @@ body {
   gap: 10px;
 }
 
-.practice-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-}
-
-.practice-link-card {
+.practice-switcher {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: var(--card-bg);
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.practice-tab {
+  appearance: none;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  text-decoration: none;
-  color: var(--text);
-}
-
-.practice-link-card b {
-  font-size: 1.05rem;
-}
-
-.practice-link-check {
-  font-size: 0.8rem;
-  color: var(--keep);
+  background: none;
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
   font-weight: 600;
-  visibility: hidden;
+  cursor: pointer;
 }
 
-.practice-link-check.show {
-  visibility: visible;
+.practice-tab.active {
+  background: var(--skip);
+  border-color: var(--skip);
+  color: #fff;
+}
+
+.practice-openlink {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.practice-frame-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.practice-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
 }
 
 main#deckArea {

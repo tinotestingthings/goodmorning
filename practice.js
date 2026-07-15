@@ -1,37 +1,45 @@
 (function () {
   "use strict";
 
-  var LS_OPENED = "dd.practice.opened";
+  var LS_SELECTED = "dd.practice.selected";
 
-  function loadOpened() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_OPENED)) || {};
-    } catch (e) {
-      return {};
+  var APPS = {
+    notesprint: {
+      label: "NoteSprint",
+      url: "https://tinotestingthings.github.io/gamify-note-reading/"
+    },
+    eartraining: {
+      label: "ChordSprint",
+      url: "ear-training/index.html"
     }
-  }
+  };
 
-  function saveOpened(opened) {
-    localStorage.setItem(LS_OPENED, JSON.stringify(opened));
+  var frame = document.getElementById("practiceFrame");
+  var openLink = document.getElementById("openInNewTab");
+  var tabs = document.querySelectorAll(".practice-tab");
+
+  function select(appKey) {
+    var app = APPS[appKey];
+    if (!app) return;
+    localStorage.setItem(LS_SELECTED, appKey);
+    frame.src = app.url;
+    openLink.href = app.url;
+    tabs.forEach(function (tab) {
+      tab.classList.toggle("active", tab.getAttribute("data-app") === appKey);
+    });
   }
 
   function init() {
     DigestLoop.setStep("practice");
 
-    var opened = loadOpened();
-    var links = document.querySelectorAll("[data-practice-link]");
-
-    links.forEach(function (link) {
-      var key = link.getAttribute("data-practice-link");
-      var check = link.querySelector(".practice-link-check");
-      if (opened[key]) check.classList.add("show");
-
-      link.addEventListener("click", function () {
-        opened[key] = true;
-        saveOpened(opened);
-        check.classList.add("show");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        select(tab.getAttribute("data-app"));
       });
     });
+
+    var saved = localStorage.getItem(LS_SELECTED);
+    select(APPS[saved] ? saved : "notesprint");
 
     document.getElementById("continueBtn").addEventListener("click", function () {
       window.location.href = "done.html";
