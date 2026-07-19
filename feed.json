@@ -1,4 +1,13 @@
 {
-  "generated": "2026-07-15T19:56:22Z",
-  "daily": []
+  "generated": "2026-07-16T06:47:00Z",
+  "daily": [
+    {
+      "id": "2026-07-16-iusmentis-solvinity-overnameverbod-cloud-act",
+      "title": "Ius Mentis: Solvinity (van DigiD) mocht inderdaad niet overgenomen worden vanwege de CLOUD Act",
+      "source": "Ius Mentis (Arnoud Engelfriet)",
+      "url": "https://blog.iusmentis.com/",
+      "date": "2026-07-15",
+      "summary": "Arnoud Engelfriet bespreekt (post gedateerd 15 juli 2026) de uitspraak van de rechtbank Rotterdam van 14/15 juli: het verzoek van Solvinity om het overnameverbod te schorsen is afgewezen. Het kabinet (staatssecretaris Aerdts) blokkeerde eind mei de overname van het Amsterdamse Solvinity — de beheerder van het DigiD-inlogsysteem — door het Amerikaanse Kyndryl, en de rechter oordeelt nu dat de staat daarbij binnen de wettelijke kaders bleef.\n\nDe kern van de uitspraak zit op de CLOUD Act, FISA en verwante Amerikaanse wetgeving met extraterritoriale werking: de VS kan daarmee toegang eisen tot data die wereldwijd door Amerikaanse techbedrijven wordt verwerkt. Zou Solvinity in Amerikaanse handen komen, dan valt het onder al die wetgeving — en daarmee zou de vertrouwelijkheid van een kritieke Nederlandse overheidsvoorziening (DigiD) in het geding komen. De rechter liet het verbod voorlopig in stand omdat wachten op de bodembeslissing voor Solvinity en Kyndryl geen onomkeerbare schade oplevert.\n\nRelevant als concrete, rechterlijk getoetste toepassing van digitale-soevereiniteitsargumenten (vgl. de eerdere EU-US-datatransfer-notities in de vault): niet een DPIA of contractuele mitigatie, maar een regelrecht overnameverbod op grond van nationale veiligheid, met de CLOUD Act als dragend argument. Solvinity wil het onderzoek rond het verbod via de rechter laten heropenen (NOS), dus dit dossier loopt door.\n\nBronnen naast de blogpost zelf: [NL Times](https://nltimes.nl/2026/07/14/court-dutch-cabinet-allowed-ban-us-takeover-digid-firm-solvinity), [NOS](https://nos.nl/artikel/2621945-solvinity-wil-onderzoek-rond-verbod-op-amerikaanse-overname-via-rechter-heropenen)."
+    }
+  ]
 }
