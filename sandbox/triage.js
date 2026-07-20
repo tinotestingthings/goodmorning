@@ -86,13 +86,6 @@
     }, 1800);
   }
 
-  function pad(n) { return n < 10 ? "0" + n : "" + n; }
-
-  function formatQueueTimestamp(d) {
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-      " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
-  }
-
   // ---- per-item note control (mirrors home.js's — each inbox card gets
   // its own note, collected into the same store as task/project/radar
   // notes so one "copy" picks up everything) ----
@@ -486,31 +479,19 @@
   }
 
   function copyDecisions() {
-    var keepIds = [];
-    var dismissIds = [];
-    items.forEach(function (it) {
-      var d = decisions[it.id];
-      if (d === "keep") keepIds.push(it.id);
-      else if (d === "dismiss") dismissIds.push(it.id);
-    });
-
-    var noteLines = DigestNotes.noteLines();
-
-    if (keepIds.length === 0 && dismissIds.length === 0 && noteLines.length === 0) {
+    // Built by the shared DigestQueue helper (loop.js) — same source the
+    // home screen's copy button uses, so the two can never disagree about
+    // what's pending.
+    var queue = DigestQueue.build();
+    if (!queue) {
       toast("Nothing to copy yet");
       return;
     }
 
-    var lines = ["swipe queue " + formatQueueTimestamp(new Date())];
-    keepIds.forEach(function (id) { lines.push("keep: " + id); });
-    dismissIds.forEach(function (id) { lines.push("dismiss: " + id); });
-    noteLines.forEach(function (line) { lines.push(line); });
-    var text = lines.join("\n");
-
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () {
-        var msg = "Copied " + (keepIds.length + dismissIds.length) + " decisions";
-        if (noteLines.length > 0) msg += " + " + noteLines.length + " note" + (noteLines.length === 1 ? "" : "s");
+      navigator.clipboard.writeText(queue.text).then(function () {
+        var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
+        if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
         toast(msg);
       }, function () {
         toast("Copy failed — clipboard blocked");

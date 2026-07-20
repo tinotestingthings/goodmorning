@@ -127,4 +127,61 @@
     hasNotes: hasNotes,
     clearNotes: clearNotes
   };
+
+  // ---- shared queue builder ----
+  // Both "Copy decisions" (Triage) and the home screen's copy button need
+  // to produce the exact same text — decisions plus every note, wherever
+  // it was typed. Reading straight from localStorage here (instead of each
+  // view keeping its own copy of the swipe state) is what guarantees that:
+  // there is only one place that assembles the queue, so the two buttons
+  // can never drift out of sync with each other again.
+  var LS_DECISIONS = "sbx.decisions";
+  var LS_HANDED_OFF = "sbx.handedOff";
+
+  function loadJSON(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function formatTimestamp(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) +
+      " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function pendingDecisions() {
+    var decisions = loadJSON(LS_DECISIONS, {});
+    var handedOff = loadJSON(LS_HANDED_OFF, {});
+    var keep = [], dismiss = [];
+    Object.keys(decisions).forEach(function (id) {
+      if (handedOff[id]) return; // already handed off, not pending anymore
+      if (decisions[id] === "keep") keep.push(id);
+      else if (decisions[id] === "dismiss") dismiss.push(id);
+    });
+    return { keep: keep, dismiss: dismiss };
+  }
+
+  function buildQueue() {
+    var d = pendingDecisions();
+    var notes = noteLines();
+    var decisionCount = d.keep.length + d.dismiss.length;
+    if (decisionCount === 0 && notes.length === 0) return null;
+
+    var lines = ["swipe queue " + formatTimestamp(new Date())];
+    d.keep.forEach(function (id) { lines.push("keep: " + id); });
+    d.dismiss.forEach(function (id) { lines.push("dismiss: " + id); });
+    notes.forEach(function (line) { lines.push(line); });
+
+    return { text: lines.join("\n"), decisionCount: decisionCount, noteCount: notes.length };
+  }
+
+  global.DigestQueue = {
+    pendingDecisions: pendingDecisions,
+    build: buildQueue
+  };
 })(window);

@@ -10,8 +10,6 @@
     return node;
   }
 
-  function pad(n) { return n < 10 ? "0" + n : "" + n; }
-
   function slugify(s) {
     return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   }
@@ -225,29 +223,34 @@
     });
   }
 
-  // ---- notes footer (collects every item note across every section) ----
+  // ---- notes footer ----
+  // One button that collects EVERYTHING pending — every item note across
+  // every section, plus any swipe decisions already made in Triage — using
+  // the same DigestQueue builder Triage's own "Copy decisions" button uses.
+  // Shown whenever there's anything at all to copy, not just when there
+  // are notes, so it works as the single always-available collection point
+  // the home screen is meant to be.
 
   var notesFooter = null;
 
   function updateNotesFooter() {
     if (!notesFooter) return;
-    notesFooter.classList.toggle("hidden", !DigestNotes.hasNotes());
+    var hasQueue = !!DigestQueue.build();
+    notesFooter.classList.toggle("hidden", !hasQueue);
   }
 
   function renderNotesFooter() {
     notesFooter = el("div", "notes-footer hidden");
 
-    var copyBtn = el("button", "btn btn-ghost", "Copy all notes");
+    var copyBtn = el("button", "btn btn-ghost", "Copy queue");
     copyBtn.addEventListener("click", function () {
-      var lines = DigestNotes.noteLines();
-      if (lines.length === 0) { toast("No notes yet"); return; }
-      var d = new Date();
-      var stamp = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-        " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
-      var text = ["morning notes " + stamp].concat(lines).join("\n");
+      var queue = DigestQueue.build();
+      if (!queue) { toast("Nothing to copy yet"); return; }
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () {
-          toast("Copied " + lines.length + " note" + (lines.length === 1 ? "" : "s") + " — paste to Claude");
+        navigator.clipboard.writeText(queue.text).then(function () {
+          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
+          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
+          toast(msg + " — paste to Claude");
         }, function () {
           toast("Copy failed — clipboard blocked");
         });
@@ -284,6 +287,15 @@
     updateNotesFooter();
   }
 
+  // render() can legitimately fire more than once in quick succession (App
+  // re-runs it every time the Today tab is shown, so a fast tab-switch or a
+  // slow network can leave an older call's fetch still in flight when a
+  // newer one starts). Each call stamps its own generation and the async
+  // continuation checks it's still current before touching the DOM — an
+  // older call's late-arriving fetch is discarded instead of duplicating
+  // or clobbering whatever the newest render() already drew.
+  var renderGeneration = 0;
+
 
   // ---- sandbox-only: reset test data ----
   // Sandbox is for repeatedly testing the swipe deck, not for real triage —
@@ -306,6 +318,7 @@
   }
 
   function render() {
+    var myGeneration = ++renderGeneration;
     view.innerHTML = "";
     view.appendChild(renderHero());
     view.appendChild(renderSandboxReset());
@@ -315,8 +328,12 @@
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
       })
-      .then(function (json) { renderDashboard(json); })
+      .then(function (json) {
+        if (myGeneration !== renderGeneration) return;
+        renderDashboard(json);
+      })
       .catch(function () {
+        if (myGeneration !== renderGeneration) return;
         view.appendChild(el("p", "dash-empty", "Could not load feed.json."));
       });
   }
