@@ -117,6 +117,7 @@
         row.appendChild(chip(t.status));
         row.appendChild(el("span", "dash-item-title", t.title));
         li.appendChild(row);
+        if (t.detail) li.appendChild(el("div", "dash-detail", t.detail));
         if (t.hint) li.appendChild(el("div", "dash-hint", t.hint));
         list.appendChild(li);
       });

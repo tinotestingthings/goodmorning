@@ -209,6 +209,7 @@ main#deckArea {
 .card-summary {
   flex: 1;
   overflow-y: auto;
+  touch-action: pan-y;
   font-size: 0.95rem;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -576,7 +577,7 @@ main#deckArea {
 /* ---- tinder swipe ---- */
 
 .card {
-  touch-action: none;
+  touch-action: pan-y;
   will-change: transform;
 }
 
@@ -651,4 +652,107 @@ body::after {
   padding: 6px 14px;
   border-color: #d9a441;
   color: #d9a441;
+}
+
+/* ---- PIN gate ---- */
+
+.pin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.pin-overlay.pin-ok { opacity: 0; }
+
+.pin-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.pin-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pin-dots {
+  display: flex;
+  gap: 18px;
+}
+
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--text-dim);
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.pin-dot.filled {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.pin-shake { animation: pin-shake 0.3s ease; }
+
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.pin-key {
+  appearance: none;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 500;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  transition: background 0.1s ease, transform 0.05s ease;
+}
+
+.pin-key:active {
+  background: var(--border);
+  transform: scale(0.94);
+}
+
+.pin-key-back {
+  background: none;
+  font-size: 1.3rem;
+  color: var(--text-dim);
+}
+
+/* ---- task detail line ---- */
+
+.dash-detail {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text);
+  padding: 2px 0 0 2px;
 }

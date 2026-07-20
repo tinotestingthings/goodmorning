@@ -278,18 +278,19 @@
   // ---- tinder swipe ----
 
   function attachSwipe(card, item, summary, keepBadge, dismissBadge) {
-    // touch-action:none on .card means the browser hands us every pointer
-    // event for the whole gesture — no native scroll to fight with. We
-    // decide the axis ourselves on first meaningful move and then own it:
-    // "x" drives the swipe transform, "y" drives summary.scrollTop by hand.
-    var AXIS_DEADZONE = 8; // px before we commit to an axis
+    // touch-action: pan-y (set in CSS on the card AND the summary) lets the
+    // browser do all vertical scrolling natively — smooth momentum, no JS
+    // in the loop. The browser only hands US the horizontal component, so we
+    // never fight the scroll. We commit to a swipe as soon as horizontal
+    // clearly dominates; otherwise we stay out of the way and let it scroll.
+    var DEADZONE = 6;      // px before we judge direction
     var startX = 0, startY = 0, dx = 0, dy = 0;
-    var lastX = 0, lastY = 0, lastT = 0, vx = 0;
-    var dragging = false, axis = null; // null | "x" | "y"
-    var scrollMax = 0;
+    var lastX = 0, lastT = 0, vx = 0;
+    var tracking = false;  // pointer is down, still watching
+    var swiping = false;   // committed to a horizontal swipe
 
     function setTransform() {
-      card.style.transform = "translate(" + dx + "px," + (dy * 0.12) + "px) rotate(" + (dx * 0.05) + "deg)";
+      card.style.transform = "translate(" + dx + "px,0) rotate(" + (dx * 0.05) + "deg)";
       var strength = Math.min(1, Math.abs(dx) / 90);
       keepBadge.style.opacity = dx > 0 ? strength : 0;
       dismissBadge.style.opacity = dx < 0 ? strength : 0;
@@ -309,58 +310,59 @@
       card.classList.remove("card-dragging");
       card.classList.add("card-animating");
       (direction > 0 ? keepBadge : dismissBadge).style.opacity = 1;
-      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px," +
-        (dy * 0.4 + 40) + "px) rotate(" + (direction * 28) + "deg)";
+      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px,40px) rotate(" +
+        (direction * 28) + "deg)";
       card.style.opacity = "0.3";
       setTimeout(function () { decide(item, action, null); }, 230);
     }
 
     card.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       if (e.target.closest("a, button, textarea")) return;
       startX = e.clientX;
       startY = e.clientY;
       lastX = e.clientX;
-      lastY = e.clientY;
       lastT = e.timeStamp;
       dx = 0; dy = 0; vx = 0;
-      axis = null;
-      dragging = true;
-      scrollMax = Math.max(0, summary.scrollHeight - summary.clientHeight);
-      try { card.setPointerCapture(e.pointerId); } catch (err) {}
+      tracking = true;
+      swiping = false;
     });
 
     card.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
+      if (!tracking) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
-      var stepY = e.clientY - lastY;
 
-      if (!axis) {
-        if (Math.abs(dx) < AXIS_DEADZONE && Math.abs(dy) < AXIS_DEADZONE) return;
-        axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
-        if (axis === "x") card.classList.add("card-dragging");
+      if (!swiping) {
+        if (Math.abs(dx) < DEADZONE && Math.abs(dy) < DEADZONE) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          // horizontal wins -> take over as a swipe
+          swiping = true;
+          card.classList.add("card-dragging");
+          try { card.setPointerCapture(e.pointerId); } catch (err) {}
+        } else {
+          // vertical wins -> hands off; the browser is scrolling natively
+          tracking = false;
+          return;
+        }
       }
 
-      if (axis === "x") {
-        var dt = e.timeStamp - lastT;
-        if (dt > 0) vx = (e.clientX - lastX) / dt;
-        setTransform();
-      } else {
-        // manual scroll: content follows the finger, clamped to bounds
-        summary.scrollTop = Math.max(0, Math.min(scrollMax, summary.scrollTop - stepY));
-      }
-
+      // once swiping, keep the card glued to the finger
+      if (e.cancelable) e.preventDefault();
+      var dt = e.timeStamp - lastT;
+      if (dt > 0) vx = (e.clientX - lastX) / dt;
       lastX = e.clientX;
-      lastY = e.clientY;
       lastT = e.timeStamp;
+      setTransform();
     });
 
     function release() {
-      if (!dragging) return;
-      dragging = false;
-      if (axis !== "x") return;
-      var threshold = Math.min(130, card.offsetWidth * 0.4);
-      if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.6 && Math.abs(dx) > 40)) {
+      if (!tracking && !swiping) return;
+      tracking = false;
+      if (!swiping) return;
+      swiping = false;
+      var threshold = Math.min(120, card.offsetWidth * 0.35);
+      if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.5 && Math.abs(dx) > 30)) {
         flyOut(dx > 0 ? 1 : -1);
       } else {
         reset();

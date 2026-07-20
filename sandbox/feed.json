@@ -49,19 +49,22 @@
         "id": "2026-07-11-piano-practice-current-song-for-lessons",
         "title": "Piano — current song for lessons",
         "status": "doing",
-        "hint": "Your only task in 'doing'"
+        "detail": "Learn the current piece set for your piano lessons. (No song title is recorded in the note yet — worth adding which piece.)",
+        "hint": "Your only task marked 'doing' · captured 2026-07-11"
       },
       {
         "id": "2026-07-13-fix-bios-virtualization-for-cowork",
         "title": "Fix BIOS virtualization for Cowork",
         "status": "todo",
-        "hint": "Step-by-step fix is in the note — unblocks Cowork's sandbox"
+        "detail": "Enable CPU virtualization (SVM / VT-x) in BIOS so Cowork's sandbox stops failing with HYPERVISOR_VIRT_DISABLED. Step-by-step fix is in the note.",
+        "hint": "Blocks Cowork's shell when off · captured 2026-07-13"
       },
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-        "title": "Fill in work compliance topics resources",
+        "title": "Fill in work compliance topics",
         "status": "todo",
-        "hint": "The 'Work compliance topics' project is still placeholders"
+        "detail": "Add real resources/content to the 'Work compliance topics' note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names.",
+        "hint": "Feeds the compliance project · captured 2026-07-14"
       }
     ],
     "projects": [
