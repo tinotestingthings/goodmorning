@@ -198,26 +198,17 @@
     return wrap;
   }
 
-  // ---- dashboard sections ----
+  // ---- shared row helpers (used inside sheet bodies) ----
 
   function chip(status) {
     return el("span", "chip chip-" + status, status);
   }
 
-  function section(title, buildBody) {
-    var sec = el("section", "dash-section");
-    var head = el("div", "dash-head");
-    head.appendChild(el("h2", "dash-title", title));
-    sec.appendChild(head);
-    buildBody(sec);
-    return sec;
-  }
-
-  // A "+N more" disclosure: renders `primary` rows straight into `sec`, and
-  // tucks `rest` behind a small toggle so a long list doesn't dominate the
-  // screen by default. `rowFn` builds one row's DOM for a given item.
-  function collapsible(sec, primary, rest, rowFn) {
-    primary.forEach(function (item) { sec.appendChild(rowFn(item)); });
+  // A "+N more" disclosure: renders `primary` rows straight into `container`,
+  // and tucks `rest` behind a small toggle so a long list doesn't dominate
+  // the sheet by default. `rowFn` builds one row's DOM for a given item.
+  function collapsible(container, primary, rest, rowFn) {
+    primary.forEach(function (item) { container.appendChild(rowFn(item)); });
     if (rest.length === 0) return;
 
     var restWrap = el("div", "dash-more-items hidden");
@@ -232,36 +223,33 @@
       moreBtn.textContent = expanded ? "Show less" : "+" + rest.length + " more";
     });
 
-    sec.appendChild(moreBtn);
-    sec.appendChild(restWrap);
+    container.appendChild(moreBtn);
+    container.appendChild(restWrap);
   }
 
-  function renderTasks(today) {
-    return section("Tasks · suggested", function (sec) {
-      var tasks = today.tasks || [];
-      if (tasks.length === 0) {
-        sec.appendChild(el("p", "dash-empty", "No suggestions today."));
-        return;
-      }
-      var list = el("ul", "dash-list");
-      tasks.forEach(function (t) {
-        var li = el("li", "dash-item");
-        var row = el("div", "dash-row");
-        row.appendChild(chip(t.status));
-        row.appendChild(el("span", "dash-item-title", t.title));
-        var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
-        row.appendChild(nc.btn);
-        li.appendChild(row);
-        // Detail + hint used to be two separate lines; folded into one
-        // compact line to cut the row's height, since both are short,
-        // subordinate context rather than primary information.
-        var sub = [t.detail, t.hint].filter(Boolean).join(" · ");
-        if (sub) li.appendChild(el("div", "dash-hint", sub));
-        li.appendChild(nc.textarea);
-        list.appendChild(li);
-      });
-      sec.appendChild(list);
-    });
+  function taskRow(t) {
+    var li = el("li", "dash-item");
+    var row = el("div", "dash-row");
+    row.appendChild(chip(t.status));
+    row.appendChild(el("span", "dash-item-title", t.title));
+    var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
+    row.appendChild(nc.btn);
+    li.appendChild(row);
+    var sub = [t.detail, t.hint].filter(Boolean).join(" · ");
+    if (sub) li.appendChild(el("div", "dash-hint", sub));
+    li.appendChild(nc.textarea);
+    return li;
+  }
+
+  function buildTasksBody(container, today) {
+    var tasks = today.tasks || [];
+    if (tasks.length === 0) {
+      container.appendChild(el("p", "dash-empty", "No suggestions today."));
+      return;
+    }
+    var list = el("ul", "dash-list");
+    tasks.forEach(function (t) { list.appendChild(taskRow(t)); });
+    container.appendChild(list);
   }
 
   function projectRow(p) {
@@ -278,25 +266,20 @@
     return li;
   }
 
-  function renderProjects(today) {
-    return section("Projects", function (sec) {
-      var projects = today.projects || [];
-      if (projects.length === 0) {
-        sec.appendChild(el("p", "dash-empty", "No project data in feed."));
-        return;
-      }
-      var order = { active: 0, paused: 1, "idea-stage": 2 };
-      var sorted = projects.slice().sort(function (a, b) {
-        return (order[a.status] || 0) - (order[b.status] || 0);
-      });
-      // Active projects are what's moving — show those by default. Paused
-      // and idea-stage ones are still there, just a tap away, instead of
-      // permanently taking up screen space alongside what's actually live.
-      var primary = sorted.filter(function (p) { return p.status === "active"; });
-      var rest = sorted.filter(function (p) { return p.status !== "active"; });
-      if (primary.length === 0) { primary = sorted; rest = []; } // nothing active — just show what there is
-      collapsible(sec, primary, rest, projectRow);
+  function buildProjectsBody(container, today) {
+    var projects = today.projects || [];
+    if (projects.length === 0) {
+      container.appendChild(el("p", "dash-empty", "No project data in feed."));
+      return;
+    }
+    var order = { active: 0, paused: 1, "idea-stage": 2 };
+    var sorted = projects.slice().sort(function (a, b) {
+      return (order[a.status] || 0) - (order[b.status] || 0);
     });
+    var primary = sorted.filter(function (p) { return p.status === "active"; });
+    var rest = sorted.filter(function (p) { return p.status !== "active"; });
+    if (primary.length === 0) { primary = sorted; rest = []; }
+    collapsible(container, primary, rest, projectRow);
   }
 
   function daysUntil(dateStr) {
@@ -324,30 +307,146 @@
     return li;
   }
 
-  function renderRadar(today) {
-    return section("Compliance radar", function (sec) {
-      var radar = today.radar;
-      if (!radar) {
-        sec.appendChild(el("p", "dash-empty", "No radar data in feed."));
-        return;
+  function buildRadarBody(container, today) {
+    var radar = today.radar;
+    if (!radar) {
+      container.appendChild(el("p", "dash-empty", "No radar data in feed."));
+      return;
+    }
+    var meta = el("div", "dash-meta");
+    var followUps = radar.follow_ups || 0;
+    meta.textContent = "updated " + (radar.updated || "?") + " · " +
+      followUps + " follow-up" + (followUps === 1 ? "" : "s") + " open";
+    container.appendChild(meta);
+
+    if (radar.headline) container.appendChild(el("p", "radar-headline", radar.headline));
+
+    var deadlines = radar.deadlines || [];
+    var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);
+    var rest = deadlines.slice(RADAR_VISIBLE_DEFAULT);
+    collapsible(container, primary, rest, deadlineRow);
+  }
+
+  // ---- icon tiles + bottom sheet ----
+  // The dashboard used to show Tasks/Projects/Radar fully expanded, all at
+  // once. That's now three tappable icon tiles with a count badge each —
+  // the home screen stays tiny, and tapping a tile slides its content up as
+  // a sheet instead of permanently taking up space.
+
+  var ICON_TASKS =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 10h8M8 14h5"/></svg>';
+  var ICON_PROJECTS =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 7.5 12 4l8 3.5-8 3.5-8-3.5Z"/><path d="M4 12l8 3.5 8-3.5"/><path d="M4 16.5 12 20l8-3.5"/></svg>';
+  var ICON_RADAR =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3"/></svg>';
+  var ICON_CLOSE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>';
+
+  function tile(key, label, iconSvg, badgeText, badgeClass, onOpen) {
+    var t = document.createElement("button");
+    t.type = "button";
+    t.className = "tile tile-" + key;
+    if (badgeText) t.appendChild(el("span", "tile-badge " + badgeClass, badgeText));
+    var iconWrap = el("div", "tile-icon");
+    iconWrap.innerHTML = iconSvg;
+    t.appendChild(iconWrap);
+    t.appendChild(el("span", "tile-label", label));
+    t.addEventListener("click", onOpen);
+    return t;
+  }
+
+  function renderTileGrid(today) {
+    var grid = el("div", "tile-grid");
+
+    var taskCount = (today.tasks || []).length;
+    grid.appendChild(tile("tasks", "Tasks", ICON_TASKS, taskCount > 0 ? String(taskCount) : "", "tile-badge-blue", function () {
+      openSheet("Tasks", ICON_TASKS, function (body) { buildTasksBody(body, today); });
+    }));
+
+    var projects = today.projects || [];
+    var activeCount = projects.filter(function (p) { return p.status === "active"; }).length;
+    var projectBadge = activeCount > 0 ? String(activeCount) : (projects.length > 0 ? String(projects.length) : "");
+    grid.appendChild(tile("projects", "Projects", ICON_PROJECTS, projectBadge, "tile-badge-green", function () {
+      openSheet("Projects", ICON_PROJECTS, function (body) { buildProjectsBody(body, today); });
+    }));
+
+    var radar = today.radar;
+    var radarBadge = "", radarBadgeClass = "tile-badge-gray";
+    if (radar) {
+      if (radar.follow_ups > 0) {
+        radarBadge = String(radar.follow_ups);
+        radarBadgeClass = "tile-badge-red";
+      } else if (radar.deadlines && radar.deadlines.length > 0) {
+        var days = daysUntil(radar.deadlines[0].date);
+        radarBadge = days < 0 ? "past" : days + "d";
+        radarBadgeClass = days <= 7 ? "tile-badge-red" : days <= 30 ? "tile-badge-amber" : "tile-badge-gray";
       }
+    }
+    grid.appendChild(tile("radar", "Radar", ICON_RADAR, radarBadge, radarBadgeClass, function () {
+      openSheet("Compliance radar", ICON_RADAR, function (body) { buildRadarBody(body, today); });
+    }));
 
-      var meta = el("div", "dash-meta");
-      var followUps = radar.follow_ups || 0;
-      meta.textContent = "updated " + (radar.updated || "?") + " · " +
-        followUps + " follow-up" + (followUps === 1 ? "" : "s") + " open";
-      sec.appendChild(meta);
+    return grid;
+  }
 
-      if (radar.headline) sec.appendChild(el("p", "radar-headline", radar.headline));
+  var sheetBackdrop = null, sheetPanel = null, sheetBody = null, sheetTitleEl = null, sheetIconEl = null;
 
-      // Deadlines are already date-sorted soonest-first by the feed builder
-      // — only the ones actually coming up matter at a glance; the rest is
-      // a tap away instead of a wall of dates.
-      var deadlines = radar.deadlines || [];
-      var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);
-      var rest = deadlines.slice(RADAR_VISIBLE_DEFAULT);
-      collapsible(sec, primary, rest, deadlineRow);
+  function ensureSheet() {
+    if (sheetBackdrop) return;
+
+    sheetBackdrop = el("div", "sheet-backdrop");
+    sheetBackdrop.addEventListener("click", closeSheet);
+    document.body.appendChild(sheetBackdrop);
+
+    sheetPanel = el("div", "sheet-panel");
+    sheetPanel.appendChild(el("div", "sheet-handle"));
+
+    var header = el("div", "sheet-header");
+    sheetIconEl = el("div", "sheet-icon");
+    header.appendChild(sheetIconEl);
+    sheetTitleEl = el("div", "sheet-title");
+    header.appendChild(sheetTitleEl);
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "sheet-close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.innerHTML = ICON_CLOSE;
+    closeBtn.addEventListener("click", closeSheet);
+    header.appendChild(closeBtn);
+    sheetPanel.appendChild(header);
+
+    sheetBody = el("div", "sheet-body");
+    sheetPanel.appendChild(sheetBody);
+
+    document.body.appendChild(sheetPanel);
+  }
+
+  function openSheet(title, iconSvg, buildBody) {
+    ensureSheet();
+    sheetTitleEl.textContent = title;
+    sheetIconEl.innerHTML = iconSvg;
+    sheetBody.innerHTML = "";
+    buildBody(sheetBody);
+    document.body.classList.add("sheet-open");
+    // Two classList changes in the same frame wouldn't transition (browser
+    // coalesces them and jumps straight to the end state) — defer to the
+    // next frame so the panel actually animates in from off-screen. Falls
+    // back to a 0ms timeout in environments without rAF (e.g. test harnesses).
+    var raf = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
+    raf(function () {
+      sheetBackdrop.classList.add("open");
+      sheetPanel.classList.add("open");
     });
+  }
+
+  function closeSheet() {
+    if (!sheetBackdrop) return;
+    sheetBackdrop.classList.remove("open");
+    sheetPanel.classList.remove("open");
+    document.body.classList.remove("sheet-open");
   }
 
   // ---- notes footer ----
@@ -398,22 +497,6 @@
     return notesFooter;
   }
 
-  function renderDashboard(feed) {
-    var today = feed && feed.today;
-    var dash = el("div", "dashboard");
-    if (!today) {
-      dash.appendChild(el("p", "dash-empty", "No dashboard data in today's feed."));
-      view.appendChild(dash);
-      return;
-    }
-    dash.appendChild(renderTasks(today));
-    dash.appendChild(renderProjects(today));
-    dash.appendChild(renderRadar(today));
-    dash.appendChild(renderNotesFooter());
-    view.appendChild(dash);
-    updateNotesFooter();
-  }
-
   // render() can legitimately fire more than once in quick succession (App
   // re-runs it every time the Today tab is shown, so a fast tab-switch or a
   // slow network can leave an older call's fetch still in flight when a
@@ -446,6 +529,7 @@
 
   function render() {
     var myGeneration = ++renderGeneration;
+    closeSheet();
     view.innerHTML = "";
     view.appendChild(renderHero());
     view.appendChild(renderSandboxReset());
@@ -457,7 +541,14 @@
       })
       .then(function (json) {
         if (myGeneration !== renderGeneration) return;
-        renderDashboard(json);
+        var today = json && json.today;
+        if (!today) {
+          view.appendChild(el("p", "dash-empty", "No dashboard data in today's feed."));
+          return;
+        }
+        view.appendChild(renderTileGrid(today));
+        view.appendChild(renderNotesFooter());
+        updateNotesFooter();
       })
       .catch(function () {
         if (myGeneration !== renderGeneration) return;
@@ -468,9 +559,13 @@
   // Re-render every time the Today tab becomes active, not just once at
   // boot — the hero (and streak, and note buttons reflecting notes typed
   // in the Triage tab) need to reflect state changed elsewhere in the app
-  // without a page reload.
+  // without a page reload. Also close the sheet whenever the user leaves
+  // Today for another tab — it's a fixed-position overlay appended to
+  // <body>, so it would otherwise float on top of Triage/Practice too.
   if (window.App && App.onShow) {
     App.onShow("today", render);
+    App.onShow("triage", closeSheet);
+    App.onShow("practice", closeSheet);
   }
   render();
 })();
