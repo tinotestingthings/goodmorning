@@ -3,6 +3,7 @@
 
   var LS_STEP = "sbx.loop.step";
   var LS_COMPLETED_DATE = "sbx.loop.completedDate";
+  var LS_STREAK = "sbx.loop.streak";
 
   function getStep() {
     return localStorage.getItem(LS_STEP) || null;
@@ -15,17 +16,34 @@
   function clearStep() {
     localStorage.removeItem(LS_STEP);
     localStorage.removeItem(LS_COMPLETED_DATE);
+    // streak is deliberately kept across "do it again" / clearStep — it
+    // tracks calendar-day completion, not loop resets.
+  }
+
+  function isoDate(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
   }
 
   function markDoneToday() {
+    var today = isoDate(new Date());
+    var prevCompleted = localStorage.getItem(LS_COMPLETED_DATE);
+    if (prevCompleted !== today) {
+      var yesterday = isoDate(new Date(Date.now() - 86400000));
+      var prevStreak = parseInt(localStorage.getItem(LS_STREAK), 10) || 0;
+      var streak = (prevCompleted === yesterday) ? prevStreak + 1 : 1;
+      localStorage.setItem(LS_STREAK, String(streak));
+    }
     setStep("done");
-    var d = new Date();
-    var iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    localStorage.setItem(LS_COMPLETED_DATE, iso);
+    localStorage.setItem(LS_COMPLETED_DATE, today);
   }
 
   function getCompletedDate() {
     return localStorage.getItem(LS_COMPLETED_DATE);
+  }
+
+  function getStreak() {
+    return parseInt(localStorage.getItem(LS_STREAK), 10) || 0;
   }
 
   global.DigestLoop = {
@@ -33,7 +51,8 @@
     setStep: setStep,
     clearStep: clearStep,
     markDoneToday: markDoneToday,
-    getCompletedDate: getCompletedDate
+    getCompletedDate: getCompletedDate,
+    getStreak: getStreak
   };
 
   // ---- morning notes (home dashboard scratch notes, exported with the queue) ----

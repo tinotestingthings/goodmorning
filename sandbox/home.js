@@ -39,20 +39,33 @@
       h1.textContent = "Done for today ✓";
       var completed = DigestLoop.getCompletedDate();
       p.textContent = completed ? "Completed " + completed + "." : "Completed.";
-      var againBtn = el("a", "btn btn-ghost", "Do it again");
-      againBtn.href = "triage.html";
+      var streak = DigestLoop.getStreak();
+      if (streak > 1) {
+        var streakEl = el("div", "streak-chip");
+        streakEl.innerHTML = '<svg class="streak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a6.5 6.5 0 1 1-13 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+        var streakLabel = document.createElement("span");
+        streakLabel.textContent = streak + " day streak";
+        streakEl.appendChild(streakLabel);
+        actions.appendChild(streakEl);
+      }
+      var againBtn = el("button", "btn btn-ghost", "Do it again");
+      againBtn.addEventListener("click", function () {
+        DigestLoop.clearStep();
+        App.go("triage");
+        render();
+      });
       actions.appendChild(againBtn);
     } else if (step === "triage" || step === "practice") {
       h1.textContent = "Daily Digest";
       p.textContent = "Pick up where you left off.";
-      var resumeBtn = el("a", "btn btn-primary", "Resume: " + (step === "triage" ? "Triage" : "Practice"));
-      resumeBtn.href = step + ".html";
+      var resumeBtn = el("button", "btn btn-primary", "Resume: " + (step === "triage" ? "Triage" : "Practice"));
+      resumeBtn.addEventListener("click", function () { App.go(step); });
       actions.appendChild(resumeBtn);
     } else {
       h1.textContent = "Daily Digest";
       p.textContent = "Your morning ritual, start to finish.";
-      var startBtn = el("a", "btn btn-primary", "Start today's loop");
-      startBtn.href = "triage.html";
+      var startBtn = el("button", "btn btn-primary", "Start today's loop");
+      startBtn.addEventListener("click", function () { App.go("triage"); });
       actions.appendChild(startBtn);
     }
 
@@ -223,17 +236,6 @@
     return notesFooter;
   }
 
-  // ---- feed loading ----
-
-  function loadJSON(key, fallback) {
-    try {
-      var raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
-
   function renderDashboard(feed) {
     var today = feed && feed.today;
     var dash = el("div", "dashboard");
@@ -250,6 +252,7 @@
     updateNotesFooter();
   }
 
+
   // ---- sandbox-only: reset test data ----
   // Sandbox is for repeatedly testing the swipe deck, not for real triage —
   // so unlike the live app, decisions/hand-offs shouldn't just accumulate
@@ -258,7 +261,7 @@
 
   function renderSandboxReset() {
     var wrap = el("div", "sandbox-reset");
-    var btn = el("button", "btn btn-ghost btn-reset-sandbox", "↺ Reset sandbox data");
+    var btn = el("button", "btn btn-ghost btn-reset-sandbox", "\u21ba Reset sandbox data");
     btn.addEventListener("click", function () {
       if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
       Object.keys(localStorage).forEach(function (key) {
@@ -286,5 +289,11 @@
       });
   }
 
+  // Re-render every time the Today tab becomes active, not just once at
+  // boot — the hero (and streak) needs to reflect state changed elsewhere
+  // in the app (e.g. finishing triage/practice) without a page reload.
+  if (window.App && App.onShow) {
+    App.onShow("today", render);
+  }
   render();
 })();
