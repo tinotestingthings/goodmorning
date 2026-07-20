@@ -15,6 +15,13 @@
   var pointer = 0;
   var lastAction = null; // { type: "decide"|"skip", id, prevPointer }
 
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
   function vibrate(ms) {
     if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
   }
@@ -140,6 +147,19 @@
     return btn;
   }
 
+  // ---- progress dots (replaces the old "3 of 6" text) ----
+
+  function renderProgressDots() {
+    var wrap = document.createElement("div");
+    wrap.className = "progress-dots";
+    items.forEach(function (it, i) {
+      var dot = document.createElement("span");
+      dot.className = "dot" + (i < pointer ? " dot-done" : i === pointer ? " dot-current" : "");
+      wrap.appendChild(dot);
+    });
+    return wrap;
+  }
+
   // ---- rendering ----
 
   function render() {
@@ -174,8 +194,19 @@
   function renderCard(item) {
     var progress = document.createElement("div");
     progress.className = "progress";
-    progress.textContent = (pointer + 1) + " of " + items.length;
+    progress.appendChild(renderProgressDots());
+    progress.appendChild(el("span", "progress-fraction", (pointer + 1) + "/" + items.length));
     deckArea.appendChild(progress);
+
+    var cardWrap = document.createElement("div");
+    cardWrap.className = "card-wrap";
+
+    // Decorative sliver of the "next" card peeking out behind the current
+    // one, so the deck reads as a physical stack rather than a single flat
+    // panel — purely visual, carries no state.
+    var stackShadow = document.createElement("div");
+    stackShadow.className = "card-stack-shadow";
+    cardWrap.appendChild(stackShadow);
 
     var card = document.createElement("div");
     card.className = "card";
@@ -233,7 +264,8 @@
     dismissBadge.textContent = "NOPE";
     card.appendChild(dismissBadge);
 
-    deckArea.appendChild(card);
+    cardWrap.appendChild(card);
+    deckArea.appendChild(cardWrap);
 
     attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
@@ -266,6 +298,12 @@
   }
 
   function renderComplete() {
+    var progress = document.createElement("div");
+    progress.className = "progress";
+    progress.appendChild(renderProgressDots());
+    progress.appendChild(el("span", "progress-fraction", items.length + "/" + items.length));
+    deckArea.appendChild(progress);
+
     var counts = { keep: 0, dismiss: 0, skipped: 0 };
     items.forEach(function (it) {
       var d = decisions[it.id];
@@ -564,6 +602,9 @@
     // "done" step back to "triage".
     loadState();
     loadCommittedFeed();
+
+    var backBtn = document.getElementById("triageBackBtn");
+    if (backBtn && window.App) backBtn.addEventListener("click", function () { App.go("today"); });
   }
 
   init();

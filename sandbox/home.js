@@ -66,54 +66,136 @@
     return { btn: btn, textarea: ta };
   }
 
-  // ---- hero (loop entry) ----
+  // ---- header: date + personalized greeting ----
 
-  function renderHero() {
-    var hero = el("div", "home-hero");
-    var step = DigestLoop.getStep();
+  function greetingWord() {
+    var h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 18) return "Good afternoon";
+    return "Good evening";
+  }
 
-    var h1 = el("h1");
-    var p = el("p");
-    var actions = el("div", "home-actions");
+  function formattedDate() {
+    try {
+      return new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    } catch (e) {
+      return "";
+    }
+  }
 
-    if (step === "done") {
-      h1.textContent = "Done for today ✓";
-      var completed = DigestLoop.getCompletedDate();
-      p.textContent = completed ? "Completed " + completed + "." : "Completed.";
-      var streak = DigestLoop.getStreak();
-      if (streak > 1) {
-        var streakEl = el("div", "streak-chip");
-        streakEl.innerHTML = '<svg class="streak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a6.5 6.5 0 1 1-13 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
-        var streakLabel = document.createElement("span");
-        streakLabel.textContent = streak + " day streak";
-        streakEl.appendChild(streakLabel);
-        actions.appendChild(streakEl);
-      }
-      var againBtn = el("button", "btn btn-ghost", "Do it again");
-      againBtn.addEventListener("click", function () {
-        DigestLoop.clearStep();
-        App.go("triage");
-        render();
-      });
-      actions.appendChild(againBtn);
-    } else if (step === "triage" || step === "practice") {
-      h1.textContent = "Daily Digest";
-      p.textContent = "Pick up where you left off.";
-      var resumeBtn = el("button", "btn btn-primary", "Resume: " + (step === "triage" ? "Triage" : "Practice"));
-      resumeBtn.addEventListener("click", function () { App.go(step); });
-      actions.appendChild(resumeBtn);
-    } else {
-      h1.textContent = "Daily Digest";
-      p.textContent = "Your morning ritual, start to finish.";
-      var startBtn = el("button", "btn btn-primary", "Start today's loop");
-      startBtn.addEventListener("click", function () { App.go("triage"); });
-      actions.appendChild(startBtn);
+  function renderHeader() {
+    var header = el("div", "home-header");
+    header.appendChild(el("div", "home-date", formattedDate()));
+    header.appendChild(el("h1", "home-greeting", greetingWord() + ", Tinus"));
+    return header;
+  }
+
+  // ---- progress ring (small SVG, used on the loop card) ----
+
+  function progressRing(fraction, label) {
+    var r = 18, c = Math.round(2 * Math.PI * r);
+    var offset = Math.round(c * (1 - fraction));
+    var wrap = document.createElement("div");
+    wrap.className = "ring";
+    wrap.innerHTML =
+      '<svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true">' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="var(--border)" stroke-width="4"/>' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="var(--keep)" stroke-width="4" ' +
+          'stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + offset + '" ' +
+          'transform="rotate(-90 22 22)"/>' +
+      '</svg>' +
+      '<span class="ring-label">' + label + '</span>';
+    return wrap;
+  }
+
+  // ---- loop card (not-started / in-progress) ----
+
+  function renderLoopCard(step) {
+    var card = document.createElement("button");
+    card.type = "button";
+    card.className = "loop-card";
+
+    var fraction = step === "triage" ? 1 / 3 : step === "practice" ? 2 / 3 : 0;
+    var label = step === "triage" ? "1/3" : step === "practice" ? "2/3" : "0/3";
+    card.appendChild(progressRing(fraction, label));
+
+    var text = el("div", "loop-card-text");
+    text.appendChild(el("div", "loop-card-title", "Morning loop"));
+    var sub = step === "triage" ? "Continue: Triage →" :
+      step === "practice" ? "Continue: Practice →" : "Start today's loop →";
+    text.appendChild(el("div", "loop-card-sub", sub));
+    card.appendChild(text);
+
+    card.addEventListener("click", function () { App.go(step === "practice" ? "practice" : "triage"); });
+    return card;
+  }
+
+  // ---- done card (celebratory, replaces the loop card once finished) ----
+
+  function renderDoneCard() {
+    var card = el("div", "done-card");
+
+    var badge = el("div", "done-badge");
+    badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+    card.appendChild(badge);
+
+    card.appendChild(el("div", "done-title", "Done for today"));
+
+    var d = DigestQueue.pendingDecisions();
+    var countsText = (d.keep.length + d.dismiss.length) > 0
+      ? d.keep.length + " keep · " + d.dismiss.length + " dismiss"
+      : (DigestLoop.getCompletedDate() ? "Completed " + DigestLoop.getCompletedDate() : "Completed");
+    card.appendChild(el("div", "done-counts", countsText));
+
+    var streak = DigestLoop.getStreak();
+    if (streak > 1) {
+      var streakEl = el("div", "streak-chip");
+      streakEl.innerHTML = '<svg class="streak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a6.5 6.5 0 1 1-13 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+      var streakLabel = document.createElement("span");
+      streakLabel.textContent = streak + " day streak";
+      streakEl.appendChild(streakLabel);
+      card.appendChild(streakEl);
     }
 
-    hero.appendChild(h1);
-    hero.appendChild(p);
-    hero.appendChild(actions);
-    return hero;
+    var copyBtn = el("button", "btn btn-primary done-copy-btn");
+    copyBtn.type = "button";
+    copyBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy queue</span>';
+    copyBtn.addEventListener("click", function () {
+      var queue = DigestQueue.build();
+      if (!queue) { toast("Nothing to copy yet"); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(queue.text).then(function () {
+          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
+          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
+          toast(msg + " — paste to Claude");
+        }, function () { toast("Copy failed — clipboard blocked"); });
+      } else {
+        toast("Clipboard not available");
+      }
+    });
+    card.appendChild(copyBtn);
+
+    var hint = el("div", "done-hint", "paste in Claude — cards get cleared up");
+    card.appendChild(hint);
+
+    var againBtn = el("button", "btn btn-undo done-again-btn", "Do it again");
+    againBtn.type = "button";
+    againBtn.addEventListener("click", function () {
+      DigestLoop.clearStep();
+      App.go("triage");
+      render();
+    });
+    card.appendChild(againBtn);
+
+    return card;
+  }
+
+  function renderHero() {
+    var wrap = el("div", "home-hero");
+    wrap.appendChild(renderHeader());
+    var step = DigestLoop.getStep();
+    wrap.appendChild(step === "done" ? renderDoneCard() : renderLoopCard(step));
+    return wrap;
   }
 
   // ---- dashboard sections ----
