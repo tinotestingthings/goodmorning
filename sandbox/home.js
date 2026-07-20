@@ -327,11 +327,14 @@
     collapsible(container, primary, rest, deadlineRow);
   }
 
-  // ---- icon tiles + bottom sheet ----
+  // ---- icon tiles + inline accordion ----
   // The dashboard used to show Tasks/Projects/Radar fully expanded, all at
-  // once. That's now three tappable icon tiles with a count badge each —
-  // the home screen stays tiny, and tapping a tile slides its content up as
-  // a sheet instead of permanently taking up space.
+  // once. That's now three big tappable icon tiles with a count badge each
+  // — the home screen stays small by default, and tapping a tile expands
+  // its content directly below the tile row (only one open at a time),
+  // right in the page's own scroll. No overlay, so it can never cover the
+  // tab bar, and there's no height cap — scrolling it is just scrolling
+  // the page.
 
   var ICON_TASKS =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -342,10 +345,8 @@
   var ICON_RADAR =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3"/></svg>';
-  var ICON_CLOSE =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>';
 
-  function tile(key, label, iconSvg, badgeText, badgeClass, onOpen) {
+  function tile(key, label, iconSvg, badgeText, badgeClass, onToggle) {
     var t = document.createElement("button");
     t.type = "button";
     t.className = "tile tile-" + key;
@@ -354,99 +355,79 @@
     iconWrap.innerHTML = iconSvg;
     t.appendChild(iconWrap);
     t.appendChild(el("span", "tile-label", label));
-    t.addEventListener("click", onOpen);
+    t.addEventListener("click", onToggle);
     return t;
   }
 
-  function renderTileGrid(today) {
-    var grid = el("div", "tile-grid");
+  function taskBadge(today) {
+    var n = (today.tasks || []).length;
+    return { text: n > 0 ? String(n) : "", cls: "tile-badge-blue" };
+  }
 
-    var taskCount = (today.tasks || []).length;
-    grid.appendChild(tile("tasks", "Tasks", ICON_TASKS, taskCount > 0 ? String(taskCount) : "", "tile-badge-blue", function () {
-      openSheet("Tasks", ICON_TASKS, function (body) { buildTasksBody(body, today); });
-    }));
-
+  function projectBadge(today) {
     var projects = today.projects || [];
-    var activeCount = projects.filter(function (p) { return p.status === "active"; }).length;
-    var projectBadge = activeCount > 0 ? String(activeCount) : (projects.length > 0 ? String(projects.length) : "");
-    grid.appendChild(tile("projects", "Projects", ICON_PROJECTS, projectBadge, "tile-badge-green", function () {
-      openSheet("Projects", ICON_PROJECTS, function (body) { buildProjectsBody(body, today); });
-    }));
+    var active = projects.filter(function (p) { return p.status === "active"; }).length;
+    var n = active > 0 ? active : projects.length;
+    return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
+  }
 
+  function radarBadge(today) {
     var radar = today.radar;
-    var radarBadge = "", radarBadgeClass = "tile-badge-gray";
-    if (radar) {
-      if (radar.follow_ups > 0) {
-        radarBadge = String(radar.follow_ups);
-        radarBadgeClass = "tile-badge-red";
-      } else if (radar.deadlines && radar.deadlines.length > 0) {
-        var days = daysUntil(radar.deadlines[0].date);
-        radarBadge = days < 0 ? "past" : days + "d";
-        radarBadgeClass = days <= 7 ? "tile-badge-red" : days <= 30 ? "tile-badge-amber" : "tile-badge-gray";
-      }
+    if (!radar) return { text: "", cls: "tile-badge-gray" };
+    if (radar.follow_ups > 0) return { text: String(radar.follow_ups), cls: "tile-badge-red" };
+    if (radar.deadlines && radar.deadlines.length > 0) {
+      var days = daysUntil(radar.deadlines[0].date);
+      var text = days < 0 ? "past" : days + "d";
+      var cls = days <= 7 ? "tile-badge-red" : days <= 30 ? "tile-badge-amber" : "tile-badge-gray";
+      return { text: text, cls: cls };
     }
-    grid.appendChild(tile("radar", "Radar", ICON_RADAR, radarBadge, radarBadgeClass, function () {
-      openSheet("Compliance radar", ICON_RADAR, function (body) { buildRadarBody(body, today); });
-    }));
-
-    return grid;
+    return { text: "", cls: "tile-badge-gray" };
   }
 
-  var sheetBackdrop = null, sheetPanel = null, sheetBody = null, sheetTitleEl = null, sheetIconEl = null;
+  function renderDashboardArea(today) {
+    var wrap = el("div", "dashboard-area");
+    var grid = el("div", "tile-grid");
+    var accordionBody = el("div", "accordion-body");
 
-  function ensureSheet() {
-    if (sheetBackdrop) return;
+    var sections = [
+      { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
+        build: function (c) { buildTasksBody(c, today); } },
+      { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
+        build: function (c) { buildProjectsBody(c, today); } },
+      { key: "radar", label: "Radar", icon: ICON_RADAR, badge: radarBadge(today),
+        build: function (c) { buildRadarBody(c, today); } }
+    ];
 
-    sheetBackdrop = el("div", "sheet-backdrop");
-    sheetBackdrop.addEventListener("click", closeSheet);
-    document.body.appendChild(sheetBackdrop);
+    var openKey = null;
+    var tileEls = {};
 
-    sheetPanel = el("div", "sheet-panel");
-    sheetPanel.appendChild(el("div", "sheet-handle"));
+    function renderBody() {
+      accordionBody.innerHTML = "";
+      if (!openKey) return;
+      var sec = sections.filter(function (s) { return s.key === openKey; })[0];
+      var card = el("div", "accordion-card");
+      card.appendChild(el("div", "accordion-card-title", sec.label));
+      sec.build(card);
+      accordionBody.appendChild(card);
+    }
 
-    var header = el("div", "sheet-header");
-    sheetIconEl = el("div", "sheet-icon");
-    header.appendChild(sheetIconEl);
-    sheetTitleEl = el("div", "sheet-title");
-    header.appendChild(sheetTitleEl);
-    var closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "sheet-close";
-    closeBtn.setAttribute("aria-label", "Close");
-    closeBtn.innerHTML = ICON_CLOSE;
-    closeBtn.addEventListener("click", closeSheet);
-    header.appendChild(closeBtn);
-    sheetPanel.appendChild(header);
+    function setOpen(key) {
+      openKey = (openKey === key) ? null : key;
+      Object.keys(tileEls).forEach(function (k) {
+        tileEls[k].classList.toggle("tile-active", k === openKey);
+      });
+      renderBody();
+    }
 
-    sheetBody = el("div", "sheet-body");
-    sheetPanel.appendChild(sheetBody);
-
-    document.body.appendChild(sheetPanel);
-  }
-
-  function openSheet(title, iconSvg, buildBody) {
-    ensureSheet();
-    sheetTitleEl.textContent = title;
-    sheetIconEl.innerHTML = iconSvg;
-    sheetBody.innerHTML = "";
-    buildBody(sheetBody);
-    document.body.classList.add("sheet-open");
-    // Two classList changes in the same frame wouldn't transition (browser
-    // coalesces them and jumps straight to the end state) — defer to the
-    // next frame so the panel actually animates in from off-screen. Falls
-    // back to a 0ms timeout in environments without rAF (e.g. test harnesses).
-    var raf = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
-    raf(function () {
-      sheetBackdrop.classList.add("open");
-      sheetPanel.classList.add("open");
+    sections.forEach(function (s) {
+      var t = tile(s.key, s.label, s.icon, s.badge.text, s.badge.cls, function () { setOpen(s.key); });
+      tileEls[s.key] = t;
+      grid.appendChild(t);
     });
-  }
 
-  function closeSheet() {
-    if (!sheetBackdrop) return;
-    sheetBackdrop.classList.remove("open");
-    sheetPanel.classList.remove("open");
-    document.body.classList.remove("sheet-open");
+    wrap.appendChild(grid);
+    wrap.appendChild(accordionBody);
+    return wrap;
   }
 
   // ---- notes footer ----
@@ -529,7 +510,6 @@
 
   function render() {
     var myGeneration = ++renderGeneration;
-    closeSheet();
     view.innerHTML = "";
     view.appendChild(renderHero());
     view.appendChild(renderSandboxReset());
@@ -546,7 +526,7 @@
           view.appendChild(el("p", "dash-empty", "No dashboard data in today's feed."));
           return;
         }
-        view.appendChild(renderTileGrid(today));
+        view.appendChild(renderDashboardArea(today));
         view.appendChild(renderNotesFooter());
         updateNotesFooter();
       })
@@ -559,13 +539,11 @@
   // Re-render every time the Today tab becomes active, not just once at
   // boot — the hero (and streak, and note buttons reflecting notes typed
   // in the Triage tab) need to reflect state changed elsewhere in the app
-  // without a page reload. Also close the sheet whenever the user leaves
-  // Today for another tab — it's a fixed-position overlay appended to
-  // <body>, so it would otherwise float on top of Triage/Practice too.
+  // without a page reload. The accordion's open/closed state is local to
+  // this render pass and simply resets to closed each time, which is fine
+  // — there's no overlay to worry about leaving stuck open on another tab.
   if (window.App && App.onShow) {
     App.onShow("today", render);
-    App.onShow("triage", closeSheet);
-    App.onShow("practice", closeSheet);
   }
   render();
 })();
