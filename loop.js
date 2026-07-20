@@ -55,10 +55,14 @@
     getStreak: getStreak
   };
 
-  // ---- morning notes (home dashboard scratch notes, exported with the queue) ----
-
+  // ---- per-item notes ----
+  // One note per individual item (a task, a project, a radar deadline, a
+  // triage/inbox card) instead of one note for a whole section. Stored as
+  // { section: { itemId: "text" } }. All sections share this single store
+  // so any "collect notes" button (Today's Copy notes, Triage's Copy
+  // decisions) picks up everything — including inbox notes — in one pass.
   var LS_NOTES = "dd.notes";
-  var NOTE_KEYS = ["tasks", "projects", "radar"];
+  var SECTION_ORDER = ["triage", "tasks", "projects", "radar"];
 
   function getNotes() {
     try {
@@ -68,21 +72,47 @@
     }
   }
 
-  function setNote(key, text) {
-    var notes = getNotes();
-    if (text && text.trim()) notes[key] = text;
-    else delete notes[key];
+  function saveNotes(notes) {
     localStorage.setItem(LS_NOTES, JSON.stringify(notes));
+  }
+
+  function setItemNote(section, itemId, text) {
+    var notes = getNotes();
+    var t = (text || "").trim();
+    if (t) {
+      if (!notes[section]) notes[section] = {};
+      notes[section][itemId] = t;
+    } else if (notes[section]) {
+      delete notes[section][itemId];
+      if (Object.keys(notes[section]).length === 0) delete notes[section];
+    }
+    saveNotes(notes);
+  }
+
+  function getItemNote(section, itemId) {
+    var notes = getNotes();
+    return (notes[section] && notes[section][itemId]) || "";
   }
 
   function noteLines() {
     var notes = getNotes();
     var lines = [];
-    NOTE_KEYS.forEach(function (key) {
-      var t = (notes[key] || "").trim();
-      if (t) lines.push("note [" + key + "]: " + t.replace(/\s*\n+\s*/g, "; "));
+    var sections = SECTION_ORDER.concat(Object.keys(notes).filter(function (s) {
+      return SECTION_ORDER.indexOf(s) === -1;
+    }));
+    sections.forEach(function (section) {
+      var items = notes[section];
+      if (!items) return;
+      Object.keys(items).forEach(function (itemId) {
+        var t = items[itemId];
+        if (t) lines.push("note [" + section + ":" + itemId + "]: " + t.replace(/\s*\n+\s*/g, "; "));
+      });
     });
     return lines;
+  }
+
+  function hasNotes() {
+    return noteLines().length > 0;
   }
 
   function clearNotes() {
@@ -91,8 +121,67 @@
 
   global.DigestNotes = {
     getNotes: getNotes,
-    setNote: setNote,
+    setItemNote: setItemNote,
+    getItemNote: getItemNote,
     noteLines: noteLines,
+    hasNotes: hasNotes,
     clearNotes: clearNotes
+  };
+
+  // ---- shared queue builder ----
+  // Both "Copy decisions" (Triage) and the home screen's copy button need
+  // to produce the exact same text — decisions plus every note, wherever
+  // it was typed. Reading straight from localStorage here (instead of each
+  // view keeping its own copy of the swipe state) is what guarantees that:
+  // there is only one place that assembles the queue, so the two buttons
+  // can never drift out of sync with each other again.
+  var LS_DECISIONS = "dd.decisions";
+  var LS_HANDED_OFF = "dd.handedOff";
+
+  function loadJSON(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function formatTimestamp(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) +
+      " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function pendingDecisions() {
+    var decisions = loadJSON(LS_DECISIONS, {});
+    var handedOff = loadJSON(LS_HANDED_OFF, {});
+    var keep = [], dismiss = [];
+    Object.keys(decisions).forEach(function (id) {
+      if (handedOff[id]) return; // already handed off, not pending anymore
+      if (decisions[id] === "keep") keep.push(id);
+      else if (decisions[id] === "dismiss") dismiss.push(id);
+    });
+    return { keep: keep, dismiss: dismiss };
+  }
+
+  function buildQueue() {
+    var d = pendingDecisions();
+    var notes = noteLines();
+    var decisionCount = d.keep.length + d.dismiss.length;
+    if (decisionCount === 0 && notes.length === 0) return null;
+
+    var lines = ["swipe queue " + formatTimestamp(new Date())];
+    d.keep.forEach(function (id) { lines.push("keep: " + id); });
+    d.dismiss.forEach(function (id) { lines.push("dismiss: " + id); });
+    notes.forEach(function (line) { lines.push(line); });
+
+    return { text: lines.join("\n"), decisionCount: decisionCount, noteCount: notes.length };
+  }
+
+  global.DigestQueue = {
+    pendingDecisions: pendingDecisions,
+    build: buildQueue
   };
 })(window);

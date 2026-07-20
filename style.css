@@ -30,29 +30,52 @@ html, body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   height: 100%;
+  overflow: hidden;
 }
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* Fixed height (not min-height) so the page itself never grows taller
+     than the viewport and never scrolls as a whole — only .home-view,
+     .card-summary and the deck scroll internally. min-height:100vh used to
+     let mobile browser chrome (address bar show/hide) push body taller
+     than the visible viewport, which meant scrolling could carry the
+     bottom tab bar off-screen. 100dvh tracks the *actual* visible viewport
+     on browsers that support it; the 100vh line above is the fallback. */
+  height: 100vh;
+  height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
-.topbar {
+.mini-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.topbar h1 {
-  font-size: 1.1rem;
-  margin: 0;
+.back-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
+
+.back-btn:active { background: var(--card-bg); }
+.back-btn svg { width: 22px; height: 22px; }
 
 .feed-status {
   font-size: 0.8rem;
@@ -82,9 +105,9 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 20px;
+  gap: 18px;
   padding: 16px;
-  text-align: center;
+  text-align: left;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -92,25 +115,141 @@ body {
 .home-hero {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px 0 4px;
+  gap: 14px;
 }
 
-.home-view h1 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.home-view p {
-  margin: 0;
-  color: var(--text-dim);
-  font-size: 0.95rem;
-}
-
-.home-actions {
+.home-header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
+}
+
+.home-date {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.home-greeting {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+/* ---- loop card (Today, not yet done) ---- */
+
+.loop-card {
+  appearance: none;
+  border: none;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  width: 100%;
+}
+
+.loop-card:active { transform: scale(0.99); }
+
+.ring {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.ring svg { display: block; }
+
+.ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.loop-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.loop-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.loop-card-sub {
+  font-size: 0.82rem;
+  color: var(--skip);
+}
+
+/* ---- done card (Today, loop finished) ---- */
+
+.done-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.done-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(47, 174, 102, 0.16);
+  color: var(--keep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.done-badge svg { width: 28px; height: 28px; }
+
+.done-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.done-counts {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.done-copy-btn {
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.done-hint {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.done-again-btn {
+  margin-top: 2px;
 }
 
 .streak-chip {
@@ -118,8 +257,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  align-self: center;
-  background: var(--card-bg);
+  background: var(--bg);
   border-radius: 999px;
   padding: 5px 12px;
   color: #d9a441;
@@ -146,10 +284,11 @@ body {
   background: none;
   color: var(--text-dim);
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 10px 16px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .practice-tab.active {
@@ -190,9 +329,52 @@ main#deckArea {
 }
 
 .progress {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.progress-dots {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.dot-done { background: var(--keep); border-color: var(--keep); }
+.dot-current { width: 8px; height: 8px; background: var(--text); border-color: var(--text); }
+
+.progress-fraction {
+  font-size: 0.78rem;
   color: var(--text-dim);
-  text-align: center;
+  flex-shrink: 0;
+}
+
+.card-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
+.card-stack-shadow {
+  position: absolute;
+  inset: 10px 6px -8px 6px;
+  background: var(--card-bg);
+  opacity: 0.5;
+  border-radius: 18px;
+  transform: rotate(1.5deg);
+  z-index: 0;
 }
 
 .card {
@@ -201,10 +383,12 @@ main#deckArea {
   flex-direction: column;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 16px;
   min-height: 0;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .card-header {
@@ -264,17 +448,52 @@ main#deckArea {
 }
 
 .action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 6px 0 2px;
+  flex-shrink: 0;
+}
+
+.btn-circle {
+  appearance: none;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.btn-circle:active { transform: scale(0.94); }
+
+.btn-circle-lg { width: 68px; height: 68px; border: 2px solid; }
+.btn-circle-sm { width: 48px; height: 48px; border: 1.5px solid; margin-top: 8px; }
+
+.btn-circle-lg svg { width: 28px; height: 28px; }
+.btn-circle-sm svg { width: 18px; height: 18px; }
+
+.btn-circle-dismiss { border-color: var(--dismiss); color: var(--dismiss); }
+.btn-circle-keep { border-color: var(--keep); color: var(--keep); }
+.btn-circle-skip { border-color: var(--border); color: var(--text-dim); }
+
+.card-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn {
   appearance: none;
   border: none;
-  border-radius: 10px;
-  padding: 14px 10px;
-  font-size: 0.95rem;
+  border-radius: 12px;
+  padding: 16px 12px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
@@ -286,10 +505,6 @@ main#deckArea {
 
 .btn:active { transform: scale(0.97); }
 
-.btn-dismiss { background: var(--dismiss); color: #fff; }
-.btn-skip { background: var(--border); color: var(--text); }
-.btn-keep { background: var(--keep); color: #fff; }
-
 .undo-row {
   display: flex;
   justify-content: center;
@@ -298,8 +513,8 @@ main#deckArea {
 .btn-undo {
   background: none;
   color: var(--text-dim);
-  font-size: 0.85rem;
-  padding: 6px 10px;
+  font-size: 0.9rem;
+  padding: 10px 14px;
   text-decoration: underline;
 }
 
@@ -380,35 +595,93 @@ main#deckArea {
   padding: 24px;
 }
 
-/* ---- home dashboard ---- */
+/* ---- icon tile grid + inline accordion (Today dashboard) ---- */
 
-.dashboard {
+.dashboard-area {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  text-align: left;
-  padding-bottom: 24px;
 }
 
-.dash-section {
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.tile {
+  appearance: none;
   background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  border: 1.5px solid transparent;
+  border-radius: 18px;
+  padding: 18px 8px 14px;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+  position: relative;
+}
+
+.tile:active { transform: scale(0.97); }
+
+.tile-active {
+  border-color: var(--skip);
+}
+
+.tile-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.tile-icon svg { width: 100%; height: 100%; display: block; }
+
+.tile-tasks .tile-icon { color: var(--skip); }
+.tile-projects .tile-icon { color: var(--keep); }
+.tile-radar .tile-icon { color: var(--dismiss); }
+
+.tile-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tile-badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 7px;
+  min-width: 16px;
+  text-align: center;
+  color: #fff;
+}
+
+.tile-badge-blue { background: var(--skip); }
+.tile-badge-green { background: var(--keep); }
+.tile-badge-red { background: var(--dismiss); }
+.tile-badge-amber { background: #d9a441; color: #1a1d24; }
+.tile-badge-gray { background: var(--border); color: var(--text-dim); }
+
+.accordion-body:empty { display: none; }
+
+.accordion-card {
+  background: var(--card-bg);
+  border-radius: 16px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.dash-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dash-title {
+.accordion-card-title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -420,15 +693,26 @@ main#deckArea {
   border: 1px solid var(--border);
   background: none;
   color: var(--text-dim);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.75rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .note-btn.has-note {
   border-color: var(--skip);
   color: var(--skip);
+}
+
+.note-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .note-input {
@@ -441,6 +725,8 @@ main#deckArea {
   font-family: inherit;
   font-size: 0.85rem;
   resize: vertical;
+  margin-top: 6px;
+  flex-shrink: 0;
 }
 
 .dash-list {
@@ -449,18 +735,40 @@ main#deckArea {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 }
 
 .dash-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
+
+.dash-more-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--skip);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 4px;
+  text-align: left;
+  cursor: pointer;
+  align-self: flex-start;
+  touch-action: manipulation;
+}
+
+.dash-more-items {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dash-more-items.hidden { display: none; }
 
 .dash-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   min-width: 0;
 }
@@ -522,7 +830,7 @@ main#deckArea {
 
 .dl-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   padding: 3px 0;
   border-top: 1px solid var(--border);
@@ -724,9 +1032,10 @@ main#deckArea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 4px 6px;
-  font-size: 0.68rem;
+  gap: 4px;
+  padding: 10px 4px 8px;
+  min-height: 56px;
+  font-size: 0.7rem;
   cursor: pointer;
   position: relative;
   touch-action: manipulation;
@@ -735,8 +1044,8 @@ main#deckArea {
 .tab-btn.active { color: var(--text); }
 
 .tab-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .tab-badge {

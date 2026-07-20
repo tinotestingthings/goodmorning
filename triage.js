@@ -15,6 +15,13 @@
   var pointer = 0;
   var lastAction = null; // { type: "decide"|"skip", id, prevPointer }
 
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
   function vibrate(ms) {
     if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
   }
@@ -86,11 +93,71 @@
     }, 1800);
   }
 
-  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  // ---- per-item note control (mirrors home.js's — each inbox card gets
+  // its own note, collected into the same store as task/project/radar
+  // notes so one "copy" picks up everything) ----
 
-  function formatQueueTimestamp(d) {
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-      " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  var NOTE_ICON =
+    '<svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/>' +
+    '<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
+  function noteControl(section, itemId, placeholder) {
+    var existing = DigestNotes.getItemNote(section, itemId);
+
+    var btn = document.createElement("button");
+    btn.className = "note-btn" + (existing ? " has-note" : "");
+    btn.innerHTML = NOTE_ICON;
+    btn.setAttribute("aria-label", existing ? "Edit note" : "Add note");
+    btn.setAttribute("type", "button");
+
+    var ta = document.createElement("textarea");
+    ta.className = "note-input" + (existing ? "" : " hidden");
+    ta.rows = 2;
+    ta.placeholder = placeholder || "Note for later — collected with your decisions.";
+    ta.value = existing;
+
+    ta.addEventListener("input", function () {
+      DigestNotes.setItemNote(section, itemId, ta.value);
+      btn.classList.toggle("has-note", !!ta.value.trim());
+    });
+
+    btn.addEventListener("click", function () {
+      ta.classList.toggle("hidden");
+      if (!ta.classList.contains("hidden")) ta.focus();
+    });
+
+    return { btn: btn, textarea: ta };
+  }
+
+  // ---- circular action buttons ----
+
+  var ICONS = {
+    dismiss: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>',
+    keep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+  };
+
+  function circleBtn(kind, size, label) {
+    var btn = document.createElement("button");
+    btn.className = "btn-circle btn-circle-" + kind + " btn-circle-" + size;
+    btn.innerHTML = ICONS[kind];
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("type", "button");
+    return btn;
+  }
+
+  // ---- progress dots (replaces the old "3 of 6" text) ----
+
+  function renderProgressDots() {
+    var wrap = document.createElement("div");
+    wrap.className = "progress-dots";
+    items.forEach(function (it, i) {
+      var dot = document.createElement("span");
+      dot.className = "dot" + (i < pointer ? " dot-done" : i === pointer ? " dot-current" : "");
+      wrap.appendChild(dot);
+    });
+    return wrap;
   }
 
   // ---- rendering ----
@@ -127,8 +194,19 @@
   function renderCard(item) {
     var progress = document.createElement("div");
     progress.className = "progress";
-    progress.textContent = (pointer + 1) + " of " + items.length;
+    progress.appendChild(renderProgressDots());
+    progress.appendChild(el("span", "progress-fraction", (pointer + 1) + "/" + items.length));
     deckArea.appendChild(progress);
+
+    var cardWrap = document.createElement("div");
+    cardWrap.className = "card-wrap";
+
+    // Decorative sliver of the "next" card peeking out behind the current
+    // one, so the deck reads as a physical stack rather than a single flat
+    // panel — purely visual, carries no state.
+    var stackShadow = document.createElement("div");
+    stackShadow.className = "card-stack-shadow";
+    cardWrap.appendChild(stackShadow);
 
     var card = document.createElement("div");
     card.className = "card";
@@ -154,6 +232,9 @@
     summary.textContent = item.summary || "";
     card.appendChild(summary);
 
+    var linkRow = document.createElement("div");
+    linkRow.className = "card-link-row";
+
     if (item.url) {
       var link = document.createElement("a");
       link.className = "card-link";
@@ -161,8 +242,13 @@
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = "Open article ↗";
-      card.appendChild(link);
+      linkRow.appendChild(link);
     }
+
+    var nc = noteControl("triage", item.id, "Note on this card — collected with your decisions.");
+    linkRow.appendChild(nc.btn);
+    card.appendChild(linkRow);
+    card.appendChild(nc.textarea);
 
     var flash = document.createElement("div");
     flash.className = "decision-flash";
@@ -178,26 +264,21 @@
     dismissBadge.textContent = "NOPE";
     card.appendChild(dismissBadge);
 
-    deckArea.appendChild(card);
+    cardWrap.appendChild(card);
+    deckArea.appendChild(cardWrap);
 
     attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
 
-    var dismissBtn = document.createElement("button");
-    dismissBtn.className = "btn btn-dismiss";
-    dismissBtn.textContent = "✕ Dismiss";
+    var dismissBtn = circleBtn("dismiss", "lg", "Dismiss");
     dismissBtn.addEventListener("click", function () { decide(item, "dismiss", flash); });
 
-    var skipBtn = document.createElement("button");
-    skipBtn.className = "btn btn-skip";
-    skipBtn.textContent = "Skip";
+    var skipBtn = circleBtn("skip", "sm", "Skip");
     skipBtn.addEventListener("click", function () { skip(flash); });
 
-    var keepBtn = document.createElement("button");
-    keepBtn.className = "btn btn-keep";
-    keepBtn.textContent = "✓ Keep";
+    var keepBtn = circleBtn("keep", "lg", "Keep");
     keepBtn.addEventListener("click", function () { decide(item, "keep", flash); });
 
     actionRow.appendChild(dismissBtn);
@@ -217,6 +298,12 @@
   }
 
   function renderComplete() {
+    var progress = document.createElement("div");
+    progress.className = "progress";
+    progress.appendChild(renderProgressDots());
+    progress.appendChild(el("span", "progress-fraction", items.length + "/" + items.length));
+    deckArea.appendChild(progress);
+
     var counts = { keep: 0, dismiss: 0, skipped: 0 };
     items.forEach(function (it) {
       var d = decisions[it.id];
@@ -430,31 +517,19 @@
   }
 
   function copyDecisions() {
-    var keepIds = [];
-    var dismissIds = [];
-    items.forEach(function (it) {
-      var d = decisions[it.id];
-      if (d === "keep") keepIds.push(it.id);
-      else if (d === "dismiss") dismissIds.push(it.id);
-    });
-
-    var noteLines = DigestNotes.noteLines();
-
-    if (keepIds.length === 0 && dismissIds.length === 0 && noteLines.length === 0) {
+    // Built by the shared DigestQueue helper (loop.js) — same source the
+    // home screen's copy button uses, so the two can never disagree about
+    // what's pending.
+    var queue = DigestQueue.build();
+    if (!queue) {
       toast("Nothing to copy yet");
       return;
     }
 
-    var lines = ["swipe queue " + formatQueueTimestamp(new Date())];
-    keepIds.forEach(function (id) { lines.push("keep: " + id); });
-    dismissIds.forEach(function (id) { lines.push("dismiss: " + id); });
-    noteLines.forEach(function (line) { lines.push(line); });
-    var text = lines.join("\n");
-
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () {
-        var msg = "Copied " + (keepIds.length + dismissIds.length) + " decisions";
-        if (noteLines.length > 0) msg += " + " + noteLines.length + " note" + (noteLines.length === 1 ? "" : "s");
+      navigator.clipboard.writeText(queue.text).then(function () {
+        var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
+        if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
         toast(msg);
       }, function () {
         toast("Copy failed — clipboard blocked");
@@ -527,6 +602,9 @@
     // "done" step back to "triage".
     loadState();
     loadCommittedFeed();
+
+    var backBtn = document.getElementById("triageBackBtn");
+    if (backBtn && window.App) backBtn.addEventListener("click", function () { App.go("today"); });
   }
 
   init();
