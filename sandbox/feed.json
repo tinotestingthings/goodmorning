@@ -1,6 +1,47 @@
 {
-  "generated": "2026-07-20T12:00",
-  "daily": [],
+  "generated": "2026-07-20T12:40",
+  "daily": [
+    {
+      "id": "sbx-test-ai-scribe-mdr-klasse-iia",
+      "title": "AI scribe is geen scriba maar een medisch adviseur (en daarom klasse IIa MDR)",
+      "source": "Ius Mentis (Arnoud Engelfriet)",
+      "url": "https://blog.iusmentis.com/2026/07/14/een-ai-scribe-is-geen-scriba-maar-een-medisch-adviseur-en-daarom-klasse-iia-mdr/",
+      "date": "2026-07-14",
+      "summary": "Arnoud Engelfriet bespreekt een classificatievraag die relevant is voor zowel de AI Act als de MDR: is een \"AI scribe\" — software die medische consulten transcribeert en samenvat — hoogrisico onder de AI Act? Dat hangt af van de MDR-classificatie, omdat de AI-verordening producten hoogrisico verklaart wanneer ze onder hun sectorale regulering al externe goedkeuring nodig hebben.\n\nDe Zweedse toezichthouder oordeelde dat een AI scribe wél in MDR-klasse IIa valt — dus externe goedkeuring nodig heeft — terwijl leveranciers vaak verdedigden dat het \"overige software\" (klasse I) zou zijn. Doorslaggevend: de leverancier erkende zelf dat een interpretatiefout tot patiëntrisico's kan leiden.\n\n[SANDBOX-testkaart — origineel al gefiled op 2026-07-15]"
+    },
+    {
+      "id": "sbx-test-camperverhuurder-ai-chatbot",
+      "title": "De camperverhuurder houdt mijn geld nadat ik misleid ben door hun AI-chatbot!",
+      "source": "Ius Mentis (Arnoud Engelfriet)",
+      "url": "https://blog.iusmentis.com/2026/07/09/de-camperverhuurder-houdt-mijn-geld-nadat-ik-misleid-ben-door-hun-ai-chatbot/",
+      "date": "2026-07-09",
+      "summary": "Consumentenklacht via Reddit: iemand boekte een camper bij Indie Campers en vroeg vooraf aan de AI-chatbot of reizen naar Montenegro mocht. De bot bevestigde expliciet; na betaling bleek het in de voorwaarden verboden. Het bedrijf gaf maar 5% terug — \"wij nemen geen verantwoordelijkheid voor AI-antwoorden\".\n\nEngelfriets analyse: een chatbot-uitspraak telt hetzelfde als FAQ- of foldertekst. Een expliciete toezegging bindt het bedrijf, ook als de kleine lettertjes anders zeggen. Vgl. de Canadese Air Canada-zaak.\n\n[SANDBOX-testkaart — origineel al gefiled op 2026-07-15]"
+    },
+    {
+      "id": "sbx-test-ec-meta-verslavend-ontwerp-dsa",
+      "title": "Europese Commissie: verslavend ontwerp van Instagram en Facebook voorlopig in strijd met de DSA",
+      "source": "European Commission (digital-strategy.ec.europa.eu)",
+      "url": "https://digital-strategy.ec.europa.eu/en/news/commission-preliminarily-finds-addictive-design-instagram-and-facebook-breach-digital-services-act",
+      "date": "2026-07-10",
+      "summary": "De Europese Commissie heeft voorlopig vastgesteld dat Meta met het verslavende ontwerp van Instagram en Facebook de DSA schendt: risico's van infinite scroll, autoplay, pushnotificaties en gepersonaliseerde aanbevelingen op het welzijn van gebruikers — inclusief minderjarigen — zijn niet adequaat beoordeeld en gemitigeerd.\n\nHet is een voorlopige bevinding, geen eindbesluit; bij bevestiging riskeert Meta een boete tot 6% van de wereldwijde jaaromzet (potentieel ruim $12 mld).\n\n[SANDBOX-testkaart — origineel al gefiled op 2026-07-20]"
+    },
+    {
+      "id": "sbx-test-iusmentis-solvinity-cloud-act",
+      "title": "Ius Mentis: Solvinity (van DigiD) mocht inderdaad niet overgenomen worden vanwege de CLOUD Act",
+      "source": "Ius Mentis (Arnoud Engelfriet)",
+      "url": "https://blog.iusmentis.com/",
+      "date": "2026-07-15",
+      "summary": "De rechtbank Rotterdam wees het verzoek van Solvinity af om het overnameverbod te schorsen: het kabinet mocht de overname van de DigiD-beheerder door het Amerikaanse Kyndryl blokkeren. Kern: via de CLOUD Act en FISA kan de VS toegang eisen tot data die wereldwijd door Amerikaanse techbedrijven wordt verwerkt — daarmee zou de vertrouwelijkheid van een kritieke Nederlandse overheidsvoorziening in het geding komen.\n\nConcreet, rechterlijk getoetst voorbeeld van digitale-soevereiniteitsargumenten: geen DPIA of contractuele mitigatie, maar een regelrecht overnameverbod op grond van nationale veiligheid.\n\n[SANDBOX-testkaart — origineel al gefiled op 2026-07-20]"
+    },
+    {
+      "id": "sbx-test-gemeenten-lekken-persoonsgegevens",
+      "title": "Gemeenten lekken nog steeds persoonsgegevens van inwoners (NOS/Nieuwsuur-onderzoek)",
+      "source": "NOS / Nieuwsuur (onderzoek)",
+      "url": "https://sleutelstad.nl/2026/07/17/voorschoten-op-vingers-getikt-om-openbare-persoonsgegevens/",
+      "date": "2026-07-17",
+      "summary": "Onderzoek van NOS en Nieuwsuur: Nederlandse gemeenten publiceren nog altijd per ongeluk persoonsgegevens van inwoners — honderden documenten met e-mailadressen, privételefoonnummers, adresgegevens, identiteitsdocumentnummers en BSN's — ondanks AP-waarschuwingen sinds 2017.\n\nVoorbeeld: Voorschoten, waar gegevens van drie bestuursleden van een hulpfonds jarenlang online stonden, inclusief geboortedata en paspoortnummers.\n\n[SANDBOX-testkaart — origineel al gefiled op 2026-07-20]"
+    }
+  ],
   "today": {
     "date": "2026-07-20",
     "tasks": [
