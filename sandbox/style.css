@@ -1489,7 +1489,7 @@ main#deckArea {
 /* ---- sandbox marker (sandbox copy only) ---- */
 
 body::after {
-  content: "SANDBOX \00b7 2026-07-20 21:56";
+  content: "SANDBOX \00b7 2026-07-20 22:08";
   position: fixed;
   top: 10px;
   left: 50%;

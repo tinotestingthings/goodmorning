@@ -572,20 +572,39 @@
     return 7;
   }
 
+  // "Due soon" used to be "the next instance's deadline is within 2 days,"
+  // assuming instances are evenly spaced across the period. That broke for
+  // frequent chores (5-7x/week): the gap between instances is itself under
+  // 2 days, so the very next one is *always* within the lookahead window —
+  // checking one off couldn't ever clear the flag, it just looked
+  // permanently due.
+  //
+  // Reframed around whole days instead: how many instances are still
+  // needed (`remaining`), and how many days are left in the period
+  // (`daysLeft`, today counts as 1). If remaining >= daysLeft, today is a
+  // day you can't afford to skip without missing the target — that's
+  // "due soon," and it scales naturally with frequency (a 1x/week chore
+  // only trips this in its last day or two of slack; a 7x/week one trips
+  // it most days, same as before). On top of that, a completion logged
+  // *today* always clears the flag for today, no matter what the pace math
+  // says — the concrete fix for "I just checked it off and it's still
+  // there."
   function choreProgress(chore) {
     var start = periodStart(chore.unit);
     var startMs = start.getTime();
     var log = chore.log || [];
-    var done = log.filter(function (iso) { return new Date(iso).getTime() >= startMs; }).length;
+    var withinPeriod = log.filter(function (iso) { return new Date(iso).getTime() >= startMs; });
+    var done = withinPeriod.length;
+    var doneToday = withinPeriod.some(function (iso) { return localDateStr(new Date(iso)) === localDateStr(); });
     var lenDays = periodLengthDays(chore.unit, start);
-    var perInstance = lenDays / chore.count;
     var complete = done >= chore.count;
-    var deadlineOffset = Math.min(done + 1, chore.count) * perInstance;
-    var deadline = new Date(startMs + deadlineOffset * 86400000);
-    var daysUntilDue = Math.ceil((deadline - new Date()) / 86400000);
+    var remaining = Math.max(0, chore.count - done);
+    var daysElapsed = Math.floor((Date.now() - startMs) / 86400000);
+    var daysLeft = Math.max(1, lenDays - daysElapsed);
+    var dueSoon = !complete && !doneToday && remaining >= daysLeft;
     return {
-      done: done, target: chore.count, complete: complete,
-      dueSoon: !complete && daysUntilDue <= 2, daysUntilDue: daysUntilDue
+      done: done, target: chore.count, complete: complete, doneToday: doneToday,
+      remaining: remaining, daysLeft: daysLeft, dueSoon: dueSoon
     };
   }
 
@@ -647,7 +666,7 @@
     var metaRow = el("div", "chore-meta-row");
     metaRow.appendChild(el("span", "chore-freq", freqLabel(chore)));
     if (progress.dueSoon) {
-      metaRow.appendChild(el("span", "chore-due-chip", progress.daysUntilDue <= 0 ? "due now" : "due soon"));
+      metaRow.appendChild(el("span", "chore-due-chip", progress.daysLeft <= 1 ? "last day" : "due soon"));
     }
     row.appendChild(metaRow);
 
@@ -939,9 +958,8 @@
 
   function appendUrgentCards(grid) {
     dueSoonChores().forEach(function (x) {
-      var sub = x.progress.daysUntilDue <= 0
-        ? "Due now"
-        : "Due in " + x.progress.daysUntilDue + " day" + (x.progress.daysUntilDue === 1 ? "" : "s");
+      var sub = x.progress.remaining + " left · " + x.progress.daysLeft +
+        " day" + (x.progress.daysLeft === 1 ? "" : "s") + " to go";
       grid.appendChild(urgentCard(ICON_CHORES, x.chore.name, sub, function () {
         var list = loadChores();
         var fresh = list.filter(function (c) { return c.id === x.chore.id; })[0];
