@@ -118,6 +118,81 @@ body {
   gap: 14px;
 }
 
+/* ---- hero row: mini weather tile + loop/done card side by side ---- */
+
+.hero-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.mini-weather-tile {
+  appearance: none;
+  background: var(--card-bg);
+  border: 1.5px solid transparent;
+  border-radius: 16px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  width: 92px;
+  flex-shrink: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.mini-weather-tile:active { transform: scale(0.97); }
+.mini-weather-tile.tile-active { border-color: var(--skip); }
+
+.mwt-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mwt-caption {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.mwt-day {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mwt-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mwt-icon {
+  width: 22px;
+  height: 22px;
+  color: #d9a441;
+  flex-shrink: 0;
+}
+
+.mwt-icon svg { width: 100%; height: 100%; display: block; }
+
+.mwt-temp {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hero-row .loop-card,
+.hero-row .done-card {
+  flex: 1;
+  min-width: 0;
+}
+
 .home-header {
   display: flex;
   flex-direction: column;
@@ -603,10 +678,24 @@ main#deckArea {
   gap: 12px;
 }
 
-.tile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* Rows of tiles, not a CSS grid — each row is its own flex container so
+   the shared accordion element can be inserted directly after whichever
+   row holds the tapped tile, instead of always landing at the bottom of
+   one big grid. */
+.tile-rows {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+}
+
+.tile-row {
+  display: flex;
+  gap: 12px;
+}
+
+.tile-row .tile {
+  flex: 1;
+  min-width: 0;
 }
 
 .tile {
@@ -653,7 +742,6 @@ main#deckArea {
 .tile-tasks .tile-icon { color: var(--skip); }
 .tile-projects .tile-icon { color: var(--keep); }
 .tile-radar .tile-icon { color: var(--dismiss); }
-.tile-weather .tile-icon { color: #d9a441; }
 .tile-chores .tile-icon { color: #7cb87c; }
 .tile-todos .tile-icon { color: #8fb3e0; }
 
@@ -663,10 +751,9 @@ main#deckArea {
   color: var(--text);
 }
 
-/* ---- wide tile (spans both grid columns — the Today/weather tile) ---- */
+/* ---- wide tile (full-width row — currently just urgent cards) ---- */
 
 .tile-wide {
-  grid-column: span 2;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
@@ -684,44 +771,6 @@ main#deckArea {
 
 .tile-wide .tile-icon { width: 22px; height: 22px; }
 .tile-wide .tile-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
-
-.tile-weather-strip {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.tile-weather-slot {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.tws-icon {
-  width: 24px;
-  height: 24px;
-  color: #d9a441;
-}
-
-.tws-icon svg { width: 100%; height: 100%; display: block; }
-
-.tws-temp {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.tws-label {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-}
-
-.tile-weather-msg {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-}
 
 .tile-badge {
   position: absolute;
@@ -873,8 +922,17 @@ main#deckArea {
 }
 
 .field-input { width: 100%; }
+.field-input-narrow { width: 72px; flex-shrink: 0; text-align: center; }
 .field-select { flex: 1; min-width: 0; }
 .field-select-wide { flex: 2; }
+
+.inline-form-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
 
 .inline-form-row .btn,
 .inline-form > .btn {
@@ -952,26 +1010,47 @@ main#deckArea {
   padding: 2px 8px;
 }
 
-.chore-dots {
+.chore-check-row {
   display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.chore-check-label {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+/* ---- history (shared by chores + to-dos accordion cards) ---- */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  font-size: 0.82rem;
 }
 
-.chore-dot {
-  appearance: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: none;
-  cursor: pointer;
-  touch-action: manipulation;
+.history-row-name {
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+.history-row-date {
+  color: var(--text-dim);
+  font-size: 0.75rem;
   flex-shrink: 0;
-}
-
-.chore-dot-done {
-  background: var(--keep);
-  border-color: var(--keep);
 }
 
 /* ---- one-off to-dos (inside the To-dos tile's accordion card) ---- */
@@ -1489,7 +1568,7 @@ main#deckArea {
 /* ---- sandbox marker (sandbox copy only) ---- */
 
 body::after {
-  content: "SANDBOX \00b7 2026-07-20 22:08";
+  content: "SANDBOX \00b7 2026-07-20 21:05";
   position: fixed;
   top: 10px;
   left: 50%;
@@ -1507,15 +1586,26 @@ body::after {
   white-space: nowrap;
 }
 
-.sandbox-reset {
+.sandbox-reset-btn {
+  position: fixed;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  right: 8px;
+  z-index: 101;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d9a441;
+  background: var(--card-bg);
+  color: #d9a441;
+  font-size: 1.15rem;
+  line-height: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-.btn-reset-sandbox {
-  font-size: 0.78rem;
-  padding: 6px 14px;
-  border-color: #d9a441;
-  color: #d9a441;
+.sandbox-reset-btn:active {
+  transform: scale(0.94);
 }

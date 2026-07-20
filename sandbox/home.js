@@ -190,15 +190,262 @@
     return card;
   }
 
-  function renderHero() {
+  // ---- weather (Open-Meteo, fetched client-side — no API key, no backend) ----
+  // Hardcoded to one location since this is a single-user app with no
+  // settings UI. Cached in localStorage for 20 minutes so switching back to
+  // the Today tab repeatedly doesn't refetch every time.
+
+  var WEATHER_LAT = 52.10525390586172;
+  var WEATHER_LON = 5.092251555678848;
+  var WEATHER_CACHE_KEY = "sbx.weather.cache";
+  var WEATHER_CACHE_TTL_MS = 20 * 60 * 1000;
+
+  var ICON_W_SUN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.1 5.1l2.1 2.1M16.8 16.8l2.1 2.1M5.1 18.9l2.1-2.1M16.8 7.2l2.1-2.1"/></svg>';
+  var ICON_W_CLOUD_SUN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<circle cx="8.5" cy="8" r="3.2"/><path d="M8.5 3v1.4M8.5 12.6v.8M3.5 8h1.2M4.9 4.4l1 1M13.1 4.4l-1 1"/>' +
+    '<path d="M10 20h7.5a3.5 3.5 0 0 0 .4-6.98A5 5 0 0 0 8.4 13.6 3 3 0 0 0 10 20Z"/></svg>';
+  var ICON_W_CLOUD =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M7 19h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 12.6 3.5 3.5 0 0 0 7 19Z"/></svg>';
+  var ICON_W_RAIN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M7 15h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 8.6 3.5 3.5 0 0 0 7 15Z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg>';
+  var ICON_W_SNOW =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M7 14h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 7.6 3.5 3.5 0 0 0 7 14Z"/>' +
+    '<circle cx="8" cy="19" r="0.8" fill="currentColor" stroke="none"/><circle cx="12" cy="20.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="16" cy="19" r="0.8" fill="currentColor" stroke="none"/></svg>';
+  var ICON_W_STORM =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M7 13h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 6.6 3.5 3.5 0 0 0 7 13Z"/><path d="M13 13l-3 5h3l-2 4"/></svg>';
+
+  // WMO weather codes (used by Open-Meteo) collapsed down to a handful of
+  // icon+label buckets — plenty of detail for a glanceable morning card.
+  function weatherInfo(code) {
+    if (code === 0) return { icon: ICON_W_SUN, label: "Clear" };
+    if (code === 1 || code === 2) return { icon: ICON_W_CLOUD_SUN, label: "Partly cloudy" };
+    if (code === 3 || code === 45 || code === 48) return { icon: ICON_W_CLOUD, label: code === 3 ? "Cloudy" : "Fog" };
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return { icon: ICON_W_RAIN, label: code >= 80 ? "Showers" : "Rain" };
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return { icon: ICON_W_SNOW, label: "Snow" };
+    if (code >= 95) return { icon: ICON_W_STORM, label: "Thunderstorm" };
+    return { icon: ICON_W_CLOUD, label: "—" };
+  }
+
+  // "YYYY-MM-DD" for any date (defaults to now), local time. Shared by
+  // weather (matching today's hourly readings), to-dos (due-date math),
+  // and chores (last-done/next-due math). Named "day", not "dd" — the
+  // sandbox transform's sed pass blindly rewrites the localStorage-key
+  // prefix pattern to "sbx" wherever it appears, and a local var literally
+  // named "dd" followed by a dot collides with that same pattern and gets
+  // mangled too. Learned this the hard way once.
+  function localDateStr(d) {
+    d = d || new Date();
+    var mm = String(d.getMonth() + 1);
+    var day = String(d.getDate());
+    if (mm.length < 2) mm = "0" + mm;
+    if (day.length < 2) day = "0" + day;
+    return d.getFullYear() + "-" + mm + "-" + day;
+  }
+
+  // Finds the hourly reading closest to `targetHour` (0-23) on today's date.
+  function pickHourly(json, targetHour) {
+    var todayStr = localDateStr();
+    var times = json.hourly.time, temps = json.hourly.temperature_2m, codes = json.hourly.weathercode;
+    var bestIdx = -1, bestDiff = Infinity;
+    for (var i = 0; i < times.length; i++) {
+      if (times[i].indexOf(todayStr) !== 0) continue;
+      var hour = parseInt(times[i].slice(11, 13), 10);
+      var diff = Math.abs(hour - targetHour);
+      if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+    }
+    if (bestIdx === -1) return null;
+    return { temp: temps[bestIdx], code: codes[bestIdx] };
+  }
+
+  // Every day after today from the daily block (index 0 is today).
+  function dailyList(json) {
+    var out = [];
+    var times = json.daily.time, codes = json.daily.weathercode,
+      hi = json.daily.temperature_2m_max, lo = json.daily.temperature_2m_min;
+    for (var i = 1; i < times.length; i++) {
+      out.push({ date: times[i], code: codes[i], hi: hi[i], lo: lo[i] });
+    }
+    return out;
+  }
+
+  function loadWeather() {
+    try {
+      var cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || "null");
+      if (cached && cached.fetchedAt && (Date.now() - cached.fetchedAt) < WEATHER_CACHE_TTL_MS) {
+        return Promise.resolve(cached.data);
+      }
+    } catch (e) {}
+
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + WEATHER_LAT +
+      "&longitude=" + WEATHER_LON +
+      "&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min" +
+      "&timezone=auto&forecast_days=7";
+
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }).then(function (json) {
+      if (!json || !json.hourly || !json.daily) throw new Error("Unexpected weather response");
+      try { localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), data: json })); } catch (e) {}
+      return json;
+    });
+  }
+
+  var WEATHER_SLOTS = [
+    { label: "Morning", hour: 8 },
+    { label: "Midday", hour: 13 },
+    { label: "Evening", hour: 19 }
+  ];
+
+  function weatherDayRow(d) {
+    var info = weatherInfo(d.code);
+    var row = el("div", "weather-day-row");
+    var iconWrap = el("span", "weather-day-icon");
+    iconWrap.innerHTML = info.icon;
+    row.appendChild(iconWrap);
+    var label = "";
+    try { label = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" }); } catch (e) {}
+    row.appendChild(el("span", "weather-day-label", label));
+    row.appendChild(el("span", "weather-day-cond", info.label));
+    row.appendChild(el("span", "weather-day-temp", Math.round(d.lo) + "° / " + Math.round(d.hi) + "°"));
+    return row;
+  }
+
+  // Detail view — shown in the accordion under the mini weather tile when
+  // tapped. Unchanged from before: 3 time-of-day rows + "+more days".
+  function buildWeatherBody(container, weatherState) {
+    if (weatherState.status === "loading") {
+      container.appendChild(el("p", "dash-empty", "Loading weather…"));
+      return;
+    }
+    if (weatherState.status !== "ready" || !weatherState.data) {
+      container.appendChild(el("p", "dash-empty", "Could not load weather."));
+      return;
+    }
+    try {
+      var json = weatherState.data;
+      var rows = el("div", "weather-rows");
+      WEATHER_SLOTS.forEach(function (slot) {
+        var reading = pickHourly(json, slot.hour);
+        if (!reading) return;
+        var info = weatherInfo(reading.code);
+        var row = el("div", "weather-row");
+        var iconWrap = el("span", "weather-row-icon");
+        iconWrap.innerHTML = info.icon;
+        row.appendChild(iconWrap);
+        row.appendChild(el("span", "weather-row-label", slot.label));
+        row.appendChild(el("span", "weather-row-cond", info.label));
+        row.appendChild(el("span", "weather-row-temp", Math.round(reading.temp) + "°"));
+        rows.appendChild(row);
+      });
+      container.appendChild(rows);
+
+      var days = dailyList(json);
+      if (days.length > 0) collapsible(container, [], days, weatherDayRow, "more days");
+    } catch (e) {
+      container.appendChild(el("p", "dash-empty", "Could not load weather."));
+    }
+  }
+
+  // Small tile shown beside the hero card — just today's day name + one
+  // "right now" temperature. Everything else (condition labels, the
+  // 3-time-of-day breakdown, the extended forecast) lives behind a tap, in
+  // the same accordion content as before.
+  function renderMiniWeatherTile() {
+    var weatherState = { status: "loading", data: null };
+
+    var t = document.createElement("button");
+    t.type = "button";
+    t.className = "mini-weather-tile";
+
+    var top = el("div", "mwt-top");
+    top.appendChild(el("span", "mwt-caption", "Today"));
+    var dayName = "";
+    try { dayName = new Date().toLocaleDateString(undefined, { weekday: "long" }); } catch (e) {}
+    top.appendChild(el("span", "mwt-day", dayName));
+    t.appendChild(top);
+
+    var bottom = el("div", "mwt-bottom");
+    var iconWrap = el("span", "mwt-icon");
+    bottom.appendChild(iconWrap);
+    var tempEl = el("span", "mwt-temp", "…");
+    bottom.appendChild(tempEl);
+    t.appendChild(bottom);
+
+    function updateFace() {
+      if (weatherState.status === "ready" && weatherState.data) {
+        try {
+          var now = pickHourly(weatherState.data, new Date().getHours());
+          if (now) {
+            iconWrap.innerHTML = weatherInfo(now.code).icon;
+            tempEl.textContent = Math.round(now.temp) + "°";
+            return;
+          }
+        } catch (e) {}
+      }
+      iconWrap.innerHTML = "";
+      tempEl.textContent = weatherState.status === "error" ? "—" : "…";
+    }
+    updateFace();
+
+    return { el: t, weatherState: weatherState, updateFace: updateFace };
+  }
+
+  // ---- hero (greeting + loop/done card + mini weather tile) ----
+
+  function renderHero(myGeneration) {
     var wrap = el("div", "home-hero");
     wrap.appendChild(renderHeader());
+
+    var heroRow = el("div", "hero-row");
+    var mwt = renderMiniWeatherTile();
+    heroRow.appendChild(mwt.el);
     var step = DigestLoop.getStep();
-    wrap.appendChild(step === "done" ? renderDoneCard() : renderLoopCard(step));
+    heroRow.appendChild(step === "done" ? renderDoneCard() : renderLoopCard(step));
+    wrap.appendChild(heroRow);
+
+    var weatherAccordion = el("div", "accordion-body");
+    wrap.appendChild(weatherAccordion);
+
+    var weatherOpen = false;
+    function renderWeatherAccordion() {
+      weatherAccordion.innerHTML = "";
+      if (!weatherOpen) return;
+      var card = el("div", "accordion-card");
+      card.appendChild(el("div", "accordion-card-title", "Today"));
+      buildWeatherBody(card, mwt.weatherState);
+      weatherAccordion.appendChild(card);
+    }
+    mwt.el.addEventListener("click", function () {
+      weatherOpen = !weatherOpen;
+      mwt.el.classList.toggle("tile-active", weatherOpen);
+      renderWeatherAccordion();
+    });
+
+    loadWeather().then(function (data) {
+      if (myGeneration !== renderGeneration) return;
+      mwt.weatherState.status = "ready";
+      mwt.weatherState.data = data;
+      mwt.updateFace();
+      renderWeatherAccordion();
+    }).catch(function () {
+      if (myGeneration !== renderGeneration) return;
+      mwt.weatherState.status = "error";
+      mwt.updateFace();
+      renderWeatherAccordion();
+    });
+
     return wrap;
   }
 
-  // ---- shared row helpers (used inside sheet bodies) ----
+  // ---- shared row helpers ----
 
   function chip(status) {
     return el("span", "chip chip-" + status, status);
@@ -206,9 +453,9 @@
 
   // A "+N more" disclosure: renders `primary` rows straight into `container`,
   // and tucks `rest` behind a small toggle so a long list doesn't dominate
-  // the sheet by default. `rowFn` builds one row's DOM for a given item.
-  // `moreLabel` lets a caller say "+6 more days" instead of the generic
-  // "+6 more" (defaults to "more" so every existing call site is unchanged).
+  // by default. `rowFn` builds one row's DOM for a given item. `moreLabel`
+  // lets a caller say "+6 more days" instead of the generic "+6 more"
+  // (defaults to "more").
   function collapsible(container, primary, rest, rowFn, moreLabel) {
     moreLabel = moreLabel || "more";
     primary.forEach(function (item) { container.appendChild(rowFn(item)); });
@@ -228,6 +475,28 @@
 
     container.appendChild(moreBtn);
     container.appendChild(restWrap);
+  }
+
+  // A show/hide toggle for a whole block (used for History sections) —
+  // simpler than collapsible(): no primary/rest split, just one hidden
+  // block that a button reveals.
+  function toggleSection(container, label, entries, emptyMessage, rowFn) {
+    var btn = el("button", "dash-more-btn", label);
+    btn.type = "button";
+    var body = el("div", "history-list hidden");
+    if (entries.length === 0) {
+      body.appendChild(el("p", "dash-empty", emptyMessage));
+    } else {
+      entries.forEach(function (e) { body.appendChild(rowFn(e)); });
+    }
+    var open = false;
+    btn.addEventListener("click", function () {
+      open = !open;
+      body.classList.toggle("hidden", !open);
+      btn.textContent = open ? "Hide " + label.toLowerCase() : label;
+    });
+    container.appendChild(btn);
+    container.appendChild(body);
   }
 
   function taskRow(t) {
@@ -330,220 +599,29 @@
     collapsible(container, primary, rest, deadlineRow);
   }
 
-  // ---- weather (Open-Meteo, fetched client-side — no API key, no backend) ----
-  // Hardcoded to one location since this is a single-user app with no
-  // settings UI. Cached in localStorage for 20 minutes so switching back to
-  // the Today tab repeatedly doesn't refetch every time.
-
-  var WEATHER_LAT = 52.10525390586172;
-  var WEATHER_LON = 5.092251555678848;
-  var WEATHER_CACHE_KEY = "sbx.weather.cache";
-  var WEATHER_CACHE_TTL_MS = 20 * 60 * 1000;
-
-  var ICON_W_SUN =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.1 5.1l2.1 2.1M16.8 16.8l2.1 2.1M5.1 18.9l2.1-2.1M16.8 7.2l2.1-2.1"/></svg>';
-  var ICON_W_CLOUD_SUN =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<circle cx="8.5" cy="8" r="3.2"/><path d="M8.5 3v1.4M8.5 12.6v.8M3.5 8h1.2M4.9 4.4l1 1M13.1 4.4l-1 1"/>' +
-    '<path d="M10 20h7.5a3.5 3.5 0 0 0 .4-6.98A5 5 0 0 0 8.4 13.6 3 3 0 0 0 10 20Z"/></svg>';
-  var ICON_W_CLOUD =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M7 19h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 12.6 3.5 3.5 0 0 0 7 19Z"/></svg>';
-  var ICON_W_RAIN =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M7 15h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 8.6 3.5 3.5 0 0 0 7 15Z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg>';
-  var ICON_W_SNOW =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M7 14h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 7.6 3.5 3.5 0 0 0 7 14Z"/>' +
-    '<circle cx="8" cy="19" r="0.8" fill="currentColor" stroke="none"/><circle cx="12" cy="20.5" r="0.8" fill="currentColor" stroke="none"/><circle cx="16" cy="19" r="0.8" fill="currentColor" stroke="none"/></svg>';
-  var ICON_W_STORM =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M7 13h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.9 6.6 3.5 3.5 0 0 0 7 13Z"/><path d="M13 13l-3 5h3l-2 4"/></svg>';
-  // Tile identity icon (always the same, regardless of current condition —
-  // matches how the Tasks/Projects/Radar tile icons work).
-  var ICON_WEATHER =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<circle cx="7.5" cy="7.5" r="3"/><path d="M7.5 2.5v1.4M2.5 7.5h1.4M3.9 3.9l1 1M11.1 3.9l-1 1"/>' +
-    '<path d="M9.5 20h7a3.5 3.5 0 0 0 .4-6.98A5 5 0 0 0 7.6 13.9 3 3 0 0 0 9.5 20Z"/></svg>';
-
-  // WMO weather codes (used by Open-Meteo) collapsed down to a handful of
-  // icon+label buckets — plenty of detail for a glanceable morning card.
-  function weatherInfo(code) {
-    if (code === 0) return { icon: ICON_W_SUN, label: "Clear" };
-    if (code === 1 || code === 2) return { icon: ICON_W_CLOUD_SUN, label: "Partly cloudy" };
-    if (code === 3 || code === 45 || code === 48) return { icon: ICON_W_CLOUD, label: code === 3 ? "Cloudy" : "Fog" };
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return { icon: ICON_W_RAIN, label: code >= 80 ? "Showers" : "Rain" };
-    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return { icon: ICON_W_SNOW, label: "Snow" };
-    if (code >= 95) return { icon: ICON_W_STORM, label: "Thunderstorm" };
-    return { icon: ICON_W_CLOUD, label: "—" };
-  }
-
-  // "YYYY-MM-DD" for any date (defaults to now), local time. Shared by
-  // weather (matching today's hourly readings) and the to-dos feature
-  // (due-date math). Named "day", not "dd" — the sandbox transform's sed
-  // pass blindly rewrites the localStorage-key prefix pattern to "sbx"
-  // wherever it appears, and a local var literally named "dd" followed by
-  // a dot collides with that same pattern and gets mangled too. Learned
-  // this the hard way once.
-  function localDateStr(d) {
-    d = d || new Date();
-    var mm = String(d.getMonth() + 1);
-    var day = String(d.getDate());
-    if (mm.length < 2) mm = "0" + mm;
-    if (day.length < 2) day = "0" + day;
-    return d.getFullYear() + "-" + mm + "-" + day;
-  }
-
-  // Finds the hourly reading closest to `targetHour` (0-23) on today's date.
-  function pickHourly(json, targetHour) {
-    var todayStr = localDateStr();
-    var times = json.hourly.time, temps = json.hourly.temperature_2m, codes = json.hourly.weathercode;
-    var bestIdx = -1, bestDiff = Infinity;
-    for (var i = 0; i < times.length; i++) {
-      if (times[i].indexOf(todayStr) !== 0) continue;
-      var hour = parseInt(times[i].slice(11, 13), 10);
-      var diff = Math.abs(hour - targetHour);
-      if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
-    }
-    if (bestIdx === -1) return null;
-    return { temp: temps[bestIdx], code: codes[bestIdx] };
-  }
-
-  // Every day after today from the daily block (index 0 is today).
-  function dailyList(json) {
-    var out = [];
-    var times = json.daily.time, codes = json.daily.weathercode,
-      hi = json.daily.temperature_2m_max, lo = json.daily.temperature_2m_min;
-    for (var i = 1; i < times.length; i++) {
-      out.push({ date: times[i], code: codes[i], hi: hi[i], lo: lo[i] });
-    }
-    return out;
-  }
-
-  function loadWeather() {
-    try {
-      var cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || "null");
-      if (cached && cached.fetchedAt && (Date.now() - cached.fetchedAt) < WEATHER_CACHE_TTL_MS) {
-        return Promise.resolve(cached.data);
-      }
-    } catch (e) {}
-
-    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + WEATHER_LAT +
-      "&longitude=" + WEATHER_LON +
-      "&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min" +
-      "&timezone=auto&forecast_days=7";
-
-    return fetch(url).then(function (res) {
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    }).then(function (json) {
-      if (!json || !json.hourly || !json.daily) throw new Error("Unexpected weather response");
-      try { localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), data: json })); } catch (e) {}
-      return json;
-    });
-  }
-
-  var WEATHER_SLOTS = [
-    { label: "Morning", hour: 8 },
-    { label: "Midday", hour: 13 },
-    { label: "Evening", hour: 19 }
-  ];
-
-  // Fills the strip of 3 icon+temp readings shown directly on the tile
-  // face (not hidden behind a tap) — the tile itself IS the at-a-glance
-  // weather view; tapping it opens the same detail accordion as before
-  // (condition labels + the "+more days" forecast).
-  function fillWeatherStrip(container, weatherState) {
-    container.innerHTML = "";
-    if (weatherState.status === "loading") {
-      container.appendChild(el("span", "tile-weather-msg", "Loading…"));
-      return;
-    }
-    if (weatherState.status !== "ready" || !weatherState.data) {
-      container.appendChild(el("span", "tile-weather-msg", "Weather unavailable"));
-      return;
-    }
-    try {
-      var any = false;
-      WEATHER_SLOTS.forEach(function (slot) {
-        var reading = pickHourly(weatherState.data, slot.hour);
-        if (!reading) return;
-        any = true;
-        var info = weatherInfo(reading.code);
-        var slotEl = el("div", "tile-weather-slot");
-        var iconWrap = el("span", "tws-icon");
-        iconWrap.innerHTML = info.icon;
-        slotEl.appendChild(iconWrap);
-        slotEl.appendChild(el("span", "tws-temp", Math.round(reading.temp) + "°"));
-        slotEl.appendChild(el("span", "tws-label", slot.label));
-        container.appendChild(slotEl);
-      });
-      if (!any) container.appendChild(el("span", "tile-weather-msg", "Weather unavailable"));
-    } catch (e) {
-      container.innerHTML = "";
-      container.appendChild(el("span", "tile-weather-msg", "Weather unavailable"));
-    }
-  }
-
-  function weatherDayRow(d) {
-    var info = weatherInfo(d.code);
-    var row = el("div", "weather-day-row");
-    var iconWrap = el("span", "weather-day-icon");
-    iconWrap.innerHTML = info.icon;
-    row.appendChild(iconWrap);
-    var label = "";
-    try { label = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" }); } catch (e) {}
-    row.appendChild(el("span", "weather-day-label", label));
-    row.appendChild(el("span", "weather-day-cond", info.label));
-    row.appendChild(el("span", "weather-day-temp", Math.round(d.lo) + "° / " + Math.round(d.hi) + "°"));
-    return row;
-  }
-
-  function buildWeatherBody(container, weatherState) {
-    if (weatherState.status === "loading") {
-      container.appendChild(el("p", "dash-empty", "Loading weather…"));
-      return;
-    }
-    if (weatherState.status !== "ready" || !weatherState.data) {
-      container.appendChild(el("p", "dash-empty", "Could not load weather."));
-      return;
-    }
-    try {
-      var json = weatherState.data;
-      var rows = el("div", "weather-rows");
-      WEATHER_SLOTS.forEach(function (slot) {
-        var reading = pickHourly(json, slot.hour);
-        if (!reading) return;
-        var info = weatherInfo(reading.code);
-        var row = el("div", "weather-row");
-        var iconWrap = el("span", "weather-row-icon");
-        iconWrap.innerHTML = info.icon;
-        row.appendChild(iconWrap);
-        row.appendChild(el("span", "weather-row-label", slot.label));
-        row.appendChild(el("span", "weather-row-cond", info.label));
-        row.appendChild(el("span", "weather-row-temp", Math.round(reading.temp) + "°"));
-        rows.appendChild(row);
-      });
-      container.appendChild(rows);
-
-      var days = dailyList(json);
-      if (days.length > 0) collapsible(container, [], days, weatherDayRow, "more days");
-    } catch (e) {
-      container.appendChild(el("p", "dash-empty", "Could not load weather."));
-    }
-  }
-
   // ---- weekly chores (local-storage only — never touches the vault) ----
-  // Recurring chores with a target frequency per week/month. Progress is a
-  // list of completion timestamps; how many fall inside the *current*
-  // period (this week/month) is compared against the target to draw the
-  // tap-to-set dot counter and to decide whether a chore is "due soon"
-  // (needs another completion within 2 days to stay on pace — instances
-  // are assumed evenly spaced across the period, so this is an
-  // approximation, not a real scheduler).
+  //
+  // Second design of this feature. The first cut modeled a chore as
+  // "N times per week/month" with a dot-slider counter — that turned out
+  // too rigid (no days/years, no way to say "every 3 days", and the
+  // due-soon math had a real bug: frequent chores always looked due, even
+  // right after being checked off, since the *next* instance was always
+  // within the lookahead window by construction).
+  //
+  // This version drops the count-per-period idea entirely. A chore now has
+  // a plain interval — every N days/weeks/months/years — plus an optional
+  // pinned weekday (e.g. "every 1 week, on Tuesdays"). Progress is a single
+  // done-today checkbox, not dots. lastDone + the interval gives an exact
+  // next-due date, so "due soon" is just "that date has arrived" — no more
+  // fuzzy pace math, and checking a chore off always pushes the next due
+  // date a full interval forward, so the "always due" bug can't recur.
+  //
+  // `log` keeps the full completion history (used by the chores history
+  // view); `lastDone` is just its most recent entry, cached for quick
+  // access.
 
   var CHORES_KEY = "sbx.chores";
+  var WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   var ICON_CHORES =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -556,79 +634,104 @@
     try { localStorage.setItem(CHORES_KEY, JSON.stringify(list)); } catch (e) {}
   }
 
-  function periodStart(unit) {
-    var now = new Date();
-    if (unit === "month") return new Date(now.getFullYear(), now.getMonth(), 1);
-    var day = now.getDay(); // 0=Sun..6=Sat
-    var diffToMonday = day === 0 ? -6 : 1 - day;
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+  function addInterval(date, every, unit) {
+    var d = new Date(date.getTime());
+    if (unit === "day") d.setDate(d.getDate() + every);
+    else if (unit === "month") d.setMonth(d.getMonth() + every);
+    else if (unit === "year") d.setFullYear(d.getFullYear() + every);
+    else d.setDate(d.getDate() + every * 7); // week
+    return d;
   }
 
-  function periodLengthDays(unit, start) {
-    if (unit === "month") {
-      var next = new Date(start.getFullYear(), start.getMonth() + 1, 1);
-      return Math.round((next - start) / 86400000);
-    }
-    return 7;
+  // Moves a date forward (never backward) to the next occurrence of
+  // `weekday` (0=Sunday..6=Saturday). Landing exactly on that weekday
+  // already is a no-op.
+  function nudgeToWeekday(date, weekday) {
+    if (weekday === null || weekday === undefined || weekday === "") return date;
+    var d = new Date(date.getTime());
+    var diff = (Number(weekday) - d.getDay() + 7) % 7;
+    d.setDate(d.getDate() + diff);
+    return d;
   }
 
-  // "Due soon" used to be "the next instance's deadline is within 2 days,"
-  // assuming instances are evenly spaced across the period. That broke for
-  // frequent chores (5-7x/week): the gap between instances is itself under
-  // 2 days, so the very next one is *always* within the lookahead window —
-  // checking one off couldn't ever clear the flag, it just looked
-  // permanently due.
-  //
-  // Reframed around whole days instead: how many instances are still
-  // needed (`remaining`), and how many days are left in the period
-  // (`daysLeft`, today counts as 1). If remaining >= daysLeft, today is a
-  // day you can't afford to skip without missing the target — that's
-  // "due soon," and it scales naturally with frequency (a 1x/week chore
-  // only trips this in its last day or two of slack; a 7x/week one trips
-  // it most days, same as before). On top of that, a completion logged
-  // *today* always clears the flag for today, no matter what the pace math
-  // says — the concrete fix for "I just checked it off and it's still
-  // there."
+  function choreNextDue(chore) {
+    if (!chore.lastDone) return null; // never done — due immediately, handled in choreProgress
+    var base = addInterval(new Date(chore.lastDone), chore.every, chore.unit);
+    return nudgeToWeekday(base, chore.weekday);
+  }
+
+  // "Due soon" = due today, overdue, due tomorrow, or never done at all.
+  // A precise next-due *date* (not a fuzzy lookahead window) means this
+  // can't get stuck "always due" the way the old count-per-period model
+  // could — checking a chore off moves lastDone to today, which pushes
+  // nextDue a full interval into the future.
   function choreProgress(chore) {
-    var start = periodStart(chore.unit);
-    var startMs = start.getTime();
-    var log = chore.log || [];
-    var withinPeriod = log.filter(function (iso) { return new Date(iso).getTime() >= startMs; });
-    var done = withinPeriod.length;
-    var doneToday = withinPeriod.some(function (iso) { return localDateStr(new Date(iso)) === localDateStr(); });
-    var lenDays = periodLengthDays(chore.unit, start);
-    var complete = done >= chore.count;
-    var remaining = Math.max(0, chore.count - done);
-    var daysElapsed = Math.floor((Date.now() - startMs) / 86400000);
-    var daysLeft = Math.max(1, lenDays - daysElapsed);
-    var dueSoon = !complete && !doneToday && remaining >= daysLeft;
+    var today = localDateStr();
+    var doneToday = chore.lastDone ? localDateStr(new Date(chore.lastDone)) === today : false;
+    var neverDone = !chore.lastDone;
+    var nextDue = choreNextDue(chore);
+    var daysUntilNext = null;
+    if (nextDue) {
+      daysUntilNext = Math.round(
+        (new Date(localDateStr(nextDue) + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000
+      );
+    }
+    var dueSoon = !doneToday && (neverDone || daysUntilNext <= 1);
     return {
-      done: done, target: chore.count, complete: complete, doneToday: doneToday,
-      remaining: remaining, daysLeft: daysLeft, dueSoon: dueSoon
+      doneToday: doneToday, neverDone: neverDone,
+      lastDone: chore.lastDone, nextDue: nextDue, daysUntilNext: daysUntilNext,
+      dueSoon: dueSoon
     };
   }
 
-  // Sets how many completions count toward THIS period (0..chore.count),
-  // adding "now" timestamps or trimming the most recent ones — history
-  // from earlier periods is untouched. This is what makes the dot row
-  // behave like a slider: tapping dot i sets the count to i+1 (or to i, if
-  // that dot was already the last one filled — a toggle-off).
-  function setChoreProgress(chore, newCount) {
-    var start = periodStart(chore.unit);
-    var startMs = start.getTime();
-    var log = chore.log || [];
-    var before = log.filter(function (iso) { return new Date(iso).getTime() < startMs; });
-    var within = log.filter(function (iso) { return new Date(iso).getTime() >= startMs; });
-    if (newCount > within.length) {
-      for (var i = within.length; i < newCount; i++) within.push(new Date().toISOString());
-    } else if (newCount < within.length) {
-      within = within.slice(0, newCount);
+  // Toggles today's completion. Marking done appends (once) to `log` and
+  // updates `lastDone`; un-marking removes today's entry and falls back to
+  // the previous one (or null).
+  function setChoreDoneToday(chore, done) {
+    var today = localDateStr();
+    chore.log = chore.log || [];
+    if (done) {
+      if (!chore.log.some(function (iso) { return localDateStr(new Date(iso)) === today; })) {
+        chore.log.push(new Date().toISOString());
+      }
+    } else {
+      chore.log = chore.log.filter(function (iso) { return localDateStr(new Date(iso)) !== today; });
     }
-    chore.log = before.concat(within);
+    chore.lastDone = chore.log.length > 0 ? chore.log[chore.log.length - 1] : null;
   }
 
   function freqLabel(chore) {
-    return chore.count + "x / " + (chore.unit === "month" ? "month" : "week");
+    var unitWord = chore.every === 1 ? chore.unit : chore.unit + "s";
+    var s = "Every " + chore.every + " " + unitWord;
+    if (chore.weekday !== null && chore.weekday !== undefined && chore.weekday !== "") {
+      s += ", on " + WEEKDAY_NAMES[Number(chore.weekday)] + "s";
+    }
+    return s;
+  }
+
+  function formatLastDone(progress) {
+    if (!progress.lastDone) return "Never";
+    return localDateStr(new Date(progress.lastDone));
+  }
+
+  function formatNextDue(progress) {
+    if (progress.neverDone) return "Due today";
+    if (progress.daysUntilNext === 0) return "Due today";
+    if (progress.daysUntilNext < 0) {
+      var overdue = Math.abs(progress.daysUntilNext);
+      return "Overdue by " + overdue + " day" + (overdue === 1 ? "" : "s");
+    }
+    return "in " + progress.daysUntilNext + " day" + (progress.daysUntilNext === 1 ? "" : "s");
+  }
+
+  function choreUrgentSub(progress) {
+    if (progress.neverDone) return "Never done — due today";
+    if (progress.daysUntilNext < 0) {
+      var overdue = Math.abs(progress.daysUntilNext);
+      return "Overdue by " + overdue + " day" + (overdue === 1 ? "" : "s");
+    }
+    if (progress.daysUntilNext === 0) return "Due today";
+    return "Due tomorrow";
   }
 
   function dueSoonChores() {
@@ -640,6 +743,22 @@
   function choresBadge() {
     var n = dueSoonChores().length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-red" };
+  }
+
+  function choreHistoryEntries() {
+    var entries = [];
+    loadChores().forEach(function (c) {
+      (c.log || []).forEach(function (iso) { entries.push({ name: c.name, date: iso }); });
+    });
+    entries.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+    return entries.slice(0, 30);
+  }
+
+  function historyRow(e) {
+    var row = el("div", "history-row");
+    row.appendChild(el("span", "history-row-name", e.name));
+    row.appendChild(el("span", "history-row-date", localDateStr(new Date(e.date))));
+    return row;
   }
 
   function choreRow(chore, refresh) {
@@ -662,34 +781,35 @@
     head.appendChild(delBtn);
     row.appendChild(head);
 
+    row.appendChild(el("div", "chore-freq", freqLabel(chore)));
+
     var progress = choreProgress(chore);
     var metaRow = el("div", "chore-meta-row");
-    metaRow.appendChild(el("span", "chore-freq", freqLabel(chore)));
-    if (progress.dueSoon) {
-      metaRow.appendChild(el("span", "chore-due-chip", progress.daysLeft <= 1 ? "last day" : "due soon"));
-    }
+    metaRow.appendChild(el("span", "chore-meta", "Last done: " + formatLastDone(progress)));
+    metaRow.appendChild(el("span", "chore-meta", "Next: " + formatNextDue(progress)));
     row.appendChild(metaRow);
-
-    var dotsWrap = el("div", "chore-dots");
-    for (var i = 0; i < chore.count; i++) {
-      (function (i) {
-        var dot = document.createElement("button");
-        dot.type = "button";
-        dot.className = "chore-dot" + (i < progress.done ? " chore-dot-done" : "");
-        dot.setAttribute("aria-label", chore.name + ": set " + (i + 1) + " of " + chore.count + " done");
-        dot.addEventListener("click", function () {
-          var freshList = loadChores();
-          var freshChore = freshList.filter(function (c) { return c.id === chore.id; })[0];
-          if (!freshChore) return;
-          var target = (progress.done === i + 1) ? i : (i + 1);
-          setChoreProgress(freshChore, target);
-          saveChores(freshList);
-          refresh(null);
-        });
-        dotsWrap.appendChild(dot);
-      })(i);
+    if (progress.dueSoon) {
+      row.appendChild(el("span", "chore-due-chip", progress.daysUntilNext > 0 ? "due soon" : "due"));
     }
-    row.appendChild(dotsWrap);
+
+    var checkRow = el("div", "chore-check-row");
+    var checkBtn = document.createElement("button");
+    checkBtn.type = "button";
+    checkBtn.className = "todo-check" + (progress.doneToday ? " todo-check-done" : "");
+    checkBtn.innerHTML = CHECK_ICON;
+    checkBtn.setAttribute("aria-label", (progress.doneToday ? "Mark not done today: " : "Mark done today: ") + chore.name);
+    checkBtn.addEventListener("click", function () {
+      var freshList = loadChores();
+      var freshChore = freshList.filter(function (c) { return c.id === chore.id; })[0];
+      if (!freshChore) return;
+      setChoreDoneToday(freshChore, !progress.doneToday);
+      saveChores(freshList);
+      refresh(null);
+    });
+    checkRow.appendChild(checkBtn);
+    checkRow.appendChild(el("span", "chore-check-label", "Done today"));
+    row.appendChild(checkRow);
+
     return row;
   }
 
@@ -703,26 +823,45 @@
     form.appendChild(nameInput);
 
     var freqRow = el("div", "inline-form-row");
-    var countSelect = document.createElement("select");
-    countSelect.className = "field-select";
-    for (var n = 1; n <= 7; n++) {
-      var opt = document.createElement("option");
-      opt.value = String(n);
-      opt.textContent = n + "x";
-      countSelect.appendChild(opt);
-    }
+    var everyLabel = el("span", "inline-form-label", "Every");
+    freqRow.appendChild(everyLabel);
+    var everyInput = document.createElement("input");
+    everyInput.type = "number";
+    everyInput.min = "1";
+    everyInput.max = "365";
+    everyInput.className = "field-input field-input-narrow";
+    everyInput.value = editing ? String(editing.every) : "1";
+    freqRow.appendChild(everyInput);
     var unitSelect = document.createElement("select");
     unitSelect.className = "field-select";
-    [["week", "per week"], ["month", "per month"]].forEach(function (pair) {
+    [["day", "days"], ["week", "weeks"], ["month", "months"], ["year", "years"]].forEach(function (pair) {
       var o = document.createElement("option");
       o.value = pair[0];
       o.textContent = pair[1];
       unitSelect.appendChild(o);
     });
-    if (editing) { countSelect.value = String(editing.count); unitSelect.value = editing.unit; }
-    freqRow.appendChild(countSelect);
+    if (editing) unitSelect.value = editing.unit; else unitSelect.value = "week";
     freqRow.appendChild(unitSelect);
     form.appendChild(freqRow);
+
+    var weekdayRow = el("div", "inline-form-row");
+    var weekdaySelect = document.createElement("select");
+    weekdaySelect.className = "field-select field-select-wide";
+    var noneOpt = document.createElement("option");
+    noneOpt.value = "";
+    noneOpt.textContent = "Any day";
+    weekdaySelect.appendChild(noneOpt);
+    WEEKDAY_NAMES.forEach(function (name, i) {
+      var o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = "On " + name + "s";
+      weekdaySelect.appendChild(o);
+    });
+    if (editing && editing.weekday !== null && editing.weekday !== undefined && editing.weekday !== "") {
+      weekdaySelect.value = String(editing.weekday);
+    }
+    weekdayRow.appendChild(weekdaySelect);
+    form.appendChild(weekdayRow);
 
     var actionsRow = el("div", "inline-form-row");
     var saveBtn = el("button", "btn btn-primary", editing ? "Save changes" : "+ Add chore");
@@ -730,17 +869,20 @@
     saveBtn.addEventListener("click", function () {
       var name = nameInput.value.trim();
       if (!name) { toast("Give the chore a name first"); return; }
-      var count = parseInt(countSelect.value, 10);
+      var every = Math.max(1, parseInt(everyInput.value, 10) || 1);
       var unit = unitSelect.value;
+      var weekday = weekdaySelect.value === "" ? null : parseInt(weekdaySelect.value, 10);
       var list = loadChores();
       if (editing) {
         list = list.map(function (c) {
-          return c.id === editing.id ? { id: c.id, name: name, count: count, unit: unit, log: c.log || [] } : c;
+          if (c.id !== editing.id) return c;
+          return { id: c.id, name: name, every: every, unit: unit, weekday: weekday,
+            lastDone: c.lastDone || null, log: c.log || [] };
         });
       } else {
         list.push({
           id: "chore-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
-          name: name, count: count, unit: unit, log: []
+          name: name, every: every, unit: unit, weekday: weekday, lastDone: null, log: []
         });
       }
       saveChores(list);
@@ -767,12 +909,26 @@
       if (list.length === 0) {
         container.appendChild(el("p", "dash-empty", "No chores yet — add one below."));
       } else {
+        // Filter/relevance: due-soon chores first (soonest/most overdue at
+        // the top), everything else tucked behind "+N more chores" — same
+        // pattern as Projects/Radar, so the list stays short by default as
+        // it grows instead of showing everything flat every time.
+        var sorted = list.slice().sort(function (a, b) {
+          var pa = choreProgress(a), pb = choreProgress(b);
+          var da = pa.neverDone ? -9999 : pa.daysUntilNext;
+          var db = pb.neverDone ? -9999 : pb.daysUntilNext;
+          return da - db;
+        });
+        var primary = sorted.filter(function (c) { return choreProgress(c).dueSoon; });
+        var rest = sorted.filter(function (c) { return !choreProgress(c).dueSoon; });
+        if (primary.length === 0) { primary = sorted.slice(0, 3); rest = sorted.slice(3); }
         var listWrap = el("div", "chore-list");
-        list.forEach(function (chore) { listWrap.appendChild(choreRow(chore, rerender)); });
+        collapsible(listWrap, primary, rest, function (c) { return choreRow(c, rerender); }, "more chores");
         container.appendChild(listWrap);
       }
       var editing = editingId ? list.filter(function (c) { return c.id === editingId; })[0] || null : null;
       buildChoreForm(container, function () { rerender(null); }, editing);
+      toggleSection(container, "History", choreHistoryEntries(), "No history yet.", historyRow);
     }
 
     rerender(null);
@@ -784,6 +940,7 @@
   // the vault-backed Tasks section above; nothing here ever syncs anywhere.
 
   var TODOS_KEY = "sbx.todos";
+  var TODO_HISTORY_KEY = "sbx.todos.history";
 
   var ICON_TODOS =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -803,6 +960,27 @@
   }
   function saveTodos(list) {
     try { localStorage.setItem(TODOS_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  // A separate history log, independent of the active to-dos list, so
+  // deleting a completed item to tidy the list doesn't erase its record —
+  // it just stops appearing under "+N completed."
+  function loadTodoHistory() {
+    try { return JSON.parse(localStorage.getItem(TODO_HISTORY_KEY) || "[]"); } catch (e) { return []; }
+  }
+  function saveTodoHistory(list) {
+    try { localStorage.setItem(TODO_HISTORY_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function logTodoHistory(text) {
+    var list = loadTodoHistory();
+    list.push({ text: text, date: new Date().toISOString() });
+    saveTodoHistory(list);
+  }
+  function todoHistoryEntries() {
+    return loadTodoHistory()
+      .slice()
+      .sort(function (a, b) { return new Date(b.date) - new Date(a.date); })
+      .slice(0, 30);
   }
 
   function dueTodayTodos() {
@@ -840,7 +1018,10 @@
     checkBtn.addEventListener("click", function () {
       var list = loadTodos();
       var fresh = list.filter(function (x) { return x.id === t.id; })[0];
-      if (fresh) fresh.done = !fresh.done;
+      if (fresh) {
+        fresh.done = !fresh.done;
+        if (fresh.done) logTodoHistory(fresh.text);
+      }
       saveTodos(list);
       refresh();
     });
@@ -924,6 +1105,8 @@
         }
       }
       buildTodoForm(container, rerender);
+      toggleSection(container, "History", todoHistoryEntries(), "No history yet.",
+        function (e) { return historyRow({ name: e.text, date: e.date }); });
     }
     rerender();
   }
@@ -931,7 +1114,7 @@
   // ---- urgent home-screen cards (chores due soon, to-dos due today) ----
   // Both surface directly on Today — not hidden behind a tap — as a
   // two-tile-width card with a one-tap checkbox, ahead of the regular tile
-  // grid. Checking one off calls the top-level render(), which is safe
+  // rows. Checking one off calls the top-level render(), which is safe
   // here (unlike inside an accordion) since these cards aren't nested in
   // any collapsible section that would otherwise lose its open state.
 
@@ -956,24 +1139,22 @@
     return card;
   }
 
-  function appendUrgentCards(grid) {
+  function appendUrgentCards(container) {
     dueSoonChores().forEach(function (x) {
-      var sub = x.progress.remaining + " left · " + x.progress.daysLeft +
-        " day" + (x.progress.daysLeft === 1 ? "" : "s") + " to go";
-      grid.appendChild(urgentCard(ICON_CHORES, x.chore.name, sub, function () {
+      container.appendChild(urgentCard(ICON_CHORES, x.chore.name, choreUrgentSub(x.progress), function () {
         var list = loadChores();
         var fresh = list.filter(function (c) { return c.id === x.chore.id; })[0];
         if (!fresh) return;
-        setChoreProgress(fresh, choreProgress(fresh).done + 1);
+        setChoreDoneToday(fresh, true);
         saveChores(list);
         render();
       }));
     });
     dueTodayTodos().forEach(function (t) {
-      grid.appendChild(urgentCard(ICON_TODOS, t.text, todoDueLabel(t), function () {
+      container.appendChild(urgentCard(ICON_TODOS, t.text, todoDueLabel(t), function () {
         var list = loadTodos();
         var fresh = list.filter(function (x) { return x.id === t.id; })[0];
-        if (fresh) fresh.done = true;
+        if (fresh) { fresh.done = true; logTodoHistory(fresh.text); }
         saveTodos(list);
         render();
       }));
@@ -981,13 +1162,10 @@
   }
 
   // ---- icon tiles + inline accordion ----
-  // The dashboard used to show Tasks/Projects/Radar fully expanded, all at
-  // once. That's now three big tappable icon tiles with a count badge each
-  // — the home screen stays small by default, and tapping a tile expands
-  // its content directly below the tile row (only one open at a time),
-  // right in the page's own scroll. No overlay, so it can never cover the
-  // tab bar, and there's no height cap — scrolling it is just scrolling
-  // the page.
+  // Tiles render in rows (wide tiles/urgent cards get their own row;
+  // regular tiles pair up 2-per-row) instead of one CSS grid, so that
+  // tapping any tile inserts its expanded content directly below that
+  // tile's own row — not at the bottom of the whole tile area.
 
   var ICON_TASKS =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -999,17 +1177,10 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3"/></svg>';
 
-  // Returns { el, setBadge } so a tile's badge can be updated later — the
-  // weather tile's badge isn't known synchronously (it needs its own async
-  // fetch), so it starts empty and fills in once that resolves.
-  // opts.wide spans both grid columns (used by the Today/weather tile so
-  // its 3-reading strip has room). opts.extraEl is appended below the
-  // icon+label head — the weather strip lives there.
-  function tile(key, label, iconSvg, badge, onToggle, opts) {
-    opts = opts || {};
+  function tile(key, label, iconSvg, badge, onToggle) {
     var t = document.createElement("button");
     t.type = "button";
-    t.className = "tile tile-" + key + (opts.wide ? " tile-wide" : "");
+    t.className = "tile tile-" + key;
     var badgeEl = el("span", "tile-badge " + badge.cls + (badge.text ? "" : " hidden"), badge.text);
     t.appendChild(badgeEl);
     var head = el("div", "tile-head");
@@ -1018,13 +1189,8 @@
     head.appendChild(iconWrap);
     head.appendChild(el("span", "tile-label", label));
     t.appendChild(head);
-    if (opts.extraEl) t.appendChild(opts.extraEl);
     t.addEventListener("click", onToggle);
-    function setBadge(newBadge) {
-      badgeEl.className = "tile-badge " + newBadge.cls + (newBadge.text ? "" : " hidden");
-      badgeEl.textContent = newBadge.text;
-    }
-    return { el: t, setBadge: setBadge };
+    return t;
   }
 
   function taskBadge(today) {
@@ -1052,18 +1218,11 @@
     return { text: "", cls: "tile-badge-gray" };
   }
 
-  function renderDashboardArea(today, myGeneration) {
+  function renderDashboardArea(today) {
     var wrap = el("div", "dashboard-area");
-    var grid = el("div", "tile-grid");
-    var accordionBody = el("div", "accordion-body");
-
-    var weatherState = { status: "loading", data: null };
-    var weatherStripEl = el("div", "tile-weather-strip");
-    fillWeatherStrip(weatherStripEl, weatherState);
+    var rowsWrap = el("div", "tile-rows");
 
     var sections = [
-      { key: "weather", label: "Today", icon: ICON_WEATHER, badge: { text: "", cls: "tile-badge-gray" },
-        build: function (c) { buildWeatherBody(c, weatherState); }, wide: true, extraEl: weatherStripEl },
       { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
         build: function (c) { buildTasksBody(c, today); } },
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
@@ -1078,17 +1237,24 @@
 
     var openKey = null;
     var tileEls = {};
+    var anchorEls = {}; // key -> element after which the accordion should sit
+    var accordionEl = el("div", "accordion-body");
 
-    appendUrgentCards(grid);
-
-    function renderBody() {
-      accordionBody.innerHTML = "";
+    function renderAccordionContent() {
+      accordionEl.innerHTML = "";
       if (!openKey) return;
       var sec = sections.filter(function (s) { return s.key === openKey; })[0];
       var card = el("div", "accordion-card");
       card.appendChild(el("div", "accordion-card-title", sec.label));
       sec.build(card);
-      accordionBody.appendChild(card);
+      accordionEl.appendChild(card);
+    }
+
+    function placeAccordion() {
+      if (accordionEl.parentNode) accordionEl.parentNode.removeChild(accordionEl);
+      if (!openKey) return;
+      var anchor = anchorEls[openKey];
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(accordionEl, anchor.nextSibling);
     }
 
     function setOpen(key) {
@@ -1096,36 +1262,38 @@
       Object.keys(tileEls).forEach(function (k) {
         tileEls[k].classList.toggle("tile-active", k === openKey);
       });
-      renderBody();
+      renderAccordionContent();
+      placeAccordion();
+    }
+
+    appendUrgentCards(rowsWrap); // static cards, own row each, no accordion
+
+    var pendingTile = null;
+    function flushPending() {
+      if (!pendingTile) return;
+      rowsWrap.appendChild(pendingTile.el);
+      anchorEls[pendingTile.key] = pendingTile.el;
+      pendingTile = null;
     }
 
     sections.forEach(function (s) {
-      var t = tile(s.key, s.label, s.icon, s.badge, function () { setOpen(s.key); },
-        { wide: s.wide, extraEl: s.extraEl });
-      tileEls[s.key] = t.el;
-      grid.appendChild(t.el);
+      var t = tile(s.key, s.label, s.icon, s.badge, function () { setOpen(s.key); });
+      tileEls[s.key] = t;
+      if (pendingTile) {
+        var row = el("div", "tile-row");
+        row.appendChild(pendingTile.el);
+        row.appendChild(t);
+        rowsWrap.appendChild(row);
+        anchorEls[pendingTile.key] = row;
+        anchorEls[s.key] = row;
+        pendingTile = null;
+      } else {
+        pendingTile = { key: s.key, el: t };
+      }
     });
+    flushPending();
 
-    wrap.appendChild(grid);
-    wrap.appendChild(accordionBody);
-
-    // Weather has its own async fetch, independent of feed.json. Guarded by
-    // the same render-generation token as the feed fetch, since it can
-    // resolve after the user has already switched tabs (and this whole
-    // dashboard-area is a detached, replaced element by then).
-    loadWeather().then(function (data) {
-      if (myGeneration !== renderGeneration) return;
-      weatherState.status = "ready";
-      weatherState.data = data;
-      fillWeatherStrip(weatherStripEl, weatherState);
-      if (openKey === "weather") renderBody();
-    }).catch(function () {
-      if (myGeneration !== renderGeneration) return;
-      weatherState.status = "error";
-      fillWeatherStrip(weatherStripEl, weatherState);
-      if (openKey === "weather") renderBody();
-    });
-
+    wrap.appendChild(rowsWrap);
     return wrap;
   }
 
@@ -1186,32 +1354,10 @@
   // or clobbering whatever the newest render() already drew.
   var renderGeneration = 0;
 
-
-  // ---- sandbox-only: reset test data ----
-  // Sandbox is for repeatedly testing the swipe deck, not for real triage —
-  // so unlike the live app, decisions/hand-offs shouldn't just accumulate
-  // and make cards vanish for good. This wipes every sbx.* key and reloads
-  // fresh against the committed sandbox feed.json.
-
-  function renderSandboxReset() {
-    var wrap = el("div", "sandbox-reset");
-    var btn = el("button", "btn btn-ghost btn-reset-sandbox", "\u21ba Reset sandbox data");
-    btn.addEventListener("click", function () {
-      if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
-      Object.keys(localStorage).forEach(function (key) {
-        if (key.indexOf("sbx.") === 0) localStorage.removeItem(key);
-      });
-      window.location.reload();
-    });
-    wrap.appendChild(btn);
-    return wrap;
-  }
-
   function render() {
     var myGeneration = ++renderGeneration;
     view.innerHTML = "";
-    view.appendChild(renderHero());
-    view.appendChild(renderSandboxReset());
+    view.appendChild(renderHero(myGeneration));
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
@@ -1225,7 +1371,7 @@
           view.appendChild(el("p", "dash-empty", "No dashboard data in today's feed."));
           return;
         }
-        view.appendChild(renderDashboardArea(today, myGeneration));
+        view.appendChild(renderDashboardArea(today));
         view.appendChild(renderNotesFooter());
         updateNotesFooter();
       })
@@ -1241,6 +1387,33 @@
   // without a page reload. The accordion's open/closed state is local to
   // this render pass and simply resets to closed each time, which is fine
   // — there's no overlay to worry about leaving stuck open on another tab.
+  // ---- sandbox-only: reset test data ----
+  // Sandbox is for repeatedly testing the swipe deck, not for real triage —
+  // so unlike the live app, decisions/hand-offs shouldn't just accumulate
+  // and make cards vanish for good. This wipes every sbx.* key and reloads
+  // fresh against the committed sandbox feed.json.
+  //
+  // Mounted once directly on document.body (not re-appended inside render())
+  // so it sits fixed in the top-right corner across every tab and survives
+  // scrolling — it used to live inside the scrollable Today view and would
+  // scroll out of sight.
+  function renderSandboxReset() {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sandbox-reset-btn";
+    btn.innerHTML = "\u21ba";
+    btn.setAttribute("aria-label", "Reset sandbox data");
+    btn.addEventListener("click", function () {
+      if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
+      Object.keys(localStorage).forEach(function (key) {
+        if (key.indexOf("sbx.") === 0) localStorage.removeItem(key);
+      });
+      window.location.reload();
+    });
+    return btn;
+  }
+  document.body.appendChild(renderSandboxReset());
+
   if (window.App && App.onShow) {
     App.onShow("today", render);
   }
