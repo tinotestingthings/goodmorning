@@ -1,6 +1,14 @@
 {
-  "generated": "2026-07-16T06:47:00Z",
+  "generated": "2026-07-19T21:21:27Z",
   "daily": [
+    {
+      "id": "2026-07-16-ec-meta-verslavend-ontwerp-dsa-voorlopige-bevinding",
+      "title": "Europese Commissie: verslavend ontwerp van Instagram en Facebook voorlopig in strijd met de DSA",
+      "source": "European Commission (digital-strategy.ec.europa.eu)",
+      "url": "https://digital-strategy.ec.europa.eu/en/news/commission-preliminarily-finds-addictive-design-instagram-and-facebook-breach-digital-services-act",
+      "date": "2026-07-10",
+      "summary": "De Europese Commissie heeft op 10 juli 2026 voorlopig vastgesteld dat Meta met het verslavende ontwerp van Instagram en Facebook de Digital Services Act schendt. Kern van de bevinding: Meta heeft de risico's van dat ontwerp op het fysieke en mentale welzijn van gebruikers — inclusief minderjarigen en kwetsbare volwassenen — niet adequaat beoordeeld en gemitigeerd, terwijl de DSA dat van zeer grote platforms eist. Het gaat om features als infinite scroll, autoplay, pushnotificaties en sterk gepersonaliseerde aanbevelingsalgoritmes, die gebruikers volgens de Commissie in een \"autopilot-modus\" duwen en compulsief gebruik aanwakkeren.\n\nDit is een voorlopige bevinding, geen eindbesluit: Meta mag nu het onderzoeksdossier inzien en schriftelijk reageren voordat een non-compliancebesluit kan volgen. Wordt de bevinding bevestigd, dan riskeert Meta een boete tot 6% van de wereldwijde jaaromzet — op basis van de 2025-omzet (~$201 mld) potentieel ruim $12 miljard. Meta is het oneens met de bevindingen en wijst op de uitgerolde Teen Accounts (o.a. nachtblokkering en schermtijdlimieten via ouders).\n\nLet op de datum: dit nieuws is van 10 juli en is door eerdere Privacy Watch-runs gemist (het viel net vóór de eerste volledige check van de bronnenlijst op 13 juli); vandaag als inhaal-item alsnog gefileerd. Het sluit direct aan op de Bits of Freedom-notitie die al in `20 Sources` staat ([[2026-07-13-bits-of-freedom-meta-breach-platform-law]]): BoF's kernklacht was juist dat de Commissie wél zegt te kijken maar geen formele besluiten neemt en civil society het handhavingsgat laat vullen — deze voorlopige bevinding is precies zo'n formele stap (zij het op een aanverwant DSA-spoor: verslavend ontwerp/risicobeoordeling, waar de BoF-zaak over de niet-geprofileerde tijdlijn gaat)."
+    },
     {
       "id": "2026-07-16-iusmentis-solvinity-overnameverbod-cloud-act",
       "title": "Ius Mentis: Solvinity (van DigiD) mocht inderdaad niet overgenomen worden vanwege de CLOUD Act",
@@ -8,6 +16,14 @@
       "url": "https://blog.iusmentis.com/",
       "date": "2026-07-15",
       "summary": "Arnoud Engelfriet bespreekt (post gedateerd 15 juli 2026) de uitspraak van de rechtbank Rotterdam van 14/15 juli: het verzoek van Solvinity om het overnameverbod te schorsen is afgewezen. Het kabinet (staatssecretaris Aerdts) blokkeerde eind mei de overname van het Amsterdamse Solvinity — de beheerder van het DigiD-inlogsysteem — door het Amerikaanse Kyndryl, en de rechter oordeelt nu dat de staat daarbij binnen de wettelijke kaders bleef.\n\nDe kern van de uitspraak zit op de CLOUD Act, FISA en verwante Amerikaanse wetgeving met extraterritoriale werking: de VS kan daarmee toegang eisen tot data die wereldwijd door Amerikaanse techbedrijven wordt verwerkt. Zou Solvinity in Amerikaanse handen komen, dan valt het onder al die wetgeving — en daarmee zou de vertrouwelijkheid van een kritieke Nederlandse overheidsvoorziening (DigiD) in het geding komen. De rechter liet het verbod voorlopig in stand omdat wachten op de bodembeslissing voor Solvinity en Kyndryl geen onomkeerbare schade oplevert.\n\nRelevant als concrete, rechterlijk getoetste toepassing van digitale-soevereiniteitsargumenten (vgl. de eerdere EU-US-datatransfer-notities in de vault): niet een DPIA of contractuele mitigatie, maar een regelrecht overnameverbod op grond van nationale veiligheid, met de CLOUD Act als dragend argument. Solvinity wil het onderzoek rond het verbod via de rechter laten heropenen (NOS), dus dit dossier loopt door.\n\nBronnen naast de blogpost zelf: [NL Times](https://nltimes.nl/2026/07/14/court-dutch-cabinet-allowed-ban-us-takeover-digid-firm-solvinity), [NOS](https://nos.nl/artikel/2621945-solvinity-wil-onderzoek-rond-verbod-op-amerikaanse-overname-via-rechter-heropenen)."
+    },
+    {
+      "id": "2026-07-18-gemeenten-lekken-persoonsgegevens-nos-onderzoek",
+      "title": "Gemeenten lekken nog steeds persoonsgegevens van inwoners (NOS/Nieuwsuur-onderzoek)",
+      "source": "NOS / Nieuwsuur (onderzoek), via o.a. Sleutelstad en Welingelichte Kringen",
+      "url": "https://sleutelstad.nl/2026/07/17/voorschoten-op-vingers-getikt-om-openbare-persoonsgegevens/",
+      "date": "2026-07-17",
+      "summary": "Onderzoek van NOS en Nieuwsuur (gepubliceerd 17 juli 2026) laat zien dat Nederlandse gemeenten nog altijd per ongeluk persoonsgegevens van inwoners op internet publiceren — ondanks dat de Autoriteit Persoonsgegevens gemeenten al sinds 2017 maant om zorgvuldig om te gaan met het publiceren van burgerdata. De onderzoekers vonden honderden documenten met e-mailadressen, privételefoonnummers, adresgegevens, identiteitsdocumentnummers en BSN's van inwoners.\n\nConcreet voorbeeld: de gemeente Voorschoten, waar persoonsgegevens van drie bestuursleden van Stichting Sociaal Hulpfonds Voorschoten jarenlang online stonden — een bijlage bij een statutenwijziging uit 2020 met namen, adresgegevens, geboortedata en paspoortnummers. De gemeente is hierop aangesproken (\"op vingers getikt\").\n\nRelevantie: dit raakt direct aan AP-toezicht op de publieke sector en aan het bredere thema datalekken bij overheden (vgl. de AP-rapportage datalekken 2025 die Compliance Radar op 16 juli filede). Mogelijk volgt een formele AP-reactie of handhaving — iets om in volgende runs in de gaten te houden.\n\nBron-URL's staan in de frontmatter; het oorspronkelijke NOS/Nieuwsuur-stuk is via de NOS-site te vinden (niet apart gefetcht — de snippets waren voldoende voor deze samenvatting)."
     }
   ]
 }
