@@ -30,14 +30,24 @@ html, body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   height: 100%;
+  overflow: hidden;
 }
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* Fixed height (not min-height) so the page itself never grows taller
+     than the viewport and never scrolls as a whole — only .home-view,
+     .card-summary and the deck scroll internally. min-height:100vh used to
+     let mobile browser chrome (address bar show/hide) push body taller
+     than the visible viewport, which meant scrolling could carry the
+     bottom tab bar off-screen. 100dvh tracks the *actual* visible viewport
+     on browsers that support it; the 100vh line above is the fallback. */
+  height: 100vh;
+  height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .mini-header {
@@ -53,8 +63,8 @@ body {
   border: none;
   background: none;
   color: var(--text);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,7 +75,7 @@ body {
 }
 
 .back-btn:active { background: var(--card-bg); }
-.back-btn svg { width: 20px; height: 20px; }
+.back-btn svg { width: 22px; height: 22px; }
 
 .feed-status {
   font-size: 0.8rem;
@@ -274,10 +284,11 @@ body {
   background: none;
   color: var(--text-dim);
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 10px 16px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .practice-tab.active {
@@ -459,11 +470,11 @@ main#deckArea {
 
 .btn-circle:active { transform: scale(0.94); }
 
-.btn-circle-lg { width: 56px; height: 56px; border: 2px solid; }
-.btn-circle-sm { width: 40px; height: 40px; border: 1.5px solid; margin-top: 6px; }
+.btn-circle-lg { width: 68px; height: 68px; border: 2px solid; }
+.btn-circle-sm { width: 48px; height: 48px; border: 1.5px solid; margin-top: 8px; }
 
-.btn-circle-lg svg { width: 24px; height: 24px; }
-.btn-circle-sm svg { width: 16px; height: 16px; }
+.btn-circle-lg svg { width: 28px; height: 28px; }
+.btn-circle-sm svg { width: 18px; height: 18px; }
 
 .btn-circle-dismiss { border-color: var(--dismiss); color: var(--dismiss); }
 .btn-circle-keep { border-color: var(--keep); color: var(--keep); }
@@ -480,9 +491,9 @@ main#deckArea {
 .btn {
   appearance: none;
   border: none;
-  border-radius: 10px;
-  padding: 14px 10px;
-  font-size: 0.95rem;
+  border-radius: 12px;
+  padding: 16px 12px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
@@ -502,8 +513,8 @@ main#deckArea {
 .btn-undo {
   background: none;
   color: var(--text-dim);
-  font-size: 0.85rem;
-  padding: 6px 10px;
+  font-size: 0.9rem;
+  padding: 10px 14px;
   text-decoration: underline;
 }
 
@@ -683,8 +694,8 @@ main#deckArea {
   background: none;
   color: var(--text-dim);
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -700,8 +711,8 @@ main#deckArea {
 }
 
 .note-icon {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
 }
 
 .note-input {
@@ -738,12 +749,13 @@ main#deckArea {
   border: none;
   background: none;
   color: var(--skip);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 2px 0;
+  padding: 8px 4px;
   text-align: left;
   cursor: pointer;
   align-self: flex-start;
+  touch-action: manipulation;
 }
 
 .dash-more-items {
@@ -1020,9 +1032,10 @@ main#deckArea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 4px 6px;
-  font-size: 0.68rem;
+  gap: 4px;
+  padding: 10px 4px 8px;
+  min-height: 56px;
+  font-size: 0.7rem;
   cursor: pointer;
   position: relative;
   touch-action: manipulation;
@@ -1031,8 +1044,8 @@ main#deckArea {
 .tab-btn.active { color: var(--text); }
 
 .tab-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .tab-badge {
