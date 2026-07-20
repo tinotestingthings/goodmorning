@@ -632,6 +632,17 @@ main#deckArea {
   border-color: var(--skip);
 }
 
+/* Icon + label wrapper. Column-centered by default (matches the plain
+   square tiles); wide tiles (the Today/weather tile) lay it out as a row
+   at the top instead, leaving room for extra content — the weather strip
+   — stacked below. */
+.tile-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 .tile-icon {
   width: 30px;
   height: 30px;
@@ -643,11 +654,73 @@ main#deckArea {
 .tile-projects .tile-icon { color: var(--keep); }
 .tile-radar .tile-icon { color: var(--dismiss); }
 .tile-weather .tile-icon { color: #d9a441; }
+.tile-chores .tile-icon { color: #7cb87c; }
+.tile-todos .tile-icon { color: #8fb3e0; }
 
 .tile-label {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text);
+}
+
+/* ---- wide tile (spans both grid columns — the Today/weather tile) ---- */
+
+.tile-wide {
+  grid-column: span 2;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 14px 16px 16px;
+  min-height: 0;
+  gap: 12px;
+}
+
+.tile-wide .tile-head {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.tile-wide .tile-icon { width: 22px; height: 22px; }
+.tile-wide .tile-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+
+.tile-weather-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tile-weather-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tws-icon {
+  width: 24px;
+  height: 24px;
+  color: #d9a441;
+}
+
+.tws-icon svg { width: 100%; height: 100%; display: block; }
+
+.tws-temp {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tws-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.tile-weather-msg {
+  font-size: 0.82rem;
+  color: var(--text-dim);
 }
 
 .tile-badge {
@@ -770,6 +843,265 @@ main#deckArea {
   color: var(--text-dim);
   flex-shrink: 0;
 }
+
+/* ---- shared inline add/edit form (chores + to-dos) ---- */
+
+.inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+
+.inline-form-row {
+  display: flex;
+  gap: 8px;
+}
+
+.field-input,
+.field-select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  min-height: 44px;
+}
+
+.field-input { width: 100%; }
+.field-select { flex: 1; min-width: 0; }
+.field-select-wide { flex: 2; }
+
+.inline-form-row .btn,
+.inline-form > .btn {
+  width: 100%;
+}
+
+/* ---- weekly chores (inside the Chores tile's accordion card) ---- */
+
+.chore-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chore-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chore-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chore-name-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 4px 0;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.chore-del-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.chore-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chore-freq {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.chore-due-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: rgba(217, 83, 79, 0.18);
+  color: var(--dismiss);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.chore-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.chore-dot {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.chore-dot-done {
+  background: var(--keep);
+  border-color: var(--keep);
+}
+
+/* ---- one-off to-dos (inside the To-dos tile's accordion card) ---- */
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.todo-check {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: none;
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.todo-check svg { width: 16px; height: 16px; }
+
+.todo-check-done {
+  background: var(--keep);
+  border-color: var(--keep);
+  color: #fff;
+}
+
+.todo-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-text {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.todo-text-done {
+  color: var(--text-dim);
+  text-decoration: line-through;
+}
+
+.todo-due {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.todo-del-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+/* ---- urgent home-screen cards (due-soon chores, due-today to-dos) ---- */
+
+.tile-urgent {
+  cursor: default;
+}
+
+.tile-urgent .tile-head {
+  justify-content: space-between;
+}
+
+.tile-urgent .tile-icon { color: #d9a441; }
+
+.urgent-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.urgent-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.urgent-sub {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.urgent-check {
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: none;
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.urgent-check:active {
+  background: var(--keep);
+  border-color: var(--keep);
+  color: #fff;
+}
+
+.urgent-check svg { width: 18px; height: 18px; }
 
 .note-btn {
   appearance: none;
@@ -1157,7 +1489,7 @@ main#deckArea {
 /* ---- sandbox marker (sandbox copy only) ---- */
 
 body::after {
-  content: "SANDBOX \00b7 2026-07-20 21:28";
+  content: "SANDBOX \00b7 2026-07-20 21:56";
   position: fixed;
   top: 10px;
   left: 50%;
