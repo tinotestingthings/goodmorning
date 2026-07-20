@@ -24,6 +24,10 @@
       '<div class="pin-pad" id="pinPad"></div>' +
     '</div>';
 
+  function vibrate(ms) {
+    if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+  }
+
   function renderDots() {
     var dots = overlay.querySelectorAll(".pin-dot");
     for (var i = 0; i < dots.length; i++) {
@@ -32,6 +36,7 @@
   }
 
   function shake() {
+    vibrate([15, 60, 15, 60, 15]);
     var box = overlay.querySelector(".pin-dots");
     box.classList.remove("pin-shake");
     void box.offsetWidth;
@@ -40,6 +45,7 @@
 
   function press(digit) {
     if (entered.length >= 4) return;
+    vibrate(8);
     entered += digit;
     renderDots();
     if (entered.length === 4) setTimeout(check, 120);

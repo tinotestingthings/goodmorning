@@ -15,6 +15,10 @@
   var pointer = 0;
   var lastAction = null; // { type: "decide"|"skip", id, prevPointer }
 
+  function vibrate(ms) {
+    if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+  }
+
   function loadJSON(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
@@ -43,6 +47,18 @@
     items = daily.filter(function (it) { return !handedOff[it.id]; });
   }
 
+  function pendingCount() {
+    var n = 0;
+    for (var i = 0; i < items.length; i++) {
+      if (!decisions[items[i].id]) n++;
+    }
+    return n;
+  }
+
+  function updateBadge() {
+    if (window.App && App.setTriageBadge) App.setTriageBadge(pendingCount());
+  }
+
   function firstUndecidedIndex(fromIndex) {
     var start = fromIndex || 0;
     for (var i = start; i < items.length; i++) {
@@ -52,7 +68,7 @@
   }
 
   function setFeedStatus(text) {
-    feedStatus.textContent = text;
+    if (feedStatus) feedStatus.textContent = text;
   }
 
   function toast(message) {
@@ -81,6 +97,7 @@
 
   function render() {
     deckArea.innerHTML = "";
+    updateBadge();
 
     if (!feed) {
       renderEmpty("No cards right now.");
@@ -250,7 +267,7 @@
     continueBtn.className = "btn btn-primary";
     continueBtn.textContent = "Continue to practice →";
     continueBtn.addEventListener("click", function () {
-      window.location.href = "practice.html";
+      App.go("practice");
     });
     actions.appendChild(continueBtn);
 
@@ -298,6 +315,7 @@
 
     function flyOut(direction) {
       var action = direction > 0 ? "keep" : "dismiss";
+      vibrate(12);
       card.classList.remove("card-dragging");
       card.classList.add("card-animating");
       (direction > 0 ? keepBadge : dismissBadge).style.opacity = 1;
@@ -375,6 +393,7 @@
   }
 
   function decide(item, action, flashEl) {
+    if (flashEl) vibrate(12);
     flashDecision(flashEl, action === "keep" ? "KEPT" : "DISMISSED", action === "keep" ? "--keep" : "--dismiss");
     lastAction = { type: "decide", id: item.id, prevPointer: pointer };
     decisions[item.id] = action;
@@ -500,10 +519,21 @@
   }
 
   function init() {
-    DigestLoop.setStep("triage");
+    // Prefetch the feed and pre-render the deck at boot (so the Triage tab
+    // badge is accurate immediately and switching tabs feels instant) — but
+    // do NOT mark the loop step as "triage" here. All three views now load
+    // up front in one shell, so that has to happen only when the user
+    // actually opens this tab, or every reload would silently overwrite a
+    // "done" step back to "triage".
     loadState();
     loadCommittedFeed();
   }
 
   init();
+
+  if (window.App && App.onShow) {
+    App.onShow("triage", function () {
+      DigestLoop.setStep("triage");
+    });
+  }
 })();
