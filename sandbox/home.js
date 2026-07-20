@@ -251,9 +251,30 @@
     updateNotesFooter();
   }
 
+  // ---- sandbox-only: reset test data ----
+  // Sandbox is for repeatedly testing the swipe deck, not for real triage —
+  // so unlike the live app, decisions/hand-offs shouldn't just accumulate
+  // and make cards vanish for good. This wipes every sbx.* key and reloads
+  // fresh against the committed sandbox feed.json.
+
+  function renderSandboxReset() {
+    var wrap = el("div", "sandbox-reset");
+    var btn = el("button", "btn btn-ghost btn-reset-sandbox", "↺ Reset sandbox data");
+    btn.addEventListener("click", function () {
+      if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
+      Object.keys(localStorage).forEach(function (key) {
+        if (key.indexOf("sbx.") === 0) localStorage.removeItem(key);
+      });
+      window.location.reload();
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   function render() {
     view.innerHTML = "";
     view.appendChild(renderHero());
+    view.appendChild(renderSandboxReset());
 
     var imported = loadJSON(LS_IMPORTED_FEED, null);
     if (imported) {

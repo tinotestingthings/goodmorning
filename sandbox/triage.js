@@ -172,7 +172,7 @@
 
     deckArea.appendChild(card);
 
-    attachSwipe(card, item, keepBadge, dismissBadge);
+    attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
@@ -277,10 +277,16 @@
 
   // ---- tinder swipe ----
 
-  function attachSwipe(card, item, keepBadge, dismissBadge) {
+  function attachSwipe(card, item, summary, keepBadge, dismissBadge) {
+    // touch-action:none on .card means the browser hands us every pointer
+    // event for the whole gesture — no native scroll to fight with. We
+    // decide the axis ourselves on first meaningful move and then own it:
+    // "x" drives the swipe transform, "y" drives summary.scrollTop by hand.
+    var AXIS_DEADZONE = 8; // px before we commit to an axis
     var startX = 0, startY = 0, dx = 0, dy = 0;
-    var dragging = false, captured = false;
-    var lastX = 0, lastT = 0, vx = 0;
+    var lastX = 0, lastY = 0, lastT = 0, vx = 0;
+    var dragging = false, axis = null; // null | "x" | "y"
+    var scrollMax = 0;
 
     function setTransform() {
       card.style.transform = "translate(" + dx + "px," + (dy * 0.12) + "px) rotate(" + (dx * 0.05) + "deg)";
@@ -314,41 +320,45 @@
       startX = e.clientX;
       startY = e.clientY;
       lastX = e.clientX;
+      lastY = e.clientY;
       lastT = e.timeStamp;
       dx = 0; dy = 0; vx = 0;
+      axis = null;
       dragging = true;
-      captured = false;
+      scrollMax = Math.max(0, summary.scrollHeight - summary.clientHeight);
+      try { card.setPointerCapture(e.pointerId); } catch (err) {}
     });
 
     card.addEventListener("pointermove", function (e) {
       if (!dragging) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
+      var stepY = e.clientY - lastY;
 
-      if (!captured) {
-        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-          captured = true;
-          card.classList.add("card-dragging");
-          try { card.setPointerCapture(e.pointerId); } catch (err) {}
-        } else if (Math.abs(dy) > 16) {
-          dragging = false; // vertical intent: let the summary scroll
-          return;
-        } else {
-          return;
-        }
+      if (!axis) {
+        if (Math.abs(dx) < AXIS_DEADZONE && Math.abs(dy) < AXIS_DEADZONE) return;
+        axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+        if (axis === "x") card.classList.add("card-dragging");
       }
 
-      var dt = e.timeStamp - lastT;
-      if (dt > 0) vx = (e.clientX - lastX) / dt;
+      if (axis === "x") {
+        var dt = e.timeStamp - lastT;
+        if (dt > 0) vx = (e.clientX - lastX) / dt;
+        setTransform();
+      } else {
+        // manual scroll: content follows the finger, clamped to bounds
+        summary.scrollTop = Math.max(0, Math.min(scrollMax, summary.scrollTop - stepY));
+      }
+
       lastX = e.clientX;
+      lastY = e.clientY;
       lastT = e.timeStamp;
-      setTransform();
     });
 
     function release() {
       if (!dragging) return;
       dragging = false;
-      if (!captured) return;
+      if (axis !== "x") return;
       var threshold = Math.min(130, card.offsetWidth * 0.4);
       if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.6 && Math.abs(dx) > 40)) {
         flyOut(dx > 0 ? 1 : -1);
@@ -557,6 +567,20 @@
     revertFeedBtn.classList.add("hidden");
     loadCommittedFeed();
   });
+
+  // sandbox-only: wipe every sbx.* key (decisions, hand-offs, notes,
+  // progress, imported feed) and reload against the committed test feed —
+  // lets Tinus replay the same swipe test as many times as he wants.
+  var resetSandboxBtn = document.getElementById("resetSandboxBtn");
+  if (resetSandboxBtn) {
+    resetSandboxBtn.addEventListener("click", function () {
+      if (!window.confirm("Reset all sandbox test data? This only affects the sandbox.")) return;
+      Object.keys(localStorage).forEach(function (key) {
+        if (key.indexOf("sbx.") === 0) localStorage.removeItem(key);
+      });
+      window.location.reload();
+    });
+  }
 
   init();
 })();

@@ -576,7 +576,7 @@ main#deckArea {
 /* ---- tinder swipe ---- */
 
 .card {
-  touch-action: pan-y;
+  touch-action: none;
   will-change: transform;
 }
 
@@ -636,4 +636,19 @@ body::after {
   z-index: 100;
   pointer-events: none;
   opacity: 0.92;
+}
+
+/* ---- sandbox-only reset control ---- */
+
+.sandbox-reset {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+
+.btn-reset-sandbox {
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  border-color: #d9a441;
+  color: #d9a441;
 }
