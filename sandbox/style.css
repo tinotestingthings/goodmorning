@@ -416,7 +416,7 @@ main#deckArea {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   text-align: left;
   padding-bottom: 24px;
 }
@@ -425,10 +425,10 @@ main#deckArea {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .dash-head {
@@ -493,14 +493,35 @@ main#deckArea {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 }
 
 .dash-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
+
+.dash-more-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--skip);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 0;
+  text-align: left;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.dash-more-items {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dash-more-items.hidden { display: none; }
 
 .dash-row {
   display: flex;

@@ -131,6 +131,29 @@
     return sec;
   }
 
+  // A "+N more" disclosure: renders `primary` rows straight into `sec`, and
+  // tucks `rest` behind a small toggle so a long list doesn't dominate the
+  // screen by default. `rowFn` builds one row's DOM for a given item.
+  function collapsible(sec, primary, rest, rowFn) {
+    primary.forEach(function (item) { sec.appendChild(rowFn(item)); });
+    if (rest.length === 0) return;
+
+    var restWrap = el("div", "dash-more-items hidden");
+    rest.forEach(function (item) { restWrap.appendChild(rowFn(item)); });
+
+    var moreBtn = el("button", "dash-more-btn", "+" + rest.length + " more");
+    moreBtn.setAttribute("type", "button");
+    var expanded = false;
+    moreBtn.addEventListener("click", function () {
+      expanded = !expanded;
+      restWrap.classList.toggle("hidden", !expanded);
+      moreBtn.textContent = expanded ? "Show less" : "+" + rest.length + " more";
+    });
+
+    sec.appendChild(moreBtn);
+    sec.appendChild(restWrap);
+  }
+
   function renderTasks(today) {
     return section("Tasks · suggested", function (sec) {
       var tasks = today.tasks || [];
@@ -147,13 +170,30 @@
         var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
         row.appendChild(nc.btn);
         li.appendChild(row);
-        if (t.detail) li.appendChild(el("div", "dash-detail", t.detail));
-        if (t.hint) li.appendChild(el("div", "dash-hint", t.hint));
+        // Detail + hint used to be two separate lines; folded into one
+        // compact line to cut the row's height, since both are short,
+        // subordinate context rather than primary information.
+        var sub = [t.detail, t.hint].filter(Boolean).join(" · ");
+        if (sub) li.appendChild(el("div", "dash-hint", sub));
         li.appendChild(nc.textarea);
         list.appendChild(li);
       });
       sec.appendChild(list);
     });
+  }
+
+  function projectRow(p) {
+    var li = el("div", "dash-item");
+    var row = el("div", "dash-row project-row" + (p.status === "active" ? "" : " project-dim"));
+    row.appendChild(chip(p.status));
+    row.appendChild(el("span", "dash-item-title", p.title));
+    if (p.updated) row.appendChild(el("span", "dash-date", p.updated));
+    var nc = noteControl("projects", p.id, "Note on “" + p.title + "” — collected with your decisions.");
+    row.appendChild(nc.btn);
+    li.appendChild(row);
+    if (p.line && p.status === "active") li.appendChild(el("div", "dash-hint", p.line));
+    li.appendChild(nc.textarea);
+    return li;
   }
 
   function renderProjects(today) {
@@ -164,21 +204,16 @@
         return;
       }
       var order = { active: 0, paused: 1, "idea-stage": 2 };
-      projects.slice().sort(function (a, b) {
+      var sorted = projects.slice().sort(function (a, b) {
         return (order[a.status] || 0) - (order[b.status] || 0);
-      }).forEach(function (p) {
-        var li = el("div", "dash-item");
-        var row = el("div", "dash-row project-row" + (p.status === "active" ? "" : " project-dim"));
-        row.appendChild(chip(p.status));
-        row.appendChild(el("span", "dash-item-title", p.title));
-        if (p.updated) row.appendChild(el("span", "dash-date", p.updated));
-        var nc = noteControl("projects", p.id, "Note on “" + p.title + "” — collected with your decisions.");
-        row.appendChild(nc.btn);
-        li.appendChild(row);
-        if (p.line && p.status === "active") li.appendChild(el("div", "dash-hint", p.line));
-        li.appendChild(nc.textarea);
-        sec.appendChild(li);
       });
+      // Active projects are what's moving — show those by default. Paused
+      // and idea-stage ones are still there, just a tap away, instead of
+      // permanently taking up screen space alongside what's actually live.
+      var primary = sorted.filter(function (p) { return p.status === "active"; });
+      var rest = sorted.filter(function (p) { return p.status !== "active"; });
+      if (primary.length === 0) { primary = sorted; rest = []; } // nothing active — just show what there is
+      collapsible(sec, primary, rest, projectRow);
     });
   }
 
@@ -187,6 +222,24 @@
     var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var target = new Date(dateStr + "T00:00:00");
     return Math.round((target - today) / 86400000);
+  }
+
+  var RADAR_VISIBLE_DEFAULT = 3;
+
+  function deadlineRow(d) {
+    var days = daysUntil(d.date);
+    var itemId = d.id || slugify(d.date + "-" + d.label);
+    var li = el("div", "dash-item");
+    var row = el("div", "dl-row");
+    var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
+    row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
+    row.appendChild(el("span", "dl-label", d.label));
+    row.appendChild(el("span", "dash-date", d.date));
+    var nc = noteControl("radar", itemId, "Note on “" + d.label + "” — collected with your decisions.");
+    row.appendChild(nc.btn);
+    li.appendChild(row);
+    li.appendChild(nc.textarea);
+    return li;
   }
 
   function renderRadar(today) {
@@ -205,21 +258,13 @@
 
       if (radar.headline) sec.appendChild(el("p", "radar-headline", radar.headline));
 
-      (radar.deadlines || []).forEach(function (d) {
-        var days = daysUntil(d.date);
-        var itemId = d.id || slugify(d.date + "-" + d.label);
-        var li = el("div", "dash-item");
-        var row = el("div", "dl-row");
-        var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
-        row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
-        row.appendChild(el("span", "dl-label", d.label));
-        row.appendChild(el("span", "dash-date", d.date));
-        var nc = noteControl("radar", itemId, "Note on “" + d.label + "” — collected with your decisions.");
-        row.appendChild(nc.btn);
-        li.appendChild(row);
-        li.appendChild(nc.textarea);
-        sec.appendChild(li);
-      });
+      // Deadlines are already date-sorted soonest-first by the feed builder
+      // — only the ones actually coming up matter at a glance; the rest is
+      // a tap away instead of a wall of dates.
+      var deadlines = radar.deadlines || [];
+      var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);
+      var rest = deadlines.slice(RADAR_VISIBLE_DEFAULT);
+      collapsible(sec, primary, rest, deadlineRow);
     });
   }
 
