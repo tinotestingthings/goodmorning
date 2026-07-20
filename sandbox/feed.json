@@ -1,0 +1,107 @@
+{
+  "generated": "2026-07-20T12:00",
+  "daily": [],
+  "today": {
+    "date": "2026-07-20",
+    "tasks": [
+      {
+        "id": "2026-07-11-piano-practice-current-song-for-lessons",
+        "title": "Piano — current song for lessons",
+        "status": "doing",
+        "hint": "Your only task in 'doing'"
+      },
+      {
+        "id": "2026-07-13-fix-bios-virtualization-for-cowork",
+        "title": "Fix BIOS virtualization for Cowork",
+        "status": "todo",
+        "hint": "Step-by-step fix is in the note — unblocks Cowork's sandbox"
+      },
+      {
+        "id": "2026-07-14-fill-in-work-compliance-topics-resources",
+        "title": "Fill in work compliance topics resources",
+        "status": "todo",
+        "hint": "The 'Work compliance topics' project is still placeholders"
+      }
+    ],
+    "projects": [
+      {
+        "id": "2026-07-11-daily-habits-hub-site",
+        "title": "Daily habits hub site",
+        "status": "active",
+        "updated": "2026-07-20",
+        "line": "This app is bucket one — swipe feed live, dashboard added today"
+      },
+      {
+        "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
+        "title": "Daily digest app (spec)",
+        "status": "active",
+        "updated": "2026-07-20"
+      },
+      {
+        "id": "2026-07-11-finance-and-markets-learning-interest",
+        "title": "Finance & markets — learning interest",
+        "status": "active"
+      },
+      {
+        "id": "2026-07-11-personal-productivity-mental-health-management",
+        "title": "Productivity as mental-health management",
+        "status": "active"
+      },
+      {
+        "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
+        "title": "Cooking — improving recipes",
+        "status": "idea-stage"
+      },
+      {
+        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
+        "title": "Work compliance topics",
+        "status": "idea-stage"
+      },
+      {
+        "id": "2026-07-14-cookie-scanner-applicatie",
+        "title": "Cookie scanner applicatie",
+        "status": "idea-stage"
+      },
+      {
+        "id": "2026-07-14-team-verbetering-idee",
+        "title": "Team verbetering idee",
+        "status": "idea-stage"
+      }
+    ],
+    "radar": {
+      "updated": "2026-07-20 06:32",
+      "follow_ups": 0,
+      "headline": "Digital Omnibus on AI formally adopted — Official Journal publication pending; watching EUR-Lex.",
+      "deadlines": [
+        {
+          "date": "2026-07-22",
+          "label": "AI content-marking Code of Practice — signing window closes"
+        },
+        {
+          "date": "2026-08-01",
+          "label": "Potjewijd takes office as AP chair"
+        },
+        {
+          "date": "2026-08-02",
+          "label": "AI Act Art. 50 transparency obligations apply"
+        },
+        {
+          "date": "2026-08-10",
+          "label": "AP consultation DPIA exceptions (employee data) closes"
+        },
+        {
+          "date": "2026-08-15",
+          "label": "Cyberbeveiligingswet + Wwke enter into force"
+        },
+        {
+          "date": "2026-10-31",
+          "label": "ISO 27701:2025 certification-body transition deadline"
+        },
+        {
+          "date": "2026-12-02",
+          "label": "Art. 50 watermarking grace ends; CSAM prohibition effective"
+        }
+      ]
+    }
+  }
+}
