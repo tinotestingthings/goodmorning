@@ -1,8 +1,6 @@
 (function () {
   "use strict";
 
-  var LS_IMPORTED_FEED = "sbx.importedFeed";
-
   var view = document.getElementById("homeView");
 
   function el(tag, className, text) {
@@ -277,11 +275,6 @@
     view.appendChild(renderHero());
     view.appendChild(renderSandboxReset());
 
-    var imported = loadJSON(LS_IMPORTED_FEED, null);
-    if (imported) {
-      renderDashboard(imported);
-      return;
-    }
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("HTTP " + res.status);

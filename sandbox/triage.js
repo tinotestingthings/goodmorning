@@ -4,20 +4,11 @@
   var LS_DECISIONS = "sbx.decisions";
   var LS_HANDED_OFF = "sbx.handedOff";
   var LS_POINTER = "sbx.pointer";
-  var LS_IMPORTED_FEED = "sbx.importedFeed";
 
   var deckArea = document.getElementById("deckArea");
   var feedStatus = document.getElementById("feedStatus");
-  var importPanel = document.getElementById("importPanel");
-  var importText = document.getElementById("importText");
-  var importError = document.getElementById("importError");
-  var importToggleBtn = document.getElementById("importToggleBtn");
-  var importLoadBtn = document.getElementById("importLoadBtn");
-  var importCancelBtn = document.getElementById("importCancelBtn");
-  var revertFeedBtn = document.getElementById("revertFeedBtn");
 
   var feed = null;
-  var feedSource = "committed"; // "committed" | "imported"
   var items = [];
   var decisions = {};
   var handedOff = {};
@@ -92,7 +83,7 @@
     deckArea.innerHTML = "";
 
     if (!feed) {
-      renderEmpty("No feed loaded. Import one below.");
+      renderEmpty("No cards right now.");
       return;
     }
 
@@ -475,38 +466,35 @@
     pointer = firstUndecidedIndex(0);
     savePointer();
     lastAction = null;
-    setFeedStatus(items.length + " cards · " + (feedSource === "imported" ? "imported feed" : "committed feed.json"));
+    setFeedStatus(items.length + (items.length === 1 ? " card" : " cards"));
     toast("Handed off — " + clearedCount + " cleared");
     render();
   }
 
   // ---- feed loading ----
 
-  function applyFeed(newFeed, source) {
+  function applyFeed(newFeed) {
     feed = newFeed;
-    feedSource = source;
     computeItems();
     pointer = firstUndecidedIndex(0);
     savePointer();
     lastAction = null;
-    setFeedStatus(items.length + " cards · " + (source === "imported" ? "imported feed" : "committed feed.json"));
-    revertFeedBtn.classList.toggle("hidden", source !== "imported");
+    setFeedStatus(items.length + (items.length === 1 ? " card" : " cards"));
     render();
   }
 
   function loadCommittedFeed() {
-    setFeedStatus("Loading feed.json…");
+    setFeedStatus("Loading…");
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
       })
-      .then(function (json) { applyFeed(json, "committed"); })
-      .catch(function (err) {
+      .then(function (json) { applyFeed(json); })
+      .catch(function () {
         feed = null;
         items = [];
-        setFeedStatus("Could not load feed.json (" + err.message + ")");
-        importPanel.classList.remove("hidden");
+        setFeedStatus("Could not load feed");
         render();
       });
   }
@@ -514,65 +502,11 @@
   function init() {
     DigestLoop.setStep("triage");
     loadState();
-
-    var imported = loadJSON(LS_IMPORTED_FEED, null);
-    if (imported) {
-      applyFeed(imported, "imported");
-    } else {
-      loadCommittedFeed();
-    }
+    loadCommittedFeed();
   }
 
-  // ---- import panel wiring ----
-
-  importToggleBtn.addEventListener("click", function () {
-    importPanel.classList.toggle("hidden");
-    importError.classList.add("hidden");
-  });
-
-  importCancelBtn.addEventListener("click", function () {
-    importPanel.classList.add("hidden");
-    importText.value = "";
-    importError.classList.add("hidden");
-  });
-
-  importLoadBtn.addEventListener("click", function () {
-    var raw = importText.value.trim();
-    if (!raw) {
-      importError.textContent = "Paste some JSON first.";
-      importError.classList.remove("hidden");
-      return;
-    }
-    var parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (e) {
-      importError.textContent = "Invalid JSON: " + e.message;
-      importError.classList.remove("hidden");
-      return;
-    }
-    if (!parsed || !Array.isArray(parsed.daily)) {
-      importError.textContent = "JSON must have a \"daily\" array.";
-      importError.classList.remove("hidden");
-      return;
-    }
-    saveJSON(LS_IMPORTED_FEED, parsed);
-    importError.classList.add("hidden");
-    importText.value = "";
-    importPanel.classList.add("hidden");
-    applyFeed(parsed, "imported");
-    toast("Imported feed loaded");
-  });
-
-  revertFeedBtn.addEventListener("click", function () {
-    localStorage.removeItem(LS_IMPORTED_FEED);
-    revertFeedBtn.classList.add("hidden");
-    loadCommittedFeed();
-  });
-
-  // sandbox-only: wipe every sbx.* key (decisions, hand-offs, notes,
-  // progress, imported feed) and reload against the committed test feed —
-  // lets Tinus replay the same swipe test as many times as he wants.
+  // sandbox-only: wipe every sbx.* key (decisions, hand-offs, notes, progress)
+  // and reload — lets Tinus replay the same swipe test as many times as he wants.
   var resetSandboxBtn = document.getElementById("resetSandboxBtn");
   if (resetSandboxBtn) {
     resetSandboxBtn.addEventListener("click", function () {

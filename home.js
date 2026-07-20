@@ -1,8 +1,6 @@
 (function () {
   "use strict";
 
-  var LS_IMPORTED_FEED = "dd.importedFeed";
-
   var view = document.getElementById("homeView");
 
   function el(tag, className, text) {
@@ -117,6 +115,7 @@
         row.appendChild(chip(t.status));
         row.appendChild(el("span", "dash-item-title", t.title));
         li.appendChild(row);
+        if (t.detail) li.appendChild(el("div", "dash-detail", t.detail));
         if (t.hint) li.appendChild(el("div", "dash-hint", t.hint));
         list.appendChild(li);
       });
@@ -255,11 +254,6 @@
     view.innerHTML = "";
     view.appendChild(renderHero());
 
-    var imported = loadJSON(LS_IMPORTED_FEED, null);
-    if (imported) {
-      renderDashboard(imported);
-      return;
-    }
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("HTTP " + res.status);

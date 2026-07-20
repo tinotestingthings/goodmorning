@@ -4,20 +4,11 @@
   var LS_DECISIONS = "dd.decisions";
   var LS_HANDED_OFF = "dd.handedOff";
   var LS_POINTER = "dd.pointer";
-  var LS_IMPORTED_FEED = "dd.importedFeed";
 
   var deckArea = document.getElementById("deckArea");
   var feedStatus = document.getElementById("feedStatus");
-  var importPanel = document.getElementById("importPanel");
-  var importText = document.getElementById("importText");
-  var importError = document.getElementById("importError");
-  var importToggleBtn = document.getElementById("importToggleBtn");
-  var importLoadBtn = document.getElementById("importLoadBtn");
-  var importCancelBtn = document.getElementById("importCancelBtn");
-  var revertFeedBtn = document.getElementById("revertFeedBtn");
 
   var feed = null;
-  var feedSource = "committed"; // "committed" | "imported"
   var items = [];
   var decisions = {};
   var handedOff = {};
@@ -92,7 +83,7 @@
     deckArea.innerHTML = "";
 
     if (!feed) {
-      renderEmpty("No feed loaded. Import one below.");
+      renderEmpty("No cards right now.");
       return;
     }
 
@@ -172,7 +163,7 @@
 
     deckArea.appendChild(card);
 
-    attachSwipe(card, item, keepBadge, dismissBadge);
+    attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
@@ -277,13 +268,20 @@
 
   // ---- tinder swipe ----
 
-  function attachSwipe(card, item, keepBadge, dismissBadge) {
+  function attachSwipe(card, item, summary, keepBadge, dismissBadge) {
+    // touch-action: pan-y (set in CSS on the card AND the summary) lets the
+    // browser do all vertical scrolling natively — smooth momentum, no JS
+    // in the loop. The browser only hands US the horizontal component, so we
+    // never fight the scroll. We commit to a swipe as soon as horizontal
+    // clearly dominates; otherwise we stay out of the way and let it scroll.
+    var DEADZONE = 6;      // px before we judge direction
     var startX = 0, startY = 0, dx = 0, dy = 0;
-    var dragging = false, captured = false;
     var lastX = 0, lastT = 0, vx = 0;
+    var tracking = false;  // pointer is down, still watching
+    var swiping = false;   // committed to a horizontal swipe
 
     function setTransform() {
-      card.style.transform = "translate(" + dx + "px," + (dy * 0.12) + "px) rotate(" + (dx * 0.05) + "deg)";
+      card.style.transform = "translate(" + dx + "px,0) rotate(" + (dx * 0.05) + "deg)";
       var strength = Math.min(1, Math.abs(dx) / 90);
       keepBadge.style.opacity = dx > 0 ? strength : 0;
       dismissBadge.style.opacity = dx < 0 ? strength : 0;
@@ -303,41 +301,45 @@
       card.classList.remove("card-dragging");
       card.classList.add("card-animating");
       (direction > 0 ? keepBadge : dismissBadge).style.opacity = 1;
-      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px," +
-        (dy * 0.4 + 40) + "px) rotate(" + (direction * 28) + "deg)";
+      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px,40px) rotate(" +
+        (direction * 28) + "deg)";
       card.style.opacity = "0.3";
       setTimeout(function () { decide(item, action, null); }, 230);
     }
 
     card.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       if (e.target.closest("a, button, textarea")) return;
       startX = e.clientX;
       startY = e.clientY;
       lastX = e.clientX;
       lastT = e.timeStamp;
       dx = 0; dy = 0; vx = 0;
-      dragging = true;
-      captured = false;
+      tracking = true;
+      swiping = false;
     });
 
     card.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
+      if (!tracking) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
 
-      if (!captured) {
-        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-          captured = true;
+      if (!swiping) {
+        if (Math.abs(dx) < DEADZONE && Math.abs(dy) < DEADZONE) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          // horizontal wins -> take over as a swipe
+          swiping = true;
           card.classList.add("card-dragging");
           try { card.setPointerCapture(e.pointerId); } catch (err) {}
-        } else if (Math.abs(dy) > 16) {
-          dragging = false; // vertical intent: let the summary scroll
-          return;
         } else {
+          // vertical wins -> hands off; the browser is scrolling natively
+          tracking = false;
           return;
         }
       }
 
+      // once swiping, keep the card glued to the finger
+      if (e.cancelable) e.preventDefault();
       var dt = e.timeStamp - lastT;
       if (dt > 0) vx = (e.clientX - lastX) / dt;
       lastX = e.clientX;
@@ -346,11 +348,12 @@
     });
 
     function release() {
-      if (!dragging) return;
-      dragging = false;
-      if (!captured) return;
-      var threshold = Math.min(130, card.offsetWidth * 0.4);
-      if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.6 && Math.abs(dx) > 40)) {
+      if (!tracking && !swiping) return;
+      tracking = false;
+      if (!swiping) return;
+      swiping = false;
+      var threshold = Math.min(120, card.offsetWidth * 0.35);
+      if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.5 && Math.abs(dx) > 30)) {
         flyOut(dx > 0 ? 1 : -1);
       } else {
         reset();
@@ -463,38 +466,35 @@
     pointer = firstUndecidedIndex(0);
     savePointer();
     lastAction = null;
-    setFeedStatus(items.length + " cards · " + (feedSource === "imported" ? "imported feed" : "committed feed.json"));
+    setFeedStatus(items.length + (items.length === 1 ? " card" : " cards"));
     toast("Handed off — " + clearedCount + " cleared");
     render();
   }
 
   // ---- feed loading ----
 
-  function applyFeed(newFeed, source) {
+  function applyFeed(newFeed) {
     feed = newFeed;
-    feedSource = source;
     computeItems();
     pointer = firstUndecidedIndex(0);
     savePointer();
     lastAction = null;
-    setFeedStatus(items.length + " cards · " + (source === "imported" ? "imported feed" : "committed feed.json"));
-    revertFeedBtn.classList.toggle("hidden", source !== "imported");
+    setFeedStatus(items.length + (items.length === 1 ? " card" : " cards"));
     render();
   }
 
   function loadCommittedFeed() {
-    setFeedStatus("Loading feed.json…");
+    setFeedStatus("Loading…");
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
       })
-      .then(function (json) { applyFeed(json, "committed"); })
-      .catch(function (err) {
+      .then(function (json) { applyFeed(json); })
+      .catch(function () {
         feed = null;
         items = [];
-        setFeedStatus("Could not load feed.json (" + err.message + ")");
-        importPanel.classList.remove("hidden");
+        setFeedStatus("Could not load feed");
         render();
       });
   }
@@ -502,61 +502,8 @@
   function init() {
     DigestLoop.setStep("triage");
     loadState();
-
-    var imported = loadJSON(LS_IMPORTED_FEED, null);
-    if (imported) {
-      applyFeed(imported, "imported");
-    } else {
-      loadCommittedFeed();
-    }
-  }
-
-  // ---- import panel wiring ----
-
-  importToggleBtn.addEventListener("click", function () {
-    importPanel.classList.toggle("hidden");
-    importError.classList.add("hidden");
-  });
-
-  importCancelBtn.addEventListener("click", function () {
-    importPanel.classList.add("hidden");
-    importText.value = "";
-    importError.classList.add("hidden");
-  });
-
-  importLoadBtn.addEventListener("click", function () {
-    var raw = importText.value.trim();
-    if (!raw) {
-      importError.textContent = "Paste some JSON first.";
-      importError.classList.remove("hidden");
-      return;
-    }
-    var parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (e) {
-      importError.textContent = "Invalid JSON: " + e.message;
-      importError.classList.remove("hidden");
-      return;
-    }
-    if (!parsed || !Array.isArray(parsed.daily)) {
-      importError.textContent = "JSON must have a \"daily\" array.";
-      importError.classList.remove("hidden");
-      return;
-    }
-    saveJSON(LS_IMPORTED_FEED, parsed);
-    importError.classList.add("hidden");
-    importText.value = "";
-    importPanel.classList.add("hidden");
-    applyFeed(parsed, "imported");
-    toast("Imported feed loaded");
-  });
-
-  revertFeedBtn.addEventListener("click", function () {
-    localStorage.removeItem(LS_IMPORTED_FEED);
-    revertFeedBtn.classList.add("hidden");
     loadCommittedFeed();
-  });
+  }
 
   init();
 })();

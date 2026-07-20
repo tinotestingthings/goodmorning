@@ -21,19 +21,7 @@
 
 <main id="deckArea"></main>
 
-<section id="importPanel" class="import-panel hidden">
-  <label for="importText">Paste feed.json contents</label>
-  <textarea id="importText" rows="8" placeholder='{ "generated": "...", "daily": [...] }'></textarea>
-  <div class="import-actions">
-    <button id="importLoadBtn" class="btn btn-primary">Load pasted feed</button>
-    <button id="importCancelBtn" class="btn btn-ghost">Cancel</button>
-  </div>
-  <p id="importError" class="import-error hidden"></p>
-</section>
-
 <footer class="bottombar">
-  <button id="importToggleBtn" class="btn btn-ghost">Import feed</button>
-  <button id="revertFeedBtn" class="btn btn-ghost hidden">Use committed feed.json</button>
   <button id="resetSandboxBtn" class="btn btn-ghost btn-reset-sandbox">↺ Reset</button>
 </footer>
 
