@@ -12,6 +12,10 @@
 
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
 
+  function slugify(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
   function toast(message) {
     var t = document.querySelector(".toast");
     if (!t) {
@@ -23,6 +27,45 @@
     t.classList.add("show");
     clearTimeout(t._hideTimer);
     t._hideTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+
+  // ---- per-item note control ----
+  // A small toggle button + inline textarea, bound to one specific item
+  // (a task, a project, a radar deadline). Every item gets its own note
+  // instead of one note covering a whole section.
+
+  var NOTE_ICON =
+    '<svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/>' +
+    '<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
+  function noteControl(section, itemId, placeholder) {
+    var existing = DigestNotes.getItemNote(section, itemId);
+
+    var btn = document.createElement("button");
+    btn.className = "note-btn" + (existing ? " has-note" : "");
+    btn.innerHTML = NOTE_ICON;
+    btn.setAttribute("aria-label", existing ? "Edit note" : "Add note");
+    btn.setAttribute("type", "button");
+
+    var ta = document.createElement("textarea");
+    ta.className = "note-input" + (existing ? "" : " hidden");
+    ta.rows = 2;
+    ta.placeholder = placeholder || "Note for later — collected with your decisions.";
+    ta.value = existing;
+
+    ta.addEventListener("input", function () {
+      DigestNotes.setItemNote(section, itemId, ta.value);
+      btn.classList.toggle("has-note", !!ta.value.trim());
+      updateNotesFooter();
+    });
+
+    btn.addEventListener("click", function () {
+      ta.classList.toggle("hidden");
+      if (!ta.classList.contains("hidden")) ta.focus();
+    });
+
+    return { btn: btn, textarea: ta };
   }
 
   // ---- hero (loop entry) ----
@@ -81,41 +124,17 @@
     return el("span", "chip chip-" + status, status);
   }
 
-  function section(key, title, buildBody) {
+  function section(title, buildBody) {
     var sec = el("section", "dash-section");
-
     var head = el("div", "dash-head");
     head.appendChild(el("h2", "dash-title", title));
-
-    var notes = DigestNotes.getNotes();
-    var noteBtn = el("button", "note-btn" + (notes[key] ? " has-note" : ""), "✎ note");
-    head.appendChild(noteBtn);
     sec.appendChild(head);
-
     buildBody(sec);
-
-    var ta = document.createElement("textarea");
-    ta.className = "note-input" + (notes[key] ? "" : " hidden");
-    ta.rows = 2;
-    ta.placeholder = "Note for later — copied with your decisions so Claude can update the wiki.";
-    ta.value = notes[key] || "";
-    ta.addEventListener("input", function () {
-      DigestNotes.setNote(key, ta.value);
-      noteBtn.classList.toggle("has-note", !!ta.value.trim());
-      updateNotesFooter();
-    });
-    sec.appendChild(ta);
-
-    noteBtn.addEventListener("click", function () {
-      ta.classList.toggle("hidden");
-      if (!ta.classList.contains("hidden")) ta.focus();
-    });
-
     return sec;
   }
 
   function renderTasks(today) {
-    return section("tasks", "Tasks · suggested", function (sec) {
+    return section("Tasks · suggested", function (sec) {
       var tasks = today.tasks || [];
       if (tasks.length === 0) {
         sec.appendChild(el("p", "dash-empty", "No suggestions today."));
@@ -127,9 +146,12 @@
         var row = el("div", "dash-row");
         row.appendChild(chip(t.status));
         row.appendChild(el("span", "dash-item-title", t.title));
+        var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
+        row.appendChild(nc.btn);
         li.appendChild(row);
         if (t.detail) li.appendChild(el("div", "dash-detail", t.detail));
         if (t.hint) li.appendChild(el("div", "dash-hint", t.hint));
+        li.appendChild(nc.textarea);
         list.appendChild(li);
       });
       sec.appendChild(list);
@@ -137,7 +159,7 @@
   }
 
   function renderProjects(today) {
-    return section("projects", "Projects", function (sec) {
+    return section("Projects", function (sec) {
       var projects = today.projects || [];
       if (projects.length === 0) {
         sec.appendChild(el("p", "dash-empty", "No project data in feed."));
@@ -147,12 +169,17 @@
       projects.slice().sort(function (a, b) {
         return (order[a.status] || 0) - (order[b.status] || 0);
       }).forEach(function (p) {
+        var li = el("div", "dash-item");
         var row = el("div", "dash-row project-row" + (p.status === "active" ? "" : " project-dim"));
         row.appendChild(chip(p.status));
         row.appendChild(el("span", "dash-item-title", p.title));
         if (p.updated) row.appendChild(el("span", "dash-date", p.updated));
-        sec.appendChild(row);
-        if (p.line && p.status === "active") sec.appendChild(el("div", "dash-hint", p.line));
+        var nc = noteControl("projects", p.id, "Note on “" + p.title + "” — collected with your decisions.");
+        row.appendChild(nc.btn);
+        li.appendChild(row);
+        if (p.line && p.status === "active") li.appendChild(el("div", "dash-hint", p.line));
+        li.appendChild(nc.textarea);
+        sec.appendChild(li);
       });
     });
   }
@@ -165,7 +192,7 @@
   }
 
   function renderRadar(today) {
-    return section("radar", "Compliance radar", function (sec) {
+    return section("Compliance radar", function (sec) {
       var radar = today.radar;
       if (!radar) {
         sec.appendChild(el("p", "dash-empty", "No radar data in feed."));
@@ -182,30 +209,35 @@
 
       (radar.deadlines || []).forEach(function (d) {
         var days = daysUntil(d.date);
+        var itemId = d.id || slugify(d.date + "-" + d.label);
+        var li = el("div", "dash-item");
         var row = el("div", "dl-row");
         var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
         row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
         row.appendChild(el("span", "dl-label", d.label));
         row.appendChild(el("span", "dash-date", d.date));
-        sec.appendChild(row);
+        var nc = noteControl("radar", itemId, "Note on “" + d.label + "” — collected with your decisions.");
+        row.appendChild(nc.btn);
+        li.appendChild(row);
+        li.appendChild(nc.textarea);
+        sec.appendChild(li);
       });
     });
   }
 
-  // ---- notes footer ----
+  // ---- notes footer (collects every item note across every section) ----
 
   var notesFooter = null;
 
   function updateNotesFooter() {
     if (!notesFooter) return;
-    var hasNotes = DigestNotes.noteLines().length > 0;
-    notesFooter.classList.toggle("hidden", !hasNotes);
+    notesFooter.classList.toggle("hidden", !DigestNotes.hasNotes());
   }
 
   function renderNotesFooter() {
     notesFooter = el("div", "notes-footer hidden");
 
-    var copyBtn = el("button", "btn btn-ghost", "Copy notes");
+    var copyBtn = el("button", "btn btn-ghost", "Copy all notes");
     copyBtn.addEventListener("click", function () {
       var lines = DigestNotes.noteLines();
       if (lines.length === 0) { toast("No notes yet"); return; }
@@ -215,7 +247,7 @@
       var text = ["morning notes " + stamp].concat(lines).join("\n");
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
-          toast("Notes copied — paste them to Claude");
+          toast("Copied " + lines.length + " note" + (lines.length === 1 ? "" : "s") + " — paste to Claude");
         }, function () {
           toast("Copy failed — clipboard blocked");
         });
@@ -290,8 +322,9 @@
   }
 
   // Re-render every time the Today tab becomes active, not just once at
-  // boot — the hero (and streak) needs to reflect state changed elsewhere
-  // in the app (e.g. finishing triage/practice) without a page reload.
+  // boot — the hero (and streak, and note buttons reflecting notes typed
+  // in the Triage tab) need to reflect state changed elsewhere in the app
+  // without a page reload.
   if (window.App && App.onShow) {
     App.onShow("today", render);
   }

@@ -55,10 +55,14 @@
     getStreak: getStreak
   };
 
-  // ---- morning notes (home dashboard scratch notes, exported with the queue) ----
-
+  // ---- per-item notes ----
+  // One note per individual item (a task, a project, a radar deadline, a
+  // triage/inbox card) instead of one note for a whole section. Stored as
+  // { section: { itemId: "text" } }. All sections share this single store
+  // so any "collect notes" button (Today's Copy notes, Triage's Copy
+  // decisions) picks up everything — including inbox notes — in one pass.
   var LS_NOTES = "sbx.notes";
-  var NOTE_KEYS = ["tasks", "projects", "radar"];
+  var SECTION_ORDER = ["triage", "tasks", "projects", "radar"];
 
   function getNotes() {
     try {
@@ -68,21 +72,47 @@
     }
   }
 
-  function setNote(key, text) {
-    var notes = getNotes();
-    if (text && text.trim()) notes[key] = text;
-    else delete notes[key];
+  function saveNotes(notes) {
     localStorage.setItem(LS_NOTES, JSON.stringify(notes));
+  }
+
+  function setItemNote(section, itemId, text) {
+    var notes = getNotes();
+    var t = (text || "").trim();
+    if (t) {
+      if (!notes[section]) notes[section] = {};
+      notes[section][itemId] = t;
+    } else if (notes[section]) {
+      delete notes[section][itemId];
+      if (Object.keys(notes[section]).length === 0) delete notes[section];
+    }
+    saveNotes(notes);
+  }
+
+  function getItemNote(section, itemId) {
+    var notes = getNotes();
+    return (notes[section] && notes[section][itemId]) || "";
   }
 
   function noteLines() {
     var notes = getNotes();
     var lines = [];
-    NOTE_KEYS.forEach(function (key) {
-      var t = (notes[key] || "").trim();
-      if (t) lines.push("note [" + key + "]: " + t.replace(/\s*\n+\s*/g, "; "));
+    var sections = SECTION_ORDER.concat(Object.keys(notes).filter(function (s) {
+      return SECTION_ORDER.indexOf(s) === -1;
+    }));
+    sections.forEach(function (section) {
+      var items = notes[section];
+      if (!items) return;
+      Object.keys(items).forEach(function (itemId) {
+        var t = items[itemId];
+        if (t) lines.push("note [" + section + ":" + itemId + "]: " + t.replace(/\s*\n+\s*/g, "; "));
+      });
     });
     return lines;
+  }
+
+  function hasNotes() {
+    return noteLines().length > 0;
   }
 
   function clearNotes() {
@@ -91,8 +121,10 @@
 
   global.DigestNotes = {
     getNotes: getNotes,
-    setNote: setNote,
+    setItemNote: setItemNote,
+    getItemNote: getItemNote,
     noteLines: noteLines,
+    hasNotes: hasNotes,
     clearNotes: clearNotes
   };
 })(window);

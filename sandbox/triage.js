@@ -93,6 +93,60 @@
       " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
   }
 
+  // ---- per-item note control (mirrors home.js's — each inbox card gets
+  // its own note, collected into the same store as task/project/radar
+  // notes so one "copy" picks up everything) ----
+
+  var NOTE_ICON =
+    '<svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/>' +
+    '<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
+  function noteControl(section, itemId, placeholder) {
+    var existing = DigestNotes.getItemNote(section, itemId);
+
+    var btn = document.createElement("button");
+    btn.className = "note-btn" + (existing ? " has-note" : "");
+    btn.innerHTML = NOTE_ICON;
+    btn.setAttribute("aria-label", existing ? "Edit note" : "Add note");
+    btn.setAttribute("type", "button");
+
+    var ta = document.createElement("textarea");
+    ta.className = "note-input" + (existing ? "" : " hidden");
+    ta.rows = 2;
+    ta.placeholder = placeholder || "Note for later — collected with your decisions.";
+    ta.value = existing;
+
+    ta.addEventListener("input", function () {
+      DigestNotes.setItemNote(section, itemId, ta.value);
+      btn.classList.toggle("has-note", !!ta.value.trim());
+    });
+
+    btn.addEventListener("click", function () {
+      ta.classList.toggle("hidden");
+      if (!ta.classList.contains("hidden")) ta.focus();
+    });
+
+    return { btn: btn, textarea: ta };
+  }
+
+  // ---- circular action buttons ----
+
+  var ICONS = {
+    dismiss: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>',
+    keep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+  };
+
+  function circleBtn(kind, size, label) {
+    var btn = document.createElement("button");
+    btn.className = "btn-circle btn-circle-" + kind + " btn-circle-" + size;
+    btn.innerHTML = ICONS[kind];
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("type", "button");
+    return btn;
+  }
+
   // ---- rendering ----
 
   function render() {
@@ -154,6 +208,9 @@
     summary.textContent = item.summary || "";
     card.appendChild(summary);
 
+    var linkRow = document.createElement("div");
+    linkRow.className = "card-link-row";
+
     if (item.url) {
       var link = document.createElement("a");
       link.className = "card-link";
@@ -161,8 +218,13 @@
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = "Open article ↗";
-      card.appendChild(link);
+      linkRow.appendChild(link);
     }
+
+    var nc = noteControl("triage", item.id, "Note on this card — collected with your decisions.");
+    linkRow.appendChild(nc.btn);
+    card.appendChild(linkRow);
+    card.appendChild(nc.textarea);
 
     var flash = document.createElement("div");
     flash.className = "decision-flash";
@@ -185,19 +247,13 @@
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
 
-    var dismissBtn = document.createElement("button");
-    dismissBtn.className = "btn btn-dismiss";
-    dismissBtn.textContent = "✕ Dismiss";
+    var dismissBtn = circleBtn("dismiss", "lg", "Dismiss");
     dismissBtn.addEventListener("click", function () { decide(item, "dismiss", flash); });
 
-    var skipBtn = document.createElement("button");
-    skipBtn.className = "btn btn-skip";
-    skipBtn.textContent = "Skip";
+    var skipBtn = circleBtn("skip", "sm", "Skip");
     skipBtn.addEventListener("click", function () { skip(flash); });
 
-    var keepBtn = document.createElement("button");
-    keepBtn.className = "btn btn-keep";
-    keepBtn.textContent = "✓ Keep";
+    var keepBtn = circleBtn("keep", "lg", "Keep");
     keepBtn.addEventListener("click", function () { decide(item, "keep", flash); });
 
     actionRow.appendChild(dismissBtn);
