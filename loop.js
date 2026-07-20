@@ -35,4 +35,45 @@
     markDoneToday: markDoneToday,
     getCompletedDate: getCompletedDate
   };
+
+  // ---- morning notes (home dashboard scratch notes, exported with the queue) ----
+
+  var LS_NOTES = "dd.notes";
+  var NOTE_KEYS = ["tasks", "projects", "radar"];
+
+  function getNotes() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_NOTES)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function setNote(key, text) {
+    var notes = getNotes();
+    if (text && text.trim()) notes[key] = text;
+    else delete notes[key];
+    localStorage.setItem(LS_NOTES, JSON.stringify(notes));
+  }
+
+  function noteLines() {
+    var notes = getNotes();
+    var lines = [];
+    NOTE_KEYS.forEach(function (key) {
+      var t = (notes[key] || "").trim();
+      if (t) lines.push("note [" + key + "]: " + t.replace(/\s*\n+\s*/g, "; "));
+    });
+    return lines;
+  }
+
+  function clearNotes() {
+    localStorage.removeItem(LS_NOTES);
+  }
+
+  global.DigestNotes = {
+    getNotes: getNotes,
+    setNote: setNote,
+    noteLines: noteLines,
+    clearNotes: clearNotes
+  };
 })(window);

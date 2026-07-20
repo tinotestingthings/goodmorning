@@ -160,7 +160,19 @@
     flash.className = "decision-flash";
     card.appendChild(flash);
 
+    var keepBadge = document.createElement("div");
+    keepBadge.className = "swipe-badge swipe-badge-keep";
+    keepBadge.textContent = "KEEP";
+    card.appendChild(keepBadge);
+
+    var dismissBadge = document.createElement("div");
+    dismissBadge.className = "swipe-badge swipe-badge-dismiss";
+    dismissBadge.textContent = "NOPE";
+    card.appendChild(dismissBadge);
+
     deckArea.appendChild(card);
+
+    attachSwipe(card, item, keepBadge, dismissBadge);
 
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
@@ -263,6 +275,92 @@
     deckArea.appendChild(wrap);
   }
 
+  // ---- tinder swipe ----
+
+  function attachSwipe(card, item, keepBadge, dismissBadge) {
+    var startX = 0, startY = 0, dx = 0, dy = 0;
+    var dragging = false, captured = false;
+    var lastX = 0, lastT = 0, vx = 0;
+
+    function setTransform() {
+      card.style.transform = "translate(" + dx + "px," + (dy * 0.12) + "px) rotate(" + (dx * 0.05) + "deg)";
+      var strength = Math.min(1, Math.abs(dx) / 90);
+      keepBadge.style.opacity = dx > 0 ? strength : 0;
+      dismissBadge.style.opacity = dx < 0 ? strength : 0;
+    }
+
+    function reset() {
+      card.classList.remove("card-dragging");
+      card.classList.add("card-restoring");
+      card.style.transform = "";
+      keepBadge.style.opacity = 0;
+      dismissBadge.style.opacity = 0;
+      setTimeout(function () { card.classList.remove("card-restoring"); }, 220);
+    }
+
+    function flyOut(direction) {
+      var action = direction > 0 ? "keep" : "dismiss";
+      card.classList.remove("card-dragging");
+      card.classList.add("card-animating");
+      (direction > 0 ? keepBadge : dismissBadge).style.opacity = 1;
+      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px," +
+        (dy * 0.4 + 40) + "px) rotate(" + (direction * 28) + "deg)";
+      card.style.opacity = "0.3";
+      setTimeout(function () { decide(item, action, null); }, 230);
+    }
+
+    card.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("a, button, textarea")) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      lastX = e.clientX;
+      lastT = e.timeStamp;
+      dx = 0; dy = 0; vx = 0;
+      dragging = true;
+      captured = false;
+    });
+
+    card.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      dx = e.clientX - startX;
+      dy = e.clientY - startY;
+
+      if (!captured) {
+        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          captured = true;
+          card.classList.add("card-dragging");
+          try { card.setPointerCapture(e.pointerId); } catch (err) {}
+        } else if (Math.abs(dy) > 16) {
+          dragging = false; // vertical intent: let the summary scroll
+          return;
+        } else {
+          return;
+        }
+      }
+
+      var dt = e.timeStamp - lastT;
+      if (dt > 0) vx = (e.clientX - lastX) / dt;
+      lastX = e.clientX;
+      lastT = e.timeStamp;
+      setTransform();
+    });
+
+    function release() {
+      if (!dragging) return;
+      dragging = false;
+      if (!captured) return;
+      var threshold = Math.min(130, card.offsetWidth * 0.4);
+      if (Math.abs(dx) > threshold || (Math.abs(vx) > 0.6 && Math.abs(dx) > 40)) {
+        flyOut(dx > 0 ? 1 : -1);
+      } else {
+        reset();
+      }
+    }
+
+    card.addEventListener("pointerup", release);
+    card.addEventListener("pointercancel", release);
+  }
+
   // ---- actions ----
 
   function flashDecision(flashEl, label, colorVar) {
@@ -318,7 +416,9 @@
       else if (d === "dismiss") dismissIds.push(it.id);
     });
 
-    if (keepIds.length === 0 && dismissIds.length === 0) {
+    var noteLines = DigestNotes.noteLines();
+
+    if (keepIds.length === 0 && dismissIds.length === 0 && noteLines.length === 0) {
       toast("Nothing to copy yet");
       return;
     }
@@ -326,11 +426,14 @@
     var lines = ["swipe queue " + formatQueueTimestamp(new Date())];
     keepIds.forEach(function (id) { lines.push("keep: " + id); });
     dismissIds.forEach(function (id) { lines.push("dismiss: " + id); });
+    noteLines.forEach(function (line) { lines.push(line); });
     var text = lines.join("\n");
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
-        toast("Copied " + (keepIds.length + dismissIds.length) + " decisions");
+        var msg = "Copied " + (keepIds.length + dismissIds.length) + " decisions";
+        if (noteLines.length > 0) msg += " + " + noteLines.length + " note" + (noteLines.length === 1 ? "" : "s");
+        toast(msg);
       }, function () {
         toast("Copy failed — clipboard blocked");
       });
@@ -355,6 +458,7 @@
     }
     saveHandedOff();
     saveDecisions();
+    DigestNotes.clearNotes();
     computeItems();
     pointer = firstUndecidedIndex(0);
     savePointer();
