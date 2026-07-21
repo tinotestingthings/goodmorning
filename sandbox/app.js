@@ -6,10 +6,10 @@
   // are shown/hidden in place instead of separate page loads. Route state
   // lives in location.hash so back/forward and deep links still work.
 
-  var ROUTES = ["today", "calendar", "triage", "practice"];
+  var ROUTES = ["today", "calendar", "triage", "practice", "settings"];
   var DEFAULT_ROUTE = "today";
   var current = null;
-  var showListeners = { today: [], calendar: [], triage: [], practice: [] };
+  var showListeners = { today: [], calendar: [], triage: [], practice: [], settings: [] };
 
   function parseRoute() {
     var hash = (global.location.hash || "").replace(/^#\/?/, "");

@@ -108,11 +108,33 @@
 
   // ---- rendering ----
 
+  var viewMode = null; // 'month' | 'week' (persisted)
+  var VIEW_KEY = "sbx.cal.view";
+
+  function loadViewMode() {
+    try { return localStorage.getItem(VIEW_KEY) === "week" ? "week" : "month"; } catch (e) { return "month"; }
+  }
+  function saveViewMode(m) { try { localStorage.setItem(VIEW_KEY, m); } catch (e) {} }
+
+  // ISO-8601 week number (weeks start Monday; week 1 contains the first Thursday).
+  function isoWeek(d) {
+    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var day = (date.getUTCDay() + 6) % 7;
+    date.setUTCDate(date.getUTCDate() - day + 3);
+    var firstThursday = date.getTime();
+    date.setUTCMonth(0, 1);
+    if (date.getUTCDay() !== 4) {
+      date.setUTCMonth(0, 1 + ((4 - date.getUTCDay()) + 7) % 7);
+    }
+    return 1 + Math.round((firstThursday - date.getTime()) / 604800000);
+  }
+
   function render() {
     if (!M) {
       M = window.DayModel;
       if (!M) { root.innerHTML = ""; root.appendChild(el("p", "dash-empty", "Loading…")); return; }
     }
+    if (viewMode == null) viewMode = loadViewMode();
     if (viewYear == null) {
       var now = new Date();
       viewYear = now.getFullYear();
@@ -121,7 +143,7 @@
     }
     root.innerHTML = "";
     root.appendChild(buildHeader());
-    root.appendChild(buildGrid());
+    root.appendChild(viewMode === "week" ? buildWeekGrid() : buildMonthGrid());
     root.appendChild(buildDayPanel());
   }
 
@@ -129,17 +151,57 @@
     var head = el("div", "cal-head");
     var prev = el("button", "cal-nav", "‹");
     prev.type = "button";
-    prev.setAttribute("aria-label", "Previous month");
-    prev.addEventListener("click", function () { shiftMonth(-1); });
-    var title = el("div", "cal-title", MONTHS[viewMonth] + " " + viewYear);
+    prev.setAttribute("aria-label", viewMode === "week" ? "Previous week" : "Previous month");
+    prev.addEventListener("click", function () { viewMode === "week" ? shiftWeek(-1) : shiftMonth(-1); });
+
+    var title = el("div", "cal-title", headerTitle());
+
     var next = el("button", "cal-nav", "›");
     next.type = "button";
-    next.setAttribute("aria-label", "Next month");
-    next.addEventListener("click", function () { shiftMonth(1); });
+    next.setAttribute("aria-label", viewMode === "week" ? "Next week" : "Next month");
+    next.addEventListener("click", function () { viewMode === "week" ? shiftWeek(1) : shiftMonth(1); });
+
     head.appendChild(prev);
     head.appendChild(title);
     head.appendChild(next);
-    return head;
+
+    var controls = el("div", "cal-controls");
+    var todayBtn = el("button", "cal-today-btn", "Today");
+    todayBtn.type = "button";
+    todayBtn.addEventListener("click", function () {
+      var now = new Date();
+      viewYear = now.getFullYear(); viewMonth = now.getMonth();
+      selectedDate = todayStr();
+      render();
+    });
+    controls.appendChild(todayBtn);
+
+    var seg = el("div", "cal-seg");
+    [["month", "Month"], ["week", "Week"]].forEach(function (pair) {
+      var b = el("button", "cal-seg-btn" + (viewMode === pair[0] ? " active" : ""), pair[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        viewMode = pair[0]; saveViewMode(viewMode); render();
+      });
+      seg.appendChild(b);
+    });
+    controls.appendChild(seg);
+
+    var box = el("div", "cal-headbox");
+    box.appendChild(head);
+    box.appendChild(controls);
+    return box;
+  }
+
+  function headerTitle() {
+    if (viewMode !== "week") return MONTHS[viewMonth] + " " + viewYear;
+    var sel = parseYmd(selectedDate);
+    var offset = (sel.getDay() + 6) % 7;
+    var mon = new Date(sel); mon.setDate(sel.getDate() - offset);
+    var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    var left = mon.getDate() + " " + MONTHS[mon.getMonth()].slice(0, 3);
+    var right = sun.getDate() + " " + MONTHS[sun.getMonth()].slice(0, 3);
+    return left + " – " + right + " " + sun.getFullYear();
   }
 
   function shiftMonth(delta) {
@@ -149,47 +211,92 @@
     render();
   }
 
-  function buildGrid() {
-    var wrap = el("div", "cal-grid-wrap");
+  function shiftWeek(delta) {
+    var sel = parseYmd(selectedDate);
+    sel.setDate(sel.getDate() + delta * 7);
+    selectedDate = ymd(sel);
+    viewYear = sel.getFullYear(); viewMonth = sel.getMonth();
+    render();
+  }
+
+  function dowHeader() {
     var dowRow = el("div", "cal-dow");
+    dowRow.appendChild(el("span", "cal-dow-cell cal-wk-head", "Wk"));
     DOW.forEach(function (d) { dowRow.appendChild(el("span", "cal-dow-cell", d)); });
-    wrap.appendChild(dowRow);
+    return dowRow;
+  }
+
+  // One day button (shared by month + week grids). `inMonth` dims days that
+  // spill outside the displayed month (week view can straddle two months).
+  function dayCell(dateObj, marks, today, inMonth) {
+    var ds = ymd(dateObj);
+    var cell = el("button", "cal-cell");
+    cell.type = "button";
+    if (inMonth === false) cell.classList.add("cal-cell-out");
+    if (ds === today) cell.classList.add("cal-cell-today");
+    if (ds === selectedDate) cell.classList.add("cal-cell-selected");
+    cell.appendChild(el("span", "cal-cell-num", String(dateObj.getDate())));
+    var m = marks[ds];
+    if (m) {
+      var dots = el("span", "cal-dots");
+      if (m.overdue) dots.appendChild(el("span", "cal-dot cal-dot-overdue"));
+      if (m.todo) dots.appendChild(el("span", "cal-dot cal-dot-todo"));
+      if (m.choreDue) dots.appendChild(el("span", "cal-dot cal-dot-chore"));
+      if ((m.todoDone || m.choreDone) && !m.todo && !m.choreDue && !m.overdue) {
+        dots.appendChild(el("span", "cal-dot cal-dot-done"));
+      }
+      cell.appendChild(dots);
+    }
+    cell.addEventListener("click", function () { selectedDate = ds; render(); });
+    return cell;
+  }
+
+  function wkCell(weekNo) {
+    return el("span", "cal-cell cal-wk", String(weekNo));
+  }
+
+  function buildMonthGrid() {
+    var wrap = el("div", "cal-grid-wrap");
+    wrap.appendChild(dowHeader());
 
     var grid = el("div", "cal-grid");
     var first = new Date(viewYear, viewMonth, 1);
-    // Monday-first offset (JS getDay: 0=Sun)
-    var offset = (first.getDay() + 6) % 7;
+    var offset = (first.getDay() + 6) % 7; // Monday-first
     var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-    var startStr = ymd(new Date(viewYear, viewMonth, 1));
-    var endStr = ymd(new Date(viewYear, viewMonth, daysInMonth));
+    var startStr = ymd(new Date(viewYear, viewMonth, 1 - offset));
+    var totalCells = offset + daysInMonth;
+    var rows = Math.ceil(totalCells / 7);
+    var endStr = ymd(new Date(viewYear, viewMonth, 1 - offset + rows * 7 - 1));
     var marks = monthMarks(startStr, endStr);
     var today = todayStr();
 
-    for (var i = 0; i < offset; i++) grid.appendChild(el("span", "cal-cell cal-cell-empty"));
-
-    for (var day = 1; day <= daysInMonth; day++) {
-      var ds = ymd(new Date(viewYear, viewMonth, day));
-      var cell = el("button", "cal-cell");
-      cell.type = "button";
-      if (ds === today) cell.classList.add("cal-cell-today");
-      if (ds === selectedDate) cell.classList.add("cal-cell-selected");
-      cell.appendChild(el("span", "cal-cell-num", String(day)));
-
-      var m = marks[ds];
-      if (m) {
-        var dots = el("span", "cal-dots");
-        if (m.overdue) dots.appendChild(el("span", "cal-dot cal-dot-overdue"));
-        if (m.todo) dots.appendChild(el("span", "cal-dot cal-dot-todo"));
-        if (m.choreDue) dots.appendChild(el("span", "cal-dot cal-dot-chore"));
-        if ((m.todoDone || m.choreDone) && !m.todo && !m.choreDue && !m.overdue) {
-          dots.appendChild(el("span", "cal-dot cal-dot-done"));
-        }
-        cell.appendChild(dots);
+    for (var w = 0; w < rows; w++) {
+      var monday = new Date(viewYear, viewMonth, 1 - offset + w * 7);
+      grid.appendChild(wkCell(isoWeek(monday)));
+      for (var i = 0; i < 7; i++) {
+        var dObj = new Date(viewYear, viewMonth, 1 - offset + w * 7 + i);
+        grid.appendChild(dayCell(dObj, marks, today, dObj.getMonth() === viewMonth));
       }
-      (function (dstr) {
-        cell.addEventListener("click", function () { selectedDate = dstr; render(); });
-      })(ds);
-      grid.appendChild(cell);
+    }
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function buildWeekGrid() {
+    var wrap = el("div", "cal-grid-wrap");
+    wrap.appendChild(dowHeader());
+    var grid = el("div", "cal-grid cal-grid-week");
+    var sel = parseYmd(selectedDate);
+    var offset = (sel.getDay() + 6) % 7;
+    var monday = new Date(sel); monday.setDate(sel.getDate() - offset);
+    var startStr = ymd(monday);
+    var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+    var marks = monthMarks(startStr, ymd(sunday));
+    var today = todayStr();
+    grid.appendChild(wkCell(isoWeek(monday)));
+    for (var i = 0; i < 7; i++) {
+      var dObj = new Date(monday); dObj.setDate(monday.getDate() + i);
+      grid.appendChild(dayCell(dObj, marks, today, dObj.getMonth() === viewMonth));
     }
     wrap.appendChild(grid);
     return wrap;
