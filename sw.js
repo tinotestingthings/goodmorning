@@ -1,16 +1,24 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-shell-v2";
+var CACHE_NAME = "dd-shell-v3";
 
 var SHELL_FILES = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
+  "./theme.js",
+  "./fx.js",
+  "./categories.js",
+  "./ics.js",
+  "./itemui.js",
+  "./reminders.js",
+  "./settings.js",
   "./auth.js",
   "./loop.js",
   "./home.js",
+  "./calendar.js",
   "./triage.js",
   "./practice.js",
   "./manifest.json",
