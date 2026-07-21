@@ -2032,3 +2032,8 @@ body::after {
 .rem-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .rem-chip { font-size: 0.75rem; background: rgba(74,144,217,0.14); color: var(--skip); border-radius: 999px; padding: 3px 6px 3px 10px; display: flex; align-items: center; gap: 4px; }
 .rem-chip-x { appearance: none; border: none; background: none; color: inherit; font-size: 0.95rem; cursor: pointer; padding: 0 2px; }
+
+/* ---- home surfaced "Today" items ---- */
+.home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 4px 2px 8px; font-weight: 700; }
+.home-today-list { margin-bottom: 14px; }
+.cal-swipeable { touch-action: pan-y; }

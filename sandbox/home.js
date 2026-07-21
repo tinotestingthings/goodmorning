@@ -1265,29 +1265,32 @@
     return card;
   }
 
+  // Surfaced "Today" items — the due chores and due-today/overdue to-dos —
+  // rendered with the shared ItemUI so they behave exactly like calendar
+  // items: tap the box to complete, swipe (right complete / left postpone),
+  // or hold / tap ⋯ for the full menu. Editing jumps to the Calendar tab.
+  function homeItemOpts() {
+    return {
+      refresh: render,
+      editTodo: function (t) { if (window.App) App.go("calendar"); setTimeout(function () { if (window.CalEditors) window.CalEditors.editTodo(t); }, 60); },
+      editChore: function (chore) { if (window.App) App.go("calendar"); setTimeout(function () { if (window.CalEditors) window.CalEditors.editChore(chore); }, 60); },
+      swipe: true
+    };
+  }
   function appendUrgentCards(container) {
-    dueSoonChores().forEach(function (x) {
-      container.appendChild(urgentCard(ICON_CHORES, x.chore.name, choreUrgentSub(x.progress), function () {
-        var list = loadChores();
-        var fresh = list.filter(function (c) { return c.id === x.chore.id; })[0];
-        if (!fresh) return;
-        setChoreDoneToday(fresh, true);
-        saveChores(list);
-        render();
-      }));
-    });
-    dueTodayTodos().forEach(function (t) {
-      container.appendChild(urgentCard(ICON_TODOS, t.text, todoDueLabel(t), function () {
-        var list = loadTodos();
-        var fresh = list.filter(function (x) { return x.id === t.id; })[0];
-        if (fresh) { fresh.done = true; logTodoHistory(fresh.text); }
-        saveTodos(list);
-        render();
-      }));
-    });
+    if (!window.ItemUI || !window.DayModel) return;
+    var chores = dueSoonChores();
+    var todos = dueTodayTodos();
+    if (!chores.length && !todos.length) return;
+    container.appendChild(el("div", "home-today-head", "Needs doing"));
+    var list = el("div", "cal-item-list home-today-list");
+    var today = localDateStr();
+    chores.forEach(function (x) { list.appendChild(window.ItemUI.choreRow(x.chore, x.progress.doneToday ? "done" : "due", today, homeItemOpts())); });
+    todos.forEach(function (t) { list.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
+    container.appendChild(list);
   }
 
-  // ---- icon tiles + inline accordion ----
+    // ---- icon tiles + inline accordion ----
   // Tiles render in rows (wide tiles/urgent cards get their own row;
   // regular tiles pair up 2-per-row) instead of one CSS grid, so that
   // tapping any tile inserts its expanded content directly below that
@@ -1354,11 +1357,7 @@
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
         build: function (c) { buildProjectsBody(c, today); } },
       { key: "radar", label: "Radar", icon: ICON_RADAR, badge: radarBadge(today),
-        build: function (c) { buildRadarBody(c, today); } },
-      { key: "chores", label: "Chores", icon: ICON_CHORES, badge: choresBadge(),
-        build: function (c) { buildChoresBody(c); } },
-      { key: "todos", label: "To-dos", icon: ICON_TODOS, badge: todosBadge(),
-        build: function (c) { buildTodosBody(c); } }
+        build: function (c) { buildRadarBody(c, today); } }
     ];
 
     var openKey = null;

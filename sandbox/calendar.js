@@ -308,6 +308,7 @@
   // swipe on list-view items: right = complete, left = postpone 1 day
   function enableAgendaSwipe(row,t){
     var x0=0,y0=0,drag=false,axis=null;
+    row.classList.add("cal-swipeable"); row.style.touchAction="pan-y";
     row.addEventListener("pointerdown",function(e){ if(e.target.closest("button,a,.cal-drag-handle"))return; x0=e.clientX;y0=e.clientY;drag=true;axis=null; row.style.transition=""; });
     row.addEventListener("pointermove",function(e){ if(!drag)return; var dx=e.clientX-x0,dy=e.clientY-y0;
       if(!axis){ if(Math.abs(dx)<8&&Math.abs(dy)<8)return; axis=Math.abs(dx)>Math.abs(dy)?"x":"y"; if(axis==="x"){ try{row.setPointerCapture(e.pointerId);}catch(_){} } else { drag=false; return; } }
@@ -724,5 +725,9 @@
     return wrap;
   }
 
+  window.CalEditors = {
+    editTodo: function(t){ if(t&&t.dueDate){ var d=parseYmd(t.dueDate); viewYear=d.getFullYear(); viewMonth=d.getMonth(); selectedDate=t.dueDate; } openTodoEditor(t); },
+    editChore: function(c){ openChoreEditor(c); }
+  };
   if(window.App && window.App.onShow) window.App.onShow("calendar",function(){ addMode=null; searchOpen=false; render(); });
 })();
