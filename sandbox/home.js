@@ -913,8 +913,10 @@
       var freshList = loadChores();
       var freshChore = freshList.filter(function (c) { return c.id === chore.id; })[0];
       if (!freshChore) return;
-      setChoreDoneToday(freshChore, !progress.doneToday);
+      var willBeDone = !progress.doneToday;
+      setChoreDoneToday(freshChore, willBeDone);
       saveChores(freshList);
+      if (willBeDone && window.FX) { window.FX.celebrate(checkBtn); window.FX.ding(); }
       refresh(null);
     });
     checkRow.appendChild(checkBtn);
@@ -1131,11 +1133,14 @@
     checkBtn.addEventListener("click", function () {
       var list = loadTodos();
       var fresh = list.filter(function (x) { return x.id === t.id; })[0];
+      var nowDone = false;
       if (fresh) {
         fresh.done = !fresh.done;
+        nowDone = fresh.done;
         if (fresh.done) logTodoHistory(fresh.text);
       }
       saveTodos(list);
+      if (nowDone && window.FX) { window.FX.celebrate(checkBtn); window.FX.ding(); }
       refresh();
     });
     row.appendChild(checkBtn);

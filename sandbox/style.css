@@ -1941,3 +1941,64 @@ body::after {
   max-width: 240px; opacity: 0.9; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 .cat-color { width: 40px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: none; padding: 2px; }
+
+/* ---- completion celebration ---- */
+.fx-confetti {
+  position: fixed; width: 8px; height: 8px; border-radius: 2px;
+  pointer-events: none; z-index: 2000; transform: translate(-50%, -50%);
+  animation: fx-pop 0.7s ease-out forwards;
+}
+@keyframes fx-pop {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3) rotate(180deg); opacity: 0; }
+}
+
+/* ---- bigger edit / menu button + drag handle ---- */
+.cal-edit-big {
+  font-size: 1.4rem; line-height: 1; padding: 8px 12px;
+  min-width: 44px; min-height: 44px; color: var(--text-dim);
+}
+.cal-drag-handle {
+  flex-shrink: 0; cursor: grab; color: var(--text-dim);
+  font-size: 1.2rem; line-height: 1; padding: 8px 10px;
+  min-width: 40px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+  touch-action: none; user-select: none;
+}
+.cal-drag-ghost {
+  position: fixed; z-index: 2100; pointer-events: none; transform: translate(-50%, -50%);
+  max-width: 220px; padding: 8px 12px; border-radius: 10px;
+  background: var(--skip); color: #fff; font-size: 0.9rem; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---- item menu (hold / ⋯) ---- */
+.item-menu-overlay {
+  position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: im-fade 0.15s ease;
+}
+@keyframes im-fade { from { opacity: 0; } to { opacity: 1; } }
+.item-menu {
+  width: 100%; max-width: 480px; background: var(--card-bg);
+  border-top-left-radius: 18px; border-top-right-radius: 18px;
+  padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 10px;
+  animation: im-slide 0.2s ease;
+}
+@keyframes im-slide { from { transform: translateY(30px); } to { transform: translateY(0); } }
+.item-menu-title { font-size: 1.05rem; font-weight: 700; padding: 4px 4px 2px; }
+.item-menu-sub { font-size: 0.82rem; color: var(--text-dim); padding: 0 4px 4px; margin-top: -6px; }
+.item-menu-btn {
+  appearance: none; border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  border-radius: 12px; padding: 16px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; text-align: center; touch-action: manipulation; width: 100%;
+}
+.item-menu-btn:active { transform: scale(0.98); }
+.im-done { background: var(--keep); border-color: var(--keep); color: #fff; }
+.im-postpone { background: rgba(217,164,65,0.14); border-color: #d9a441; color: var(--text); }
+.im-danger { color: var(--dismiss); }
+.im-cancel { background: none; color: var(--text-dim); }
+.im-confirm { display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px dashed #d9a441; border-radius: 12px; }
+.im-confirm-label { font-weight: 700; text-align: center; }
+.im-yes { background: var(--keep); border-color: var(--keep); color: #fff; }
+.im-no { background: none; color: var(--text-dim); }

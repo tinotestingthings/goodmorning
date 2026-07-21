@@ -19,6 +19,27 @@
     root.appendChild(buildAppearance());
     root.appendChild(buildCategories());
     root.appendChild(buildNotifications());
+    root.appendChild(buildSounds());
+  }
+
+  function buildSounds() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Sounds"));
+    sec.appendChild(el("p", "settings-sub", "Play a little chime when you complete a task."));
+    var on = window.FX ? window.FX.soundOn() : true;
+    var seg = el("div", "seg");
+    [["on", "On"], ["off", "Off"]].forEach(function (pair) {
+      var active = (pair[0] === "on") === on;
+      var b = el("button", "seg-btn" + (active ? " active" : ""), pair[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        if (window.FX) { window.FX.setSound(pair[0] === "on"); if (pair[0] === "on") window.FX.ding(); }
+        render();
+      });
+      seg.appendChild(b);
+    });
+    sec.appendChild(seg);
+    return sec;
   }
 
   function buildCategories() {

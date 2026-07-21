@@ -269,28 +269,31 @@
   // ---- item rows ----
   function catBar(id){ if(!id)return null; var b=el("span","cal-cat-bar"); b.style.background=window.Cats.color(id); return b; }
   function check(done,onToggle){ var b=el("button","cal-check"+(done?" cal-check-done":"")); b.type="button"; b.innerHTML=done?"&#10003;":""; b.addEventListener("click",onToggle); return b; }
-  function editBtn(fn){ var b=el("button","cal-edit","✎"); b.type="button"; b.setAttribute("aria-label","Edit"); b.addEventListener("click",fn); return b; }
+  function bigEditBtn(fn){ var b=el("button","cal-edit cal-edit-big","⋯"); b.type="button"; b.setAttribute("aria-label","Item menu"); b.addEventListener("click",fn); return b; }
+  function party(anchor){ if(global_FX()) { window.FX.celebrate(anchor); window.FX.ding(); } }
+  function global_FX(){ return typeof window!=="undefined" && window.FX; }
 
-  function todoItem(t,draggable){
+  function todoItem(t,grid){
     var row=el("div","cal-item"); row.setAttribute("data-todo",t.id);
     var cb=catBar(t.category); if(cb)row.appendChild(cb);
-    row.appendChild(check(t.done,function(){ var list=M.loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; if(x.done)M.logTodoHistory(x.text); } }); M.saveTodos(list); render(); }));
+    var chk=check(t.done,function(){
+      var list=M.loadTodos(); var nowDone=false;
+      list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M.logTodoHistory(x.text); } });
+      M.saveTodos(list); if(nowDone)party(chk); render();
+    });
+    row.appendChild(chk);
     var body=el("div","cal-item-body");
-    var titleWrap=el("div","cal-item-titlewrap");
-    titleWrap.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
-    if(t.snoozes>0){ titleWrap.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×")); }
-    if(t.reminderTime){ titleWrap.appendChild(el("span","cal-badge-remind","⏰ "+t.reminderTime)); }
-    body.appendChild(titleWrap);
-    var subbits=["To-do"]; var cat=window.Cats.byId(t.category); if(cat)subbits.push(cat.name);
-    body.appendChild(el("div","cal-item-sub",subbits.join(" · ")));
+    var tw=el("div","cal-item-titlewrap");
+    tw.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
+    if(t.snoozes>0)tw.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×"));
+    if(t.reminderTime)tw.appendChild(el("span","cal-badge-remind","⏰ "+t.reminderTime));
+    body.appendChild(tw);
+    var sub=["To-do"]; var cat=window.Cats.byId(t.category); if(cat)sub.push(cat.name);
+    body.appendChild(el("div","cal-item-sub",sub.join(" · ")));
     row.appendChild(body);
-    if(!t.done){ var sn=el("button","cal-snooze-btn","+1d"); sn.type="button"; sn.setAttribute("aria-label","Snooze one day");
-      sn.addEventListener("click",function(){ snoozeTodo(t.id,1); }); row.appendChild(sn);
-      var sw=el("button","cal-snooze-btn","+1w"); sw.type="button"; sw.setAttribute("aria-label","Snooze one week");
-      sw.addEventListener("click",function(){ snoozeTodo(t.id,7); }); row.appendChild(sw);
-    }
-    row.appendChild(editBtn(function(){ openTodoEditor(t); }));
-    if(draggable) enableDrag(row,t);
+    if(grid && !t.done) row.appendChild(dragHandle(t));
+    row.appendChild(bigEditBtn(function(){ openItemMenu(t); }));
+    attachHold(row,function(){ openItemMenu(t); });
     return row;
   }
 
@@ -298,17 +301,34 @@
     var row=el("div","cal-item");
     var cb=catBar(chore.category); if(cb)row.appendChild(cb);
     var doneToday=state==="done";
-    row.appendChild(check(doneToday,function(){
+    var chk=check(doneToday,function(){
       if(selectedDate!==todayStr()){ M.toast("Tick chores off on the day you do them (today)."); return; }
-      var list=M.loadChores(); list.forEach(function(c){ if(c.id===chore.id)M.setChoreDoneToday(c,!doneToday); }); M.saveChores(list); render();
-    }));
+      var list=M.loadChores(); list.forEach(function(c){ if(c.id===chore.id)M.setChoreDoneToday(c,!doneToday); }); M.saveChores(list);
+      if(!doneToday)party(chk); render();
+    });
+    row.appendChild(chk);
     var body=el("div","cal-item-body");
     body.appendChild(el("div","cal-item-title"+(doneToday?" cal-item-done":""),chore.name));
     var sub="Chore · "+M.freqLabel(chore); var cat=window.Cats.byId(chore.category); if(cat)sub+=" · "+cat.name;
     body.appendChild(el("div","cal-item-sub",sub));
     row.appendChild(body);
-    row.appendChild(editBtn(function(){ openChoreEditor(chore); }));
+    row.appendChild(bigEditBtn(function(){ openChoreMenu(chore); }));
+    attachHold(row,function(){ openChoreMenu(chore); });
     return row;
+  }
+
+  // long-press anywhere on the row (not on a button/handle) opens the menu
+  function attachHold(row,onHold){
+    var timer=null,sx=0,sy=0;
+    function clear(){ if(timer){ clearTimeout(timer); timer=null; } }
+    row.addEventListener("pointerdown",function(e){
+      if(e.target.closest("button, .cal-drag-handle")) return;
+      sx=e.clientX; sy=e.clientY;
+      timer=setTimeout(function(){ timer=null; onHold(); },450);
+    });
+    row.addEventListener("pointermove",function(e){ if(timer && (Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>10)) clear(); });
+    row.addEventListener("pointerup",clear);
+    row.addEventListener("pointercancel",clear);
   }
 
   function snoozeTodo(id,days){
@@ -316,29 +336,84 @@
     list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } });
     M.saveTodos(list); M.toast(days===7?"Pushed to next week":"Pushed to tomorrow"); render();
   }
-
-  // ---- drag to reschedule (todos, grid views) ----
-  function enableDrag(row,t){
-    var dragging=false,ghost=null,startX=0,startY=0,moved=false;
-    row.addEventListener("pointerdown",function(e){ if(e.target.closest("button"))return; startX=e.clientX; startY=e.clientY; dragging=true; moved=false; });
-    row.addEventListener("pointermove",function(e){ if(!dragging)return;
-      if(!moved && Math.abs(e.clientX-startX)+Math.abs(e.clientY-startY)<8) return;
-      moved=true;
-      if(!ghost){ ghost=row.cloneNode(true); ghost.className="cal-drag-ghost"; document.body.appendChild(ghost); try{row.setPointerCapture(e.pointerId);}catch(_){} }
-      ghost.style.left=e.clientX+"px"; ghost.style.top=e.clientY+"px";
-      var cell=cellUnder(e.clientX,e.clientY);
-      [].forEach.call(document.querySelectorAll(".cal-cell-drop"),function(c){c.classList.remove("cal-cell-drop");});
-      if(cell)cell.classList.add("cal-cell-drop");
-    });
-    row.addEventListener("pointerup",function(e){ if(!dragging)return; dragging=false;
-      if(ghost){ ghost.remove(); ghost=null; }
-      var cell=cellUnder(e.clientX,e.clientY);
-      [].forEach.call(document.querySelectorAll(".cal-cell-drop"),function(c){c.classList.remove("cal-cell-drop");});
-      if(moved && cell){ var ds=cell.getAttribute("data-date"); if(ds){ moveTodo(t.id,ds); } }
-    });
-    row.addEventListener("pointercancel",function(){ dragging=false; if(ghost){ghost.remove();ghost=null;} });
+  function toggleTodoDone(t,done){
+    var list=M.loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M.logTodoHistory(x.text); } }); M.saveTodos(list);
+    if(done)party(document.body); render();
   }
-  function cellUnder(x,y){ var elu=document.elementFromPoint(x,y); return elu?elu.closest(".cal-cell[data-date]"):null; }
+
+  // ---- item menu (hold or the ⋯ button) ----
+  function closeMenu(){ var o=document.querySelector(".item-menu-overlay"); if(o)o.remove(); }
+  function menuBtn(label,cls,fn){ var b=el("button","item-menu-btn"+(cls?" "+cls:""),label); b.type="button"; b.addEventListener("click",fn); return b; }
+
+  function openItemMenu(t){
+    closeMenu();
+    var ov=el("div","item-menu-overlay"); ov.addEventListener("click",function(e){ if(e.target===ov)closeMenu(); });
+    var sheet=el("div","item-menu");
+    sheet.appendChild(el("div","item-menu-title",t.text));
+    if(!t.done) sheet.appendChild(menuBtn("✓  Complete","im-done",function(){ closeMenu(); toggleTodoDone(t,true); }));
+    else sheet.appendChild(menuBtn("↺  Reopen",null,function(){ closeMenu(); toggleTodoDone(t,false); }));
+    sheet.appendChild(postponeBtn(t,1,"Postpone 1 day"));
+    sheet.appendChild(postponeBtn(t,7,"Postpone 1 week"));
+    sheet.appendChild(menuBtn("✎  Edit details",null,function(){ closeMenu(); openTodoEditor(t); }));
+    sheet.appendChild(menuBtn("🗑  Delete","im-danger",function(){ closeMenu(); if(window.confirm("Delete this to-do?")){ M.saveTodos(M.loadTodos().filter(function(x){return x.id!==t.id;})); render(); } }));
+    sheet.appendChild(menuBtn("Cancel","im-cancel",function(){ closeMenu(); }));
+    ov.appendChild(sheet); document.body.appendChild(ov);
+  }
+
+  // postpone always asks a second "Sure?" before acting
+  function postponeBtn(t,days,label){
+    var wrap=el("div","im-postpone-wrap");
+    var b=el("button","item-menu-btn im-postpone","⏰  "+label); b.type="button";
+    b.addEventListener("click",function(){
+      wrap.innerHTML="";
+      var q=el("div","im-confirm");
+      q.appendChild(el("div","im-confirm-label","Sure?"));
+      var yes=menuBtn("Yes — "+label.toLowerCase(),"im-yes",function(){ closeMenu(); snoozeTodo(t.id,days); });
+      var no=menuBtn("No","im-no",function(){ closeMenu(); openItemMenu(t); });
+      q.appendChild(yes); q.appendChild(no); wrap.appendChild(q);
+    });
+    wrap.appendChild(b);
+    return wrap;
+  }
+
+  function openChoreMenu(chore){
+    closeMenu();
+    var ov=el("div","item-menu-overlay"); ov.addEventListener("click",function(e){ if(e.target===ov)closeMenu(); });
+    var sheet=el("div","item-menu");
+    sheet.appendChild(el("div","item-menu-title",chore.name));
+    sheet.appendChild(el("div","item-menu-sub",M.freqLabel(chore)));
+    sheet.appendChild(menuBtn("✎  Edit chore",null,function(){ closeMenu(); openChoreEditor(chore); }));
+    sheet.appendChild(menuBtn("🗑  Delete","im-danger",function(){ closeMenu(); if(window.confirm("Delete \""+chore.name+"\" and stop it recurring?")){ M.saveChores(M.loadChores().filter(function(c){return c.id!==chore.id;})); render(); } }));
+    sheet.appendChild(menuBtn("Cancel","im-cancel",function(){ closeMenu(); }));
+    ov.appendChild(sheet); document.body.appendChild(ov);
+  }
+
+  // ---- drag-to-reschedule (todos, grid views) via a dedicated handle ----
+  function cellUnder(x,y){ var e=document.elementFromPoint(x,y); return e?e.closest(".cal-cell[data-date]"):null; }
+  function clearDrop(){ [].forEach.call(document.querySelectorAll(".cal-cell-drop"),function(c){c.classList.remove("cal-cell-drop");}); }
+  function dragHandle(t){
+    var h=el("span","cal-drag-handle","⁙"); h.setAttribute("aria-label","Drag to another day");
+    var ghost=null,capturing=false;
+    h.addEventListener("pointerdown",function(e){
+      e.preventDefault(); e.stopPropagation();
+      capturing=true; try{ h.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    h.addEventListener("pointermove",function(e){
+      if(!capturing)return; e.preventDefault();
+      if(!ghost){ ghost=el("div","cal-drag-ghost",t.text); document.body.appendChild(ghost); }
+      ghost.style.left=e.clientX+"px"; ghost.style.top=e.clientY+"px";
+      clearDrop(); var cell=cellUnder(e.clientX,e.clientY); if(cell)cell.classList.add("cal-cell-drop");
+    });
+    function endDrag(e){
+      if(!capturing)return; capturing=false;
+      if(ghost){ ghost.remove(); ghost=null; }
+      var cell=cellUnder(e.clientX,e.clientY); clearDrop();
+      if(cell){ var ds=cell.getAttribute("data-date"); if(ds && ds!==t.dueDate) moveTodo(t.id,ds); }
+    }
+    h.addEventListener("pointerup",endDrag);
+    h.addEventListener("pointercancel",function(){ capturing=false; if(ghost){ghost.remove();ghost=null;} clearDrop(); });
+    return h;
+  }
   function moveTodo(id,ds){ var list=M.loadTodos(); list.forEach(function(t){ if(t.id===id)t.dueDate=ds; }); M.saveTodos(list); selectedDate=ds; M.toast("Moved to "+niceDay(ds)); render(); }
 
   // ---- agenda / my day / done ----
