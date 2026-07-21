@@ -20,6 +20,43 @@
     root.appendChild(buildCategories());
     root.appendChild(buildNotifications());
     root.appendChild(buildSounds());
+    root.appendChild(buildIcsFeeds());
+  }
+
+  function buildIcsFeeds() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Subscribed calendars (.ics)"));
+    sec.appendChild(el("p", "settings-sub", "Show a read-only calendar (holidays, another agenda). The calendar host must allow cross-origin access, or the browser will block it."));
+    if (!window.Ics) { sec.appendChild(el("p", "settings-sub", "Not available.")); return sec; }
+    var feeds = window.Ics.loadFeeds();
+    feeds.forEach(function (url) {
+      var row = el("div", "sched-row");
+      var span = el("div", "ics-url", url);
+      var del = el("button", "sched-del", "\u00d7"); del.type = "button";
+      del.addEventListener("click", function () { window.Ics.removeFeed(url); render(); });
+      row.appendChild(span); row.appendChild(del);
+      sec.appendChild(row);
+    });
+    var addRow = el("div", "sched-row");
+    var input = document.createElement("input");
+    input.type = "url"; input.className = "field-input"; input.placeholder = "https://…/basic.ics or webcal://…";
+    addRow.appendChild(input);
+    var add = el("button", "btn btn-ghost", "Add"); add.type = "button";
+    add.addEventListener("click", function () {
+      var u = input.value.trim(); if (!u) return;
+      window.Ics.addFeed(u);
+      add.textContent = "Fetching…";
+      window.Ics.refresh(function (res) {
+        if (!res.ok) window.DayModel && window.DayModel.toast && window.DayModel.toast("Feed blocked or invalid — see note");
+        render();
+      });
+    });
+    addRow.appendChild(add);
+    sec.appendChild(addRow);
+    var refresh2 = el("button", "btn btn-ghost", "Refresh feeds"); refresh2.type = "button";
+    refresh2.addEventListener("click", function () { refresh2.textContent = "Refreshing…"; window.Ics.refresh(function () { render(); }); });
+    if (feeds.length) sec.appendChild(refresh2);
+    return sec;
   }
 
   function buildSounds() {

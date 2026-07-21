@@ -683,6 +683,14 @@
   }
   function choreOccursOn(chore, d) {
     var ds = localDateStr(d);
+    // Per-occurrence overrides (single-occurrence postpone). exceptions maps an
+    // original date -> the date it was moved to (or null to skip). A moved
+    // occurrence disappears from its original day and appears on the target.
+    var ex = chore.exceptions || null;
+    if (ex) {
+      if (Object.prototype.hasOwnProperty.call(ex, ds)) return false; // this day's occurrence was moved/skipped
+      for (var k in ex) { if (ex[k] === ds) return true; }            // this day is a move target
+    }
     if (!withinPeriod(chore, ds)) return false;
     var pat = chore.pattern || "interval";
     if (pat === "weekdays") { var wd = d.getDay(); return wd >= 1 && wd <= 5; }

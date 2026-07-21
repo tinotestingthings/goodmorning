@@ -74,6 +74,7 @@
         d=addDays(d,1);
       }
     });
+    if(window.Ics){ var de=parseYmd(startStr); while(ymd(de)<=endStr){ if(icsOn(ymd(de)).length)bump(ymd(de),"event"); de=addDays(de,1); } }
     return marks;
   }
 
@@ -89,6 +90,7 @@
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
+    if(viewMode==="day"){ root.appendChild(buildDayHeader()); root.appendChild(buildDayTimeline()); return; }
     // grid views
     root.appendChild(buildGridHeader());
     root.appendChild(buildGrid());
@@ -102,7 +104,7 @@
     bar.appendChild(todayBtn);
 
     var sel=document.createElement("select"); sel.className="field-select cal-view-select";
-    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["agenda","Agenda"],["myday","My Day"],["done","Done"]].forEach(function(p){
+    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["myday","My Day"],["done","Done"]].forEach(function(p){
       var o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]; sel.appendChild(o);
     });
     sel.value=viewMode;
@@ -189,7 +191,7 @@
 
   function shift(delta){
     if(viewMode==="month"){ viewMonth+=delta; if(viewMonth<0){viewMonth=11;viewYear--;} else if(viewMonth>11){viewMonth=0;viewYear++;} render(); return; }
-    var step = viewMode==="3day"?3:7;
+    var step = viewMode==="day"?1:(viewMode==="3day"?3:7);
     var sel=addDays(parseYmd(selectedDate),delta*step); selectedDate=ymd(sel); viewYear=sel.getFullYear(); viewMonth=sel.getMonth(); render();
   }
 
@@ -212,7 +214,8 @@
       var td=el("span","cal-dot cal-dot-todo"); if(m._cat)td.style.background=m._cat;
       if(m.todo)dots.appendChild(td);
       if(m.choreDue)dots.appendChild(el("span","cal-dot cal-dot-chore"));
-      if((m.todoDone||m.choreDone)&&!m.todo&&!m.choreDue&&!m.overdue)dots.appendChild(el("span","cal-dot cal-dot-done"));
+      if(m.event)dots.appendChild(el("span","cal-dot cal-dot-event"));
+      if((m.todoDone||m.choreDone)&&!m.todo&&!m.choreDue&&!m.overdue&&!m.event)dots.appendChild(el("span","cal-dot cal-dot-done"));
       cell.appendChild(dots);
     }
     cell.addEventListener("click",function(){ selectedDate=ds; render(); });
@@ -255,11 +258,12 @@
     var head=el("div","cal-day-head");
     head.appendChild(el("h2","cal-day-title", selectedDate===todayStr()?"Today · "+niceDay(selectedDate):niceDay(selectedDate)));
     panel.appendChild(head);
-    var chores=choresOn(selectedDate), todos=todosOn(selectedDate);
-    if(!chores.length && !todos.length) panel.appendChild(el("p","cal-empty","Nothing scheduled. Add a task below."));
+    var chores=choresOn(selectedDate), todos=todosOn(selectedDate), events=icsOn(selectedDate);
+    if(!chores.length && !todos.length && !events.length) panel.appendChild(el("p","cal-empty","Nothing scheduled. Add a task below."));
     else { var list=el("div","cal-item-list");
-      chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state)); });
+      chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,selectedDate)); });
       todos.forEach(function(t){ list.appendChild(todoItem(t,true)); });
+      events.forEach(function(ev){ list.appendChild(icsItem(ev)); });
       panel.appendChild(list);
     }
     panel.appendChild(buildAddArea());
@@ -273,49 +277,81 @@
   function party(anchor){ if(global_FX()) { window.FX.celebrate(anchor); window.FX.ding(); } }
   function global_FX(){ return typeof window!=="undefined" && window.FX; }
 
-  function todoItem(t,grid){
+  function completeTodoToggle(t,anchor){
+    var list=M.loadTodos(); var nowDone=false;
+    list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M.logTodoHistory(x.text); } });
+    M.saveTodos(list); if(nowDone)party(anchor); render();
+  }
+  function linkChip(url){ var a=document.createElement("a"); a.className="cal-link-chip"; a.href=url; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="🔗"; a.addEventListener("click",function(e){ e.stopPropagation(); }); return a; }
+  function todoItem(t,grid,swipe){
     var row=el("div","cal-item"); row.setAttribute("data-todo",t.id);
     var cb=catBar(t.category); if(cb)row.appendChild(cb);
-    var chk=check(t.done,function(){
-      var list=M.loadTodos(); var nowDone=false;
-      list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M.logTodoHistory(x.text); } });
-      M.saveTodos(list); if(nowDone)party(chk); render();
-    });
+    var chk=check(t.done,function(){ completeTodoToggle(t,chk); });
     row.appendChild(chk);
     var body=el("div","cal-item-body");
     var tw=el("div","cal-item-titlewrap");
     tw.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
     if(t.snoozes>0)tw.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×"));
-    if(t.reminderTime)tw.appendChild(el("span","cal-badge-remind","⏰ "+t.reminderTime));
+    if((t.reminders&&t.reminders.length)||t.reminderTime)tw.appendChild(el("span","cal-badge-remind","🔔"));
+    if(t.url)tw.appendChild(linkChip(t.url));
     body.appendChild(tw);
-    var sub=["To-do"]; var cat=window.Cats.byId(t.category); if(cat)sub.push(cat.name);
+    var sub=[]; if(t.startTime)sub.push(t.startTime+(t.endTime?"–"+t.endTime:"")+(t.tz?" ("+t.tz+")":"")); sub.push("To-do"); var cat=window.Cats.byId(t.category); if(cat)sub.push(cat.name);
     body.appendChild(el("div","cal-item-sub",sub.join(" · ")));
+    if(t.note)body.appendChild(el("div","cal-item-note",t.note));
     row.appendChild(body);
     if(grid && !t.done) row.appendChild(dragHandle(t));
     row.appendChild(bigEditBtn(function(){ openItemMenu(t); }));
     attachHold(row,function(){ openItemMenu(t); });
+    if(swipe && !t.done) enableAgendaSwipe(row,t);
     return row;
   }
-
-  function choreItem(chore,state){
+  // swipe on list-view items: right = complete, left = postpone 1 day
+  function enableAgendaSwipe(row,t){
+    var x0=0,y0=0,drag=false,axis=null;
+    row.addEventListener("pointerdown",function(e){ if(e.target.closest("button,a,.cal-drag-handle"))return; x0=e.clientX;y0=e.clientY;drag=true;axis=null; row.style.transition=""; });
+    row.addEventListener("pointermove",function(e){ if(!drag)return; var dx=e.clientX-x0,dy=e.clientY-y0;
+      if(!axis){ if(Math.abs(dx)<8&&Math.abs(dy)<8)return; axis=Math.abs(dx)>Math.abs(dy)?"x":"y"; if(axis==="x"){ try{row.setPointerCapture(e.pointerId);}catch(_){} } else { drag=false; return; } }
+      if(axis==="x"){ if(e.cancelable)e.preventDefault(); row.style.transform="translateX("+dx+"px)"; row.style.background=dx>0?"rgba(47,174,102,0.12)":"rgba(217,164,65,0.12)"; }
+    });
+    function end(e){ if(!drag)return; drag=false; if(axis!=="x"){ return; } var dx=e.clientX-x0;
+      row.style.transition="transform .2s ease"; row.style.transform=""; row.style.background="";
+      if(Math.abs(dx)>90){ if(dx>0) completeTodoToggle(t,row); else snoozeTodo(t.id,1); } }
+    row.addEventListener("pointerup",end);
+    row.addEventListener("pointercancel",function(){ drag=false; row.style.transform=""; row.style.background=""; });
+  }
+  function choreItem(chore,state,occDate){
+    occDate=occDate||selectedDate;
     var row=el("div","cal-item");
     var cb=catBar(chore.category); if(cb)row.appendChild(cb);
     var doneToday=state==="done";
     var chk=check(doneToday,function(){
-      if(selectedDate!==todayStr()){ M.toast("Tick chores off on the day you do them (today)."); return; }
+      if(occDate!==todayStr()){ M.toast("Tick chores off on the day you do them (today)."); return; }
       var list=M.loadChores(); list.forEach(function(c){ if(c.id===chore.id)M.setChoreDoneToday(c,!doneToday); }); M.saveChores(list);
       if(!doneToday)party(chk); render();
     });
     row.appendChild(chk);
     var body=el("div","cal-item-body");
-    body.appendChild(el("div","cal-item-title"+(doneToday?" cal-item-done":""),chore.name));
+    var tw=el("div","cal-item-titlewrap");
+    tw.appendChild(el("span","cal-item-title"+(doneToday?" cal-item-done":""),chore.name));
+    if(chore.url)tw.appendChild(linkChip(chore.url));
+    body.appendChild(tw);
     var sub="Chore · "+M.freqLabel(chore); var cat=window.Cats.byId(chore.category); if(cat)sub+=" · "+cat.name;
     body.appendChild(el("div","cal-item-sub",sub));
+    if(chore.note)body.appendChild(el("div","cal-item-note",chore.note));
     row.appendChild(body);
-    row.appendChild(bigEditBtn(function(){ openChoreMenu(chore); }));
-    attachHold(row,function(){ openChoreMenu(chore); });
+    row.appendChild(bigEditBtn(function(){ openChoreMenu(chore,occDate); }));
+    attachHold(row,function(){ openChoreMenu(chore,occDate); });
     return row;
   }
+  function icsItem(ev){
+    var row=el("div","cal-item cal-item-ics");
+    row.appendChild(el("span","cal-ics-bar"));
+    var body=el("div","cal-item-body");
+    body.appendChild(el("div","cal-item-title",ev.title));
+    body.appendChild(el("div","cal-item-sub",(ev.allDay?"All day":(ev.startTime||""))+" · Subscribed"));
+    row.appendChild(body); return row;
+  }
+  function icsOn(ds){ return window.Ics?window.Ics.eventsOn(ds):[]; }
 
   // long-press anywhere on the row (not on a button/handle) opens the menu
   function attachHold(row,onHold){
@@ -355,6 +391,7 @@
     sheet.appendChild(postponeBtn(t,1,"Postpone 1 day"));
     sheet.appendChild(postponeBtn(t,7,"Postpone 1 week"));
     sheet.appendChild(menuBtn("✎  Edit details",null,function(){ closeMenu(); openTodoEditor(t); }));
+    sheet.appendChild(menuBtn("⧉  Duplicate",null,function(){ closeMenu(); duplicateTodo(t); }));
     sheet.appendChild(menuBtn("🗑  Delete","im-danger",function(){ closeMenu(); if(window.confirm("Delete this to-do?")){ M.saveTodos(M.loadTodos().filter(function(x){return x.id!==t.id;})); render(); } }));
     sheet.appendChild(menuBtn("Cancel","im-cancel",function(){ closeMenu(); }));
     ov.appendChild(sheet); document.body.appendChild(ov);
@@ -376,16 +413,32 @@
     return wrap;
   }
 
-  function openChoreMenu(chore){
+  function openChoreMenu(chore,occDate){
+    occDate=occDate||selectedDate;
     closeMenu();
     var ov=el("div","item-menu-overlay"); ov.addEventListener("click",function(e){ if(e.target===ov)closeMenu(); });
     var sheet=el("div","item-menu");
     sheet.appendChild(el("div","item-menu-title",chore.name));
-    sheet.appendChild(el("div","item-menu-sub",M.freqLabel(chore)));
-    sheet.appendChild(menuBtn("✎  Edit chore",null,function(){ closeMenu(); openChoreEditor(chore); }));
-    sheet.appendChild(menuBtn("🗑  Delete","im-danger",function(){ closeMenu(); if(window.confirm("Delete \""+chore.name+"\" and stop it recurring?")){ M.saveChores(M.loadChores().filter(function(c){return c.id!==chore.id;})); render(); } }));
+    sheet.appendChild(el("div","item-menu-sub",niceDay(occDate)+" · "+M.freqLabel(chore)));
+    // postpone only THIS occurrence (an exception), leaving the series intact
+    sheet.appendChild(chorePostponeBtn(chore,occDate,1,"Postpone this day 1 day"));
+    sheet.appendChild(chorePostponeBtn(chore,occDate,7,"Postpone this day 1 week"));
+    sheet.appendChild(menuBtn("✎  Edit whole chore",null,function(){ closeMenu(); openChoreEditor(chore); }));
+    sheet.appendChild(menuBtn("⧉  Duplicate",null,function(){ closeMenu(); duplicateChore(chore); }));
+    sheet.appendChild(menuBtn("🗑  Delete series","im-danger",function(){ closeMenu(); if(window.confirm("Delete \""+chore.name+"\" and stop it recurring?")){ M.saveChores(M.loadChores().filter(function(c){return c.id!==chore.id;})); render(); } }));
     sheet.appendChild(menuBtn("Cancel","im-cancel",function(){ closeMenu(); }));
     ov.appendChild(sheet); document.body.appendChild(ov);
+  }
+  function chorePostponeBtn(chore,occDate,days,label){
+    var wrap=el("div","im-postpone-wrap");
+    var b=el("button","item-menu-btn im-postpone","⏰  "+label); b.type="button";
+    b.addEventListener("click",function(){ wrap.innerHTML="";
+      var q=el("div","im-confirm"); q.appendChild(el("div","im-confirm-label","Move just this one occurrence?"));
+      var yes=menuBtn("Yes — "+label.toLowerCase(),"im-yes",function(){ closeMenu(); postponeChoreOccurrence(chore,occDate,days); });
+      var no=menuBtn("No","im-no",function(){ closeMenu(); openChoreMenu(chore,occDate); });
+      q.appendChild(yes); q.appendChild(no); wrap.appendChild(q);
+    });
+    wrap.appendChild(b); return wrap;
   }
 
   // ---- drag-to-reschedule (todos, grid views) via a dedicated handle ----
@@ -420,22 +473,23 @@
   function collectRange(startStr,endStr){
     // returns array of {ds, chores:[], todos:[]} for days with items
     var out=[]; var d=parseYmd(startStr), end=parseYmd(endStr);
-    while(d<=end){ var ds=ymd(d); var ch=choresOn(ds), td=todosOn(ds); if(ch.length||td.length)out.push({ds:ds,chores:ch,todos:td}); d=addDays(d,1); }
+    while(d<=end){ var ds=ymd(d); var ch=choresOn(ds), td=todosOn(ds), ev=icsOn(ds); if(ch.length||td.length||ev.length)out.push({ds:ds,chores:ch,todos:td,events:ev}); d=addDays(d,1); }
     return out;
   }
   function buildAgenda(){
     var wrap=el("div","cal-agenda");
     var overdue=overdueTodos();
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue"));
-      var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false)); }); wrap.appendChild(ol);
+      var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
     }
     var groups=collectRange(todayStr(),ymd(addDays(new Date(),45)));
     if(!groups.length && !overdue.length){ wrap.appendChild(el("p","cal-empty","Nothing coming up.")); return wrap; }
     groups.forEach(function(g){
       wrap.appendChild(el("h3","cal-agenda-head", g.ds===todayStr()?"Today · "+niceDay(g.ds):niceDay(g.ds)));
       var list=el("div","cal-item-list");
-      g.chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state)); });
-      g.todos.forEach(function(t){ list.appendChild(todoItem(t,false)); });
+      g.chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,g.ds)); });
+      g.todos.forEach(function(t){ list.appendChild(todoItem(t,false,true)); });
+      (g.events||[]).forEach(function(ev){ list.appendChild(icsItem(ev)); });
       wrap.appendChild(list);
     });
     return wrap;
@@ -447,12 +501,12 @@
     wrap.appendChild(el("h2","cal-day-title","My Day · "+niceDay(todayStr())));
     var overdue=overdueTodos();
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue ("+overdue.length+")"));
-      var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false)); }); wrap.appendChild(ol);
+      var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
     }
-    var ch=choresOn(todayStr()), td=todosOn(todayStr());
+    var ch=choresOn(todayStr()), td=todosOn(todayStr()), evs=icsOn(todayStr());
     wrap.appendChild(el("h3","cal-agenda-head","Today"));
-    if(!ch.length&&!td.length) wrap.appendChild(el("p","cal-empty","Nothing scheduled for today."));
-    else { var list=el("div","cal-item-list"); ch.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state)); }); td.forEach(function(t){ list.appendChild(todoItem(t,false)); }); wrap.appendChild(list); }
+    if(!ch.length&&!td.length&&!evs.length) wrap.appendChild(el("p","cal-empty","Nothing scheduled for today."));
+    else { var list=el("div","cal-item-list"); ch.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,todayStr())); }); td.forEach(function(t){ list.appendChild(todoItem(t,false,true)); }); evs.forEach(function(ev){ list.appendChild(icsItem(ev)); }); wrap.appendChild(list); }
     var addWrap=el("div","cal-add"); var b=el("button","btn btn-primary cal-add-btn","+ Add task today"); b.type="button";
     b.addEventListener("click",function(){ selectedDate=todayStr(); addMode="pick"; viewMode="month"; saveViewMode("month"); render(); });
     addWrap.appendChild(b); wrap.appendChild(addWrap);
@@ -518,19 +572,43 @@
     if(current)s.value=current; return s;
   }
 
-  function openTodoEditor(existing){
+  var TZS=["Local","UTC","Europe/Amsterdam","Europe/London","America/New_York","America/Los_Angeles","Asia/Tokyo","Australia/Sydney"];
+  function openTodoEditor(existing,prefillTime){
     addMode="todo"; var box=el("div","inline-form");
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
+    // time (optional -> timed event)
+    var tRow=el("div","inline-form-row"); tRow.appendChild(el("span","inline-form-label","Time"));
+    var st=document.createElement("input"); st.type="time"; st.className="field-input"; if(existing&&existing.startTime)st.value=existing.startTime; else if(prefillTime)st.value=prefillTime; tRow.appendChild(st);
+    tRow.appendChild(el("span","inline-form-hint","to")); var et=document.createElement("input"); et.type="time"; et.className="field-input"; if(existing&&existing.endTime)et.value=existing.endTime; tRow.appendChild(et); box.appendChild(tRow);
+    // timezone
+    var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); box.appendChild(zRow);
+    // category
     var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Category")); var cat=catSelect(existing?existing.category:""); cRow.appendChild(cat); box.appendChild(cRow);
-    var rRow=el("div","inline-form-row"); rRow.appendChild(el("span","inline-form-label","Remind")); var rem=document.createElement("input"); rem.type="time"; rem.className="field-input"; if(existing&&existing.reminderTime)rem.value=existing.reminderTime; rRow.appendChild(rem); rRow.appendChild(el("span","inline-form-hint","optional")); box.appendChild(rRow);
+    // reminders (multiple)
+    var remWrap=el("div","inline-form-col"); remWrap.appendChild(el("span","inline-form-label","Reminders"));
+    var rems=(existing&&Array.isArray(existing.reminders))?existing.reminders.slice():[];
+    var chips=el("div","rem-chips");
+    function leadLabel(m){ var f=(window.Reminders&&window.Reminders.LEADS)||[]; for(var i=0;i<f.length;i++)if(f[i][0]===m)return f[i][1]; return m+" min"; }
+    function drawChips(){ chips.innerHTML=""; rems.forEach(function(m,idx){ var chip=el("span","rem-chip",leadLabel(m)); var x=el("button","rem-chip-x","×"); x.type="button"; x.addEventListener("click",function(){ rems.splice(idx,1); drawChips(); }); chip.appendChild(x); chips.appendChild(chip); }); }
+    drawChips(); remWrap.appendChild(chips);
+    var addRem=document.createElement("select"); addRem.className="field-select";
+    var ph=document.createElement("option"); ph.value=""; ph.textContent="+ Add reminder"; addRem.appendChild(ph);
+    ((window.Reminders&&window.Reminders.LEADS)||[]).forEach(function(p){ var o=document.createElement("option"); o.value=String(p[0]); o.textContent=p[1]; addRem.appendChild(o); });
+    addRem.addEventListener("change",function(){ if(addRem.value!==""){ var m=parseInt(addRem.value,10); if(rems.indexOf(m)===-1)rems.push(m); rems.sort(function(a,b){return a-b;}); drawChips(); addRem.value=""; } });
+    remWrap.appendChild(addRem); box.appendChild(remWrap);
+    // link + note
+    var lRow=el("div","inline-form-row"); lRow.appendChild(el("span","inline-form-label","Link")); var url=field("https://…",existing?existing.url:""); lRow.appendChild(url); box.appendChild(lRow);
+    var note=document.createElement("textarea"); note.className="field-input"; note.rows=2; note.placeholder="Note (optional)"; if(existing&&existing.note)note.value=existing.note; box.appendChild(note);
+
     var actions=el("div","inline-form-row");
     var save=el("button","btn btn-primary",existing?"Save":"+ Add to-do"); save.type="button";
     save.addEventListener("click",function(){ var txt=text.value.trim(); if(!txt){ M.toast("Type something first"); return; }
+      var fields={ text:txt, dueDate:date.value||null, startTime:st.value||null, endTime:et.value||null, tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
       var list=M.loadTodos();
-      if(existing){ list.forEach(function(x){ if(x.id===existing.id){ x.text=txt; x.dueDate=date.value||null; x.category=cat.value||null; x.reminderTime=rem.value||null; } }); }
-      else { list.push({ id:"todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7), text:txt, dueDate:date.value||null, done:false, category:cat.value||null, reminderTime:rem.value||null, snoozes:0 }); }
+      if(existing){ list.forEach(function(x){ if(x.id===existing.id){ for(var k in fields)x[k]=fields[k]; } }); }
+      else { fields.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); fields.done=false; fields.snoozes=0; list.push(fields); }
       M.saveTodos(list); if(date.value)selectedDate=date.value; addMode=null; render();
     });
     actions.appendChild(save);
@@ -538,7 +616,6 @@
     var cancel=el("button","cal-link","Cancel"); cancel.type="button"; cancel.addEventListener("click",function(){ addMode=null; render(); }); actions.appendChild(cancel);
     box.appendChild(actions); todoEditor=box; render(); setTimeout(function(){ text.focus(); },0);
   }
-
   function openChoreEditor(existing){
     addMode="chore"; var box=el("div","inline-form");
     var name=field("Chore name",existing?existing.name:""); box.appendChild(name);
@@ -584,6 +661,67 @@
     if(existing){ var del=el("button","btn btn-danger","Delete"); del.type="button"; del.addEventListener("click",function(){ if(!window.confirm("Delete \""+existing.name+"\" and stop it recurring?"))return; M.saveChores(M.loadChores().filter(function(c){return c.id!==existing.id;})); addMode=null; render(); }); actions.appendChild(del); }
     var cancel=el("button","cal-link","Cancel"); cancel.type="button"; cancel.addEventListener("click",function(){ addMode=null; render(); }); actions.appendChild(cancel);
     box.appendChild(actions); choreEditor=box; render(); setTimeout(function(){ name.focus(); },0);
+  }
+
+  // ---- duplicate ----
+  function duplicateTodo(t){
+    var list=M.loadTodos();
+    var copy={}; for(var k in t)copy[k]=t[k];
+    copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+    copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0;
+    list.push(copy); M.saveTodos(list); M.toast("Duplicated"); render();
+  }
+  function duplicateChore(chore){
+    var list=M.loadChores();
+    var copy={}; for(var k in chore)copy[k]=chore[k];
+    copy.id="chore-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+    copy.name=(chore.name||"")+" (copy)"; copy.lastDone=null; copy.log=[]; copy.exceptions={};
+    list.push(copy); M.saveChores(list); M.toast("Duplicated"); render();
+  }
+  function postponeChoreOccurrence(chore,occDate,days){
+    var newDs=ymd(addDays(parseYmd(occDate),days));
+    var list=M.loadChores();
+    list.forEach(function(c){ if(c.id===chore.id){ c.exceptions=c.exceptions||{}; c.exceptions[occDate]=newDs; } });
+    M.saveChores(list); selectedDate=newDs; M.toast("This occurrence moved to "+niceDay(newDs)); render();
+  }
+
+  // ---- day view (hourly timeline) ----
+  function toMin(hhmm){ var p=(hhmm||"0:0").split(":"); return (+p[0])*60+(+p[1]); }
+  function buildDayHeader(){
+    var box=el("div","cal-headbox"); var head=el("div","cal-head");
+    var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); });
+    var title=el("div","cal-title", selectedDate===todayStr()?"Today · "+niceDay(selectedDate):niceDay(selectedDate));
+    var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
+    head.appendChild(prev); head.appendChild(title); head.appendChild(next); box.appendChild(head); return box;
+  }
+  function buildDayTimeline(){
+    var wrap=el("div","cal-dayview");
+    var chores=choresOn(selectedDate), todos=todosOn(selectedDate), events=icsOn(selectedDate);
+    var allTodos=todos.filter(function(t){ return !t.startTime; });
+    var timed=todos.filter(function(t){ return t.startTime; }).sort(function(a,b){ return a.startTime<b.startTime?-1:1; });
+    var allEv=events.filter(function(e){ return e.allDay; }), timedEv=events.filter(function(e){ return !e.allDay&&e.startTime; });
+    if(chores.length||allTodos.length||allEv.length){
+      var strip=el("div","cal-allday"); strip.appendChild(el("div","cal-allday-label","All day"));
+      var l=el("div","cal-item-list");
+      chores.forEach(function(r){ l.appendChild(choreItem(r.chore,r.state,selectedDate)); });
+      allTodos.forEach(function(t){ l.appendChild(todoItem(t,false)); });
+      allEv.forEach(function(e){ l.appendChild(icsItem(e)); });
+      strip.appendChild(l); wrap.appendChild(strip);
+    }
+    var HH=50; var grid=el("div","cal-hours"); grid.style.height=(24*HH)+"px";
+    for(var h=0;h<24;h++){ var hr=el("div","cal-hour"); hr.style.top=(h*HH)+"px"; hr.appendChild(el("span","cal-hour-label",(h<10?"0":"")+h+":00"));
+      (function(hour){ hr.addEventListener("click",function(e){ if(e.target.closest(".cal-ev"))return; openTodoEditor(null,(hour<10?"0":"")+hour+":00"); }); })(h);
+      grid.appendChild(hr);
+    }
+    timed.forEach(function(t){ var m=toMin(t.startTime); var dur=t.endTime?Math.max(15,toMin(t.endTime)-m):60;
+      var b=el("div","cal-ev"); b.style.top=(m/60*HH)+"px"; b.style.height=Math.max(24,dur/60*HH)+"px"; if(t.category)b.style.borderLeftColor=window.Cats.color(t.category);
+      b.appendChild(el("div","cal-ev-time",t.startTime+(t.endTime?"–"+t.endTime:""))); b.appendChild(el("div","cal-ev-title",t.text));
+      b.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); grid.appendChild(b);
+    });
+    timedEv.forEach(function(e){ var m=toMin(e.startTime); var b=el("div","cal-ev cal-ev-ics"); b.style.top=(m/60*HH)+"px"; b.style.height="30px"; b.appendChild(el("div","cal-ev-time",e.startTime)); b.appendChild(el("div","cal-ev-title",e.title)); grid.appendChild(b); });
+    wrap.appendChild(grid);
+    wrap.appendChild(buildAddArea());
+    return wrap;
   }
 
   if(window.App && window.App.onShow) window.App.onShow("calendar",function(){ addMode=null; searchOpen=false; render(); });
