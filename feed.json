@@ -1,96 +1,118 @@
 {
-  "generated": "2026-07-20T12:00",
-  "daily": [],
+  "generated": "2026-07-21T06:45",
+  "daily": [
+    {
+      "id": "2026-07-20-ec-accepteert-x-actieplan-dsa",
+      "title": "Europese Commissie accepteert X's actieplan om DSA-schendingen te beëindigen",
+      "source": "European Commission (digital-strategy.ec.europa.eu)",
+      "url": "https://digital-strategy.ec.europa.eu/en/news/commission-accepts-xs-corrective-measures-terminate-breaches-dsa",
+      "date": "2026-07-16",
+      "summary": "De Europese Commissie heeft op 16 juli 2026 het actieplan van X (Twitter) geaccepteerd waarmee het platform zijn eerder vastgestelde DSA-schendingen moet beëindigen. Het gaat om de transparantieverplichtingen (advertentieregister) en de verplichte datatoegang voor onderzoekers — de schendingen waarvoor X in 2025 de allereerste DSA-boete kreeg (€120 miljoen).\n\nOp het onderzoekerstoegang-spoor herziet X zijn screeningproces voor aanvragen tot de publieke data-API zodat gerechtigde onderzoekers niet per abuis worden geweigerd, geeft hun gratis toegang, en garandeert tijdige toegang met passende datavolumes. X krijgt zes maanden om het plan uit te voeren, valt in die periode onder verscherpt toezicht, en committeert zich aan een externe, onafhankelijke audit.\n\nRelevantie: dit is de afronding-in-wording van de eerste DSA-handhavingszaak ooit, en het onderzoekerstoegang-deel raakt direct aan platformtransparantie richting civil society. Tweeluik met de voorlopige Meta-bevinding van 10 juli (al in 20 Sources). Los hiervan speelt de Ierse DPC-boete voor X Corp/MoPub (€550 mln, GDPR-spoor). Datumnotitie: nieuws van 16 juli, viel op de cutoff-grens van de run van 18 juli — vandaag als inhaal-item gefileerd."
+    }
+  ],
   "today": {
-    "date": "2026-07-20",
+    "date": "2026-07-21",
     "tasks": [
       {
         "id": "2026-07-11-piano-practice-current-song-for-lessons",
-        "title": "Piano — current song for lessons",
+        "title": "Piano practice — current song for lessons",
         "status": "doing",
-        "detail": "Learn the current piece set for your piano lessons. (No song title is recorded in the note yet — worth adding which piece.)",
-        "hint": "Your only task marked 'doing' · captured 2026-07-11"
-      },
-      {
-        "id": "2026-07-13-fix-bios-virtualization-for-cowork",
-        "title": "Fix BIOS virtualization for Cowork",
-        "status": "todo",
-        "detail": "Enable CPU virtualization (SVM / VT-x) in BIOS so Cowork's sandbox stops failing with HYPERVISOR_VIRT_DISABLED. Step-by-step fix is in the note.",
-        "hint": "Blocks Cowork's shell when off · captured 2026-07-13"
+        "detail": "Learn his current song for piano lessons — no song title recorded in the note yet.",
+        "hint": "Captured 2026-07-11; only task currently marked 'doing'."
       },
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-        "title": "Fill in work compliance topics",
+        "title": "Fill in real resources for \"Work compliance topics\"",
         "status": "todo",
-        "detail": "Add real resources/content to the 'Work compliance topics' note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names.",
-        "hint": "Feeds the compliance project · captured 2026-07-14"
+        "detail": "Add real content to the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names.",
+        "hint": "Captured 2026-07-14; ties to the ISO PDFs sitting in Braindump."
+      },
+      {
+        "id": "2026-07-14-walk-more-twice-a-week",
+        "title": "Walk more",
+        "status": "todo",
+        "detail": "Go for a proper walk at least twice a week.",
+        "hint": "Captured 2026-07-14 (health)."
       }
     ],
     "projects": [
       {
         "id": "2026-07-11-daily-habits-hub-site",
-        "title": "Daily habits hub site",
+        "title": "A daily \"things to do everyday\" hub site",
         "status": "active",
         "updated": "2026-07-20",
-        "line": "This app is bucket one — swipe feed live, dashboard added today"
+        "line": "Wants a daily hub (note practice, interval training, exercises, to-do); only the NoteSprint app is live so far at tinotestingthings.github.io."
       },
       {
         "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
-        "title": "Daily digest app (spec)",
+        "title": "Daily digest app — instructions & build prompt",
         "status": "active",
-        "updated": "2026-07-20"
+        "updated": "2026-07-20",
+        "line": "Bucket one of the hub (the swipe feed); latest work is a sandbox batch of layout/UX changes awaiting a phone test before promotion."
       },
       {
         "id": "2026-07-11-finance-and-markets-learning-interest",
-        "title": "Finance & markets — learning interest",
-        "status": "active"
+        "title": "Finance and markets — learning interest",
+        "status": "active",
+        "updated": "2026-07-11",
+        "line": "Learning interest in finance — the markets and stocks, not personal finance."
       },
       {
         "id": "2026-07-11-personal-productivity-mental-health-management",
-        "title": "Productivity as mental-health management",
-        "status": "active"
+        "title": "Personal productivity as mental health management",
+        "status": "active",
+        "updated": "2026-07-11",
+        "line": "Learning about personal productivity as managing mental health, rest and energy."
       },
       {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
         "title": "Cooking — improving recipes",
-        "status": "idea-stage"
+        "status": "idea-stage",
+        "updated": "2026-07-11",
+        "line": "Start and improve recipes based on current ones, using the second brain."
       },
       {
         "id": "2026-07-11-work-compliance-topics-resources-to-gather",
-        "title": "Work compliance topics",
-        "status": "idea-stage"
+        "title": "Work compliance topics — resources to gather",
+        "status": "idea-stage",
+        "updated": "2026-07-11",
+        "line": "Placeholder tracking work topics to gather resources on (ISO 27001, ISO 27701, EU AI Act, GDPR); no content yet."
       },
       {
         "id": "2026-07-14-cookie-scanner-applicatie",
-        "title": "Cookie scanner applicatie",
-        "status": "idea-stage"
+        "title": "Cookie Scanner Applicatie",
+        "status": "idea-stage",
+        "updated": "2026-07-14",
+        "line": "Idea for a tool that audits a URL's cookie/tracker behaviour before/after consent, modelled on Mick Beer's forensic method."
       },
       {
         "id": "2026-07-14-team-verbetering-idee",
-        "title": "Team verbetering idee",
-        "status": "idea-stage"
+        "title": "Team verbetering — idee",
+        "status": "idea-stage",
+        "updated": "2026-07-20",
+        "line": "Ideas to improve the team: bi-monthly strategy session, an action list for the manager, more visibility."
       }
     ],
     "radar": {
-      "updated": "2026-07-20 06:32",
+      "updated": "2026-07-21 06:33",
       "follow_ups": 0,
-      "headline": "Digital Omnibus on AI formally adopted — Official Journal publication pending; watching EUR-Lex.",
+      "headline": "DPC fines X Corp €550m over MoPub advertising data (unverified — secondary sources only)",
       "deadlines": [
         {
           "date": "2026-07-22",
-          "label": "AI content-marking Code of Practice — signing window closes"
+          "label": "Signing window closes for the voluntary Code of Practice on marking AI-generated content"
         },
         {
           "date": "2026-08-01",
-          "label": "Potjewijd takes office as AP chair"
+          "label": "Geert Potjewijd takes office as AP chair"
         },
         {
           "date": "2026-08-02",
-          "label": "AI Act Art. 50 transparency obligations apply"
+          "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
         },
         {
           "date": "2026-08-10",
-          "label": "AP consultation DPIA exceptions (employee data) closes"
+          "label": "AP consultation on DPIA exceptions (employee data) closes"
         },
         {
           "date": "2026-08-15",
@@ -98,11 +120,11 @@
         },
         {
           "date": "2026-10-31",
-          "label": "ISO 27701:2025 certification-body transition deadline"
+          "label": "Certification bodies must transition to ISO/IEC 27701:2025"
         },
         {
           "date": "2026-12-02",
-          "label": "Art. 50 watermarking grace ends; CSAM prohibition effective"
+          "label": "Art. 50(2) grace period ends + new CSAM/non-consensual-imagery prohibition takes effect"
         }
       ]
     }
