@@ -667,20 +667,32 @@
   // nextDue a full interval into the future.
   function choreProgress(chore) {
     var today = localDateStr();
+    // Optional recurrence range (added 2026-07-21). Legacy chores have neither
+    // field -> notStarted/expired both false, so behaviour is unchanged.
+    var start = chore.startDate || null;
+    var end = chore.endDate || null;
+    var notStarted = !!(start && start > today);
+    var expired = !!(end && end < today);
     var doneToday = chore.lastDone ? localDateStr(new Date(chore.lastDone)) === today : false;
     var neverDone = !chore.lastDone;
     var nextDue = choreNextDue(chore);
+    if (neverDone) {
+      // first occurrence is the start date (or "due today" if start is null/past)
+      nextDue = notStarted ? new Date(start + "T00:00:00") : null;
+    }
     var daysUntilNext = null;
     if (nextDue) {
       daysUntilNext = Math.round(
         (new Date(localDateStr(nextDue) + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000
       );
     }
-    var dueSoon = !doneToday && (neverDone || daysUntilNext <= 1);
+    // series finished once the next occurrence would fall past the end date
+    if (end && nextDue && localDateStr(nextDue) > end) expired = true;
+    var dueSoon = !doneToday && !expired && !notStarted && (neverDone || daysUntilNext <= 1);
     return {
       doneToday: doneToday, neverDone: neverDone,
       lastDone: chore.lastDone, nextDue: nextDue, daysUntilNext: daysUntilNext,
-      dueSoon: dueSoon
+      dueSoon: dueSoon, notStarted: notStarted, expired: expired
     };
   }
 
@@ -706,6 +718,8 @@
     if (chore.weekday !== null && chore.weekday !== undefined && chore.weekday !== "") {
       s += ", on " + WEEKDAY_NAMES[Number(chore.weekday)] + "s";
     }
+    if (chore.startDate && chore.startDate > localDateStr()) s += " · from " + chore.startDate;
+    if (chore.endDate) s += " · until " + chore.endDate;
     return s;
   }
 
@@ -715,6 +729,8 @@
   }
 
   function formatNextDue(progress) {
+    if (progress.expired) return "Ended";
+    if (progress.notStarted) return "Starts " + localDateStr(progress.nextDue);
     if (progress.neverDone) return "Due today";
     if (progress.daysUntilNext === 0) return "Due today";
     if (progress.daysUntilNext < 0) {
@@ -877,12 +893,14 @@
         list = list.map(function (c) {
           if (c.id !== editing.id) return c;
           return { id: c.id, name: name, every: every, unit: unit, weekday: weekday,
-            lastDone: c.lastDone || null, log: c.log || [] };
+            lastDone: c.lastDone || null, log: c.log || [],
+            startDate: c.startDate || null, endDate: c.endDate || null };
         });
       } else {
         list.push({
           id: "chore-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
-          name: name, every: every, unit: unit, weekday: weekday, lastDone: null, log: []
+          name: name, every: every, unit: unit, weekday: weekday, lastDone: null, log: [],
+          startDate: null, endDate: null
         });
       }
       saveChores(list);

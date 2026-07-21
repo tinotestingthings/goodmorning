@@ -38,8 +38,10 @@
   // actually completed, exactly like the Today tab's "next due" logic.
   function choreOccurrencesInRange(chore, startStr, endStr) {
     var out = {};
-    var start = parseYmd(startStr), end = parseYmd(endStr);
-    // past completions from the log
+    var end = parseYmd(endStr);
+    var periodStart = chore.startDate || null;   // recurrence begins
+    var periodEnd = chore.endDate || null;       // recurrence stops (inclusive)
+    // past completions from the log always show — they actually happened.
     (chore.log || []).forEach(function (iso) {
       var ds = M.localDateStr(new Date(iso));
       if (ds >= startStr && ds <= endStr) out[ds] = out[ds] || "done";
@@ -49,8 +51,9 @@
     if (chore.lastDone) {
       anchor = M.nudgeToWeekday(M.addInterval(new Date(chore.lastDone), chore.every, chore.unit), chore.weekday);
     } else {
-      // never done -> due from today (nudged to its weekday if any)
-      anchor = M.nudgeToWeekday(new Date(), chore.weekday);
+      // never done -> first occurrence is the start date (or today), nudged
+      // to its weekday if a legacy chore pins one.
+      anchor = M.nudgeToWeekday(periodStart ? parseYmd(periodStart) : new Date(), chore.weekday);
     }
     // normalize the anchor to midnight — new Date()/lastDone carry a time of
     // day, which would make a same-day (start==end) comparison fail.
@@ -59,7 +62,9 @@
     var cur = new Date(anchor.getTime());
     while (cur <= end && guard < 400) {
       var ds = ymd(cur);
-      if (ds >= startStr && !out[ds]) out[ds] = "due";
+      if (periodEnd && ds > periodEnd) break;               // series has ended
+      var withinPeriod = (!periodStart || ds >= periodStart);
+      if (ds >= startStr && withinPeriod && !out[ds]) out[ds] = "due";
       cur = M.nudgeToWeekday(M.addInterval(cur, chore.every, chore.unit), chore.weekday);
       guard++;
     }
@@ -398,19 +403,41 @@
     freqRow.appendChild(unit);
     box.appendChild(freqRow);
 
-    var wdRow = el("div", "inline-form-row");
-    var wd = document.createElement("select");
-    wd.className = "field-select field-select-wide";
-    var noneO = document.createElement("option"); noneO.value = ""; noneO.textContent = "Any day";
-    wd.appendChild(noneO);
-    M.WEEKDAY_NAMES.forEach(function (nm, i) {
-      var o = document.createElement("option"); o.value = String(i); o.textContent = "On " + nm + "s"; wd.appendChild(o);
+    // Starts — defaults to the day you tapped, so a weekly chore added on a
+    // Thursday just recurs on Thursdays; no separate weekday picker needed.
+    var startRow = el("div", "inline-form-row");
+    startRow.appendChild(el("span", "inline-form-label", "Starts"));
+    var startInput = document.createElement("input");
+    startInput.type = "date";
+    startInput.className = "field-input";
+    startInput.value = existing && existing.startDate ? existing.startDate : selectedDate;
+    startRow.appendChild(startInput);
+    box.appendChild(startRow);
+
+    // Ends — Never, or on a chosen date (the recurrence "period").
+    var endsRow = el("div", "inline-form-row");
+    endsRow.appendChild(el("span", "inline-form-label", "Ends"));
+    var endsSelect = document.createElement("select");
+    endsSelect.className = "field-select";
+    [["never", "Never"], ["on", "On date"]].forEach(function (p) {
+      var o = document.createElement("option"); o.value = p[0]; o.textContent = p[1]; endsSelect.appendChild(o);
     });
-    if (existing && existing.weekday !== null && existing.weekday !== undefined && existing.weekday !== "") {
-      wd.value = String(existing.weekday);
-    }
-    wdRow.appendChild(wd);
-    box.appendChild(wdRow);
+    endsRow.appendChild(endsSelect);
+    var endInput = document.createElement("input");
+    endInput.type = "date";
+    endInput.className = "field-input";
+    if (existing && existing.endDate) { endsSelect.value = "on"; endInput.value = existing.endDate; }
+    else { endInput.classList.add("hidden"); }
+    endsRow.appendChild(endInput);
+    endsSelect.addEventListener("change", function () {
+      if (endsSelect.value === "on") {
+        endInput.classList.remove("hidden");
+        if (!endInput.value) endInput.value = startInput.value;
+      } else {
+        endInput.classList.add("hidden");
+      }
+    });
+    box.appendChild(endsRow);
 
     var actions = el("div", "inline-form-row");
     var save = el("button", "btn btn-primary", existing ? "Save" : "+ Add chore");
@@ -419,19 +446,25 @@
       var nm = name.value.trim();
       if (!nm) { M.toast("Give the chore a name first"); return; }
       var ev = Math.max(1, parseInt(every.value, 10) || 1);
-      var weekday = wd.value === "" ? null : parseInt(wd.value, 10);
+      var startDate = startInput.value || null;
+      var endDate = (endsSelect.value === "on" && endInput.value) ? endInput.value : null;
+      if (startDate && endDate && endDate < startDate) { M.toast("End date is before the start."); return; }
       var list = M.loadChores();
       if (existing) {
         list = list.map(function (c) {
           if (c.id !== existing.id) return c;
-          return { id: c.id, name: nm, every: ev, unit: unit.value, weekday: weekday,
-            lastDone: c.lastDone || null, log: c.log || [] };
+          return { id: c.id, name: nm, every: ev, unit: unit.value,
+            weekday: (existing.weekday !== undefined ? existing.weekday : null),
+            lastDone: c.lastDone || null, log: c.log || [],
+            startDate: startDate, endDate: endDate };
         });
       } else {
         list.push({ id: "chore-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
-          name: nm, every: ev, unit: unit.value, weekday: weekday, lastDone: null, log: [] });
+          name: nm, every: ev, unit: unit.value, weekday: null, lastDone: null, log: [],
+          startDate: startDate, endDate: endDate });
       }
       M.saveChores(list);
+      if (startDate) selectedDate = startDate;
       addMode = null; render();
     });
     actions.appendChild(save);
@@ -439,7 +472,7 @@
       var del = el("button", "btn btn-danger", "Delete");
       del.type = "button";
       del.addEventListener("click", function () {
-        if (!window.confirm("Delete \"" + existing.name + "\"? This can't be undone.")) return;
+        if (!window.confirm("Delete \"" + existing.name + "\" and stop it recurring? This can't be undone.")) return;
         M.saveChores(M.loadChores().filter(function (c) { return c.id !== existing.id; }));
         addMode = null; render();
       });
