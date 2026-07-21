@@ -1414,6 +1414,26 @@
   }
   document.body.appendChild(renderSandboxReset());
 
+  // Expose the shared task model + helpers so the Calendar tab can read and
+  // edit the exact same chores/to-dos (single source of truth — the calendar
+  // must not fork the data model or the recurrence math).
+  window.DayModel = {
+    loadTodos: loadTodos,
+    saveTodos: saveTodos,
+    logTodoHistory: logTodoHistory,
+    loadChores: loadChores,
+    saveChores: saveChores,
+    choreProgress: choreProgress,
+    choreNextDue: choreNextDue,
+    setChoreDoneToday: setChoreDoneToday,
+    addInterval: addInterval,
+    nudgeToWeekday: nudgeToWeekday,
+    freqLabel: freqLabel,
+    localDateStr: localDateStr,
+    WEEKDAY_NAMES: WEEKDAY_NAMES,
+    toast: toast
+  };
+
   if (window.App && App.onShow) {
     App.onShow("today", render);
   }
