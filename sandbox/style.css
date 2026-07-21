@@ -1898,3 +1898,46 @@ body::after {
   font-size: 0.82rem; color: var(--text-dim); margin-top: 8px;
 }
 .sched-active b { color: var(--text); }
+
+/* ---- calendar: topbar, chips, search, agenda, categories, snooze, drag ---- */
+.cal-topbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cal-view-select { flex: 1; }
+.cal-icon-btn {
+  appearance: none; border: 1px solid var(--border); background: var(--card-bg);
+  color: var(--text); width: 40px; height: 40px; border-radius: 10px;
+  font-size: 1rem; cursor: pointer; touch-action: manipulation;
+}
+.cal-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 6px; -webkit-overflow-scrolling: touch; }
+.cal-chip {
+  appearance: none; border: 1px solid var(--border); background: var(--card-bg);
+  color: var(--text-dim); border-radius: 999px; padding: 5px 12px; font-size: 0.8rem;
+  font-weight: 600; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  touch-action: manipulation;
+}
+.cal-chip.active { border-color: var(--skip); color: var(--text); }
+.cal-chip-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+.cal-search { display: flex; flex-direction: column; gap: 10px; }
+.cal-search-results { display: flex; flex-direction: column; gap: 8px; }
+
+.cal-agenda { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; }
+.cal-agenda-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 12px 0 2px; }
+.cal-overdue-head { color: var(--dismiss); }
+
+.cal-cat-bar { width: 4px; align-self: stretch; border-radius: 3px; flex-shrink: 0; }
+.cal-item-titlewrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cal-badge-snooze { font-size: 0.68rem; font-weight: 700; color: #d9a441; background: rgba(217,164,65,0.16); border-radius: 999px; padding: 1px 7px; }
+.cal-badge-remind { font-size: 0.68rem; font-weight: 700; color: var(--skip); background: rgba(74,144,217,0.16); border-radius: 999px; padding: 1px 7px; }
+.cal-snooze-btn {
+  appearance: none; border: 1px solid var(--border); background: none; color: var(--text-dim);
+  border-radius: 8px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+  flex-shrink: 0; touch-action: manipulation;
+}
+.inline-form-hint { font-size: 0.75rem; color: var(--text-dim); }
+
+.cal-cell-drop { outline: 2px dashed var(--skip); outline-offset: -2px; }
+.cal-drag-ghost {
+  position: fixed; z-index: 999; pointer-events: none; transform: translate(-50%, -50%);
+  max-width: 240px; opacity: 0.9; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.cat-color { width: 40px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: none; padding: 2px; }

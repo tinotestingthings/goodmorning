@@ -17,6 +17,53 @@
     root.appendChild(el("h1", "settings-title", "Settings"));
     root.appendChild(el("p", "settings-sub", "Personalise how the app looks."));
     root.appendChild(buildAppearance());
+    root.appendChild(buildCategories());
+    root.appendChild(buildNotifications());
+  }
+
+  function buildCategories() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Categories"));
+    var list = el("div", null);
+    window.Cats.load().forEach(function (cat) {
+      var row = el("div", "sched-row");
+      var color = document.createElement("input");
+      color.type = "color"; color.value = cat.color; color.className = "cat-color";
+      color.addEventListener("change", function () { window.Cats.update(cat.id, name.value, color.value); });
+      var name = document.createElement("input");
+      name.type = "text"; name.value = cat.name; name.className = "field-input";
+      name.addEventListener("change", function () { window.Cats.update(cat.id, name.value, color.value); });
+      var del = el("button", "sched-del", "\u00d7"); del.type = "button";
+      del.addEventListener("click", function () { window.Cats.remove(cat.id); render(); });
+      row.appendChild(color); row.appendChild(name); row.appendChild(del);
+      list.appendChild(row);
+    });
+    sec.appendChild(list);
+    var add = el("button", "btn btn-ghost", "+ Add category"); add.type = "button";
+    add.addEventListener("click", function () { window.Cats.add("New", "#7f8a99"); render(); });
+    sec.appendChild(add);
+    return sec;
+  }
+
+  function buildNotifications() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Reminders"));
+    var supported = ("Notification" in window);
+    var state = supported ? Notification.permission : "unsupported";
+    var p = el("p", "settings-sub",
+      state === "granted" ? "Reminders are on. A to-do with a reminder time will notify you while the app is open." :
+      state === "denied" ? "Notifications are blocked in your browser settings — enable them there to use reminders." :
+      state === "unsupported" ? "This browser doesn't support notifications." :
+      "Turn on notifications to get reminders for timed to-dos (works while the app is open).");
+    sec.appendChild(p);
+    if (state === "default") {
+      var btn = el("button", "btn btn-primary", "Enable reminders"); btn.type = "button";
+      btn.addEventListener("click", function () {
+        window.Reminders.requestPermission(function () { render(); });
+      });
+      sec.appendChild(btn);
+    }
+    return sec;
   }
 
   function buildAppearance() {

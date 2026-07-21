@@ -654,6 +654,87 @@
     return d;
   }
 
+  // ---- richer recurrence engine (added 2026-07-21) --------------------------
+  // A chore with a startDate (or a weekdays/monthly-nth pattern) is placed on
+  // fixed dates by its pattern; legacy interval chores (no startDate) keep the
+  // original rolling next-due logic untouched. choreOccursOn() ignores whether
+  // it was completed — completion is tracked separately in `log`.
+  function diffDays(a, b) {
+    return Math.round((new Date(localDateStr(b) + "T00:00:00") - new Date(localDateStr(a) + "T00:00:00")) / 86400000);
+  }
+  function monthDiff(a, b) { return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()); }
+  function ordinalWord(n) { return ({1:"1st",2:"2nd",3:"3rd",4:"4th",5:"5th"})[Number(n)] || (n + "th"); }
+  function choreDoneOn(chore, d) {
+    var ds = localDateStr(d);
+    return (chore.log || []).some(function (iso) { return localDateStr(new Date(iso)) === ds; });
+  }
+  function withinPeriod(chore, ds) {
+    if (chore.startDate && ds < chore.startDate) return false;
+    if (chore.endDate && ds > chore.endDate) return false;
+    return true;
+  }
+  function isNthWeekdayOfMonth(d, nth, weekday) {
+    if (d.getDay() !== Number(weekday)) return false;
+    if (Number(nth) === -1) {
+      var probe = new Date(d); probe.setDate(d.getDate() + 7);
+      return probe.getMonth() !== d.getMonth();
+    }
+    return Math.floor((d.getDate() - 1) / 7) + 1 === Number(nth);
+  }
+  function choreOccursOn(chore, d) {
+    var ds = localDateStr(d);
+    if (!withinPeriod(chore, ds)) return false;
+    var pat = chore.pattern || "interval";
+    if (pat === "weekdays") { var wd = d.getDay(); return wd >= 1 && wd <= 5; }
+    if (pat === "monthly-nth") { return isNthWeekdayOfMonth(d, chore.nth, chore.weekday2); }
+    if (!chore.startDate) return false; // legacy interval handled by rolling path
+    var a = new Date(chore.startDate + "T00:00:00");
+    if (d < a) return false;
+    var every = Math.max(1, chore.every || 1);
+    var unit = chore.unit || "week";
+    if (unit === "day") return diffDays(a, d) % every === 0;
+    if (unit === "week") return d.getDay() === a.getDay() && (diffDays(a, d) / 7) % every === 0;
+    if (unit === "month") return d.getDate() === a.getDate() && monthDiff(a, d) % every === 0;
+    if (unit === "year") return d.getDate() === a.getDate() && d.getMonth() === a.getMonth() && (d.getFullYear() - a.getFullYear()) % every === 0;
+    return false;
+  }
+  function scanChoreNext(chore, fromD, inclusive) {
+    var d = new Date(fromD.getTime());
+    if (!inclusive) d.setDate(d.getDate() + 1);
+    for (var i = 0; i < 800; i++) {
+      var ds = localDateStr(d);
+      if (chore.endDate && ds > chore.endDate) return null;
+      if (choreOccursOn(chore, d) && !choreDoneOn(chore, d)) return new Date(d.getTime());
+      d.setDate(d.getDate() + 1);
+    }
+    return null;
+  }
+  function choreProgressPattern(chore) {
+    var today = localDateStr();
+    var todayD = new Date(today + "T00:00:00");
+    var start = chore.startDate || null, end = chore.endDate || null;
+    var notStarted = !!(start && start > today);
+    var expired = !!(end && end < today);
+    var doneToday = choreDoneOn(chore, todayD);
+    var neverDone = !chore.lastDone;
+    var dueToday = !expired && !notStarted && choreOccursOn(chore, todayD) && !doneToday;
+    var nextDue = scanChoreNext(chore, todayD, true);
+    var prev = null, pd = new Date(todayD.getTime());
+    for (var i = 0; i < 420; i++) {
+      pd.setDate(pd.getDate() - 1);
+      if (start && localDateStr(pd) < start) break;
+      if (choreOccursOn(chore, pd)) { prev = new Date(pd.getTime()); break; }
+    }
+    var overdue = !!(prev && !choreDoneOn(chore, prev) && !expired);
+    var daysUntilNext = nextDue ? diffDays(todayD, nextDue) : null;
+    var dueSoon = !doneToday && !expired && !notStarted && (dueToday || overdue || (daysUntilNext !== null && daysUntilNext <= 1));
+    return {
+      doneToday: doneToday, neverDone: neverDone, lastDone: chore.lastDone,
+      nextDue: nextDue, daysUntilNext: daysUntilNext, dueSoon: dueSoon,
+      dueToday: dueToday, overdue: overdue, notStarted: notStarted, expired: expired
+    };
+  }
+
   function choreNextDue(chore) {
     if (!chore.lastDone) return null; // never done — due immediately, handled in choreProgress
     var base = addInterval(new Date(chore.lastDone), chore.every, chore.unit);
@@ -666,6 +747,11 @@
   // could — checking a chore off moves lastDone to today, which pushes
   // nextDue a full interval into the future.
   function choreProgress(chore) {
+    // Pattern chores (fixed dates) go through the richer engine; legacy interval
+    // chores (no startDate/pattern) keep the original rolling logic below.
+    if (chore.startDate || chore.pattern === "weekdays" || chore.pattern === "monthly-nth") {
+      return choreProgressPattern(chore);
+    }
     var today = localDateStr();
     // Optional recurrence range (added 2026-07-21). Legacy chores have neither
     // field -> notStarted/expired both false, so behaviour is unchanged.
@@ -713,10 +799,19 @@
   }
 
   function freqLabel(chore) {
-    var unitWord = chore.every === 1 ? chore.unit : chore.unit + "s";
-    var s = "Every " + chore.every + " " + unitWord;
-    if (chore.weekday !== null && chore.weekday !== undefined && chore.weekday !== "") {
-      s += ", on " + WEEKDAY_NAMES[Number(chore.weekday)] + "s";
+    var pat = chore.pattern || "interval";
+    var s;
+    if (pat === "weekdays") {
+      s = "Every weekday";
+    } else if (pat === "monthly-nth") {
+      var nthWord = Number(chore.nth) === -1 ? "last" : ordinalWord(chore.nth);
+      s = "Monthly · " + nthWord + " " + WEEKDAY_NAMES[Number(chore.weekday2)];
+    } else {
+      var unitWord = chore.every === 1 ? chore.unit : chore.unit + "s";
+      s = "Every " + chore.every + " " + unitWord;
+      if (chore.weekday !== null && chore.weekday !== undefined && chore.weekday !== "") {
+        s += ", on " + WEEKDAY_NAMES[Number(chore.weekday)] + "s";
+      }
     }
     if (chore.startDate && chore.startDate > localDateStr()) s += " · from " + chore.startDate;
     if (chore.endDate) s += " · until " + chore.endDate;
@@ -1443,6 +1538,7 @@
     saveChores: saveChores,
     choreProgress: choreProgress,
     choreNextDue: choreNextDue,
+    choreOccursOn: choreOccursOn,
     setChoreDoneToday: setChoreDoneToday,
     addInterval: addInterval,
     nudgeToWeekday: nudgeToWeekday,
