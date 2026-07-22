@@ -1,38 +1,142 @@
 {
-  "generated": "2026-07-21T06:45",
+  "generated": "2026-07-22T06:45",
   "daily": [
     {
-      "id": "2026-07-20-ec-accepteert-x-actieplan-dsa",
-      "title": "Europese Commissie accepteert X's actieplan om DSA-schendingen te beëindigen",
-      "source": "European Commission (digital-strategy.ec.europa.eu)",
-      "url": "https://digital-strategy.ec.europa.eu/en/news/commission-accepts-xs-corrective-measures-terminate-breaches-dsa",
+      "id": "2026-07-21-surf-privacy-company-dpia-nextcloud-enterprise",
+      "title": "DPIA voor Nextcloud Enterprise: SURF geeft positief advies, 15 risico's laag of opgelost",
+      "source": "SURF (surf.nl) / Privacy Company",
+      "url": "https://www.surf.nl/nieuws/dpia-voor-nextcloud-enterprise-software-15-lage-of-opgeloste-risicos",
       "date": "2026-07-16",
-      "summary": "De Europese Commissie heeft op 16 juli 2026 het actieplan van X (Twitter) geaccepteerd waarmee het platform zijn eerder vastgestelde DSA-schendingen moet beëindigen. Het gaat om de transparantieverplichtingen (advertentieregister) en de verplichte datatoegang voor onderzoekers — de schendingen waarvoor X in 2025 de allereerste DSA-boete kreeg (€120 miljoen).\n\nOp het onderzoekerstoegang-spoor herziet X zijn screeningproces voor aanvragen tot de publieke data-API zodat gerechtigde onderzoekers niet per abuis worden geweigerd, geeft hun gratis toegang, en garandeert tijdige toegang met passende datavolumes. X krijgt zes maanden om het plan uit te voeren, valt in die periode onder verscherpt toezicht, en committeert zich aan een externe, onafhankelijke audit.\n\nRelevantie: dit is de afronding-in-wording van de eerste DSA-handhavingszaak ooit, en het onderzoekerstoegang-deel raakt direct aan platformtransparantie richting civil society. Tweeluik met de voorlopige Meta-bevinding van 10 juli (al in 20 Sources). Los hiervan speelt de Ierse DPC-boete voor X Corp/MoPub (€550 mln, GDPR-spoor). Datumnotitie: nieuws van 16 juli, viel op de cutoff-grens van de run van 18 juli — vandaag als inhaal-item gefileerd."
+      "summary": "SURF en Privacy Company voerden een overkoepelende DPIA uit op Nextcloud Enterprise (zelf-gehoste open-source samenwerkingssoftware). Aanvankelijk 15 gegevensbeschermingsrisico's, allemaal rond beheerders-/commerciële contactgegevens, ondersteunings- en optionele diagnostische gegevens en websitegegevens. Voor de eigenlijke content data van klanten werden geen risico's vastgesteld — Nextcloud host die niet en heeft er geen toegang toe. Met een voor de onderwijs- en onderzoekssector onderhandelde aangepaste verwerkersovereenkomst (DPA) plus mitigerende maatregelen zijn alle risico's laag of (worden) opgelost; SURF geeft een positief advies onder de voorwaarden van die DPA.\n\nDe aangepaste DPA beperkt Nextcloud als verwerker tot 4 doeleinden en machtigt het als zelfstandig verwerkingsverantwoordelijke voor 7 verenigbare doeleinden. Instellingen houden volledige zeggenschap over doeleinden en subverwerkers, bewaartermijnen zijn tot het strikt noodzakelijke beperkt en alleen noodzakelijke cookies worden geplaatst. Kiest men voor Nextcloud Office op Euro-Office, dan blijft verwerking volledig binnen de EU; de DPIA zelf is getest met de oudere Collabora-versie, waarbij supportverzoeken in het VK verwerkt konden worden.\n\nSoevereiniteits-hoek: anders dan VS-leveranciers geeft Nextcloud een 'harde garantie' nooit persoonsgegevens aan autoriteiten buiten de EU te verstrekken — de contractueel-technische kant van dezelfde CLOUD Act/FISA-zorg uit de eerdere Solvinity/Kyndryl-DigiD-notitie. De DPIA bevat ook een positieve beveiligingsbeoordeling (Nextcloud behaalde de Franse ANSSI CSPN-certificering) met concrete aanbevelingen: zelf hosten of via SURF, deling van gegevens met Nextcloud minimaliseren, en interne auditlogs niet misbruiken voor medewerker-/studentmonitoring. Gedateerd 16 juli 2026, als inhaal-item gefileerd."
     }
   ],
+  "radar_week": {
+    "week_of": "2026-07-20",
+    "items": [
+      {
+        "id": "2026-07-16-ap-dpia-uitzonderingen-consultatie",
+        "title": "AP consulteert over lijst DPIA-uitzonderingen voor werknemersgegevens",
+        "topic": "gdpr",
+        "impact": 3,
+        "url": "https://www.salarisvanmorgen.nl/2026/07/06/consultatie-lijst-dpia-uitzonderingen-verwerking-persoonsgevens-werknemers/",
+        "summary": "The AP opened a consultation on a draft list of DPIA exceptions for employee-data processing — operations that would not require a full DPIA. Responses open until 10 Aug 2026. Based on a secondary report; the AP's own consultation page could not be retrieved this run, so verify before citing to clients.",
+        "action": "Review the draft exceptions and consider a consultation response before 10 Aug; a 'when do you NOT need a DPIA for employee data' client memo is a natural follow-up once the list is final."
+      },
+      {
+        "id": "2026-07-16-ap-rapportage-datalekken-2025",
+        "title": "AP Rapportage datalekken 2025: meldingen stijgen, accountovernames bijna verdrievoudigd, AI vergroot risico",
+        "topic": "gdpr",
+        "impact": 3,
+        "url": "https://www.autoriteitpersoonsgegevens.nl/documenten/rapportage-datalekken-2025",
+        "summary": "AP's annual breach report (8 Jul 2026): 39,407 breaches reported in 2025 (vs 37,839 in 2024), of which 2,428 from cyberattacks. Account-takeover breaches nearly tripled (607 → 1,742). The AP warns AI is making phishing faster, more convincing and larger in scale, and urges organisations to fix their digital security now.",
+        "action": "Use the numbers (takeover tripling, AI-driven phishing warning) as an outreach hook: offer a breach-readiness / MFA & detection quick-scan and update incident-response training with the 2025 stats."
+      },
+      {
+        "id": "2026-07-16-code-of-practice-ai-content-marking-final",
+        "title": "Code of Practice on marking/labelling AI-generated content — FINAL published",
+        "topic": "ai-act",
+        "impact": 5,
+        "url": "https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content",
+        "summary": "The Commission published the final, voluntary Code of Practice on marking/labelling AI-generated content, operationalising the Art. 50 transparency obligations that apply from 2 Aug 2026 (machine-readable marking, deepfake/AI-text labelling, disclosure when users interact with AI; Annex 1 provides EU icons). The AI Office encourages signing by 22 Jul 2026 to be listed as an initial signatory; systems on the market before 2 Aug get a grace period to 2 Dec 2026.",
+        "action": "Alert genAI-deploying clients to the 2 Aug obligations and the 22 Jul signing window; build a reusable Art. 50-readiness checklist (marking, deepfake labelling, chatbot disclosure, EU icons)."
+      },
+      {
+        "id": "2026-07-16-odido-acm-joins-datalek-investigation",
+        "title": "Odido datalek: ACM sluit aan bij AP/RDI-onderzoeken",
+        "topic": "enforcement",
+        "impact": 3,
+        "url": "https://www.acm.nl/nl/publicaties/acm-sluit-aan-bij-onderzoeken-naar-datalek-odido",
+        "summary": "The ACM announced (14 Jul 2026) it is joining the AP/RDI investigations into Odido's major February data breach. Division of labour: RDI on technical security (Telecommunicatiewet), AP on personal-data security and retention periods, ACM on consumer protection. Three regulators on one breach — a procedural development, not yet a concluded enforcement action.",
+        "action": "Use as a client conversation starter on data-retention hygiene — a breach exposes every record kept past its retention limit. Offer a retention-schedule quick-scan."
+      },
+      {
+        "id": "2026-07-19-cyberbeveiligingswet-in-force-15-august",
+        "title": "Cyberbeveiligingswet in force 15 August 2026 — corrects earlier \"1 July\" entry",
+        "topic": "other",
+        "impact": 4,
+        "url": "https://www.rijksoverheid.nl/actueel/nieuws/2026/07/07/cyberbeveiligingswet-en-wet-weerbaarheid-kritieke-entiteiten-vanaf-15-augustus-2026-van-kracht",
+        "summary": "The Eerste Kamer approved the Cyberbeveiligingswet (NIS2 implementation) and the Wwke (CER implementation) on 7 Jul 2026; both enter into force 15 Aug 2026 — the planned 1 July date was missed. From 15 August, roughly 8,000 Dutch organisations face NCSC registration, risk-management measures and incident-reporting duties. Corrects this radar's earlier '1 July' entry.",
+        "action": "Correct any client material citing 1 July; August outreach: 'Cbw is now law — are you registered with NCSC and is your incident-reporting chain ready before 15 August?'"
+      },
+      {
+        "id": "2026-07-19-edpb-cross-regulatory-information-sharing",
+        "title": "EDPB calls for legal basis for cross-regulatory information sharing",
+        "topic": "other",
+        "impact": 3,
+        "url": "https://www.edpb.europa.eu/news/edpb-calls-for-legal-basis-for-cross-regulatory-information-sharing_en",
+        "summary": "At its High-Level Meeting in Dublin (16-17 Jul 2026), the EDPB called on the Commission to propose a legal basis letting regulators with different competences — data protection, DSA/DMA, AI Act and other digital-rulebook supervisors — exchange enforcement-relevant information, including confidential information. A policy statement, not yet legislation, signalling coordinated cross-regime enforcement.",
+        "action": "Talking point for compliance-strategy sessions: treat GDPR, AI Act and sector supervisors as one coordinated enforcement surface. Watch for a Commission proposal, possibly via the broader Digital Omnibus."
+      },
+      {
+        "id": "2026-07-19-handelsregister-consultation-bank-access",
+        "title": "Consultation: expanded bank access to the Handelsregister — Privacy First critical",
+        "topic": "gdpr",
+        "impact": 3,
+        "url": "https://www.security.nl/posting/945066/Privacy+First+kritisch+op+verruimde+toegang+banken+tot+Handelsregister",
+        "summary": "An internetconsultatie is running on a bill amending the Handelsregisterwet 2007 to give banks and other private parties expanded access to register data. Privacy First filed a critical response (16 Jul 2026), arguing it walks back recent privacy gains (non-public residential addresses since 2022, business-address shielding) in favour of KYC/Wwft access. Fits the pattern of the separate BRP-access-for-banks proposal. Close date not confirmed this run.",
+        "action": "Pull the primary consultation page for the close date and scope; content idea pairing the BRP and Handelsregister bank-access proposals and the GDPR homework they carry."
+      },
+      {
+        "id": "2026-07-19-potjewijd-new-ap-chair-1-august",
+        "title": "Geert Potjewijd becomes AP chair on 1 August 2026",
+        "topic": "gdpr",
+        "impact": 3,
+        "url": "https://www.rijksoverheid.nl/actueel/nieuws/2026/05/13/benoeming-voorzitter-autoriteit-persoonsgegevens",
+        "summary": "Geert Potjewijd takes office as bestuursvoorzitter of the AP on 1 Aug 2026, succeeding Aleid Wolfsen after ten years (appointed for five years; announced 13 May 2026). He spent 27 years at De Brauw, co-heading the Data Protection & Cybersecurity practice; commentary notes he often defended big tech, prompting speculation about a shift in the AP's enforcement posture.",
+        "action": "August client-conversation starter on what the leadership change may mean for pending AP matters and the AI/transparency enforcement agenda; watch his first public statements after 1 August."
+      },
+      {
+        "id": "2026-07-20-dpc-x-corp-mopub-fine-550m",
+        "title": "DPC fines X Corp €550m over MoPub advertising data (UNVERIFIED — secondary sources only)",
+        "topic": "enforcement",
+        "impact": 5,
+        "url": "https://www.gdpr.news/news.html",
+        "summary": "Ireland's DPC has reportedly concluded its inquiry into X Corp with a €550m fine for unlawful processing of personal data for advertising via the MoPub ad network, including special-category inferences (political opinions, sexual orientation), per aggregator/press reports (early-to-mid July). UNVERIFIED — no DPC press release or published decision found on dataprotection.ie this run; verify before any client use. Distinct from the separate X/Grok inquiry.",
+        "action": "Once primary-verified, strong outreach angle: an 'inferred special-category data in ad targeting' audit under Art. 9. Watch dataprotection.ie for the decision and breakdown."
+      },
+      {
+        "id": "2026-07-20-eu-action-plan-cybersecurity-ai",
+        "title": "EU Action Plan on Cybersecurity and Artificial Intelligence",
+        "topic": "other",
+        "impact": 3,
+        "url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_26_1544",
+        "summary": "The Commission presented an Action Plan on Cybersecurity and AI (7 Jul 2026): promoting safe use of advanced AI (stronger pre-market model evaluation), strengthening EU cyber resilience (ENISA 'European Blueprint', a secure testing platform for critical sectors), and expanding EU AI-for-cybersecurity capabilities (Grand Challenge; Critical Open Source Resilience Campaign, pilot Q4 2026). A policy plan with no new obligations; complements the AI Act, CRA, NIS2, DORA and the Cyber Solidarity Act.",
+        "action": "Background/context slide for AI-governance and NIS2/Cbw engagements: the EU is operationalising 'AI × cybersecurity' as one policy surface. No client to-do yet; watch for the ENISA blueprint and the Q4 2026 open-source pilot."
+      },
+      {
+        "id": "2026-07-21-ap-advies-verwerking-fraudesignalen",
+        "title": "AP advies: 11 voorwaarden voor het verwerken van persoonsgegevens bij fraudesignalen",
+        "topic": "gdpr",
+        "impact": 3,
+        "url": "https://www.autoriteitpersoonsgegevens.nl/actueel/ap-adviseert-uitvoeringsorganisaties-en-toezichthouders-11-voorwaarden-bij-signalen-van-fraude",
+        "summary": "The AP published advice (~17 Jul 2026) setting eleven conditions for processing personal data on the basis of fraud signals: purpose and necessity substantiated up front (a hunch that a signal 'may be useful' is not enough), no more data than necessary, continuous assessment of each signal's reliability, no longer retention than necessary, data-subject notification in principle within one month (postponable for ongoing investigations), and extra restrictions for special-category/criminal data. Aimed at executive bodies and supervisors, but reads across to any fraud-detection or integrity controller.",
+        "action": "Turn the eleven conditions into a client checklist / DPIA input for fraud-signal processing; outreach hook to clients with fraud or integrity-monitoring flows. Flag the one-month notification duty and special-category restrictions as most commonly missed."
+      }
+    ]
+  },
   "today": {
-    "date": "2026-07-21",
+    "date": "2026-07-22",
     "tasks": [
+      {
+        "id": "2026-07-14-fill-in-work-compliance-topics-resources",
+        "title": "Fill in real resources for \"Work compliance topics\"",
+        "status": "doing",
+        "detail": "Fill real content (ISO 27001, ISO 27701, EU AI Act, GDPR) into the placeholder note; the ISO/NEN standard PDFs are now filed to 20 Sources/Laws and Standards.",
+        "hint": "In progress — 'Uploaded the ISO standards. Almost done.' (Tinus, 2026-07-21)."
+      },
       {
         "id": "2026-07-11-piano-practice-current-song-for-lessons",
         "title": "Piano practice — current song for lessons",
         "status": "doing",
-        "detail": "Learn his current song for piano lessons — no song title recorded in the note yet.",
-        "hint": "Captured 2026-07-11; only task currently marked 'doing'."
-      },
-      {
-        "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-        "title": "Fill in real resources for \"Work compliance topics\"",
-        "status": "todo",
-        "detail": "Add real content to the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names.",
-        "hint": "Captured 2026-07-14; ties to the ISO PDFs sitting in Braindump."
+        "detail": "Learn the current song for piano lessons: Happy Birthday (recorded 2026-07-21).",
+        "hint": "Ongoing practice goal; song recorded 2026-07-21."
       },
       {
         "id": "2026-07-14-walk-more-twice-a-week",
         "title": "Walk more",
         "status": "todo",
         "detail": "Go for a proper walk at least twice a week.",
-        "hint": "Captured 2026-07-14 (health)."
+        "hint": "Captured 2026-07-14; no deadline recorded."
       }
     ],
     "projects": [
@@ -40,29 +144,36 @@
         "id": "2026-07-11-daily-habits-hub-site",
         "title": "A daily \"things to do everyday\" hub site",
         "status": "active",
-        "updated": "2026-07-20",
-        "line": "Wants a daily hub (note practice, interval training, exercises, to-do); only the NoteSprint app is live so far at tinotestingthings.github.io."
+        "updated": "2026-07-21",
+        "line": "Web app is live and 'pretty much done' per Tinus (2026-07-21); later buckets still parked."
       },
       {
         "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
         "title": "Daily digest app — instructions & build prompt",
         "status": "active",
-        "updated": "2026-07-20",
-        "line": "Bucket one of the hub (the swipe feed); latest work is a sandbox batch of layout/UX changes awaiting a phone test before promotion."
+        "updated": "2026-07-21",
+        "line": "Living feed/queue contract this digest automation reads each run; build 'done' per Tinus (2026-07-21)."
+      },
+      {
+        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
+        "title": "Work compliance topics — resources to gather",
+        "status": "active",
+        "updated": "2026-07-21",
+        "line": "Placeholder tracking ISO 27001/27701, EU AI Act and GDPR resources; being filled via the linked task."
       },
       {
         "id": "2026-07-11-finance-and-markets-learning-interest",
         "title": "Finance and markets — learning interest",
         "status": "active",
         "updated": "2026-07-11",
-        "line": "Learning interest in finance — the markets and stocks, not personal finance."
+        "line": "Learning interest in the markets and stocks (not personal finance)."
       },
       {
         "id": "2026-07-11-personal-productivity-mental-health-management",
         "title": "Personal productivity as mental health management",
         "status": "active",
         "updated": "2026-07-11",
-        "line": "Learning about personal productivity as managing mental health, rest and energy."
+        "line": "Exploring productivity as managing mental health, rest and focus/endorphins."
       },
       {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
@@ -72,60 +183,32 @@
         "line": "Start and improve recipes based on current ones, using the second brain."
       },
       {
-        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
-        "title": "Work compliance topics — resources to gather",
-        "status": "idea-stage",
-        "updated": "2026-07-11",
-        "line": "Placeholder tracking work topics to gather resources on (ISO 27001, ISO 27701, EU AI Act, GDPR); no content yet."
-      },
-      {
         "id": "2026-07-14-cookie-scanner-applicatie",
         "title": "Cookie Scanner Applicatie",
         "status": "idea-stage",
         "updated": "2026-07-14",
-        "line": "Idea for a tool that audits a URL's cookie/tracker behaviour before/after consent, modelled on Mick Beer's forensic method."
+        "line": "Concept for a tool that auto-audits a URL's cookies/trackers before vs. after consent (mickbeer.com-style forensic evidence)."
       },
       {
         "id": "2026-07-14-team-verbetering-idee",
         "title": "Team verbetering — idee",
         "status": "idea-stage",
         "updated": "2026-07-20",
-        "line": "Ideas to improve the team: bi-monthly strategy session, an action list for the manager, more visibility."
+        "line": "Ideas to improve the team: bi-monthly strategy session, an action list for the manager, more visibility upward."
       }
     ],
     "radar": {
-      "updated": "2026-07-21 06:33",
+      "updated": "2026-07-22 06:31",
       "follow_ups": 0,
-      "headline": "DPC fines X Corp €550m over MoPub advertising data (unverified — secondary sources only)",
+      "headline": "DPC fines X Corp €550m over MoPub advertising data (UNVERIFIED — secondary sources only)",
       "deadlines": [
-        {
-          "date": "2026-07-22",
-          "label": "Signing window closes for the voluntary Code of Practice on marking AI-generated content"
-        },
-        {
-          "date": "2026-08-01",
-          "label": "Geert Potjewijd takes office as AP chair"
-        },
-        {
-          "date": "2026-08-02",
-          "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
-        },
-        {
-          "date": "2026-08-10",
-          "label": "AP consultation on DPIA exceptions (employee data) closes"
-        },
-        {
-          "date": "2026-08-15",
-          "label": "Cyberbeveiligingswet + Wwke enter into force"
-        },
-        {
-          "date": "2026-10-31",
-          "label": "Certification bodies must transition to ISO/IEC 27701:2025"
-        },
-        {
-          "date": "2026-12-02",
-          "label": "Art. 50(2) grace period ends + new CSAM/non-consensual-imagery prohibition takes effect"
-        }
+        { "date": "2026-07-22", "label": "Code of Practice on AI-content marking — initial-signatory signing window closes (18:00 CET)" },
+        { "date": "2026-08-01", "label": "Geert Potjewijd takes office as AP chair" },
+        { "date": "2026-08-02", "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable" },
+        { "date": "2026-08-10", "label": "AP consultation on DPIA exceptions for employee-data processing closes" },
+        { "date": "2026-08-15", "label": "Cyberbeveiligingswet + Wwke enter into force" },
+        { "date": "2026-10-31", "label": "Certification bodies must transition to ISO/IEC 27701:2025" },
+        { "date": "2026-12-02", "label": "Art. 50(2) watermarking grace period ends; new prohibition on AI-generated NCII/CSAM takes effect" }
       ]
     }
   }
