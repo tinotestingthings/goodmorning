@@ -7,6 +7,7 @@
   var M = null;
   var viewYear, viewMonth, selectedDate = null;
   var lastWeekScroll = null; // preserved across week re-renders (no jump on drop)
+  var schedMode = false, schedSel = {}; // month "plan work" multi-select state
   var viewMode = null;          // month|week|workweek|3day|agenda|myday|done
   var catFilter = "all";        // "all" or a category id
   var searchOpen = false, searchQuery = "";
@@ -91,10 +92,10 @@
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
-    if(viewMode==="day"){ root.appendChild(buildDayHeader()); root.appendChild(buildDayTimeline()); return; }
-    if(viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ var wdays=daysForView(); root.appendChild(buildTimelineHeader(wdays)); root.appendChild(buildWeekTimeline(wdays)); return; }
+    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ var wdays=daysForView(); root.appendChild(buildTimelineHeader(wdays)); root.appendChild(buildWeekTimeline(wdays)); return; }
     // grid views (month only now)
     root.appendChild(buildGridHeader());
+    if(viewMode==="month" && schedMode) root.appendChild(buildSchedBar());
     root.appendChild(buildGrid());
     root.appendChild(buildDayPanel());
   }
@@ -136,13 +137,15 @@
     sheet.appendChild(el("div","capture-heading","Work schedule"));
     sheet.appendChild(el("p","ws-sub","Your usual week — used to shade work hours and, soon, to suggest tasks by where you are."));
 
-    var hRow=el("div","ws-row");
-    hRow.appendChild(el("span","ws-daylabel","Default hours"));
+    var hRow=el("div","ws-hours");
+    hRow.appendChild(el("div","ws-daylabel","Default hours"));
+    var hInputs=el("div","ws-hours-inputs");
     var st=document.createElement("input"); st.type="time"; st.className="field-input"; st.value=s.start;
     var en=document.createElement("input"); en.type="time"; en.className="field-input"; en.value=s.end;
     st.addEventListener("change",function(){ s.start=st.value||"09:00"; window.WorkWeek.save(s); });
     en.addEventListener("change",function(){ s.end=en.value||"17:00"; window.WorkWeek.save(s); });
-    hRow.appendChild(st); hRow.appendChild(el("span","inline-form-hint","to")); hRow.appendChild(en);
+    hInputs.appendChild(st); hInputs.appendChild(el("span","inline-form-hint","to")); hInputs.appendChild(en);
+    hRow.appendChild(hInputs);
     sheet.appendChild(hRow);
 
     [["mon","Monday"],["tue","Tuesday"],["wed","Wednesday"],["thu","Thursday"],["fri","Friday"],["sat","Saturday"],["sun","Sunday"]].forEach(function(d){
@@ -235,6 +238,11 @@
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head);
+    if(viewMode==="month"){
+      var plan=el("button","cal-plan-btn"+(schedMode?" active":""), schedMode?"Done planning":"Plan work"); plan.type="button";
+      plan.addEventListener("click",function(){ schedMode=!schedMode; schedSel={}; render(); });
+      box.appendChild(plan);
+    }
     return box;
   }
 
@@ -255,7 +263,10 @@
     var cell=el("button","cal-cell"); cell.type="button"; cell.setAttribute("data-date",ds);
     if(inMonth===false)cell.classList.add("cal-cell-out");
     if(ds===today)cell.classList.add("cal-cell-today");
-    if(ds===selectedDate)cell.classList.add("cal-cell-selected");
+    if(ds===selectedDate && !schedMode)cell.classList.add("cal-cell-selected");
+    if(schedMode && schedSel[ds])cell.classList.add("cal-cell-picked");
+    // work-location tint (shows the plan at a glance)
+    if(window.WorkWeek){ var wl=window.WorkWeek.forDate(ds); if(wl.location&&wl.location!=="unspecified"&&wl.location!=="off"){ cell.classList.add("cal-cell-loc-"+wl.location); if(wl.overridden)cell.classList.add("cal-cell-override"); } }
     cell.appendChild(el("span","cal-cell-num",String(dObj.getDate())));
     var m=marks[ds];
     if(m){ var dots=el("span","cal-dots");
@@ -267,8 +278,30 @@
       if((m.todoDone||m.choreDone)&&!m.todo&&!m.choreDue&&!m.overdue&&!m.event)dots.appendChild(el("span","cal-dot cal-dot-done"));
       cell.appendChild(dots);
     }
-    cell.addEventListener("click",function(){ selectedDate=ds; render(); });
+    cell.addEventListener("click",function(){
+      if(schedMode){ if(schedSel[ds])delete schedSel[ds]; else schedSel[ds]=true; render(); return; }
+      selectedDate=ds; render();
+    });
     return cell;
+  }
+
+  // Bar shown in month "plan work" mode: pick dates, then tap a location to
+  // assign it (a one-off override for those exact days).
+  function buildSchedBar(){
+    var bar=el("div","sched-bar");
+    var n=Object.keys(schedSel).length;
+    bar.appendChild(el("div","sched-bar-hint", n? (n+" day"+(n===1?"":"s")+" selected — tap a location:") : "Tap days to select, then a location."));
+    var chips=el("div","sched-bar-chips");
+    (window.WorkWeek?window.WorkWeek.LOCS:[]).forEach(function(p){
+      var c=el("button","sched-chip cal-loc-"+p[0], p[1]); c.type="button";
+      c.addEventListener("click",function(){ if(!n){ M.toast("Select some days first"); return; } Object.keys(schedSel).forEach(function(ds){ window.WorkWeek.setOverride(ds,p[0]); }); schedSel={}; render(); });
+      chips.appendChild(c);
+    });
+    var def=el("button","sched-chip sched-chip-default","Reset to default"); def.type="button";
+    def.addEventListener("click",function(){ if(!n){ M.toast("Select some days first"); return; } Object.keys(schedSel).forEach(function(ds){ window.WorkWeek.setOverride(ds,"__default"); }); schedSel={}; render(); });
+    chips.appendChild(def);
+    bar.appendChild(chips);
+    return bar;
   }
 
   function buildGrid(){
@@ -809,6 +842,7 @@
 
   function daysForView(){
     var sel=parseYmd(selectedDate);
+    if(viewMode==="day"){ return [sel]; }
     if(viewMode==="3day"){ return [sel,addDays(sel,1),addDays(sel,2)]; }
     var off=(sel.getDay()+6)%7; var mon=addDays(sel,-off);
     var n=(viewMode==="workweek")?5:7; var arr=[]; for(var i=0;i<n;i++)arr.push(addDays(mon,i)); return arr;
@@ -817,7 +851,10 @@
   function buildTimelineHeader(days){
     var box=el("div","cal-headbox"); var head=el("div","cal-head");
     var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); });
-    var title=el("div","cal-title", niceDay(ymd(days[0]))+" – "+niceDay(ymd(days[days.length-1])));
+    var titleText = days.length===1
+      ? (ymd(days[0])===todayStr() ? "Today · "+niceDay(ymd(days[0])) : niceDay(ymd(days[0])))
+      : niceDay(ymd(days[0]))+" – "+niceDay(ymd(days[days.length-1]));
+    var title=el("div","cal-title", titleText);
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head); box.appendChild(zoomControls());
@@ -870,15 +907,29 @@
       colEls.push(col); body.appendChild(col);
     });
 
-    // place timed to-dos as draggable/resizable blocks
+    // place timed items as draggable/resizable blocks, laid out side-by-side
+    // when they overlap in time (like Outlook). The work-hours band is NOT an
+    // item, so it never pushes real blocks aside — they just sit on top of it.
     days.forEach(function(dt,idx){ var ds=ymd(dt);
+      var items=[];
       todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
-        var b=makeWeekBlock(t, HH); colEls[idx].appendChild(b);
-        wireBlock(b, t, HH, days, colEls);
+        var s=toMin(t.startTime), e=t.endTime?Math.max(s+15,toMin(t.endTime)):s+60;
+        items.push({ kind:"todo", ref:t, s:s, e:e });
       });
-      icsOn(ds).filter(function(e){ return !e.allDay&&e.startTime; }).forEach(function(ev){
-        var m=toMin(ev.startTime); var b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(m/60*HH)+"px"; b.style.height="26px";
-        b.appendChild(el("div","cal-ev-time",ev.startTime)); b.appendChild(el("div","cal-ev-title",ev.title)); colEls[idx].appendChild(b);
+      icsOn(ds).filter(function(ev){ return !ev.allDay&&ev.startTime; }).forEach(function(ev){
+        var s=toMin(ev.startTime); items.push({ kind:"ics", ref:ev, s:s, e:s+30 });
+      });
+      layoutOverlaps(items);
+      items.forEach(function(it){
+        var b;
+        if(it.kind==="todo"){ b=makeWeekBlock(it.ref, HH); wireBlock(b, it.ref, HH, days, colEls); }
+        else { b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(it.s/60*HH)+"px"; b.style.height="26px";
+          b.appendChild(el("div","cal-ev-time",it.ref.startTime)); b.appendChild(el("div","cal-ev-title",it.ref.title)); }
+        var wpct=100/it.cols;
+        b.style.left="calc("+(it.col*wpct)+"% + 1px)";
+        b.style.width="calc("+wpct+"% - "+(it.cols>1?2:4)+"px)";
+        b.style.right="auto";
+        colEls[idx].appendChild(b);
       });
     });
 
@@ -912,6 +963,28 @@
   // A short press (~280ms) is required so normal scrolling isn't hijacked; only
   // once the hold fires do we take over the gesture and draw a block. Create
   // snaps to 30-min steps (exact time can still be set in the item menu). ----
+  // Greedy interval colouring: assign each timed item to a column so
+  // overlapping items sit next to each other; `cols` = width divisor for a
+  // whole overlap cluster.
+  function layoutOverlaps(items){
+    items.sort(function(a,b){ return a.s-b.s || a.e-b.e; });
+    var active=[];
+    items.forEach(function(it){
+      active=active.filter(function(x){ return x.e>it.s; });
+      var used={}; active.forEach(function(x){ used[x.col]=true; });
+      var c=0; while(used[c])c++;
+      it.col=c; active.push(it);
+    });
+    var i=0;
+    while(i<items.length){
+      var j=i, maxEnd=items[i].e, maxCol=items[i].col;
+      while(j+1<items.length && items[j+1].s < maxEnd){ j++; maxEnd=Math.max(maxEnd,items[j].e); maxCol=Math.max(maxCol,items[j].col); }
+      var count=maxCol+1;
+      for(var k=i;k<=j;k++) items[k].cols=count;
+      i=j+1;
+    }
+  }
+
   function snap30(m){ return Math.round(m/30)*30; }
   function wireCreate(body, days, colEls, HH){
     var HOLD=280, MOVE_CANCEL=10;

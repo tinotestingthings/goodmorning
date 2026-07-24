@@ -2560,3 +2560,37 @@ body::after {
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   max-height: 88vh; overflow-y: auto;
 }
+
+/* work-hours "ghost" block: clearly a translucent fill (real blocks sit on
+   top and never get pushed aside by it), tinted to the day's location */
+.cal-week-workband { background: color-mix(in srgb, var(--skip) 16%, transparent); z-index: 0; }
+.cal-week-workband.cal-loc-home { background: color-mix(in srgb, var(--keep) 16%, transparent); }
+.cal-week-workband.cal-loc-customer { background: color-mix(in srgb, #d8b46a 20%, transparent); }
+.cal-week-workband.cal-loc-office { background: color-mix(in srgb, var(--skip) 16%, transparent); }
+.cal-week-workband.cal-loc-unspecified { background: color-mix(in srgb, var(--text-dim) 14%, transparent); }
+.cal-week-ev { z-index: 2; }
+
+/* work-schedule editor: stacked default-hours row (no more horizontal squeeze) */
+.ws-hours { display: flex; flex-direction: column; gap: 6px; padding: 6px 4px; }
+.ws-hours-inputs { display: flex; align-items: center; gap: 8px; }
+.ws-hours-inputs .field-input { flex: 1; min-width: 0; }
+
+/* month: "plan work" mode */
+.cal-plan-btn { margin-left: auto; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 9px; padding: 7px 12px; font-size: 0.85rem; cursor: pointer; }
+.cal-plan-btn.active { border-color: var(--skip); color: var(--skip); font-weight: 600; }
+.sched-bar { border: 1px solid var(--skip); border-radius: 12px; padding: 10px; margin: 8px 0; }
+.sched-bar-hint { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 8px; }
+.sched-bar-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sched-chip { border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 8px; padding: 7px 11px; font-size: 0.82rem; cursor: pointer; }
+.sched-chip.cal-loc-office { border-color: var(--skip); }
+.sched-chip.cal-loc-home { border-color: var(--keep); }
+.sched-chip.cal-loc-customer { border-color: #d8b46a; }
+.sched-chip-default { color: var(--text-dim); }
+
+/* month cell work-location tint + selection */
+.cal-cell-loc-office { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--skip) 60%, transparent); }
+.cal-cell-loc-home { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--keep) 60%, transparent); }
+.cal-cell-loc-customer { box-shadow: inset 0 -3px 0 color-mix(in srgb, #d8b46a 75%, transparent); }
+.cal-cell-override::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-dim); }
+.cal-cell { position: relative; }
+.cal-cell-picked { outline: 2px solid var(--skip); outline-offset: -2px; background: color-mix(in srgb, var(--skip) 12%, transparent); }

@@ -20,7 +20,8 @@
   function defaults() {
     return {
       start: "09:00", end: "17:00",
-      days: { mon: "office", tue: "office", wed: "office", thu: "office", fri: "office", sat: "off", sun: "off" }
+      days: { mon: "office", tue: "office", wed: "office", thu: "office", fri: "office", sat: "off", sun: "off" },
+      overrides: {} // "YYYY-MM-DD" -> location, one-off exceptions to the weekly pattern
     };
   }
 
@@ -31,7 +32,7 @@
       var d = defaults();
       var days = {};
       Object.keys(d.days).forEach(function (k) { days[k] = (s.days && s.days[k]) || d.days[k]; });
-      return { start: s.start || d.start, end: s.end || d.end, days: days };
+      return { start: s.start || d.start, end: s.end || d.end, days: days, overrides: (s.overrides && typeof s.overrides === "object") ? s.overrides : {} };
     } catch (e) { return defaults(); }
   }
 
@@ -40,14 +41,23 @@
     if (global.AgendaSync) global.AgendaSync.pushNow();
   }
 
+  // A specific date's override wins over the recurring weekly location.
   function forDate(ds) {
-    var d = new Date(ds + "T00:00:00");
-    var loc = load().days[DOW[d.getDay()]] || "unspecified";
     var s = load();
-    return { location: loc, start: s.start, end: s.end, working: loc !== "off" };
+    var d = new Date(ds + "T00:00:00");
+    var loc = (s.overrides && s.overrides[ds]) || s.days[DOW[d.getDay()]] || "unspecified";
+    return { location: loc, start: s.start, end: s.end, working: loc !== "off", overridden: !!(s.overrides && s.overrides[ds]) };
+  }
+
+  // loc === "__default" removes the override (falls back to the weekly pattern).
+  function setOverride(ds, loc) {
+    var s = load();
+    s.overrides = s.overrides || {};
+    if (loc === "__default") delete s.overrides[ds]; else s.overrides[ds] = loc;
+    save(s);
   }
 
   function locLabel(v) { for (var i = 0; i < LOCS.length; i++) if (LOCS[i][0] === v) return LOCS[i][1]; return v; }
 
-  global.WorkWeek = { load: load, save: save, forDate: forDate, LOCS: LOCS, locLabel: locLabel };
+  global.WorkWeek = { load: load, save: save, forDate: forDate, setOverride: setOverride, LOCS: LOCS, locLabel: locLabel };
 })(window);
