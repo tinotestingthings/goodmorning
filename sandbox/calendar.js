@@ -891,7 +891,21 @@
     // drag-to-create + two-finger pinch-zoom live on the body
     wireCreate(body, days, colEls, HH);
     wirePinch(scroll, body, HH);
+    // The inline to-do/chore editor isn't part of the timeline layout, so when
+    // one is open (e.g. right after a drag-create) show it as a bottom sheet
+    // over the grid — otherwise openTodoEditor set it but nothing displayed it.
+    if(addMode==="todo" && todoEditor) wrap.appendChild(editorOverlay(todoEditor));
+    else if(addMode==="chore" && choreEditor) wrap.appendChild(editorOverlay(choreEditor));
     return wrap;
+  }
+
+  function editorOverlay(inner){
+    var ov=el("div","cal-editor-overlay");
+    var sheet=el("div","cal-editor-sheet");
+    sheet.appendChild(inner);
+    ov.appendChild(sheet);
+    ov.addEventListener("click",function(e){ if(e.target===ov){ addMode=null; render(); } });
+    return ov;
   }
 
   // ---- HOLD, then drag on empty grid to create a timed block (Outlook-style).

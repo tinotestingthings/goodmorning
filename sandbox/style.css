@@ -2550,3 +2550,13 @@ body::after {
 .cal-week-workband.cal-loc-customer { background: color-mix(in srgb, #d8b46a 9%, transparent); }
 .cal-week-workband.cal-loc-unspecified { background: color-mix(in srgb, var(--text-dim) 8%, transparent); }
 .cal-week-hline, .cal-week-workband { pointer-events: none; }
+
+/* to-do/chore editor shown as a bottom sheet over the week grid */
+.cal-editor-overlay { position: fixed; inset: 0; z-index: 72; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; justify-content: center; }
+.cal-editor-sheet {
+  width: 100%; max-width: 480px; background: var(--bg);
+  border-top-left-radius: 18px; border-top-right-radius: 18px;
+  border: 1px solid var(--border); border-bottom: none;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  max-height: 88vh; overflow-y: auto;
+}
