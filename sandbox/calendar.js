@@ -947,7 +947,7 @@
     scroll.addEventListener("scroll", function(){ lastWeekScroll = scroll.scrollTop; });
     setTimeout(function(){ scroll.scrollTop = (lastWeekScroll != null ? lastWeekScroll : Math.max(0, 7*HH - 20)); }, 0);
     // drag-to-create + two-finger pinch-zoom live on the body
-    wireCreate(body, days, colEls, HH);
+    wireCreate(scroll, body, days, colEls, HH);
     wirePinch(scroll, body, HH);
     // The inline to-do/chore editor isn't part of the timeline layout, so when
     // one is open (e.g. right after a drag-create) show it as a bottom sheet
@@ -993,46 +993,58 @@
   }
 
   function snap30(m){ return Math.round(m/30)*30; }
-  function wireCreate(body, days, colEls, HH){
-    var HOLD=280, MOVE_CANCEL=10;
+  // We own the whole touch on the columns (touch-action:none): before the hold
+  // fires we scroll the view MANUALLY as the finger moves; once the hold fires
+  // (finger held still) we switch to drawing/sizing a block. This is the only
+  // way to have both smooth scrolling AND drag-to-size, since a gesture's
+  // native scroll can't be turned off once it has begun.
+  function wireCreate(scroll, body, days, colEls, HH){
+    var HOLD=260, MOVE=8;
     colEls.forEach(function(col,idx){
-      var timer=null, active=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, pid=null, sa=0, sb=0;
-      col.addEventListener("contextmenu",function(e){ e.preventDefault(); }); // kill Android long-press menu that was cancelling create
+      var timer=null, active=false, scrolling=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, lastY=0, pid=null, sa=0, sb=0;
+      col.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       function cleanup(){
         if(timer){ clearTimeout(timer); timer=null; }
         if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;
-        active=false; col.style.touchAction="";
+        active=false; scrolling=false;
       }
       col.addEventListener("pointerdown",function(e){
-        if(e.target!==col) return;                 // hlines/workband are pointer-events:none, so this is empty space
-        sx=e.clientX; sy=e.clientY; pid=e.pointerId;
+        if(e.target!==col) return;
+        sx=e.clientX; sy=e.clientY; lastY=e.clientY; pid=e.pointerId; scrolling=false; active=false;
+        try{ col.setPointerCapture(pid); }catch(_){}
         timer=setTimeout(function(){
-          timer=null; active=true;
-          col.style.touchAction="none";            // now WE own the gesture (finger held still, no scroll started)
+          timer=null; if(scrolling) return; active=true;
           colTop=col.getBoundingClientRect().top;
           startMin=(sy-colTop)/HH*60; sa=snap30(startMin); sb=sa+30;
           ghost=el("div","cal-week-ev cal-week-ghost"); ghost.style.left="2px"; ghost.style.right="3px";
           ghost.style.top=(sa/60*HH)+"px"; ghost.style.height=(HH/2)+"px";
           col.appendChild(ghost);
-          try{ col.setPointerCapture(pid); }catch(_){}
           if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
         }, HOLD);
       });
       col.addEventListener("pointermove",function(e){
-        if(timer){ if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>MOVE_CANCEL){ clearTimeout(timer); timer=null; } return; } // moved first → it's a scroll
-        if(!active||!ghost) return;
-        e.preventDefault();
-        var cur=(e.clientY-colTop)/HH*60;
-        sa=snap30(Math.min(startMin,cur)); sb=snap30(Math.max(startMin,cur)); if(sb<=sa)sb=sa+30;
-        ghost.style.top=(sa/60*HH)+"px"; ghost.style.height=((sb-sa)/60*HH)+"px";
+        if(active){ // sizing the ghost
+          e.preventDefault();
+          colTop=col.getBoundingClientRect().top;
+          var cur=(e.clientY-colTop)/HH*60;
+          sa=snap30(Math.min(startMin,cur)); sb=snap30(Math.max(startMin,cur)); if(sb<=sa)sb=sa+30;
+          ghost.style.top=(sa/60*HH)+"px"; ghost.style.height=((sb-sa)/60*HH)+"px";
+          return;
+        }
+        // before the hold: a real move means the user wants to scroll
+        if(!scrolling && (Math.abs(e.clientY-sy)>MOVE || Math.abs(e.clientX-sx)>MOVE)){
+          if(timer){ clearTimeout(timer); timer=null; }
+          scrolling=true;
+        }
+        if(scrolling){ scroll.scrollTop -= (e.clientY-lastY); lastY=e.clientY; e.preventDefault(); }
       });
       function finish(){
         var wasActive=active, ssa=sa, ssb=sb;
         cleanup();
-        if(!wasActive) return;                     // released before the hold → nothing (was a tap/scroll)
+        if(!wasActive) return;                     // released before the hold → nothing
         if(ssb<=ssa) ssb=ssa+30;
         selectedDate=ymd(days[idx]);
-        openTodoEditor(null, minHH(ssa), minHH(ssb)); // opens the menu with the time visible
+        openTodoEditor(null, minHH(ssa), minHH(ssb)); // editor opens with the time visible + editable
       }
       col.addEventListener("pointerup",finish);
       col.addEventListener("pointercancel",cleanup);
