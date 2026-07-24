@@ -8,8 +8,10 @@
 
   var STATUSES = {
     task: [["todo", "To do"], ["doing", "Doing"], ["done", "Done"]],
-    project: [["idea-stage", "Idea"], ["active", "Active"], ["paused", "Paused"]]
+    project: [["idea-stage", "Idea"], ["active", "Active"], ["paused", "Paused"]],
+    radar: [["open", "Open"], ["follow-up", "Follow up"], ["reviewed", "Reviewed"]]
   };
+  var SECTIONS = { task: "tasks", project: "projects", radar: "radar" };
 
   function loadJSON(key, fb) { try { return JSON.parse(localStorage.getItem(key)) || fb; } catch (e) { return fb; } }
   function saveJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
@@ -94,7 +96,7 @@
 
   // ---- sheet ----
   function open(item, type) {
-    var section = type === "project" ? "projects" : "tasks";
+    var section = SECTIONS[type] || "tasks";
     var id = item.id;
     var changed = false;
     flushPending();
@@ -118,7 +120,30 @@
     closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
     closeBtn.addEventListener("click", close);
     header.appendChild(closeBtn);
-    header.appendChild(el("span", "detail-kind", type === "project" ? "Project" : "Task"));
+    header.appendChild(el("span", "detail-kind",
+      type === "project" ? "Project" : type === "radar" ? "Radar deadline" : "Task"));
+
+    // Remove → 99 Archive (tasks + projects only; projects need confirmation).
+    if (type === "task" || type === "project") {
+      var removeBtn = el("button", "detail-remove", "Remove");
+      removeBtn.type = "button";
+      removeBtn.addEventListener("click", function () {
+        if (type === "project") {
+          var sure = (typeof confirm === "function")
+            ? confirm("Remove this project? It moves to 99 Archive in your vault (never deleted outright).")
+            : true;
+          if (!sure) return;
+        }
+        var rm = loadJSON("sbx.removed", {});
+        rm[id] = true;
+        saveJSON("sbx.removed", rm);
+        enqueue({ type: "remove", target_id: id, section: section });
+        changed = true;
+        toast("Moved to archive");
+        close();
+      });
+      header.appendChild(removeBtn);
+    }
     panel.appendChild(header);
 
     var body = el("div", "detail-body");
@@ -131,7 +156,7 @@
     body.appendChild(el("div", "detail-section-label", "Status"));
     var curStatus = getStatus(section, id, item.status);
     var seg = el("div", "detail-seg");
-    STATUSES[type === "project" ? "project" : "task"].forEach(function (pair) {
+    (STATUSES[type] || STATUSES.task).forEach(function (pair) {
       var b = el("button", "detail-seg-btn" + (pair[0] === curStatus ? " active" : ""), pair[1]);
       b.type = "button";
       b.addEventListener("click", function () {
@@ -147,7 +172,12 @@
     });
     body.appendChild(seg);
 
-    // ---- subtasks ----
+    // ---- subtasks (not for radar deadlines) ----
+    if (type === "radar") {
+      body.appendChild(buildNotesSection());
+      finish();
+      return;
+    }
     body.appendChild(el("div", "detail-section-label", "Subtasks"));
     var subList = el("div", "detail-subs");
     body.appendChild(subList);
@@ -212,53 +242,61 @@
     body.appendChild(addSubRow);
 
     // ---- notes ----
-    body.appendChild(el("div", "detail-section-label", "Notes"));
-    var noteList = el("div", "detail-notes");
-    body.appendChild(noteList);
+    body.appendChild(buildNotesSection());
+    finish();
 
-    function renderNotes() {
-      noteList.innerHTML = "";
-      var list = getNotes(section, id);
-      if (!list.length) noteList.appendChild(el("p", "detail-empty", "No notes yet."));
-      list.slice().reverse().forEach(function (n) {
-        var nEl = el("div", "detail-note");
-        nEl.appendChild(el("div", "detail-note-text", n.text));
-        nEl.appendChild(el("div", "detail-note-ts", n.ts));
-        noteList.appendChild(nEl);
-      });
-    }
-    renderNotes();
+    function buildNotesSection() {
+      var frag = document.createDocumentFragment();
+      frag.appendChild(el("div", "detail-section-label", "Notes"));
+      var noteList = el("div", "detail-notes");
+      frag.appendChild(noteList);
 
-    var addNoteRow = el("div", "detail-add-row");
-    var noteInput = document.createElement("textarea");
-    noteInput.className = "detail-input detail-note-input";
-    noteInput.rows = 2;
-    noteInput.placeholder = "Add a note…";
-    var noteAdd = el("button", "detail-add-btn", "Add");
-    noteAdd.type = "button";
-    function addNote() {
-      var text = (noteInput.value || "").trim();
-      if (!text) return;
-      var arr = getNotes(section, id);
-      var ts = new Date().toISOString().slice(0, 16).replace("T", " ");
-      arr.push({ text: text, ts: ts });
-      setNotes(section, id, arr);
-      enqueue({ type: "note", target_id: id, section: section, body: text });
-      changed = true;
-      noteInput.value = "";
+      function renderNotes() {
+        noteList.innerHTML = "";
+        var list = getNotes(section, id);
+        if (!list.length) noteList.appendChild(el("p", "detail-empty", "No notes yet."));
+        list.slice().reverse().forEach(function (n) {
+          var nEl = el("div", "detail-note");
+          nEl.appendChild(el("div", "detail-note-text", n.text));
+          nEl.appendChild(el("div", "detail-note-ts", n.ts));
+          noteList.appendChild(nEl);
+        });
+      }
       renderNotes();
-      toast("Note saved");
-    }
-    noteAdd.addEventListener("click", addNote);
-    addNoteRow.appendChild(noteInput);
-    addNoteRow.appendChild(noteAdd);
-    body.appendChild(addNoteRow);
 
-    panel.appendChild(body);
-    overlay.appendChild(panel);
-    overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
-    document.body.appendChild(overlay);
-    (global.requestAnimationFrame || setTimeout)(function () { overlay.classList.add("show"); });
+      var addNoteRow = el("div", "detail-add-row");
+      var noteInput = document.createElement("textarea");
+      noteInput.className = "detail-input detail-note-input";
+      noteInput.rows = 2;
+      noteInput.placeholder = "Add a note…";
+      var noteAdd = el("button", "detail-add-btn", "Add");
+      noteAdd.type = "button";
+      noteAdd.addEventListener("click", function () {
+        var text = (noteInput.value || "").trim();
+        if (!text) return;
+        var arr = getNotes(section, id);
+        var ts = new Date().toISOString().slice(0, 16).replace("T", " ");
+        arr.push({ text: text, ts: ts });
+        setNotes(section, id, arr);
+        enqueue({ type: "note", target_id: id, section: section, body: text });
+        changed = true;
+        noteInput.value = "";
+        renderNotes();
+        toast("Note saved");
+      });
+      addNoteRow.appendChild(noteInput);
+      addNoteRow.appendChild(noteAdd);
+      frag.appendChild(addNoteRow);
+      return frag;
+    }
+
+    function finish() {
+      panel.appendChild(body);
+      overlay.appendChild(panel);
+      overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+      document.body.appendChild(overlay);
+      (global.requestAnimationFrame || setTimeout)(function () { overlay.classList.add("show"); });
+    }
   }
 
   global.ItemDetail = { open: open };

@@ -13,6 +13,7 @@
 
   // Each theme is a full palette override applied via <html data-theme="...">.
   var THEMES = {
+    nova:   { label: "Nova",   bg: "#111420" },
     dark:   { label: "Dark",   bg: "#0f1115" },
     light:  { label: "Light",  bg: "#f5f6f8" },
     orange: { label: "Orange", bg: "#fff6ee" },

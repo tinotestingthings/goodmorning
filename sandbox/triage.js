@@ -396,34 +396,19 @@
       actions.appendChild(reviewBtn);
     }
 
-    var syncBtn = document.createElement("button");
-    syncBtn.className = "btn btn-primary";
-    syncBtn.textContent = "Sync now";
-    syncBtn.disabled = decided === 0 && !DigestNotes.hasNotes();
-    syncBtn.addEventListener("click", function () {
-      syncBtn.disabled = true; syncBtn.textContent = "Syncing…";
+    // Decisions + notes sync to Supabase automatically on deck completion —
+    // no buttons needed anymore (the bridge files them into the vault).
+    var syncStatus = el("div", "sync-status", "");
+    actions.appendChild(syncStatus);
+    if (decided > 0 || DigestNotes.hasNotes()) {
+      syncStatus.textContent = "Syncing…";
       DigestSync.push(function (res) {
-        if (res.empty) { toast("Nothing to sync"); syncBtn.textContent = "Sync now"; syncBtn.disabled = false; return; }
-        if (res.error) { toast("Sync failed: " + res.error); syncBtn.textContent = "Sync now"; syncBtn.disabled = false; return; }
-        toast("Synced " + res.count + " — filing to your vault");
-        computeItems(); pointer = firstUndecidedIndex(0); savePointer(); lastAction = null; render();
+        if (res.empty) { syncStatus.textContent = ""; return; }
+        if (res.error) { syncStatus.textContent = "Sync pending — will retry (offline?)"; return; }
+        syncStatus.textContent = "✓ Synced — filing to your vault";
+        computeItems(); pointer = firstUndecidedIndex(0); savePointer(); lastAction = null;
       });
-    });
-    actions.appendChild(syncBtn);
-
-    var copyBtn = document.createElement("button");
-    copyBtn.className = "btn btn-ghost";
-    copyBtn.textContent = "Copy instead";
-    copyBtn.disabled = decided === 0;
-    copyBtn.addEventListener("click", copyDecisions);
-    actions.appendChild(copyBtn);
-
-    var handoffBtn = document.createElement("button");
-    handoffBtn.className = "btn btn-ghost";
-    handoffBtn.textContent = "Mark handed off";
-    handoffBtn.disabled = decided === 0;
-    handoffBtn.addEventListener("click", markHandedOff);
-    actions.appendChild(handoffBtn);
+    }
 
     var continueBtn = document.createElement("button");
     continueBtn.className = "btn btn-primary";

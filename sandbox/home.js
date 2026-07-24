@@ -157,39 +157,7 @@
       card.appendChild(streakEl);
     }
 
-    var syncBtn = el("button", "btn btn-primary done-copy-btn");
-    syncBtn.type = "button";
-    syncBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6"/><path d="M6 12l6-6 6 6"/><path d="M5 21h14"/></svg><span>Sync now</span>';
-    syncBtn.addEventListener("click", function () {
-      syncBtn.disabled = true;
-      DigestSync.push(function (res) {
-        if (res.empty) { toast("Nothing to sync"); syncBtn.disabled = false; return; }
-        if (res.error) { toast("Sync failed: " + res.error); syncBtn.disabled = false; return; }
-        toast("Synced " + res.count + " — filing to your vault");
-        if (window.App && window.App.go) window.App.go("today");
-      });
-    });
-    card.appendChild(syncBtn);
-
-    var copyBtn = el("button", "btn btn-ghost done-copy-btn");
-    copyBtn.type = "button";
-    copyBtn.textContent = "Copy instead";
-    copyBtn.addEventListener("click", function () {
-      var queue = DigestQueue.build();
-      if (!queue) { toast("Nothing to copy yet"); return; }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(queue.text).then(function () {
-          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
-          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
-          toast(msg + " — paste to Claude");
-        }, function () { toast("Copy failed — clipboard blocked"); });
-      } else {
-        toast("Clipboard not available");
-      }
-    });
-    card.appendChild(copyBtn);
-
-    var hint = el("div", "done-hint", "Sync files straight into your vault");
+    var hint = el("div", "done-hint", "everything syncs to your vault automatically");
     card.appendChild(hint);
 
     var againBtn = el("button", "btn btn-undo done-again-btn", "Do it again");
@@ -530,8 +498,13 @@
     return li;
   }
 
+  function isRemoved(id) {
+    try { return !!(JSON.parse(localStorage.getItem("sbx.removed")) || {})[id]; }
+    catch (e) { return false; }
+  }
+
   function buildTasksBody(container, today) {
-    var tasks = today.tasks || [];
+    var tasks = (today.tasks || []).filter(function (t) { return !isRemoved(t.id); });
     if (tasks.length === 0) {
       container.appendChild(el("p", "dash-empty", "No suggestions today."));
       return;
@@ -560,7 +533,7 @@
   }
 
   function buildProjectsBody(container, today) {
-    var projects = today.projects || [];
+    var projects = (today.projects || []).filter(function (p) { return !isRemoved(p.id); });
     if (projects.length === 0) {
       container.appendChild(el("p", "dash-empty", "No project data in feed."));
       return;
@@ -587,16 +560,19 @@
   function deadlineRow(d) {
     var days = daysUntil(d.date);
     var itemId = d.id || slugify(d.date + "-" + d.label);
-    var li = el("div", "dash-item");
+    var li = el("div", "dash-item dash-item-tap");
     var row = el("div", "dl-row");
     var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
     row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
     row.appendChild(el("span", "dl-label", d.label));
     row.appendChild(el("span", "dash-date", d.date));
-    var nc = noteControl("radar", itemId, "Note on “" + d.label + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
-    li.appendChild(nc.textarea);
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) {
+        ItemDetail.open({ id: itemId, title: d.label, hint: d.date, status: localStatus("radar", itemId, "open") }, "radar");
+      }
+    });
     return li;
   }
 
@@ -1381,7 +1357,10 @@
         build: function (c) { buildProjectsBody(c, today); } }
     ];
 
-    var openKey = null;
+    // Remember which tile is open across re-renders (a detail-sheet edit
+    // re-renders Today; the open tile must not snap shut).
+    var openKey = sessionStorage.getItem("sbx.dashOpen") || null;
+    if (openKey && !sections.some(function (s) { return s.key === openKey; })) openKey = null;
     var tileEls = {};
     var anchorEls = {}; // key -> element after which the accordion should sit
     var accordionEl = el("div", "accordion-body");
@@ -1405,6 +1384,10 @@
 
     function setOpen(key) {
       openKey = (openKey === key) ? null : key;
+      try {
+        if (openKey) sessionStorage.setItem("sbx.dashOpen", openKey);
+        else sessionStorage.removeItem("sbx.dashOpen");
+      } catch (e) {}
       Object.keys(tileEls).forEach(function (k) {
         tileEls[k].classList.toggle("tile-active", k === openKey);
       });
@@ -1438,6 +1421,13 @@
       }
     });
     flushPending();
+
+    // Restore a previously-open tile (survives detail-sheet re-renders).
+    if (openKey && tileEls[openKey]) {
+      tileEls[openKey].classList.add("tile-active");
+      renderAccordionContent();
+      placeAccordion();
+    }
 
     wrap.appendChild(rowsWrap);
     appendRadarStrip(wrap, today);
@@ -1511,53 +1501,36 @@
 
   var notesFooter = null;
 
+  // Auto-sync: whenever Today renders with anything pending (decisions made
+  // in Triage, or stray notes), quietly push it to Supabase — the bridge
+  // files it into the vault. No buttons; the footer is just a status line.
+  var autoSyncBusy = false;
+
   function updateNotesFooter() {
     if (!notesFooter) return;
-    var hasQueue = !!DigestQueue.build();
-    notesFooter.classList.toggle("hidden", !hasQueue);
+    var pending = !!DigestQueue.build();
+    if (pending && !autoSyncBusy && window.SB) {
+      autoSyncBusy = true;
+      notesFooter.classList.remove("hidden");
+      notesFooter.textContent = "Syncing changes…";
+      DigestSync.push(function (res) {
+        autoSyncBusy = false;
+        if (res && res.count) {
+          notesFooter.textContent = "✓ Synced " + res.count + " to your vault";
+          setTimeout(function () { notesFooter.classList.add("hidden"); }, 2500);
+        } else if (res && res.error) {
+          notesFooter.textContent = "Sync pending — will retry";
+        } else {
+          notesFooter.classList.add("hidden");
+        }
+      });
+    } else if (!pending) {
+      notesFooter.classList.add("hidden");
+    }
   }
 
   function renderNotesFooter() {
-    notesFooter = el("div", "notes-footer hidden");
-
-    var syncBtn = el("button", "btn btn-primary", "Sync now");
-    syncBtn.addEventListener("click", function () {
-      syncBtn.disabled = true;
-      DigestSync.push(function (res) {
-        if (res.empty) { toast("Nothing to sync"); syncBtn.disabled = false; return; }
-        if (res.error) { toast("Sync failed: " + res.error); syncBtn.disabled = false; return; }
-        toast("Synced " + res.count + " — filing to your vault");
-        render();
-      });
-    });
-    notesFooter.appendChild(syncBtn);
-
-    var copyBtn = el("button", "btn btn-ghost", "Copy instead");
-    copyBtn.addEventListener("click", function () {
-      var queue = DigestQueue.build();
-      if (!queue) { toast("Nothing to copy yet"); return; }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(queue.text).then(function () {
-          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
-          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
-          toast(msg + " — paste to Claude");
-        }, function () {
-          toast("Copy failed — clipboard blocked");
-        });
-      } else {
-        toast("Clipboard not available");
-      }
-    });
-    notesFooter.appendChild(copyBtn);
-
-    var clearBtn = el("button", "btn btn-undo", "Clear notes");
-    clearBtn.addEventListener("click", function () {
-      DigestNotes.clearNotes();
-      render();
-      toast("Notes cleared");
-    });
-    notesFooter.appendChild(clearBtn);
-
+    notesFooter = el("div", "notes-footer sync-status hidden");
     return notesFooter;
   }
 

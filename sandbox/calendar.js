@@ -579,14 +579,19 @@
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
+    // Less-used fields live behind "More options" — the everyday flow is just
+    // text + day + reminder. (An existing item with any of these set opens
+    // with the section expanded so nothing looks lost.)
+    var moreBox=el("div","inline-form-more hidden");
+    var hasMore=!!(existing&&(existing.startTime||existing.endTime||existing.tz||existing.category||existing.url||existing.note));
     // time (optional -> timed event)
     var tRow=el("div","inline-form-row"); tRow.appendChild(el("span","inline-form-label","Time"));
     var st=document.createElement("input"); st.type="time"; st.className="field-input"; if(existing&&existing.startTime)st.value=existing.startTime; else if(prefillTime)st.value=prefillTime; tRow.appendChild(st);
-    tRow.appendChild(el("span","inline-form-hint","to")); var et=document.createElement("input"); et.type="time"; et.className="field-input"; if(existing&&existing.endTime)et.value=existing.endTime; tRow.appendChild(et); box.appendChild(tRow);
+    tRow.appendChild(el("span","inline-form-hint","to")); var et=document.createElement("input"); et.type="time"; et.className="field-input"; if(existing&&existing.endTime)et.value=existing.endTime; tRow.appendChild(et); moreBox.appendChild(tRow);
     // timezone
-    var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); box.appendChild(zRow);
+    var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); moreBox.appendChild(zRow);
     // category
-    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Category")); var cat=catSelect(existing?existing.category:""); cRow.appendChild(cat); box.appendChild(cRow);
+    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Category")); var cat=catSelect(existing?existing.category:""); cRow.appendChild(cat); moreBox.appendChild(cRow);
     // reminders (multiple)
     var remWrap=el("div","inline-form-col"); remWrap.appendChild(el("span","inline-form-label","Reminders"));
     var rems=(existing&&Array.isArray(existing.reminders))?existing.reminders.slice():[];
@@ -600,8 +605,13 @@
     addRem.addEventListener("change",function(){ if(addRem.value!==""){ var m=parseInt(addRem.value,10); if(rems.indexOf(m)===-1)rems.push(m); rems.sort(function(a,b){return a-b;}); drawChips(); addRem.value=""; } });
     remWrap.appendChild(addRem); box.appendChild(remWrap);
     // link + note
-    var lRow=el("div","inline-form-row"); lRow.appendChild(el("span","inline-form-label","Link")); var url=field("https://…",existing?existing.url:""); lRow.appendChild(url); box.appendChild(lRow);
-    var note=document.createElement("textarea"); note.className="field-input"; note.rows=2; note.placeholder="Note (optional)"; if(existing&&existing.note)note.value=existing.note; box.appendChild(note);
+    var lRow=el("div","inline-form-row"); lRow.appendChild(el("span","inline-form-label","Link")); var url=field("https://…",existing?existing.url:""); lRow.appendChild(url); moreBox.appendChild(lRow);
+    var note=document.createElement("textarea"); note.className="field-input"; note.rows=2; note.placeholder="Note (optional)"; if(existing&&existing.note)note.value=existing.note; moreBox.appendChild(note);
+
+    var moreToggle=el("button","inline-form-moretoggle","More options ▾"); moreToggle.type="button";
+    moreToggle.addEventListener("click",function(){ var open=moreBox.classList.toggle("hidden"); moreToggle.textContent=open?"More options ▾":"Fewer options ▴"; });
+    box.appendChild(moreToggle); box.appendChild(moreBox);
+    if(hasMore){ moreBox.classList.remove("hidden"); moreToggle.textContent="Fewer options ▴"; }
 
     var actions=el("div","inline-form-row");
     var save=el("button","btn btn-primary",existing?"Save":"+ Add to-do"); save.type="button";

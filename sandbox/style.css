@@ -2094,9 +2094,18 @@ body::after {
 /* ---- themes (explicit data-theme wins over prefers-color-scheme) ---- */
 
 :root[data-theme="dark"] {
-  --bg: #0f1115; --card-bg: #1a1d24; --text: #eef0f3;
-  --text-dim: #9aa1ac; --border: #2a2e37;
-  --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #eef0f3;
+  --bg: #0f1115; --card-bg: #1c2029; --text: #eef0f3;
+  --text-dim: #a5acb8; --border: #333945;
+  --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #4a90d9;
+}
+/* Nova — the "professional" theme: deep blue-black canvas, indigo accent,
+   soft gold highlight; extra depth via the [data-theme="nova"] overrides
+   near the end of this file. */
+:root[data-theme="nova"] {
+  --bg: #111420; --card-bg: #1c2133; --text: #e8eaf2;
+  --text-dim: #9aa0b5; --border: #2e3450;
+  --keep: #34c07c; --dismiss: #e2606b; --skip: #6d7cff; --accent: #6d7cff;
+  --gold: #d8b46a;
 }
 :root[data-theme="light"] {
   --bg: #f5f6f8; --card-bg: #ffffff; --text: #1a1d24;
@@ -2323,3 +2332,124 @@ body::after {
 .home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 4px 2px 8px; font-weight: 700; }
 .home-today-list { margin-bottom: 14px; }
 .cal-swipeable { touch-action: pan-y; }
+
+/* ============================================================
+   Button & surface polish (2026-07-24) — subtle depth everywhere.
+   Flat is gone: every actionable control gets a faint top-light
+   gradient, a hairline border, and a soft shadow; pressing sinks it.
+   ============================================================ */
+
+.btn,
+.btn-circle,
+.detail-add-btn,
+.detail-seg-btn,
+.capture-seg-btn,
+.capture-fab,
+.hdr-btn,
+.tile,
+.pin-key,
+.auth-primary {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 55%);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.btn:active,
+.btn-circle:active,
+.detail-add-btn:active,
+.capture-fab:active,
+.hdr-btn:active,
+.tile:active {
+  box-shadow: 0 0 1px rgba(0,0,0,0.3), inset 0 1px 2px rgba(0,0,0,0.18);
+  filter: brightness(0.97);
+}
+.btn-primary,
+.detail-add-btn,
+.capture-send,
+.auth-primary {
+  background-color: var(--skip);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0) 60%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.capture-fab {
+  background-color: var(--skip);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.detail-seg-btn.active,
+.capture-seg-btn.active {
+  border-color: var(--skip);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--skip), 0 1px 3px rgba(0,0,0,0.2);
+}
+.capture-release { border-color: var(--skip); color: var(--skip); }
+.auth-link { color: var(--skip); }
+
+/* Morning-loop card: was nearly invisible in dark themes — give it a real
+   surface, a visible ring, and a hairline glow so it reads as THE main
+   action on the home screen. */
+.loop-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.loop-card .loop-card-title { color: var(--text); }
+.loop-card .loop-card-sub { color: var(--text-dim); }
+
+/* Detail-sheet remove button */
+.detail-remove {
+  margin-left: auto;
+  appearance: none;
+  border: 1px solid var(--dismiss);
+  background: transparent;
+  color: var(--dismiss);
+  border-radius: 10px;
+  padding: 7px 13px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.detail-remove:active { background: var(--dismiss); color: #fff; }
+
+/* Sync status lines (replaces the old Sync/Copy buttons) */
+.sync-status {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 8px 0;
+}
+.notes-footer.sync-status { border: none; background: transparent; }
+
+/* "More options" toggle in the agenda editors */
+.inline-form-moretoggle {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--skip);
+  font-size: 0.88rem;
+  text-align: left;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.inline-form-more { display: flex; flex-direction: column; gap: 8px; }
+.inline-form-more.hidden { display: none; }
+
+/* Nova-specific depth: slightly stronger elevation + gold focus ring */
+:root[data-theme="nova"] .card,
+:root[data-theme="nova"] .tile,
+:root[data-theme="nova"] .accordion-card,
+:root[data-theme="nova"] .detail-panel,
+:root[data-theme="nova"] .card-menu {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+:root[data-theme="nova"] .loop-card {
+  border-color: rgba(216,180,106,0.35) !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4), 0 0 0 1px rgba(216,180,106,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+:root[data-theme="nova"] .detail-input:focus,
+:root[data-theme="nova"] .capture-textarea:focus,
+:root[data-theme="nova"] .auth-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(216,180,106,0.22);
+}
+:root[data-theme="nova"] .tab-btn.active { color: var(--gold); }
