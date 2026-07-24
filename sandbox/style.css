@@ -2532,3 +2532,21 @@ body::after {
   background: var(--card-bg); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
 }
 .cal-quick-icon svg { width: 20px; height: 20px; display: block; color: var(--skip); }
+
+/* work schedule editor + week-grid work-hours shading */
+.ws-sheet { max-height: 82vh; overflow-y: auto; }
+.ws-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0 4px 8px; }
+.ws-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; }
+.ws-daylabel { flex: 0 0 108px; font-size: 0.92rem; color: var(--text); }
+.ws-row .field-input[type="time"] { flex: 0 0 auto; }
+
+.cal-week-loc { font-size: 0.6rem; font-weight: 600; margin-top: 2px; padding: 1px 5px; border-radius: 6px; display: inline-block; }
+.cal-loc-office { background: color-mix(in srgb, var(--skip) 22%, transparent); color: var(--skip); }
+.cal-loc-home { background: color-mix(in srgb, var(--keep) 22%, transparent); color: var(--keep); }
+.cal-loc-customer { background: color-mix(in srgb, #d8b46a 26%, transparent); color: #b78a2e; }
+
+.cal-week-workband { position: absolute; left: 0; right: 0; pointer-events: none; background: color-mix(in srgb, var(--skip) 6%, transparent); z-index: 0; }
+.cal-week-workband.cal-loc-home { background: color-mix(in srgb, var(--keep) 7%, transparent); }
+.cal-week-workband.cal-loc-customer { background: color-mix(in srgb, #d8b46a 9%, transparent); }
+.cal-week-workband.cal-loc-unspecified { background: color-mix(in srgb, var(--text-dim) 8%, transparent); }
+.cal-week-hline, .cal-week-workband { pointer-events: none; }

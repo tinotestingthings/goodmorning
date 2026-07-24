@@ -7,7 +7,7 @@
   // boot/focus, and pushes the instant its local copy changes (home.js's
   // saveTodos/saveChores call pushNow) with a 25s safety poll behind it.
 
-  var KEYS = ["sbx.todos", "sbx.todos.history", "sbx.chores"];
+  var KEYS = ["sbx.todos", "sbx.todos.history", "sbx.chores", "sbx.workweek"];
   var POLL_MS = 25000;
   var lastSynced = null;   // JSON string of the state last pushed/pulled
   var remoteStamp = null;

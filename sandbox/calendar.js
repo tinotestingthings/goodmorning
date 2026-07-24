@@ -113,11 +113,58 @@
     sel.addEventListener("change",function(){ viewMode=sel.value; saveViewMode(viewMode); searchOpen=false; render(); });
     bar.appendChild(sel);
 
+    var workBtn=el("button","cal-icon-btn","🗓"); workBtn.type="button";
+    workBtn.setAttribute("aria-label","Work schedule");
+    workBtn.addEventListener("click",openWorkSchedule);
+    bar.appendChild(workBtn);
+
     var searchBtn=el("button","cal-icon-btn", searchOpen?"✕":"🔍"); searchBtn.type="button";
     searchBtn.setAttribute("aria-label","Search");
     searchBtn.addEventListener("click",function(){ searchOpen=!searchOpen; render(); });
     bar.appendChild(searchBtn);
     return bar;
+  }
+
+  // ---- work-schedule editor (default hours + per-day location) ----
+  function openWorkSchedule(){
+    if(!window.WorkWeek) return;
+    var s=window.WorkWeek.load();
+    var backdrop=el("div","card-menu-backdrop");
+    var sheet=el("div","card-menu ws-sheet");
+    function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },180); }
+
+    sheet.appendChild(el("div","capture-heading","Work schedule"));
+    sheet.appendChild(el("p","ws-sub","Your usual week — used to shade work hours and, soon, to suggest tasks by where you are."));
+
+    var hRow=el("div","ws-row");
+    hRow.appendChild(el("span","ws-daylabel","Default hours"));
+    var st=document.createElement("input"); st.type="time"; st.className="field-input"; st.value=s.start;
+    var en=document.createElement("input"); en.type="time"; en.className="field-input"; en.value=s.end;
+    st.addEventListener("change",function(){ s.start=st.value||"09:00"; window.WorkWeek.save(s); });
+    en.addEventListener("change",function(){ s.end=en.value||"17:00"; window.WorkWeek.save(s); });
+    hRow.appendChild(st); hRow.appendChild(el("span","inline-form-hint","to")); hRow.appendChild(en);
+    sheet.appendChild(hRow);
+
+    [["mon","Monday"],["tue","Tuesday"],["wed","Wednesday"],["thu","Thursday"],["fri","Friday"],["sat","Saturday"],["sun","Sunday"]].forEach(function(d){
+      var row=el("div","ws-row");
+      row.appendChild(el("span","ws-daylabel",d[1]));
+      var sel=document.createElement("select"); sel.className="field-select field-select-wide";
+      window.WorkWeek.LOCS.forEach(function(p){ var o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]; sel.appendChild(o); });
+      sel.value=s.days[d[0]]||"unspecified";
+      sel.addEventListener("change",function(){ s.days[d[0]]=sel.value; window.WorkWeek.save(s); });
+      row.appendChild(sel);
+      sheet.appendChild(row);
+    });
+
+    var done=el("button","btn btn-primary","Done"); done.type="button"; done.addEventListener("click",function(){ close(); render(); });
+    sheet.appendChild(done);
+    var cancel=el("button","card-menu-cancel","Close"); cancel.type="button"; cancel.addEventListener("click",close);
+    sheet.appendChild(cancel);
+
+    backdrop.appendChild(sheet);
+    backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
+    document.body.appendChild(backdrop);
+    (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }
 
   function buildFilterChips(){
@@ -790,6 +837,7 @@
       var h=el("div","cal-week-dhead"+(ds===todayStr()?" cal-week-today":""));
       h.appendChild(el("div","cal-week-dow",["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][(dt.getDay()+6)%7]));
       h.appendChild(el("div","cal-week-dnum",String(dt.getDate())));
+      if(window.WorkWeek){ var w=window.WorkWeek.forDate(ds); if(w.location&&w.location!=="unspecified"&&w.location!=="off"){ h.appendChild(el("div","cal-week-loc cal-loc-"+w.location, window.WorkWeek.locLabel(w.location))); } }
       h.addEventListener("click",function(){ selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); });
       headRow.appendChild(h);
     });
@@ -816,6 +864,8 @@
     var colEls=[];
     days.forEach(function(dt,idx){ var ds=ymd(dt);
       var col=el("div","cal-week-col"+(ds===todayStr()?" cal-week-coltoday":"")); col.style.height=(24*HH)+"px";
+      // shade the working hours for this day per the work schedule
+      if(window.WorkWeek){ var wk=window.WorkWeek.forDate(ds); if(wk.working){ var a=toMin(wk.start),b2=toMin(wk.end); if(b2>a){ var band=el("div","cal-week-workband cal-loc-"+wk.location); band.style.top=(a/60*HH)+"px"; band.style.height=((b2-a)/60*HH)+"px"; col.appendChild(band); } } }
       for(var hh=0;hh<24;hh++){ var line=el("div","cal-week-hline"); line.style.top=(hh*HH)+"px"; col.appendChild(line); }
       colEls.push(col); body.appendChild(col);
     });
