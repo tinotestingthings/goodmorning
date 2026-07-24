@@ -1506,6 +1506,50 @@ main#deckArea {
 
 /* ---- PIN gate ---- */
 
+/* ---- Supabase login gate ---- */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.auth-box {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.auth-title { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.auth-sub { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 6px; }
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+}
+.auth-primary { width: 100%; padding: 14px; font-size: 1rem; }
+.auth-msg { font-size: 0.85rem; color: var(--text-dim); min-height: 1.1em; margin: 2px 0 0; }
+.auth-msg-error { color: var(--dismiss); }
+.auth-link {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--accent, var(--skip));
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px;
+}
+
 .pin-overlay {
   position: fixed;
   inset: 0;
