@@ -894,40 +894,53 @@
     return wrap;
   }
 
-  // ---- drag on empty grid to create a timed block (Outlook-style) ----
+  // ---- HOLD, then drag on empty grid to create a timed block (Outlook-style).
+  // A short press (~280ms) is required so normal scrolling isn't hijacked; only
+  // once the hold fires do we take over the gesture and draw a block. Create
+  // snaps to 30-min steps (exact time can still be set in the item menu). ----
+  function snap30(m){ return Math.round(m/30)*30; }
   function wireCreate(body, days, colEls, HH){
-    var active=false, colIdx=-1, startMin=0, ghost=null, pid=null, colTop=0;
-    function snapHour(m){ return Math.round(m/60)*60; }
+    var HOLD=280, MOVE_CANCEL=10;
     colEls.forEach(function(col,idx){
+      var timer=null, active=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, pid=null, sa=0, sb=0;
+      function cleanup(){
+        if(timer){ clearTimeout(timer); timer=null; }
+        if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;
+        active=false; col.style.touchAction="";
+      }
       col.addEventListener("pointerdown",function(e){
-        if(e.target!==col) return;               // only empty space, not a block
-        active=true; colIdx=idx; pid=e.pointerId;
-        colTop=col.getBoundingClientRect().top;
-        startMin=(e.clientY-colTop)/HH*60;
-        ghost=el("div","cal-week-ev cal-week-ghost"); ghost.style.left="2px"; ghost.style.right="3px";
-        ghost.style.top=(Math.floor(startMin/60)*60/60*HH)+"px"; ghost.style.height=(HH)+"px";
-        col.appendChild(ghost);
-        try{ col.setPointerCapture(pid); }catch(_){}
-        e.preventDefault();
+        if(e.target!==col) return;                 // hlines/workband are pointer-events:none, so this is empty space
+        sx=e.clientX; sy=e.clientY; pid=e.pointerId;
+        timer=setTimeout(function(){
+          timer=null; active=true;
+          col.style.touchAction="none";            // now WE own the gesture (finger held still, no scroll started)
+          colTop=col.getBoundingClientRect().top;
+          startMin=(sy-colTop)/HH*60; sa=snap30(startMin); sb=sa+30;
+          ghost=el("div","cal-week-ev cal-week-ghost"); ghost.style.left="2px"; ghost.style.right="3px";
+          ghost.style.top=(sa/60*HH)+"px"; ghost.style.height=(HH/2)+"px";
+          col.appendChild(ghost);
+          try{ col.setPointerCapture(pid); }catch(_){}
+          if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
+        }, HOLD);
       });
       col.addEventListener("pointermove",function(e){
-        if(!active||idx!==colIdx||!ghost) return;
+        if(timer){ if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>MOVE_CANCEL){ clearTimeout(timer); timer=null; } return; } // moved first → it's a scroll
+        if(!active||!ghost) return;
+        e.preventDefault();
         var cur=(e.clientY-colTop)/HH*60;
-        var a=Math.min(startMin,cur), b=Math.max(startMin,cur);
-        ghost.style.top=(a/60*HH)+"px"; ghost.style.height=(Math.max(HH*0.4,(b-a)/60*HH))+"px";
+        sa=snap30(Math.min(startMin,cur)); sb=snap30(Math.max(startMin,cur)); if(sb<=sa)sb=sa+30;
+        ghost.style.top=(sa/60*HH)+"px"; ghost.style.height=((sb-sa)/60*HH)+"px";
       });
-      function finish(e){
-        if(!active||idx!==colIdx) return; active=false;
-        var cur=(e.clientY-colTop)/HH*60;
-        if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;
-        var day=ymd(days[idx]); selectedDate=day;
-        var a=Math.min(startMin,cur), b=Math.max(startMin,cur);
-        if(b-a < 20){ openTodoEditor(null, minHH(snap15(startMin))); return; }   // a tap → single time
-        var s=Math.max(0,snapHour(a)); var en=Math.min(1440,snapHour(b)); if(en<=s)en=s+60;
-        openTodoEditor(null, minHH(s), minHH(en));
+      function finish(){
+        var wasActive=active, ssa=sa, ssb=sb;
+        cleanup();
+        if(!wasActive) return;                     // released before the hold → nothing (was a tap/scroll)
+        if(ssb<=ssa) ssb=ssa+30;
+        selectedDate=ymd(days[idx]);
+        openTodoEditor(null, minHH(ssa), minHH(ssb)); // opens the menu with the time visible
       }
       col.addEventListener("pointerup",finish);
-      col.addEventListener("pointercancel",function(){ active=false; if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null; });
+      col.addEventListener("pointercancel",cleanup);
     });
   }
 

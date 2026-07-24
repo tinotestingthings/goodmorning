@@ -2521,7 +2521,7 @@ body::after {
 
 /* week: drag-to-create ghost + touch behavior */
 .cal-week-ghost { background: color-mix(in srgb, var(--skip) 55%, transparent); border: 1px dashed #fff; pointer-events: none; opacity: 0.85; }
-.cal-week-col { touch-action: none; }
+.cal-week-col { touch-action: pan-y; }
 .cal-week-scroll { touch-action: pan-y; }
 
 /* home: calendar quick-links (My Day / Week) */
