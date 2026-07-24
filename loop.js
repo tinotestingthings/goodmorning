@@ -157,24 +157,29 @@
   function pendingDecisions() {
     var decisions = loadJSON(LS_DECISIONS, {});
     var handedOff = loadJSON(LS_HANDED_OFF, {});
-    var keep = [], dismiss = [];
+    var keep = [], dismiss = [], task = [], project = [];
     Object.keys(decisions).forEach(function (id) {
       if (handedOff[id]) return; // already handed off, not pending anymore
-      if (decisions[id] === "keep") keep.push(id);
-      else if (decisions[id] === "dismiss") dismiss.push(id);
+      var d = decisions[id];
+      if (d === "keep") keep.push(id);
+      else if (d === "dismiss") dismiss.push(id);
+      else if (d === "task") task.push(id);
+      else if (d === "project") project.push(id);
     });
-    return { keep: keep, dismiss: dismiss };
+    return { keep: keep, dismiss: dismiss, task: task, project: project };
   }
 
   function buildQueue() {
     var d = pendingDecisions();
     var notes = noteLines();
-    var decisionCount = d.keep.length + d.dismiss.length;
+    var decisionCount = d.keep.length + d.dismiss.length + d.task.length + d.project.length;
     if (decisionCount === 0 && notes.length === 0) return null;
 
     var lines = ["swipe queue " + formatTimestamp(new Date())];
     d.keep.forEach(function (id) { lines.push("keep: " + id); });
     d.dismiss.forEach(function (id) { lines.push("dismiss: " + id); });
+    d.task.forEach(function (id) { lines.push("task: " + id); });
+    d.project.forEach(function (id) { lines.push("project: " + id); });
     notes.forEach(function (line) { lines.push(line); });
 
     return { text: lines.join("\n"), decisionCount: decisionCount, noteCount: notes.length };
@@ -184,4 +189,62 @@
     pendingDecisions: pendingDecisions,
     build: buildQueue
   };
+
+  // ---- Supabase sync (replaces copy-to-clipboard) ----
+  // Pushes the same pending decisions + notes the queue text contains, but as
+  // structured rows into the `actions` table. The bridge task then applies
+  // each to the vault (keep/dismiss/task/project on 00 Inbox items, note onto
+  // its target item) — no more paste-in-chat step.
+  function buildActionRows() {
+    var d = pendingDecisions();
+    var rows = [];
+    ["keep", "dismiss", "task", "project"].forEach(function (type) {
+      d[type].forEach(function (id) { rows.push({ type: type, target_id: id }); });
+    });
+    var notes = getNotes();
+    Object.keys(notes).forEach(function (section) {
+      Object.keys(notes[section]).forEach(function (itemId) {
+        var t = notes[section][itemId];
+        if (t) rows.push({ type: "note", section: section, target_id: itemId, body: t });
+      });
+    });
+    return rows;
+  }
+
+  function markAllHandedOff() {
+    var decisions = loadJSON(LS_DECISIONS, {});
+    var handedOff = loadJSON(LS_HANDED_OFF, {});
+    Object.keys(decisions).forEach(function (id) { handedOff[id] = true; });
+    localStorage.setItem(LS_HANDED_OFF, JSON.stringify(handedOff));
+    localStorage.setItem(LS_DECISIONS, JSON.stringify({}));
+  }
+
+  function pushSync(cb) {
+    cb = cb || function () {};
+    if (!global.SB) { cb({ error: "Not signed in / offline" }); return; }
+    var rows = buildActionRows();
+    if (!rows.length) { cb({ empty: true }); return; }
+    global.SB.from("actions").insert(rows).then(function (res) {
+      if (res && res.error) { cb({ error: res.error.message }); return; }
+      markAllHandedOff();
+      clearNotes();
+      cb({ count: rows.length });
+    }, function (err) {
+      cb({ error: (err && err.message) || "failed" });
+    });
+  }
+
+  // Insert a single action immediately (used by the item detail sheet so an
+  // edit auto-syncs to the vault without the batch "Sync now" step). Optimistic
+  // callers keep their own local copy for instant display regardless of result.
+  function pushOne(row, cb) {
+    cb = cb || function () {};
+    if (!global.SB) { cb({ error: "offline" }); return; }
+    global.SB.from("actions").insert([row]).then(function (res) {
+      if (res && res.error) { cb({ error: res.error.message }); return; }
+      cb({ ok: true });
+    }, function (err) { cb({ error: (err && err.message) || "failed" }); });
+  }
+
+  global.DigestSync = { push: pushSync, pushOne: pushOne, buildRows: buildActionRows };
 })(window);

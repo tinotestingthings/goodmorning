@@ -157,25 +157,7 @@
       card.appendChild(streakEl);
     }
 
-    var copyBtn = el("button", "btn btn-primary done-copy-btn");
-    copyBtn.type = "button";
-    copyBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy queue</span>';
-    copyBtn.addEventListener("click", function () {
-      var queue = DigestQueue.build();
-      if (!queue) { toast("Nothing to copy yet"); return; }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(queue.text).then(function () {
-          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
-          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
-          toast(msg + " — paste to Claude");
-        }, function () { toast("Copy failed — clipboard blocked"); });
-      } else {
-        toast("Clipboard not available");
-      }
-    });
-    card.appendChild(copyBtn);
-
-    var hint = el("div", "done-hint", "paste in Claude — cards get cleared up");
+    var hint = el("div", "done-hint", "everything syncs to your vault automatically");
     card.appendChild(hint);
 
     var againBtn = el("button", "btn btn-undo done-again-btn", "Do it again");
@@ -500,21 +482,29 @@
   }
 
   function taskRow(t) {
-    var li = el("li", "dash-item");
+    var li = el("li", "dash-item dash-item-tap");
     var row = el("div", "dash-row");
-    row.appendChild(chip(t.status));
+    row.appendChild(chip(localStatus("tasks", t.id, t.status)));
     row.appendChild(el("span", "dash-item-title", t.title));
-    var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    var prog = subtaskProgress(t.id);
+    if (prog) row.appendChild(el("span", "dash-subprog", prog));
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
     var sub = [t.detail, t.hint].filter(Boolean).join(" · ");
     if (sub) li.appendChild(el("div", "dash-hint", sub));
-    li.appendChild(nc.textarea);
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) window.ItemDetail.open(t, "task");
+    });
     return li;
   }
 
+  function isRemoved(id) {
+    try { return !!(JSON.parse(localStorage.getItem("dd.removed")) || {})[id]; }
+    catch (e) { return false; }
+  }
+
   function buildTasksBody(container, today) {
-    var tasks = today.tasks || [];
+    var tasks = (today.tasks || []).filter(function (t) { return !isRemoved(t.id); });
     if (tasks.length === 0) {
       container.appendChild(el("p", "dash-empty", "No suggestions today."));
       return;
@@ -525,21 +515,25 @@
   }
 
   function projectRow(p) {
-    var li = el("div", "dash-item");
-    var row = el("div", "dash-row project-row" + (p.status === "active" ? "" : " project-dim"));
-    row.appendChild(chip(p.status));
+    var st = localStatus("projects", p.id, p.status);
+    var li = el("div", "dash-item dash-item-tap");
+    var row = el("div", "dash-row project-row" + (st === "active" ? "" : " project-dim"));
+    row.appendChild(chip(st));
     row.appendChild(el("span", "dash-item-title", p.title));
+    var prog = subtaskProgress(p.id);
+    if (prog) row.appendChild(el("span", "dash-subprog", prog));
     if (p.updated) row.appendChild(el("span", "dash-date", p.updated));
-    var nc = noteControl("projects", p.id, "Note on “" + p.title + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
-    if (p.line && p.status === "active") li.appendChild(el("div", "dash-hint", p.line));
-    li.appendChild(nc.textarea);
+    if (p.line) li.appendChild(el("div", "dash-hint", p.line));
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) window.ItemDetail.open(p, "project");
+    });
     return li;
   }
 
   function buildProjectsBody(container, today) {
-    var projects = today.projects || [];
+    var projects = (today.projects || []).filter(function (p) { return !isRemoved(p.id); });
     if (projects.length === 0) {
       container.appendChild(el("p", "dash-empty", "No project data in feed."));
       return;
@@ -566,16 +560,19 @@
   function deadlineRow(d) {
     var days = daysUntil(d.date);
     var itemId = d.id || slugify(d.date + "-" + d.label);
-    var li = el("div", "dash-item");
+    var li = el("div", "dash-item dash-item-tap");
     var row = el("div", "dl-row");
     var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
     row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
     row.appendChild(el("span", "dl-label", d.label));
     row.appendChild(el("span", "dash-date", d.date));
-    var nc = noteControl("radar", itemId, "Note on “" + d.label + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
-    li.appendChild(nc.textarea);
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) {
+        ItemDetail.open({ id: itemId, title: d.label, hint: d.date, status: localStatus("radar", itemId, "open") }, "radar");
+      }
+    });
     return li;
   }
 
@@ -632,6 +629,7 @@
   }
   function saveChores(list) {
     try { localStorage.setItem(CHORES_KEY, JSON.stringify(list)); } catch (e) {}
+    if (window.AgendaSync) window.AgendaSync.pushNow();
   }
 
   function addInterval(date, every, unit) {
@@ -1083,6 +1081,7 @@
   }
   function saveTodos(list) {
     try { localStorage.setItem(TODOS_KEY, JSON.stringify(list)); } catch (e) {}
+    if (window.AgendaSync) window.AgendaSync.pushNow();
   }
 
   // A separate history log, independent of the active to-dos list, so
@@ -1347,20 +1346,43 @@
     return { text: "", cls: "tile-badge-gray" };
   }
 
+  function calQuickLink(label, view, iconSvg) {
+    var b = el("button", "cal-quick");
+    b.type = "button";
+    b.innerHTML = '<span class="cal-quick-icon">' + iconSvg + '</span><span class="cal-quick-label">' + label + '</span>';
+    b.addEventListener("click", function () {
+      if (window.CalNav) window.CalNav.setView(view);
+      if (window.App && window.App.go) window.App.go("calendar");
+    });
+    return b;
+  }
+
   function renderDashboardArea(today) {
     var wrap = el("div", "dashboard-area");
+
+    // Quick jumps into the calendar (My Day / Week).
+    var quick = el("div", "cal-quicklinks");
+    quick.appendChild(calQuickLink("My Day", "myday",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'));
+    quick.appendChild(calQuickLink("Week", "week",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M8.5 13h0M12 13h0M15.5 13h0"/></svg>'));
+    wrap.appendChild(quick);
+
     var rowsWrap = el("div", "tile-rows");
 
+    // Radar moved out of the main tile grid (was too prominent) — it now
+    // lives in a compact strip below, quiet unless something is urgent.
     var sections = [
       { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
         build: function (c) { buildTasksBody(c, today); } },
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
-        build: function (c) { buildProjectsBody(c, today); } },
-      { key: "radar", label: "Radar", icon: ICON_RADAR, badge: radarBadge(today),
-        build: function (c) { buildRadarBody(c, today); } }
+        build: function (c) { buildProjectsBody(c, today); } }
     ];
 
-    var openKey = null;
+    // Remember which tile is open across re-renders (a detail-sheet edit
+    // re-renders Today; the open tile must not snap shut).
+    var openKey = sessionStorage.getItem("dd.dashOpen") || null;
+    if (openKey && !sections.some(function (s) { return s.key === openKey; })) openKey = null;
     var tileEls = {};
     var anchorEls = {}; // key -> element after which the accordion should sit
     var accordionEl = el("div", "accordion-body");
@@ -1384,6 +1406,10 @@
 
     function setOpen(key) {
       openKey = (openKey === key) ? null : key;
+      try {
+        if (openKey) sessionStorage.setItem("dd.dashOpen", openKey);
+        else sessionStorage.removeItem("dd.dashOpen");
+      } catch (e) {}
       Object.keys(tileEls).forEach(function (k) {
         tileEls[k].classList.toggle("tile-active", k === openKey);
       });
@@ -1418,8 +1444,73 @@
     });
     flushPending();
 
+    // Restore a previously-open tile (survives detail-sheet re-renders).
+    if (openKey && tileEls[openKey]) {
+      tileEls[openKey].classList.add("tile-active");
+      renderAccordionContent();
+      placeAccordion();
+    }
+
     wrap.appendChild(rowsWrap);
+    appendRadarStrip(wrap, today);
     return wrap;
+  }
+
+  // Compact, de-emphasized radar: a single quiet line unless there's an open
+  // follow-up or a deadline within 7 days, in which case it turns urgent
+  // (red) and can be expanded inline.
+  function appendRadarStrip(wrap, today) {
+    var radar = today.radar;
+    if (!radar) return;
+    var soonDays = (radar.deadlines && radar.deadlines.length) ? daysUntil(radar.deadlines[0].date) : null;
+    var urgent = (radar.follow_ups > 0) || (soonDays !== null && soonDays <= 7);
+
+    var strip = el("div", "radar-strip" + (urgent ? " radar-strip-urgent" : ""));
+    var head = el("button", "radar-strip-head");
+    head.type = "button";
+    var dot = el("span", "radar-dot" + (urgent ? " radar-dot-urgent" : ""));
+    head.appendChild(dot);
+    head.appendChild(el("span", "radar-strip-label", "Compliance radar"));
+    var status = urgent
+      ? (radar.follow_ups > 0
+          ? radar.follow_ups + " follow-up" + (radar.follow_ups === 1 ? "" : "s")
+          : soonDays + "d to a deadline")
+      : "nothing urgent";
+    head.appendChild(el("span", "radar-strip-status", status));
+    var chev = el("span", "radar-strip-chev", "›");
+    head.appendChild(chev);
+    strip.appendChild(head);
+
+    var body = el("div", "radar-strip-body hidden");
+    var built = false;
+    var open = false;
+    head.addEventListener("click", function () {
+      open = !open;
+      if (open && !built) { buildRadarBody(body, today); built = true; }
+      body.classList.toggle("hidden", !open);
+      strip.classList.toggle("radar-strip-open", open);
+    });
+    strip.appendChild(body);
+    wrap.appendChild(strip);
+  }
+
+  // Optimistic status override (a status change made in the detail sheet shows
+  // immediately, before the bridge writes it back to the vault).
+  function localStatus(section, id, fallback) {
+    try {
+      var m = JSON.parse(localStorage.getItem("dd.itemstatus")) || {};
+      return m[section + ":" + id] || fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function subtaskProgress(id) {
+    try {
+      var m = JSON.parse(localStorage.getItem("dd.subtasks")) || {};
+      var list = m[id] || [];
+      if (!list.length) return null;
+      var done = list.filter(function (s) { return s.done; }).length;
+      return done + "/" + list.length;
+    } catch (e) { return null; }
   }
 
   // ---- notes footer ----
@@ -1432,41 +1523,36 @@
 
   var notesFooter = null;
 
+  // Auto-sync: whenever Today renders with anything pending (decisions made
+  // in Triage, or stray notes), quietly push it to Supabase — the bridge
+  // files it into the vault. No buttons; the footer is just a status line.
+  var autoSyncBusy = false;
+
   function updateNotesFooter() {
     if (!notesFooter) return;
-    var hasQueue = !!DigestQueue.build();
-    notesFooter.classList.toggle("hidden", !hasQueue);
+    var pending = !!DigestQueue.build();
+    if (pending && !autoSyncBusy && window.SB) {
+      autoSyncBusy = true;
+      notesFooter.classList.remove("hidden");
+      notesFooter.textContent = "Syncing changes…";
+      DigestSync.push(function (res) {
+        autoSyncBusy = false;
+        if (res && res.count) {
+          notesFooter.textContent = "✓ Synced " + res.count + " to your vault";
+          setTimeout(function () { notesFooter.classList.add("hidden"); }, 2500);
+        } else if (res && res.error) {
+          notesFooter.textContent = "Sync pending — will retry";
+        } else {
+          notesFooter.classList.add("hidden");
+        }
+      });
+    } else if (!pending) {
+      notesFooter.classList.add("hidden");
+    }
   }
 
   function renderNotesFooter() {
-    notesFooter = el("div", "notes-footer hidden");
-
-    var copyBtn = el("button", "btn btn-ghost", "Copy queue");
-    copyBtn.addEventListener("click", function () {
-      var queue = DigestQueue.build();
-      if (!queue) { toast("Nothing to copy yet"); return; }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(queue.text).then(function () {
-          var msg = "Copied " + queue.decisionCount + " decision" + (queue.decisionCount === 1 ? "" : "s");
-          if (queue.noteCount > 0) msg += " + " + queue.noteCount + " note" + (queue.noteCount === 1 ? "" : "s");
-          toast(msg + " — paste to Claude");
-        }, function () {
-          toast("Copy failed — clipboard blocked");
-        });
-      } else {
-        toast("Clipboard not available");
-      }
-    });
-    notesFooter.appendChild(copyBtn);
-
-    var clearBtn = el("button", "btn btn-undo", "Clear notes");
-    clearBtn.addEventListener("click", function () {
-      DigestNotes.clearNotes();
-      render();
-      toast("Notes cleared");
-    });
-    notesFooter.appendChild(clearBtn);
-
+    notesFooter = el("div", "notes-footer sync-status hidden");
     return notesFooter;
   }
 

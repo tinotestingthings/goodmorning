@@ -38,13 +38,17 @@ body {
   flex-direction: column;
   /* Fixed height (not min-height) so the page itself never grows taller
      than the viewport and never scrolls as a whole — only .home-view,
-     .card-summary and the deck scroll internally. min-height:100vh used to
-     let mobile browser chrome (address bar show/hide) push body taller
-     than the visible viewport, which meant scrolling could carry the
-     bottom tab bar off-screen. 100dvh tracks the *actual* visible viewport
-     on browsers that support it; the 100vh line above is the fallback. */
+     .card-summary and the deck scroll internally.
+     Use 100svh (the *smallest* viewport height — browser UI shown, system
+     nav bar reserved), NOT 100dvh. dvh is dynamic: right after a full
+     reload (e.g. the sandbox reset button's location.reload()) Android can
+     resolve 100dvh to the taller "chrome-retracted" viewport, which pushes
+     the fixed bottom tab bar down behind the phone's navigation bar. svh is
+     always the safe minimum, and since the page never scrolls there's no
+     gap tradeoff. 100vh / 100dvh below are ordered fallbacks. */
   height: 100vh;
   height: 100dvh;
+  height: 100svh;
   max-width: 480px;
   margin: 0 auto;
   overflow: hidden;
@@ -80,7 +84,41 @@ body {
 .feed-status {
   font-size: 0.8rem;
   color: var(--text-dim);
+  flex: 1;
 }
+
+.triage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface, transparent);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.hdr-btn svg { width: 20px; height: 20px; }
+.hdr-btn:active { transform: scale(0.94); }
+
+.push-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.push-sub { font-family: monospace; font-size: 0.72rem; word-break: break-all; }
 
 /* ---- single-shell app + views ---- */
 
@@ -554,6 +592,210 @@ main#deckArea {
 .btn-circle-dismiss { border-color: var(--dismiss); color: var(--dismiss); }
 .btn-circle-keep { border-color: var(--keep); color: var(--keep); }
 .btn-circle-skip { border-color: var(--border); color: var(--text-dim); }
+.btn-circle-more { border-color: var(--border); color: var(--text-dim); }
+.btn-circle-more svg { width: 22px; height: 22px; }
+
+/* ---- tappable dashboard rows ---- */
+.dash-item-tap { cursor: pointer; border-radius: 10px; }
+.dash-item-tap:active { background: var(--surface, rgba(127,127,127,0.10)); }
+.dash-chev { margin-left: auto; color: var(--text-dim); font-size: 1.15rem; line-height: 1; padding-left: 6px; }
+.dash-subprog { font-size: 0.72rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 8px; padding: 1px 6px; }
+
+/* ---- de-emphasized compliance radar strip ---- */
+.radar-strip { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.radar-strip-urgent { border-color: var(--dismiss); }
+.radar-strip-head {
+  width: 100%; appearance: none; background: transparent; border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; padding: 11px 13px; color: var(--text);
+}
+.radar-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+.radar-dot-urgent { background: var(--dismiss); }
+.radar-strip-label { font-size: 0.9rem; font-weight: 600; }
+.radar-strip-status { font-size: 0.8rem; color: var(--text-dim); }
+.radar-strip-urgent .radar-strip-status { color: var(--dismiss); }
+.radar-strip-chev { margin-left: auto; color: var(--text-dim); transition: transform 0.15s ease; }
+.radar-strip-open .radar-strip-chev { transform: rotate(90deg); }
+.radar-strip-body { padding: 0 13px 12px; }
+
+/* ---- item detail sheet ---- */
+.detail-overlay {
+  position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,0.4);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.detail-overlay.show { opacity: 1; }
+.detail-panel {
+  width: 100%; max-width: 480px; height: 92%; background: var(--bg);
+  border-top-left-radius: 20px; border-top-right-radius: 20px;
+  display: flex; flex-direction: column;
+  transform: translateY(24px); transition: transform 0.2s ease;
+}
+.detail-overlay.show .detail-panel { transform: translateY(0); }
+.detail-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; flex-shrink: 0; }
+.detail-close {
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+  background: transparent; color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.detail-close svg { width: 20px; height: 20px; }
+.detail-kind { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.detail-body { flex: 1; overflow-y: auto; padding: 4px 18px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.detail-title { font-size: 1.35rem; font-weight: 700; margin: 4px 0 6px; color: var(--text); }
+.detail-info { font-size: 0.85rem; color: var(--text-dim); margin: 0 0 10px; }
+.detail-section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin: 20px 0 8px; }
+.detail-seg { display: flex; gap: 6px; }
+.detail-seg-btn {
+  flex: 1; appearance: none; border: 1px solid var(--border); background: transparent;
+  color: var(--text-dim); border-radius: 10px; padding: 10px; font-size: 0.88rem; cursor: pointer;
+}
+.detail-seg-btn.active { border-color: var(--accent, var(--skip)); color: var(--text); font-weight: 600; background: var(--surface, rgba(127,127,127,0.08)); }
+.detail-empty { font-size: 0.85rem; color: var(--text-dim); margin: 2px 0; }
+.detail-subs { display: flex; flex-direction: column; gap: 2px; }
+.detail-sub { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+.detail-check {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px; border: 1.5px solid var(--border);
+  background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.detail-check.checked { background: var(--keep); border-color: var(--keep); }
+.detail-check svg { width: 15px; height: 15px; }
+.detail-sub-text { flex: 1; font-size: 0.95rem; color: var(--text); }
+.detail-sub.done .detail-sub-text { text-decoration: line-through; color: var(--text-dim); }
+.detail-sub-del { background: none; border: none; color: var(--text-dim); font-size: 1.25rem; line-height: 1; cursor: pointer; padding: 0 4px; }
+.detail-add-row { display: flex; gap: 8px; margin-top: 8px; }
+.detail-input {
+  flex: 1; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card-bg, transparent); color: var(--text); padding: 10px 12px; font-size: 0.95rem; font-family: inherit;
+}
+.detail-note-input { resize: none; }
+.detail-add-btn {
+  appearance: none; border: none; border-radius: 10px; background: var(--accent, var(--skip));
+  color: #fff; padding: 0 16px; font-size: 0.9rem; font-weight: 600; cursor: pointer; align-self: stretch;
+}
+.detail-notes { display: flex; flex-direction: column; gap: 8px; }
+.detail-note { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+.detail-note-text { font-size: 0.92rem; color: var(--text); white-space: pre-wrap; }
+.detail-note-ts { font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ---- quick-capture FAB + sheet ---- */
+.capture-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent, var(--skip));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  cursor: pointer;
+}
+.capture-fab svg { width: 26px; height: 26px; }
+.capture-fab:active { transform: scale(0.94); }
+
+.capture-heading { font-size: 1.05rem; font-weight: 700; color: var(--text); padding: 4px 6px 2px; }
+.capture-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+  padding: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+}
+.capture-seg { display: flex; gap: 6px; }
+.capture-seg-btn {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 9px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.capture-seg-btn.active { border-color: var(--accent, var(--skip)); color: var(--text); font-weight: 600; }
+.capture-send { width: 100%; padding: 13px; }
+.capture-hold { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-dim); padding: 2px 4px; cursor: pointer; }
+.capture-hold-cb { width: 18px; height: 18px; }
+.capture-release {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--accent, var(--skip));
+  background: transparent;
+  color: var(--accent, var(--skip));
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+/* ---- card "more" bottom-sheet menu ---- */
+.card-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.card-menu-backdrop.show { opacity: 1; }
+
+.card-menu {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg, var(--bg));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 10px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(16px);
+  transition: transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.card-menu-backdrop.show .card-menu { transform: translateY(0); }
+
+.card-menu-item {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  text-align: left;
+  padding: 14px 14px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card-menu-item:active { background: var(--surface, rgba(127,127,127,0.12)); }
+.cm-label { font-size: 1rem; font-weight: 600; }
+.cm-sub { font-size: 0.78rem; color: var(--text-dim); }
+
+.card-menu-cancel {
+  appearance: none;
+  margin-top: 6px;
+  background: var(--surface, rgba(127,127,127,0.10));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
 
 .card-link-row {
   display: flex;
@@ -1406,6 +1648,50 @@ main#deckArea {
 
 /* ---- PIN gate ---- */
 
+/* ---- Supabase login gate ---- */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.auth-box {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.auth-title { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.auth-sub { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 6px; }
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+}
+.auth-primary { width: 100%; padding: 14px; font-size: 1rem; }
+.auth-msg { font-size: 0.85rem; color: var(--text-dim); min-height: 1.1em; margin: 2px 0 0; }
+.auth-msg-error { color: var(--dismiss); }
+.auth-link {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--accent, var(--skip));
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px;
+}
+
 .pin-overlay {
   position: fixed;
   inset: 0;
@@ -1565,6 +1851,50 @@ main#deckArea {
   animation-timing-function: ease-out;
 }
 
+/* ---- sandbox marker (sandbox copy only) ---- */
+
+body::after {
+  content: "SANDBOX \00b7 2026-07-20 22:40";
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d9a441;
+  color: #1a1d24;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.92;
+  white-space: nowrap;
+}
+
+.sandbox-reset-btn {
+  position: fixed;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  right: 8px;
+  z-index: 101;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d9a441;
+  background: var(--card-bg);
+  color: #d9a441;
+  font-size: 1.15rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sandbox-reset-btn:active {
+  transform: scale(0.94);
+}
 
 /* ---- calendar tab ---- */
 
@@ -1764,9 +2094,18 @@ main#deckArea {
 /* ---- themes (explicit data-theme wins over prefers-color-scheme) ---- */
 
 :root[data-theme="dark"] {
-  --bg: #0f1115; --card-bg: #1a1d24; --text: #eef0f3;
-  --text-dim: #9aa1ac; --border: #2a2e37;
-  --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #eef0f3;
+  --bg: #0f1115; --card-bg: #1c2029; --text: #eef0f3;
+  --text-dim: #a5acb8; --border: #333945;
+  --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #4a90d9;
+}
+/* Nova — the "professional" theme: deep blue-black canvas, indigo accent,
+   soft gold highlight; extra depth via the [data-theme="nova"] overrides
+   near the end of this file. */
+:root[data-theme="nova"] {
+  --bg: #111420; --card-bg: #1c2133; --text: #e8eaf2;
+  --text-dim: #9aa0b5; --border: #2e3450;
+  --keep: #34c07c; --dismiss: #e2606b; --skip: #6d7cff; --accent: #6d7cff;
+  --gold: #d8b46a;
 }
 :root[data-theme="light"] {
   --bg: #f5f6f8; --card-bg: #ffffff; --text: #1a1d24;
@@ -1993,3 +2332,278 @@ main#deckArea {
 .home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 4px 2px 8px; font-weight: 700; }
 .home-today-list { margin-bottom: 14px; }
 .cal-swipeable { touch-action: pan-y; }
+
+/* ============================================================
+   Button & surface polish (2026-07-24) — subtle depth everywhere.
+   Flat is gone: every actionable control gets a faint top-light
+   gradient, a hairline border, and a soft shadow; pressing sinks it.
+   ============================================================ */
+
+.btn,
+.btn-circle,
+.detail-add-btn,
+.detail-seg-btn,
+.capture-seg-btn,
+.capture-fab,
+.hdr-btn,
+.tile,
+.pin-key,
+.auth-primary {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 55%);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.btn:active,
+.btn-circle:active,
+.detail-add-btn:active,
+.capture-fab:active,
+.hdr-btn:active,
+.tile:active {
+  box-shadow: 0 0 1px rgba(0,0,0,0.3), inset 0 1px 2px rgba(0,0,0,0.18);
+  filter: brightness(0.97);
+}
+.btn-primary,
+.detail-add-btn,
+.capture-send,
+.auth-primary {
+  background-color: var(--skip);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0) 60%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.capture-fab {
+  background-color: var(--skip);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.detail-seg-btn.active,
+.capture-seg-btn.active {
+  border-color: var(--skip);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--skip), 0 1px 3px rgba(0,0,0,0.2);
+}
+.capture-release { border-color: var(--skip); color: var(--skip); }
+.auth-link { color: var(--skip); }
+
+/* Morning-loop card: was nearly invisible in dark themes — give it a real
+   surface, a visible ring, and a hairline glow so it reads as THE main
+   action on the home screen. */
+.loop-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.loop-card .loop-card-title { color: var(--text); }
+.loop-card .loop-card-sub { color: var(--text-dim); }
+
+/* Detail-sheet remove button */
+.detail-remove {
+  margin-left: auto;
+  appearance: none;
+  border: 1px solid var(--dismiss);
+  background: transparent;
+  color: var(--dismiss);
+  border-radius: 10px;
+  padding: 7px 13px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.detail-remove:active { background: var(--dismiss); color: #fff; }
+
+/* Sync status lines (replaces the old Sync/Copy buttons) */
+.sync-status {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 8px 0;
+}
+.notes-footer.sync-status { border: none; background: transparent; }
+
+/* "More options" toggle in the agenda editors */
+.inline-form-moretoggle {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--skip);
+  font-size: 0.88rem;
+  text-align: left;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.inline-form-more { display: flex; flex-direction: column; gap: 8px; }
+.inline-form-more.hidden { display: none; }
+
+/* Nova-specific depth: slightly stronger elevation + gold focus ring */
+:root[data-theme="nova"] .card,
+:root[data-theme="nova"] .tile,
+:root[data-theme="nova"] .accordion-card,
+:root[data-theme="nova"] .detail-panel,
+:root[data-theme="nova"] .card-menu {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+:root[data-theme="nova"] .loop-card {
+  border-color: rgba(216,180,106,0.35) !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4), 0 0 0 1px rgba(216,180,106,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+:root[data-theme="nova"] .detail-input:focus,
+:root[data-theme="nova"] .capture-textarea:focus,
+:root[data-theme="nova"] .auth-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(216,180,106,0.22);
+}
+:root[data-theme="nova"] .tab-btn.active { color: var(--gold); }
+
+/* ============================================================
+   Outlook-style week time-grid (2026-07-24)
+   ============================================================ */
+.cal-headbox { display: flex; align-items: center; gap: 10px; }
+.cal-zoom { display: flex; gap: 6px; margin-left: auto; }
+.cal-zoom-btn {
+  width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text); font-size: 1.2rem; line-height: 1; cursor: pointer;
+}
+
+.cal-week { display: flex; flex-direction: column; min-height: 0; }
+.cal-week-scroll {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  max-height: calc(100svh - 200px);
+  border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg);
+}
+.cal-week-head {
+  display: grid; position: sticky; top: 0; z-index: 5;
+  background: var(--card-bg); border-bottom: 1px solid var(--border);
+}
+.cal-week-corner { border-right: 1px solid var(--border); }
+.cal-week-dhead {
+  text-align: center; padding: 7px 2px; cursor: pointer;
+  border-left: 1px solid var(--border);
+}
+.cal-week-dow { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.cal-week-dnum { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.cal-week-today .cal-week-dnum {
+  background: var(--skip); color: #fff; border-radius: 50%;
+  width: 28px; height: 28px; line-height: 28px; margin: 2px auto 0;
+}
+
+.cal-week-allday {
+  display: grid; border-bottom: 1px solid var(--border);
+  position: sticky; top: 44px; z-index: 4; background: var(--card-bg);
+}
+.cal-week-allday-label { font-size: 0.62rem; color: var(--text-dim); padding: 4px; text-align: right; border-right: 1px solid var(--border); }
+.cal-week-allday-cell { border-left: 1px solid var(--border); padding: 3px; display: flex; flex-direction: column; gap: 3px; min-height: 22px; cursor: pointer; }
+.cal-allday-chip { font-size: 0.7rem; padding: 2px 5px; border-radius: 6px; background: var(--skip); color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-allday-chip.cal-allday-chore { background: var(--keep); }
+.cal-allday-chip.done { opacity: 0.5; text-decoration: line-through; }
+
+.cal-week-body { display: grid; position: relative; }
+.cal-week-gutter { position: relative; border-right: 1px solid var(--border); }
+.cal-week-hourlabel { position: absolute; right: 5px; font-size: 0.64rem; color: var(--text-dim); transform: translateY(-6px); }
+.cal-week-col { position: relative; border-left: 1px solid var(--border); }
+.cal-week-coltoday { background: color-mix(in srgb, var(--skip) 7%, transparent); }
+.cal-week-hline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--border); opacity: 0.5; }
+
+.cal-week-ev {
+  position: absolute; left: 2px; right: 3px; z-index: 2;
+  background: var(--skip); color: #fff; border-left: 3px solid rgba(255,255,255,0.55);
+  border-radius: 7px; padding: 2px 6px; overflow: hidden; cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28); touch-action: none;
+  user-select: none;
+}
+.cal-week-ev.dragging { cursor: grabbing; opacity: 0.9; box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index: 10; }
+.cal-week-ev.done { opacity: 0.55; }
+.cal-week-ev .cal-ev-time { font-size: 0.62rem; opacity: 0.92; }
+.cal-week-ev .cal-ev-title { font-size: 0.76rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-week-ev.cal-ev-ics { background: #7a6bd8; cursor: default; }
+.cal-ev-resize { position: absolute; left: 0; right: 0; height: 9px; cursor: ns-resize; touch-action: none; }
+.cal-ev-resize-top { top: -1px; }
+.cal-ev-resize-bot { bottom: -1px; }
+
+/* week: drag-to-create ghost + touch behavior */
+.cal-week-ghost { background: color-mix(in srgb, var(--skip) 55%, transparent); border: 1px dashed #fff; pointer-events: none; opacity: 0.85; }
+.cal-week-col { touch-action: none; }
+.cal-week-scroll { touch-action: pan-y; }
+
+/* home: calendar quick-links (My Day / Week) */
+.cal-quicklinks { display: flex; gap: 10px; margin: 2px 0 12px; }
+.cal-quick {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
+}
+.cal-quick-icon svg { width: 20px; height: 20px; display: block; color: var(--skip); }
+
+/* work schedule editor + week-grid work-hours shading */
+.ws-sheet { max-height: 82vh; overflow-y: auto; }
+.ws-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0 4px 8px; }
+.ws-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; }
+.ws-daylabel { flex: 0 0 108px; font-size: 0.92rem; color: var(--text); }
+.ws-row .field-input[type="time"] { flex: 0 0 auto; }
+
+.cal-week-loc { font-size: 0.6rem; font-weight: 600; margin-top: 2px; padding: 1px 5px; border-radius: 6px; display: inline-block; }
+.cal-loc-office { background: color-mix(in srgb, var(--skip) 22%, transparent); color: var(--skip); }
+.cal-loc-home { background: color-mix(in srgb, var(--keep) 22%, transparent); color: var(--keep); }
+.cal-loc-customer { background: color-mix(in srgb, #d8b46a 26%, transparent); color: #b78a2e; }
+
+.cal-week-workband { position: absolute; left: 0; right: 0; pointer-events: none; background: color-mix(in srgb, var(--skip) 6%, transparent); z-index: 0; }
+.cal-week-workband.cal-loc-home { background: color-mix(in srgb, var(--keep) 7%, transparent); }
+.cal-week-workband.cal-loc-customer { background: color-mix(in srgb, #d8b46a 9%, transparent); }
+.cal-week-workband.cal-loc-unspecified { background: color-mix(in srgb, var(--text-dim) 8%, transparent); }
+.cal-week-hline, .cal-week-workband { pointer-events: none; }
+
+/* to-do/chore editor shown as a bottom sheet over the week grid */
+.cal-editor-overlay { position: fixed; inset: 0; z-index: 72; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; justify-content: center; }
+.cal-editor-sheet {
+  width: 100%; max-width: 480px; background: var(--bg);
+  border-top-left-radius: 18px; border-top-right-radius: 18px;
+  border: 1px solid var(--border); border-bottom: none;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  max-height: 88vh; overflow-y: auto;
+}
+
+/* work-hours "ghost" block: clearly a translucent fill (real blocks sit on
+   top and never get pushed aside by it), tinted to the day's location */
+.cal-week-workband { background: color-mix(in srgb, var(--skip) 16%, transparent); z-index: 0; }
+.cal-week-workband.cal-loc-home { background: color-mix(in srgb, var(--keep) 16%, transparent); }
+.cal-week-workband.cal-loc-customer { background: color-mix(in srgb, #d8b46a 20%, transparent); }
+.cal-week-workband.cal-loc-office { background: color-mix(in srgb, var(--skip) 16%, transparent); }
+.cal-week-workband.cal-loc-unspecified { background: color-mix(in srgb, var(--text-dim) 14%, transparent); }
+.cal-week-ev { z-index: 2; }
+
+/* work-schedule editor: stacked default-hours row (no more horizontal squeeze) */
+.ws-hours { display: flex; flex-direction: column; gap: 6px; padding: 6px 4px; }
+.ws-hours-inputs { display: flex; align-items: center; gap: 8px; }
+.ws-hours-inputs .field-input { flex: 1; min-width: 0; }
+
+/* month: "plan work" mode */
+.cal-plan-btn { margin-left: auto; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 9px; padding: 7px 12px; font-size: 0.85rem; cursor: pointer; }
+.cal-plan-btn.active { border-color: var(--skip); color: var(--skip); font-weight: 600; }
+.sched-bar { border: 1px solid var(--skip); border-radius: 12px; padding: 10px; margin: 8px 0; }
+.sched-bar-hint { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 8px; }
+.sched-bar-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sched-chip { border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 8px; padding: 7px 11px; font-size: 0.82rem; cursor: pointer; }
+.sched-chip.cal-loc-office { border-color: var(--skip); }
+.sched-chip.cal-loc-home { border-color: var(--keep); }
+.sched-chip.cal-loc-customer { border-color: #d8b46a; }
+.sched-chip-default { color: var(--text-dim); }
+
+/* month cell work-location tint + selection */
+.cal-cell-loc-office { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--skip) 60%, transparent); }
+.cal-cell-loc-home { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--keep) 60%, transparent); }
+.cal-cell-loc-customer { box-shadow: inset 0 -3px 0 color-mix(in srgb, #d8b46a 75%, transparent); }
+.cal-cell-override::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-dim); }
+.cal-cell { position: relative; }
+.cal-cell-picked { outline: 2px solid var(--skip); outline-offset: -2px; background: color-mix(in srgb, var(--skip) 12%, transparent); }
+
+/* stop Android's long-press selection/callout from cancelling drag-create */
+.cal-week-col, .cal-week-ev, .cal-week-ghost, .cal-week-allday-cell {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+
+/* timeline header tools: + Task + zoom */
+.cal-tl-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.cal-tl-add { border: 1px solid var(--skip); background: transparent; color: var(--skip); border-radius: 9px; padding: 7px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+
+/* all-day add hint */
+.cal-week-allday-cell { align-items: stretch; justify-content: center; }
+.cal-allday-add { color: var(--text-dim); opacity: 0.5; font-size: 1rem; text-align: center; line-height: 1; }

@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-shell-v3";
+var CACHE_NAME = "dd-shell-v4";
 
 var SHELL_FILES = [
   "./",
@@ -14,13 +14,19 @@ var SHELL_FILES = [
   "./ics.js",
   "./itemui.js",
   "./reminders.js",
+  "./workweek.js",
+  "./push.js",
+  "./supabase.js",
   "./settings.js",
   "./auth.js",
   "./loop.js",
+  "./itemdetail.js",
   "./home.js",
   "./calendar.js",
   "./triage.js",
   "./practice.js",
+  "./capture.js",
+  "./agendasync.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -43,6 +49,41 @@ self.addEventListener("activate", function (event) {
              .map(function (n) { return caches.delete(n); })
       );
     }).then(function () { return self.clients.claim(); })
+  );
+});
+
+// ---- push notifications ----
+// The daily scheduled task sends a push (VAPID) when new triage cards land.
+self.addEventListener("push", function (event) {
+  var data = {};
+  try { data = event.data ? event.data.json() : {}; }
+  catch (e) { data = { body: event.data && event.data.text() }; }
+  var title = data.title || "Daily Digest";
+  var options = {
+    body: data.body || "New items to triage.",
+    icon: "./icons/icon-192.png",
+    badge: "./icons/icon-192.png",
+    tag: data.tag || "dd-news",
+    renotify: true,
+    data: { url: data.url || "./#/triage" }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+  var target = (event.notification.data && event.notification.data.url) || "./#/triage";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        if (c.url.indexOf(self.registration.scope) === 0 && "focus" in c) {
+          if (c.navigate) { try { c.navigate(target); } catch (e) {} }
+          return c.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+    })
   );
 });
 
