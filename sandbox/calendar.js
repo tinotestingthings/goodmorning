@@ -1001,16 +1001,16 @@
   function wireCreate(scroll, body, days, colEls, HH){
     var HOLD=260, MOVE=8;
     colEls.forEach(function(col,idx){
-      var timer=null, active=false, scrolling=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, lastY=0, pid=null, sa=0, sb=0;
+      var timer=null, active=false, scrolling=false, down=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, lastY=0, pid=null, sa=0, sb=0;
       col.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       function cleanup(){
         if(timer){ clearTimeout(timer); timer=null; }
         if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;
-        active=false; scrolling=false;
+        active=false; scrolling=false; down=false;
       }
       col.addEventListener("pointerdown",function(e){
         if(e.target!==col) return;
-        sx=e.clientX; sy=e.clientY; lastY=e.clientY; pid=e.pointerId; scrolling=false; active=false;
+        sx=e.clientX; sy=e.clientY; lastY=e.clientY; pid=e.pointerId; scrolling=false; active=false; down=true;
         try{ col.setPointerCapture(pid); }catch(_){}
         timer=setTimeout(function(){
           timer=null; if(scrolling) return; active=true;
@@ -1023,6 +1023,7 @@
         }, HOLD);
       });
       col.addEventListener("pointermove",function(e){
+        if(!down) return;                            // ignore moves from a touch that didn't start on this column
         if(active){ // sizing the ghost
           e.preventDefault();
           colTop=col.getBoundingClientRect().top;
@@ -1086,12 +1087,13 @@
     // Drag moves the block via translateX (NOT reparenting — reparenting a
     // pointer-captured element drops the capture, which was why a drag froze
     // one day past the origin). Column is picked by clientX; commit on drop.
-    var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, sx=0, sy=0, originIdx=0, targetIdx=0, pid=null;
+    var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, sx=0, sy=0, originIdx=0, targetIdx=0, pid=null, grabOff=0;
     function colUnder(x){ for(var i=0;i<colEls.length;i++){ var r=colEls[i].getBoundingClientRect(); if(x>=r.left&&x<=r.right)return i; } return targetIdx; }
     function begin(e, which){
       mode=which; pid=e.pointerId; moved=false; sx=e.clientX; sy=e.clientY;
       startMin=toMin(t.startTime); endMin=t.endTime?toMin(t.endTime):startMin+60; dur=endMin-startMin;
       gridTop=colEls[0].getBoundingClientRect().top;
+      grabOff=(e.clientY-gridTop)/HH*60 - startMin;   // keep the block under the finger where grabbed (no jump)
       originIdx=colEls.indexOf(b.parentNode); targetIdx=originIdx;
       b._ns=startMin; b._ne=endMin;
       try{ b.setPointerCapture(pid); }catch(_){ }
@@ -1099,10 +1101,11 @@
     }
     function move(e){
       if(mode==null)return;
+      e.stopPropagation();                            // don't let the column's scroll handler see block drags
       if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4) moved=true;
       var yMin=(e.clientY-gridTop)/HH*60;
       if(mode==="move"){
-        var newStart=snap15(yMin - dur/2); newStart=Math.max(0,Math.min(1440-dur,newStart));
+        var newStart=snap15(yMin - grabOff); newStart=Math.max(0,Math.min(1440-dur,newStart));
         targetIdx=colUnder(e.clientX);
         var dx=colEls[targetIdx].getBoundingClientRect().left - colEls[originIdx].getBoundingClientRect().left;
         b.style.transform="translateX("+dx+"px)";
@@ -1118,7 +1121,8 @@
         var l2=b.querySelector(".cal-ev-time"); if(l2)l2.textContent=minHH(startMin)+"–"+minHH(ne);
       }
     }
-    function up(){
+    function up(e){
+      if(e)e.stopPropagation();
       if(mode==null)return; var m=mode; mode=null; b.classList.remove("dragging"); b.style.transform="";
       if(m==="move" && !moved){ openItemMenu(t); return; }
       var list=M.loadTodos();
