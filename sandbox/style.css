@@ -80,7 +80,41 @@ body {
 .feed-status {
   font-size: 0.8rem;
   color: var(--text-dim);
+  flex: 1;
 }
+
+.triage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface, transparent);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.hdr-btn svg { width: 20px; height: 20px; }
+.hdr-btn:active { transform: scale(0.94); }
+
+.push-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.push-sub { font-family: monospace; font-size: 0.72rem; word-break: break-all; }
 
 /* ---- single-shell app + views ---- */
 

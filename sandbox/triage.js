@@ -358,6 +358,12 @@
     });
     actions.appendChild(continueBtn);
 
+    var startOverBtn = document.createElement("button");
+    startOverBtn.className = "btn btn-ghost";
+    startOverBtn.textContent = "Start over";
+    startOverBtn.addEventListener("click", startOver);
+    actions.appendChild(startOverBtn);
+
     var undoBtn = document.createElement("button");
     undoBtn.className = "btn btn-undo";
     undoBtn.textContent = "Undo last";
@@ -577,20 +583,54 @@
     render();
   }
 
-  function loadCommittedFeed() {
+  function loadCommittedFeed(cb) {
     setFeedStatus("Loading…");
-    fetch("feed.json", { cache: "no-store" })
+    // Cache-bust the URL as well as sending no-store: the service worker's
+    // feed.json handler is network-first, but a stale intermediary/CDN copy
+    // can still slip through, and this is the explicit "give me the latest"
+    // path — so we force a unique request every time.
+    fetch("feed.json?_=" + Date.now(), { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
       })
-      .then(function (json) { applyFeed(json); })
+      .then(function (json) { applyFeed(json); if (cb) cb(true); })
       .catch(function () {
         feed = null;
         items = [];
         setFeedStatus("Could not load feed");
         render();
+        if (cb) cb(false);
       });
+  }
+
+  // Manual refresh — the page can't be pulled-to-refresh (the shell is
+  // overflow:hidden so the tab bar stays put), so this is the way to pull a
+  // fresh feed.json without reinstalling the app.
+  function refreshFeed() {
+    setFeedStatus("Refreshing…");
+    loadCommittedFeed(function (ok) {
+      toast(ok ? "Feed refreshed" : "Refresh failed — offline?");
+    });
+  }
+
+  // Start the triage over: wipe keep/dismiss/skip choices on the cards
+  // currently in the deck and return to the first card. Handed-off cards
+  // (already copied out to Claude) stay gone — this only redoes what's still
+  // in front of you.
+  function startOver() {
+    if (items.length === 0) { toast("No cards to redo"); return; }
+    var ok = (typeof confirm === "function")
+      ? confirm("Start the triage over? This clears your keep/dismiss choices on the current cards.")
+      : true;
+    if (!ok) return;
+    items.forEach(function (it) { delete decisions[it.id]; });
+    saveDecisions();
+    pointer = 0;
+    savePointer();
+    lastAction = null;
+    toast("Triage reset");
+    render();
   }
 
   function init() {
@@ -605,6 +645,30 @@
 
     var backBtn = document.getElementById("triageBackBtn");
     if (backBtn && window.App) backBtn.addEventListener("click", function () { App.go("today"); });
+
+    // Header actions: refresh (re-fetch feed) + start over (redo checks).
+    var header = document.querySelector("#view-triage .mini-header");
+    if (header && !header.querySelector(".triage-actions")) {
+      var REFRESH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
+      var REDO_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><path d="M3 3v6h6"/></svg>';
+      var actions = document.createElement("div");
+      actions.className = "triage-actions";
+      var refreshBtn = document.createElement("button");
+      refreshBtn.className = "hdr-btn";
+      refreshBtn.type = "button";
+      refreshBtn.setAttribute("aria-label", "Refresh feed");
+      refreshBtn.innerHTML = REFRESH_ICON;
+      refreshBtn.addEventListener("click", refreshFeed);
+      var startBtn = document.createElement("button");
+      startBtn.className = "hdr-btn";
+      startBtn.type = "button";
+      startBtn.setAttribute("aria-label", "Start triage over");
+      startBtn.innerHTML = REDO_ICON;
+      startBtn.addEventListener("click", startOver);
+      actions.appendChild(refreshBtn);
+      actions.appendChild(startBtn);
+      header.appendChild(actions);
+    }
   }
 
   init();

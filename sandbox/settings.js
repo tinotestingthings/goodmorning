@@ -19,6 +19,7 @@
     root.appendChild(buildAppearance());
     root.appendChild(buildCategories());
     root.appendChild(buildNotifications());
+    root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
     root.appendChild(buildIcsFeeds());
   }
@@ -121,6 +122,78 @@
       });
       sec.appendChild(btn);
     }
+    return sec;
+  }
+
+  function buildPushAlerts() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "New-news alerts"));
+    if (!window.Push || !window.Push.supported()) {
+      sec.appendChild(el("p", "settings-sub",
+        "This browser can't do background push alerts. Add the app to your home screen (Install) and open it from there, then try again."));
+      return sec;
+    }
+    sec.appendChild(el("p", "settings-sub",
+      "Get a phone notification when new cards land in Triage — even when the app is closed."));
+
+    var body = el("div", "push-body");
+    sec.appendChild(body);
+
+    function showSubscribed(subJson) {
+      body.innerHTML = "";
+      body.appendChild(el("p", "settings-sub",
+        "Alerts are on. One-time setup: send this to Claude so it knows where to reach you — tap Copy, then paste it into a Claude chat."));
+      var ta = document.createElement("textarea");
+      ta.className = "note-input push-sub";
+      ta.rows = 3;
+      ta.readOnly = true;
+      ta.value = JSON.stringify(subJson);
+      body.appendChild(ta);
+      var copy = el("button", "btn btn-primary", "Copy for Claude");
+      copy.type = "button";
+      copy.addEventListener("click", function () {
+        var payload = "register my push subscription: " + JSON.stringify(subJson);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(payload).then(function () {
+            copy.textContent = "Copied ✓";
+            setTimeout(function () { copy.textContent = "Copy for Claude"; }, 1600);
+          });
+        }
+      });
+      body.appendChild(copy);
+      var off = el("button", "btn btn-ghost", "Turn off alerts");
+      off.type = "button";
+      off.addEventListener("click", function () {
+        off.textContent = "Turning off…";
+        window.Push.unsubscribe(function () { render(); });
+      });
+      body.appendChild(off);
+    }
+
+    window.Push.getSubscription(function (existing) {
+      if (existing) { showSubscribed(existing.toJSON ? existing.toJSON() : existing); return; }
+      var btn = el("button", "btn btn-primary", "Turn on alerts");
+      btn.type = "button";
+      btn.addEventListener("click", function () {
+        btn.textContent = "Enabling…";
+        window.Push.subscribe(function (res) {
+          if (res.subscription) {
+            var sub = res.subscription.toJSON ? res.subscription.toJSON() : res.subscription;
+            showSubscribed(sub);
+          } else {
+            btn.textContent = "Turn on alerts";
+            body.appendChild(el("p", "settings-sub",
+              res.error === "denied"
+                ? "Permission denied — enable notifications for this app in your browser settings, then try again."
+                : res.error === "unsupported"
+                ? "Not supported here — install the app to your home screen first."
+                : "Couldn't enable alerts (" + res.error + ")."));
+          }
+        });
+      });
+      body.appendChild(btn);
+    });
+
     return sec;
   }
 
