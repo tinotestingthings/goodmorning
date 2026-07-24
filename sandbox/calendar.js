@@ -857,7 +857,13 @@
     var title=el("div","cal-title", titleText);
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
-    box.appendChild(head); box.appendChild(zoomControls());
+    box.appendChild(head);
+    var tools=el("div","cal-tl-tools");
+    var add=el("button","cal-tl-add","+ Task"); add.type="button";
+    add.addEventListener("click",function(){ openTodoEditor(null); }); // untimed → lands in the all-day row
+    tools.appendChild(add);
+    tools.appendChild(zoomControls());
+    box.appendChild(tools);
     return box;
   }
 
@@ -887,6 +893,7 @@
       var cell=el("div","cal-week-allday-cell");
       choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
       todosOn(ds).filter(function(t){ return !t.startTime; }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
+      if(!cell.childNodes.length) cell.appendChild(el("div","cal-allday-add","+")); // tappable hint to add an untimed task
       cell.addEventListener("click",function(){ selectedDate=ds; openTodoEditor(null); });
       allRow.appendChild(cell);
     });
@@ -990,6 +997,7 @@
     var HOLD=280, MOVE_CANCEL=10;
     colEls.forEach(function(col,idx){
       var timer=null, active=false, startMin=0, ghost=null, colTop=0, sx=0, sy=0, pid=null, sa=0, sb=0;
+      col.addEventListener("contextmenu",function(e){ e.preventDefault(); }); // kill Android long-press menu that was cancelling create
       function cleanup(){
         if(timer){ clearTimeout(timer); timer=null; }
         if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;

@@ -2594,3 +2594,16 @@ body::after {
 .cal-cell-override::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-dim); }
 .cal-cell { position: relative; }
 .cal-cell-picked { outline: 2px solid var(--skip); outline-offset: -2px; background: color-mix(in srgb, var(--skip) 12%, transparent); }
+
+/* stop Android's long-press selection/callout from cancelling drag-create */
+.cal-week-col, .cal-week-ev, .cal-week-ghost, .cal-week-allday-cell {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+
+/* timeline header tools: + Task + zoom */
+.cal-tl-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.cal-tl-add { border: 1px solid var(--skip); background: transparent; color: var(--skip); border-radius: 9px; padding: 7px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+
+/* all-day add hint */
+.cal-week-allday-cell { align-items: stretch; justify-content: center; }
+.cal-allday-add { color: var(--text-dim); opacity: 0.5; font-size: 1rem; text-align: center; line-height: 1; }
