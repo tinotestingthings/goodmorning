@@ -38,13 +38,17 @@ body {
   flex-direction: column;
   /* Fixed height (not min-height) so the page itself never grows taller
      than the viewport and never scrolls as a whole — only .home-view,
-     .card-summary and the deck scroll internally. min-height:100vh used to
-     let mobile browser chrome (address bar show/hide) push body taller
-     than the visible viewport, which meant scrolling could carry the
-     bottom tab bar off-screen. 100dvh tracks the *actual* visible viewport
-     on browsers that support it; the 100vh line above is the fallback. */
+     .card-summary and the deck scroll internally.
+     Use 100svh (the *smallest* viewport height — browser UI shown, system
+     nav bar reserved), NOT 100dvh. dvh is dynamic: right after a full
+     reload (e.g. the sandbox reset button's location.reload()) Android can
+     resolve 100dvh to the taller "chrome-retracted" viewport, which pushes
+     the fixed bottom tab bar down behind the phone's navigation bar. svh is
+     always the safe minimum, and since the page never scrolls there's no
+     gap tradeoff. 100vh / 100dvh below are ordered fallbacks. */
   height: 100vh;
   height: 100dvh;
+  height: 100svh;
   max-width: 480px;
   margin: 0 auto;
   overflow: hidden;
