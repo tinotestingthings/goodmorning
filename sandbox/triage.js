@@ -396,9 +396,24 @@
       actions.appendChild(reviewBtn);
     }
 
+    var syncBtn = document.createElement("button");
+    syncBtn.className = "btn btn-primary";
+    syncBtn.textContent = "Sync now";
+    syncBtn.disabled = decided === 0 && !DigestNotes.hasNotes();
+    syncBtn.addEventListener("click", function () {
+      syncBtn.disabled = true; syncBtn.textContent = "Syncing…";
+      DigestSync.push(function (res) {
+        if (res.empty) { toast("Nothing to sync"); syncBtn.textContent = "Sync now"; syncBtn.disabled = false; return; }
+        if (res.error) { toast("Sync failed: " + res.error); syncBtn.textContent = "Sync now"; syncBtn.disabled = false; return; }
+        toast("Synced " + res.count + " — filing to your vault");
+        computeItems(); pointer = firstUndecidedIndex(0); savePointer(); lastAction = null; render();
+      });
+    });
+    actions.appendChild(syncBtn);
+
     var copyBtn = document.createElement("button");
-    copyBtn.className = "btn btn-primary";
-    copyBtn.textContent = "Copy decisions";
+    copyBtn.className = "btn btn-ghost";
+    copyBtn.textContent = "Copy instead";
     copyBtn.disabled = decided === 0;
     copyBtn.addEventListener("click", copyDecisions);
     actions.appendChild(copyBtn);

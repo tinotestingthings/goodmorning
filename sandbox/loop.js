@@ -189,4 +189,50 @@
     pendingDecisions: pendingDecisions,
     build: buildQueue
   };
+
+  // ---- Supabase sync (replaces copy-to-clipboard) ----
+  // Pushes the same pending decisions + notes the queue text contains, but as
+  // structured rows into the `actions` table. The bridge task then applies
+  // each to the vault (keep/dismiss/task/project on 00 Inbox items, note onto
+  // its target item) — no more paste-in-chat step.
+  function buildActionRows() {
+    var d = pendingDecisions();
+    var rows = [];
+    ["keep", "dismiss", "task", "project"].forEach(function (type) {
+      d[type].forEach(function (id) { rows.push({ type: type, target_id: id }); });
+    });
+    var notes = getNotes();
+    Object.keys(notes).forEach(function (section) {
+      Object.keys(notes[section]).forEach(function (itemId) {
+        var t = notes[section][itemId];
+        if (t) rows.push({ type: "note", section: section, target_id: itemId, body: t });
+      });
+    });
+    return rows;
+  }
+
+  function markAllHandedOff() {
+    var decisions = loadJSON(LS_DECISIONS, {});
+    var handedOff = loadJSON(LS_HANDED_OFF, {});
+    Object.keys(decisions).forEach(function (id) { handedOff[id] = true; });
+    localStorage.setItem(LS_HANDED_OFF, JSON.stringify(handedOff));
+    localStorage.setItem(LS_DECISIONS, JSON.stringify({}));
+  }
+
+  function pushSync(cb) {
+    cb = cb || function () {};
+    if (!global.SB) { cb({ error: "Not signed in / offline" }); return; }
+    var rows = buildActionRows();
+    if (!rows.length) { cb({ empty: true }); return; }
+    global.SB.from("actions").insert(rows).then(function (res) {
+      if (res && res.error) { cb({ error: res.error.message }); return; }
+      markAllHandedOff();
+      clearNotes();
+      cb({ count: rows.length });
+    }, function (err) {
+      cb({ error: (err && err.message) || "failed" });
+    });
+  }
+
+  global.DigestSync = { push: pushSync, buildRows: buildActionRows };
 })(window);

@@ -157,9 +157,23 @@
       card.appendChild(streakEl);
     }
 
-    var copyBtn = el("button", "btn btn-primary done-copy-btn");
+    var syncBtn = el("button", "btn btn-primary done-copy-btn");
+    syncBtn.type = "button";
+    syncBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6"/><path d="M6 12l6-6 6 6"/><path d="M5 21h14"/></svg><span>Sync now</span>';
+    syncBtn.addEventListener("click", function () {
+      syncBtn.disabled = true;
+      DigestSync.push(function (res) {
+        if (res.empty) { toast("Nothing to sync"); syncBtn.disabled = false; return; }
+        if (res.error) { toast("Sync failed: " + res.error); syncBtn.disabled = false; return; }
+        toast("Synced " + res.count + " — filing to your vault");
+        if (window.App && window.App.go) window.App.go("today");
+      });
+    });
+    card.appendChild(syncBtn);
+
+    var copyBtn = el("button", "btn btn-ghost done-copy-btn");
     copyBtn.type = "button";
-    copyBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy queue</span>';
+    copyBtn.textContent = "Copy instead";
     copyBtn.addEventListener("click", function () {
       var queue = DigestQueue.build();
       if (!queue) { toast("Nothing to copy yet"); return; }
@@ -175,7 +189,7 @@
     });
     card.appendChild(copyBtn);
 
-    var hint = el("div", "done-hint", "paste in Claude — cards get cleared up");
+    var hint = el("div", "done-hint", "Sync files straight into your vault");
     card.appendChild(hint);
 
     var againBtn = el("button", "btn btn-undo done-again-btn", "Do it again");
@@ -1441,7 +1455,19 @@
   function renderNotesFooter() {
     notesFooter = el("div", "notes-footer hidden");
 
-    var copyBtn = el("button", "btn btn-ghost", "Copy queue");
+    var syncBtn = el("button", "btn btn-primary", "Sync now");
+    syncBtn.addEventListener("click", function () {
+      syncBtn.disabled = true;
+      DigestSync.push(function (res) {
+        if (res.empty) { toast("Nothing to sync"); syncBtn.disabled = false; return; }
+        if (res.error) { toast("Sync failed: " + res.error); syncBtn.disabled = false; return; }
+        toast("Synced " + res.count + " — filing to your vault");
+        render();
+      });
+    });
+    notesFooter.appendChild(syncBtn);
+
+    var copyBtn = el("button", "btn btn-ghost", "Copy instead");
     copyBtn.addEventListener("click", function () {
       var queue = DigestQueue.build();
       if (!queue) { toast("Nothing to copy yet"); return; }
