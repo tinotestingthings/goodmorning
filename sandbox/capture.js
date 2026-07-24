@@ -53,6 +53,15 @@
       seg.appendChild(b);
     });
 
+    // Hold = keep it in Supabase to ponder; it won't sync to the vault until
+    // released. Unchecked = syncs on the next bridge run (or "sync my notes").
+    var hold = el("label", "capture-hold");
+    var holdCb = document.createElement("input");
+    holdCb.type = "checkbox";
+    holdCb.className = "capture-hold-cb";
+    hold.appendChild(holdCb);
+    hold.appendChild(el("span", null, "Hold to ponder — don't sync yet"));
+
     var send = el("button", "btn btn-primary capture-send", "Add to inbox");
     send.type = "button";
     send.addEventListener("click", function () {
@@ -61,10 +70,11 @@
       if (!global.SB) { toast("Not connected — try again"); return; }
       send.disabled = true; send.textContent = "Adding…";
       var title = body.split("\n")[0].slice(0, 120);
-      global.SB.from("captures").insert({ kind: kind, title: title, body: body }).then(function (res) {
+      var status = holdCb.checked ? "holding" : "new";
+      global.SB.from("captures").insert({ kind: kind, title: title, body: body, status: status }).then(function (res) {
         send.disabled = false; send.textContent = "Add to inbox";
         if (res && res.error) { toast("Failed: " + res.error.message); return; }
-        toast("Added to inbox");
+        toast(holdCb.checked ? "Held to ponder" : "Added to inbox");
         close();
       }, function (err) {
         send.disabled = false; send.textContent = "Add to inbox";
@@ -78,8 +88,28 @@
 
     sheet.appendChild(ta);
     sheet.appendChild(seg);
+    sheet.appendChild(hold);
     sheet.appendChild(send);
     sheet.appendChild(cancel);
+
+    // If any notes are on hold, offer to release them all for the next sync.
+    if (global.SB) {
+      global.SB.from("captures").select("id").eq("status", "holding").then(function (res) {
+        if (!res || res.error || !res.data || !res.data.length) return;
+        var n = res.data.length;
+        var rel = el("button", "capture-release", "Release " + n + " held → sync");
+        rel.type = "button";
+        rel.addEventListener("click", function () {
+          rel.disabled = true; rel.textContent = "Releasing…";
+          global.SB.from("captures").update({ status: "new" }).eq("status", "holding").then(function (r2) {
+            if (r2 && r2.error) { toast("Failed"); rel.disabled = false; rel.textContent = "Release " + n + " held → sync"; return; }
+            toast(n + " released — syncs next run");
+            if (rel.parentNode) rel.parentNode.removeChild(rel);
+          });
+        });
+        sheet.insertBefore(rel, cancel);
+      });
+    }
     backdrop.appendChild(sheet);
     backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
     document.body.appendChild(backdrop);
