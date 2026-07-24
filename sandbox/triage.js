@@ -135,8 +135,60 @@
   var ICONS = {
     dismiss: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>',
     keep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
-    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>'
   };
+
+  var DECISION_LABELS = { keep: "KEPT", dismiss: "DISMISSED", task: "→ TASK", project: "→ PROJECT" };
+  var DECISION_COLORS = { keep: "--keep", dismiss: "--dismiss", task: "--skip", project: "--accent" };
+
+  // Bottom-sheet menu behind the middle button: defer, add note, or promote
+  // the card into a real task/project (those emit task:/project: queue lines
+  // that Claude files to 30 Tasks / 40 Projects instead of 20 Sources).
+  function openCardMenu(item, flash, nc) {
+    var backdrop = document.createElement("div");
+    backdrop.className = "card-menu-backdrop";
+    var menu = document.createElement("div");
+    menu.className = "card-menu";
+
+    function close() {
+      backdrop.classList.remove("show");
+      setTimeout(function () { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+    }
+
+    function addItem(label, sub, handler) {
+      var b = document.createElement("button");
+      b.className = "card-menu-item";
+      b.type = "button";
+      b.innerHTML = '<span class="cm-label">' + label + '</span>' +
+        (sub ? '<span class="cm-sub">' + sub + '</span>' : '');
+      b.addEventListener("click", function () { close(); handler(); });
+      menu.appendChild(b);
+    }
+
+    addItem("Review later", "Keep it undecided — it stays for next time", function () { skip(flash); });
+    addItem("Add note", "Jot context, collected with your decisions", function () {
+      if (nc && nc.textarea) {
+        nc.textarea.classList.remove("hidden");
+        nc.textarea.focus();
+      }
+    });
+    addItem("Make into task", "File to 30 Tasks (a bounded to-do)", function () { decide(item, "task", flash); });
+    addItem("Make into project", "File to 40 Projects (an ongoing effort)", function () { decide(item, "project", flash); });
+
+    var cancel = document.createElement("button");
+    cancel.className = "card-menu-cancel";
+    cancel.type = "button";
+    cancel.textContent = "Cancel";
+    cancel.addEventListener("click", close);
+    menu.appendChild(cancel);
+
+    backdrop.appendChild(menu);
+    backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
+    document.body.appendChild(backdrop);
+    requestAnimationFrame ? requestAnimationFrame(function () { backdrop.classList.add("show"); })
+                          : backdrop.classList.add("show");
+  }
 
   function circleBtn(kind, size, label) {
     var btn = document.createElement("button");
@@ -245,8 +297,10 @@
       linkRow.appendChild(link);
     }
 
+    // Note control still exists per card; its textarea lives in the card and
+    // is toggled from the middle "More" menu ("Add note") rather than an
+    // inline pencil, keeping the card face clean.
     var nc = noteControl("triage", item.id, "Note on this card — collected with your decisions.");
-    linkRow.appendChild(nc.btn);
     card.appendChild(linkRow);
     card.appendChild(nc.textarea);
 
@@ -272,17 +326,17 @@
     var actionRow = document.createElement("div");
     actionRow.className = "action-row";
 
-    var dismissBtn = circleBtn("dismiss", "lg", "Dismiss");
+    var dismissBtn = circleBtn("dismiss", "lg", "No");
     dismissBtn.addEventListener("click", function () { decide(item, "dismiss", flash); });
 
-    var skipBtn = circleBtn("skip", "sm", "Skip");
-    skipBtn.addEventListener("click", function () { skip(flash); });
+    var moreBtn = circleBtn("more", "sm", "More options");
+    moreBtn.addEventListener("click", function () { openCardMenu(item, flash, nc); });
 
-    var keepBtn = circleBtn("keep", "lg", "Keep");
+    var keepBtn = circleBtn("keep", "lg", "Yes");
     keepBtn.addEventListener("click", function () { decide(item, "keep", flash); });
 
     actionRow.appendChild(dismissBtn);
-    actionRow.appendChild(skipBtn);
+    actionRow.appendChild(moreBtn);
     actionRow.appendChild(keepBtn);
     deckArea.appendChild(actionRow);
 
@@ -304,13 +358,16 @@
     progress.appendChild(el("span", "progress-fraction", items.length + "/" + items.length));
     deckArea.appendChild(progress);
 
-    var counts = { keep: 0, dismiss: 0, skipped: 0 };
+    var counts = { keep: 0, dismiss: 0, task: 0, project: 0, skipped: 0 };
     items.forEach(function (it) {
       var d = decisions[it.id];
       if (d === "keep") counts.keep++;
       else if (d === "dismiss") counts.dismiss++;
+      else if (d === "task") counts.task++;
+      else if (d === "project") counts.project++;
       else counts.skipped++;
     });
+    var decided = counts.keep + counts.dismiss + counts.task + counts.project;
 
     var wrap = document.createElement("div");
     wrap.className = "complete-view";
@@ -319,10 +376,13 @@
     h2.textContent = "Deck complete";
     wrap.appendChild(h2);
 
+    var parts = [counts.keep + " keep", counts.dismiss + " dismiss"];
+    if (counts.task) parts.push(counts.task + " →task");
+    if (counts.project) parts.push(counts.project + " →project");
+    parts.push(counts.skipped + " skipped");
     var countsEl = document.createElement("div");
     countsEl.className = "complete-counts";
-    countsEl.textContent = counts.keep + " keep · " + counts.dismiss + " dismiss · " +
-      counts.skipped + " skipped";
+    countsEl.textContent = parts.join(" · ");
     wrap.appendChild(countsEl);
 
     var actions = document.createElement("div");
@@ -339,14 +399,14 @@
     var copyBtn = document.createElement("button");
     copyBtn.className = "btn btn-primary";
     copyBtn.textContent = "Copy decisions";
-    copyBtn.disabled = counts.keep + counts.dismiss === 0;
+    copyBtn.disabled = decided === 0;
     copyBtn.addEventListener("click", copyDecisions);
     actions.appendChild(copyBtn);
 
     var handoffBtn = document.createElement("button");
     handoffBtn.className = "btn btn-ghost";
     handoffBtn.textContent = "Mark handed off";
-    handoffBtn.disabled = counts.keep + counts.dismiss === 0;
+    handoffBtn.disabled = decided === 0;
     handoffBtn.addEventListener("click", markHandedOff);
     actions.appendChild(handoffBtn);
 
@@ -487,7 +547,7 @@
 
   function decide(item, action, flashEl) {
     if (flashEl) vibrate(12);
-    flashDecision(flashEl, action === "keep" ? "KEPT" : "DISMISSED", action === "keep" ? "--keep" : "--dismiss");
+    flashDecision(flashEl, DECISION_LABELS[action] || action.toUpperCase(), DECISION_COLORS[action] || "--skip");
     lastAction = { type: "decide", id: item.id, prevPointer: pointer };
     decisions[item.id] = action;
     pointer++;
@@ -549,7 +609,7 @@
     var clearedCount = 0;
     items.forEach(function (it) {
       var d = decisions[it.id];
-      if (d === "keep" || d === "dismiss") {
+      if (d === "keep" || d === "dismiss" || d === "task" || d === "project") {
         handedOff[it.id] = true;
         delete decisions[it.id];
         clearedCount++;

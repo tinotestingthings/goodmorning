@@ -588,6 +588,68 @@ main#deckArea {
 .btn-circle-dismiss { border-color: var(--dismiss); color: var(--dismiss); }
 .btn-circle-keep { border-color: var(--keep); color: var(--keep); }
 .btn-circle-skip { border-color: var(--border); color: var(--text-dim); }
+.btn-circle-more { border-color: var(--border); color: var(--text-dim); }
+.btn-circle-more svg { width: 22px; height: 22px; }
+
+/* ---- card "more" bottom-sheet menu ---- */
+.card-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.card-menu-backdrop.show { opacity: 1; }
+
+.card-menu {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg, var(--bg));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 10px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(16px);
+  transition: transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.card-menu-backdrop.show .card-menu { transform: translateY(0); }
+
+.card-menu-item {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  text-align: left;
+  padding: 14px 14px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card-menu-item:active { background: var(--surface, rgba(127,127,127,0.12)); }
+.cm-label { font-size: 1rem; font-weight: 600; }
+.cm-sub { font-size: 0.78rem; color: var(--text-dim); }
+
+.card-menu-cancel {
+  appearance: none;
+  margin-top: 6px;
+  background: var(--surface, rgba(127,127,127,0.10));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
 
 .card-link-row {
   display: flex;

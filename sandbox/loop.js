@@ -157,24 +157,29 @@
   function pendingDecisions() {
     var decisions = loadJSON(LS_DECISIONS, {});
     var handedOff = loadJSON(LS_HANDED_OFF, {});
-    var keep = [], dismiss = [];
+    var keep = [], dismiss = [], task = [], project = [];
     Object.keys(decisions).forEach(function (id) {
       if (handedOff[id]) return; // already handed off, not pending anymore
-      if (decisions[id] === "keep") keep.push(id);
-      else if (decisions[id] === "dismiss") dismiss.push(id);
+      var d = decisions[id];
+      if (d === "keep") keep.push(id);
+      else if (d === "dismiss") dismiss.push(id);
+      else if (d === "task") task.push(id);
+      else if (d === "project") project.push(id);
     });
-    return { keep: keep, dismiss: dismiss };
+    return { keep: keep, dismiss: dismiss, task: task, project: project };
   }
 
   function buildQueue() {
     var d = pendingDecisions();
     var notes = noteLines();
-    var decisionCount = d.keep.length + d.dismiss.length;
+    var decisionCount = d.keep.length + d.dismiss.length + d.task.length + d.project.length;
     if (decisionCount === 0 && notes.length === 0) return null;
 
     var lines = ["swipe queue " + formatTimestamp(new Date())];
     d.keep.forEach(function (id) { lines.push("keep: " + id); });
     d.dismiss.forEach(function (id) { lines.push("dismiss: " + id); });
+    d.task.forEach(function (id) { lines.push("task: " + id); });
+    d.project.forEach(function (id) { lines.push("project: " + id); });
     notes.forEach(function (line) { lines.push(line); });
 
     return { text: lines.join("\n"), decisionCount: decisionCount, noteCount: notes.length };
