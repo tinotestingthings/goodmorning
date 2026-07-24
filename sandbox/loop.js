@@ -234,5 +234,17 @@
     });
   }
 
-  global.DigestSync = { push: pushSync, buildRows: buildActionRows };
+  // Insert a single action immediately (used by the item detail sheet so an
+  // edit auto-syncs to the vault without the batch "Sync now" step). Optimistic
+  // callers keep their own local copy for instant display regardless of result.
+  function pushOne(row, cb) {
+    cb = cb || function () {};
+    if (!global.SB) { cb({ error: "offline" }); return; }
+    global.SB.from("actions").insert([row]).then(function (res) {
+      if (res && res.error) { cb({ error: res.error.message }); return; }
+      cb({ ok: true });
+    }, function (err) { cb({ error: (err && err.message) || "failed" }); });
+  }
+
+  global.DigestSync = { push: pushSync, pushOne: pushOne, buildRows: buildActionRows };
 })(window);

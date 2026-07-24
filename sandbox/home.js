@@ -514,16 +514,19 @@
   }
 
   function taskRow(t) {
-    var li = el("li", "dash-item");
+    var li = el("li", "dash-item dash-item-tap");
     var row = el("div", "dash-row");
-    row.appendChild(chip(t.status));
+    row.appendChild(chip(localStatus("tasks", t.id, t.status)));
     row.appendChild(el("span", "dash-item-title", t.title));
-    var nc = noteControl("tasks", t.id, "Note on “" + t.title + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    var prog = subtaskProgress(t.id);
+    if (prog) row.appendChild(el("span", "dash-subprog", prog));
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
     var sub = [t.detail, t.hint].filter(Boolean).join(" · ");
     if (sub) li.appendChild(el("div", "dash-hint", sub));
-    li.appendChild(nc.textarea);
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) window.ItemDetail.open(t, "task");
+    });
     return li;
   }
 
@@ -539,16 +542,20 @@
   }
 
   function projectRow(p) {
-    var li = el("div", "dash-item");
-    var row = el("div", "dash-row project-row" + (p.status === "active" ? "" : " project-dim"));
-    row.appendChild(chip(p.status));
+    var st = localStatus("projects", p.id, p.status);
+    var li = el("div", "dash-item dash-item-tap");
+    var row = el("div", "dash-row project-row" + (st === "active" ? "" : " project-dim"));
+    row.appendChild(chip(st));
     row.appendChild(el("span", "dash-item-title", p.title));
+    var prog = subtaskProgress(p.id);
+    if (prog) row.appendChild(el("span", "dash-subprog", prog));
     if (p.updated) row.appendChild(el("span", "dash-date", p.updated));
-    var nc = noteControl("projects", p.id, "Note on “" + p.title + "” — collected with your decisions.");
-    row.appendChild(nc.btn);
+    row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
-    if (p.line && p.status === "active") li.appendChild(el("div", "dash-hint", p.line));
-    li.appendChild(nc.textarea);
+    if (p.line) li.appendChild(el("div", "dash-hint", p.line));
+    li.addEventListener("click", function () {
+      if (window.ItemDetail) window.ItemDetail.open(p, "project");
+    });
     return li;
   }
 
@@ -1365,13 +1372,13 @@
     var wrap = el("div", "dashboard-area");
     var rowsWrap = el("div", "tile-rows");
 
+    // Radar moved out of the main tile grid (was too prominent) — it now
+    // lives in a compact strip below, quiet unless something is urgent.
     var sections = [
       { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
         build: function (c) { buildTasksBody(c, today); } },
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
-        build: function (c) { buildProjectsBody(c, today); } },
-      { key: "radar", label: "Radar", icon: ICON_RADAR, badge: radarBadge(today),
-        build: function (c) { buildRadarBody(c, today); } }
+        build: function (c) { buildProjectsBody(c, today); } }
     ];
 
     var openKey = null;
@@ -1433,7 +1440,65 @@
     flushPending();
 
     wrap.appendChild(rowsWrap);
+    appendRadarStrip(wrap, today);
     return wrap;
+  }
+
+  // Compact, de-emphasized radar: a single quiet line unless there's an open
+  // follow-up or a deadline within 7 days, in which case it turns urgent
+  // (red) and can be expanded inline.
+  function appendRadarStrip(wrap, today) {
+    var radar = today.radar;
+    if (!radar) return;
+    var soonDays = (radar.deadlines && radar.deadlines.length) ? daysUntil(radar.deadlines[0].date) : null;
+    var urgent = (radar.follow_ups > 0) || (soonDays !== null && soonDays <= 7);
+
+    var strip = el("div", "radar-strip" + (urgent ? " radar-strip-urgent" : ""));
+    var head = el("button", "radar-strip-head");
+    head.type = "button";
+    var dot = el("span", "radar-dot" + (urgent ? " radar-dot-urgent" : ""));
+    head.appendChild(dot);
+    head.appendChild(el("span", "radar-strip-label", "Compliance radar"));
+    var status = urgent
+      ? (radar.follow_ups > 0
+          ? radar.follow_ups + " follow-up" + (radar.follow_ups === 1 ? "" : "s")
+          : soonDays + "d to a deadline")
+      : "nothing urgent";
+    head.appendChild(el("span", "radar-strip-status", status));
+    var chev = el("span", "radar-strip-chev", "›");
+    head.appendChild(chev);
+    strip.appendChild(head);
+
+    var body = el("div", "radar-strip-body hidden");
+    var built = false;
+    var open = false;
+    head.addEventListener("click", function () {
+      open = !open;
+      if (open && !built) { buildRadarBody(body, today); built = true; }
+      body.classList.toggle("hidden", !open);
+      strip.classList.toggle("radar-strip-open", open);
+    });
+    strip.appendChild(body);
+    wrap.appendChild(strip);
+  }
+
+  // Optimistic status override (a status change made in the detail sheet shows
+  // immediately, before the bridge writes it back to the vault).
+  function localStatus(section, id, fallback) {
+    try {
+      var m = JSON.parse(localStorage.getItem("sbx.itemstatus")) || {};
+      return m[section + ":" + id] || fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function subtaskProgress(id) {
+    try {
+      var m = JSON.parse(localStorage.getItem("sbx.subtasks")) || {};
+      var list = m[id] || [];
+      if (!list.length) return null;
+      var done = list.filter(function (s) { return s.done; }).length;
+      return done + "/" + list.length;
+    } catch (e) { return null; }
   }
 
   // ---- notes footer ----
