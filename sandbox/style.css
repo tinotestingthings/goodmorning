@@ -595,6 +595,55 @@ main#deckArea {
 .btn-circle-more { border-color: var(--border); color: var(--text-dim); }
 .btn-circle-more svg { width: 22px; height: 22px; }
 
+/* ---- quick-capture FAB + sheet ---- */
+.capture-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent, var(--skip));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  cursor: pointer;
+}
+.capture-fab svg { width: 26px; height: 26px; }
+.capture-fab:active { transform: scale(0.94); }
+
+.capture-heading { font-size: 1.05rem; font-weight: 700; color: var(--text); padding: 4px 6px 2px; }
+.capture-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+  padding: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+}
+.capture-seg { display: flex; gap: 6px; }
+.capture-seg-btn {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 9px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.capture-seg-btn.active { border-color: var(--accent, var(--skip)); color: var(--text); font-weight: 600; }
+.capture-send { width: 100%; padding: 13px; }
+
 /* ---- card "more" bottom-sheet menu ---- */
 .card-menu-backdrop {
   position: fixed;
