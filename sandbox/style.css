@@ -2518,3 +2518,17 @@ body::after {
 .cal-ev-resize { position: absolute; left: 0; right: 0; height: 9px; cursor: ns-resize; touch-action: none; }
 .cal-ev-resize-top { top: -1px; }
 .cal-ev-resize-bot { bottom: -1px; }
+
+/* week: drag-to-create ghost + touch behavior */
+.cal-week-ghost { background: color-mix(in srgb, var(--skip) 55%, transparent); border: 1px dashed #fff; pointer-events: none; opacity: 0.85; }
+.cal-week-col { touch-action: none; }
+.cal-week-scroll { touch-action: pan-y; }
+
+/* home: calendar quick-links (My Day / Week) */
+.cal-quicklinks { display: flex; gap: 10px; margin: 2px 0 12px; }
+.cal-quick {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
+}
+.cal-quick-icon svg { width: 20px; height: 20px; display: block; color: var(--skip); }

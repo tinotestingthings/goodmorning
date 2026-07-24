@@ -1346,8 +1346,28 @@
     return { text: "", cls: "tile-badge-gray" };
   }
 
+  function calQuickLink(label, view, iconSvg) {
+    var b = el("button", "cal-quick");
+    b.type = "button";
+    b.innerHTML = '<span class="cal-quick-icon">' + iconSvg + '</span><span class="cal-quick-label">' + label + '</span>';
+    b.addEventListener("click", function () {
+      if (window.CalNav) window.CalNav.setView(view);
+      if (window.App && window.App.go) window.App.go("calendar");
+    });
+    return b;
+  }
+
   function renderDashboardArea(today) {
     var wrap = el("div", "dashboard-area");
+
+    // Quick jumps into the calendar (My Day / Week).
+    var quick = el("div", "cal-quicklinks");
+    quick.appendChild(calQuickLink("My Day", "myday",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'));
+    quick.appendChild(calQuickLink("Week", "week",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M8.5 13h0M12 13h0M15.5 13h0"/></svg>'));
+    wrap.appendChild(quick);
+
     var rowsWrap = el("div", "tile-rows");
 
     // Radar moved out of the main tile grid (was too prominent) — it now

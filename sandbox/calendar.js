@@ -6,6 +6,7 @@
 
   var M = null;
   var viewYear, viewMonth, selectedDate = null;
+  var lastWeekScroll = null; // preserved across week re-renders (no jump on drop)
   var viewMode = null;          // month|week|workweek|3day|agenda|myday|done
   var catFilter = "all";        // "all" or a category id
   var searchOpen = false, searchQuery = "";
@@ -575,20 +576,25 @@
   }
 
   var TZS=["Local","UTC","Europe/Amsterdam","Europe/London","America/New_York","America/Los_Angeles","Asia/Tokyo","Australia/Sydney"];
-  function openTodoEditor(existing,prefillTime){
+  function openTodoEditor(existing,prefillTime,prefillEnd){
     addMode="todo"; var box=el("div","inline-form");
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
+    // Time matters in a calendar context, so when there IS one (editing a
+    // timed item, or dragging out a block on the grid) the Time row stays
+    // visible up front rather than hidden under "More options".
+    var timeContext=!!(prefillTime||(existing&&existing.startTime));
     // Less-used fields live behind "More options" — the everyday flow is just
     // text + day + reminder. (An existing item with any of these set opens
     // with the section expanded so nothing looks lost.)
     var moreBox=el("div","inline-form-more hidden");
-    var hasMore=!!(existing&&(existing.startTime||existing.endTime||existing.tz||existing.category||existing.url||existing.note));
+    var hasMore=!!(existing&&(existing.tz||existing.category||existing.url||existing.note));
     // time (optional -> timed event)
     var tRow=el("div","inline-form-row"); tRow.appendChild(el("span","inline-form-label","Time"));
     var st=document.createElement("input"); st.type="time"; st.className="field-input"; if(existing&&existing.startTime)st.value=existing.startTime; else if(prefillTime)st.value=prefillTime; tRow.appendChild(st);
-    tRow.appendChild(el("span","inline-form-hint","to")); var et=document.createElement("input"); et.type="time"; et.className="field-input"; if(existing&&existing.endTime)et.value=existing.endTime; tRow.appendChild(et); moreBox.appendChild(tRow);
+    tRow.appendChild(el("span","inline-form-hint","to")); var et=document.createElement("input"); et.type="time"; et.className="field-input"; if(existing&&existing.endTime)et.value=existing.endTime; else if(prefillEnd)et.value=prefillEnd; tRow.appendChild(et);
+    (timeContext?box:moreBox).appendChild(tRow);
     // timezone
     var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); moreBox.appendChild(zRow);
     // category
@@ -811,7 +817,6 @@
     days.forEach(function(dt,idx){ var ds=ymd(dt);
       var col=el("div","cal-week-col"+(ds===todayStr()?" cal-week-coltoday":"")); col.style.height=(24*HH)+"px";
       for(var hh=0;hh<24;hh++){ var line=el("div","cal-week-hline"); line.style.top=(hh*HH)+"px"; col.appendChild(line); }
-      (function(day){ col.addEventListener("click",function(e){ if(e.target!==col)return; var top=e.clientY-col.getBoundingClientRect().top; selectedDate=ymd(day); openTodoEditor(null, minHH(snap15(top/HH*60))); }); })(dt);
       colEls.push(col); body.appendChild(col);
     });
 
@@ -828,9 +833,72 @@
     });
 
     scroll.appendChild(body); wrap.appendChild(scroll);
-    // scroll to ~7am on open
-    setTimeout(function(){ scroll.scrollTop=Math.max(0,7*HH-20); },0);
+    // Preserve scroll position across re-renders (a drop re-renders — without
+    // this it snapped back to 7am every time = the "jumping"). First open
+    // lands near 7am.
+    scroll.addEventListener("scroll", function(){ lastWeekScroll = scroll.scrollTop; });
+    setTimeout(function(){ scroll.scrollTop = (lastWeekScroll != null ? lastWeekScroll : Math.max(0, 7*HH - 20)); }, 0);
+    // drag-to-create + two-finger pinch-zoom live on the body
+    wireCreate(body, days, colEls, HH);
+    wirePinch(scroll, body, HH);
     return wrap;
+  }
+
+  // ---- drag on empty grid to create a timed block (Outlook-style) ----
+  function wireCreate(body, days, colEls, HH){
+    var active=false, colIdx=-1, startMin=0, ghost=null, pid=null, colTop=0;
+    function snapHour(m){ return Math.round(m/60)*60; }
+    colEls.forEach(function(col,idx){
+      col.addEventListener("pointerdown",function(e){
+        if(e.target!==col) return;               // only empty space, not a block
+        active=true; colIdx=idx; pid=e.pointerId;
+        colTop=col.getBoundingClientRect().top;
+        startMin=(e.clientY-colTop)/HH*60;
+        ghost=el("div","cal-week-ev cal-week-ghost"); ghost.style.left="2px"; ghost.style.right="3px";
+        ghost.style.top=(Math.floor(startMin/60)*60/60*HH)+"px"; ghost.style.height=(HH)+"px";
+        col.appendChild(ghost);
+        try{ col.setPointerCapture(pid); }catch(_){}
+        e.preventDefault();
+      });
+      col.addEventListener("pointermove",function(e){
+        if(!active||idx!==colIdx||!ghost) return;
+        var cur=(e.clientY-colTop)/HH*60;
+        var a=Math.min(startMin,cur), b=Math.max(startMin,cur);
+        ghost.style.top=(a/60*HH)+"px"; ghost.style.height=(Math.max(HH*0.4,(b-a)/60*HH))+"px";
+      });
+      function finish(e){
+        if(!active||idx!==colIdx) return; active=false;
+        var cur=(e.clientY-colTop)/HH*60;
+        if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null;
+        var day=ymd(days[idx]); selectedDate=day;
+        var a=Math.min(startMin,cur), b=Math.max(startMin,cur);
+        if(b-a < 20){ openTodoEditor(null, minHH(snap15(startMin))); return; }   // a tap → single time
+        var s=Math.max(0,snapHour(a)); var en=Math.min(1440,snapHour(b)); if(en<=s)en=s+60;
+        openTodoEditor(null, minHH(s), minHH(en));
+      }
+      col.addEventListener("pointerup",finish);
+      col.addEventListener("pointercancel",function(){ active=false; if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null; });
+    });
+  }
+
+  // ---- two-finger pinch to change vertical scale (live scaleY preview,
+  // commit to px-per-hour on release) ----
+  function wirePinch(scroll, body, HH){
+    var pts={}, baseDist=0, baseHH=HH, pinching=false;
+    function dist(){ var k=Object.keys(pts); if(k.length<2)return 0; return Math.abs(pts[k[0]].y-pts[k[1]].y); }
+    scroll.addEventListener("pointerdown",function(e){ pts[e.pointerId]={y:e.clientY};
+      if(Object.keys(pts).length===2){ pinching=true; baseDist=dist()||1; baseHH=loadHH(); body.style.transformOrigin="top"; }
+    });
+    scroll.addEventListener("pointermove",function(e){ if(!pts[e.pointerId])return; pts[e.pointerId].y=e.clientY;
+      if(pinching){ var f=Math.max(0.5,Math.min(2.4, dist()/baseDist)); body.style.transform="scaleY("+f+")"; e.preventDefault(); }
+    });
+    function endPt(e){ if(!pts[e.pointerId])return; delete pts[e.pointerId];
+      if(pinching && Object.keys(pts).length<2){ pinching=false;
+        var f=parseFloat((body.style.transform.match(/scaleY\(([^)]+)\)/)||[])[1]||"1");
+        body.style.transform=""; saveHH(Math.round(baseHH*f)); render();
+      }
+    }
+    scroll.addEventListener("pointerup",endPt); scroll.addEventListener("pointercancel",endPt);
   }
 
   function makeWeekBlock(t, HH){
@@ -845,52 +913,61 @@
   }
 
   function wireBlock(b, t, HH, days, colEls){
-    var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, pid=null, targetIdx=0;
+    // Drag moves the block via translateX (NOT reparenting — reparenting a
+    // pointer-captured element drops the capture, which was why a drag froze
+    // one day past the origin). Column is picked by clientX; commit on drop.
+    var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, sx=0, sy=0, originIdx=0, targetIdx=0, pid=null;
     function colUnder(x){ for(var i=0;i<colEls.length;i++){ var r=colEls[i].getBoundingClientRect(); if(x>=r.left&&x<=r.right)return i; } return targetIdx; }
     function begin(e, which){
-      mode=which; pid=e.pointerId; moved=false;
+      mode=which; pid=e.pointerId; moved=false; sx=e.clientX; sy=e.clientY;
       startMin=toMin(t.startTime); endMin=t.endTime?toMin(t.endTime):startMin+60; dur=endMin-startMin;
       gridTop=colEls[0].getBoundingClientRect().top;
-      targetIdx=colEls.indexOf(b.parentNode);
+      originIdx=colEls.indexOf(b.parentNode); targetIdx=originIdx;
+      b._ns=startMin; b._ne=endMin;
       try{ b.setPointerCapture(pid); }catch(_){ }
       b.classList.add("dragging"); e.preventDefault(); e.stopPropagation();
     }
     function move(e){
-      if(!mode)return; if(Math.abs(e.movementX)+Math.abs(e.movementY)>0) moved=true;
+      if(mode==null)return;
+      if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4) moved=true;
       var yMin=(e.clientY-gridTop)/HH*60;
       if(mode==="move"){
-        var newStart=snap15(yMin - (dur/2)); // grab near center feels natural
-        newStart=Math.max(0,Math.min(1440-dur,newStart));
-        var ci=colUnder(e.clientX);
-        if(ci!==targetIdx){ targetIdx=ci; colEls[ci].appendChild(b); }
-        b.style.top=(newStart/60*HH)+"px";
-        b._ns=newStart;
+        var newStart=snap15(yMin - dur/2); newStart=Math.max(0,Math.min(1440-dur,newStart));
+        targetIdx=colUnder(e.clientX);
+        var dx=colEls[targetIdx].getBoundingClientRect().left - colEls[originIdx].getBoundingClientRect().left;
+        b.style.transform="translateX("+dx+"px)";
+        b.style.top=(newStart/60*HH)+"px"; b._ns=newStart; b._ne=newStart+dur;
+        var lbl=b.querySelector(".cal-ev-time"); if(lbl)lbl.textContent=minHH(newStart)+"–"+minHH(newStart+dur);
       } else if(mode==="top"){
         var ns=Math.max(0,Math.min(endMin-15,snap15(yMin)));
         b.style.top=(ns/60*HH)+"px"; b.style.height=((endMin-ns)/60*HH)+"px"; b._ns=ns; b._ne=endMin;
+        var l1=b.querySelector(".cal-ev-time"); if(l1)l1.textContent=minHH(ns)+"–"+minHH(endMin);
       } else if(mode==="bot"){
         var ne=Math.min(1440,Math.max(startMin+15,snap15(yMin)));
-        b.style.height=((ne-startMin)/60*HH)+"px"; b._ne=ne; b._ns=startMin;
+        b.style.height=((ne-startMin)/60*HH)+"px"; b._ns=startMin; b._ne=ne;
+        var l2=b.querySelector(".cal-ev-time"); if(l2)l2.textContent=minHH(startMin)+"–"+minHH(ne);
       }
     }
     function up(){
-      if(!mode)return; var m=mode; mode=null; b.classList.remove("dragging");
+      if(mode==null)return; var m=mode; mode=null; b.classList.remove("dragging"); b.style.transform="";
       if(m==="move" && !moved){ openItemMenu(t); return; }
       var list=M.loadTodos();
       list.forEach(function(x){ if(x.id!==t.id)return;
-        if(m==="move"){ x.dueDate=ymd(days[targetIdx]); x.startTime=minHH(b._ns); x.endTime=minHH(b._ns+dur); }
-        else if(m==="top"){ x.startTime=minHH(b._ns); x.endTime=minHH(b._ne); }
-        else if(m==="bot"){ x.startTime=minHH(b._ns); x.endTime=minHH(b._ne); }
+        if(m==="move"){ x.dueDate=ymd(days[targetIdx]); }
+        x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
       });
       M.saveTodos(list); render();
     }
     b.addEventListener("pointerdown",function(e){ if(e.target.classList.contains("cal-ev-resize"))return; begin(e,"move"); });
-    b.querySelector(".cal-ev-resize-top").addEventListener("pointerdown",function(e){ begin(e,"top"); });
-    b.querySelector(".cal-ev-resize-bot").addEventListener("pointerdown",function(e){ begin(e,"bot"); });
+    b.querySelector(".cal-ev-resize-top").addEventListener("pointerdown",function(e){ e.stopPropagation(); begin(e,"top"); });
+    b.querySelector(".cal-ev-resize-bot").addEventListener("pointerdown",function(e){ e.stopPropagation(); begin(e,"bot"); });
     b.addEventListener("pointermove",move);
     b.addEventListener("pointerup",up);
-    b.addEventListener("pointercancel",function(){ mode=null; b.classList.remove("dragging"); });
+    b.addEventListener("pointercancel",function(){ mode=null; b.classList.remove("dragging"); b.style.transform=""; });
   }
+
+  // Let other tabs (e.g. home tiles) open the calendar on a specific view.
+  window.CalNav = { setView: function(v){ viewMode=v; saveViewMode(v); } };
 
   window.CalEditors = {
     editTodo: function(t){ if(t&&t.dueDate){ var d=parseYmd(t.dueDate); viewYear=d.getFullYear(); viewMonth=d.getMonth(); selectedDate=t.dueDate; } openTodoEditor(t); },
