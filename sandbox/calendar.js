@@ -91,7 +91,8 @@
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
     if(viewMode==="day"){ root.appendChild(buildDayHeader()); root.appendChild(buildDayTimeline()); return; }
-    // grid views
+    if(viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ var wdays=daysForView(); root.appendChild(buildTimelineHeader(wdays)); root.appendChild(buildWeekTimeline(wdays)); return; }
+    // grid views (month only now)
     root.appendChild(buildGridHeader());
     root.appendChild(buildGrid());
     root.appendChild(buildDayPanel());
@@ -719,7 +720,7 @@
       allEv.forEach(function(e){ l.appendChild(icsItem(e)); });
       strip.appendChild(l); wrap.appendChild(strip);
     }
-    var HH=50; var grid=el("div","cal-hours"); grid.style.height=(24*HH)+"px";
+    var HH=loadHH(); var grid=el("div","cal-hours"); grid.style.height=(24*HH)+"px";
     for(var h=0;h<24;h++){ var hr=el("div","cal-hour"); hr.style.top=(h*HH)+"px"; hr.appendChild(el("span","cal-hour-label",(h<10?"0":"")+h+":00"));
       (function(hour){ hr.addEventListener("click",function(e){ if(e.target.closest(".cal-ev"))return; openTodoEditor(null,(hour<10?"0":"")+hour+":00"); }); })(h);
       grid.appendChild(hr);
@@ -733,6 +734,162 @@
     wrap.appendChild(grid);
     wrap.appendChild(buildAddArea());
     return wrap;
+  }
+
+  // ============================================================
+  // Outlook-style week time-grid: 7 (or 5 / 3) day columns over a
+  // full 24h timeline. Vertical zoom, drag a block day↔day + up/down
+  // to reschedule, and drag its top/bottom edge to resize (15-min snap).
+  // ============================================================
+  var HH_KEY="sbx.cal.hh";
+  function loadHH(){ try{ var v=parseInt(localStorage.getItem(HH_KEY),10); return (v>=24&&v<=140)?v:46; }catch(e){ return 46; } }
+  function saveHH(v){ try{ localStorage.setItem(HH_KEY, String(Math.max(24,Math.min(140,v)))); }catch(e){} }
+  function minHH(m){ m=Math.max(0,Math.min(1440,Math.round(m))); var h=Math.floor(m/60), mm=m%60; return (h<10?"0":"")+h+":"+(mm<10?"0":"")+mm; }
+  function snap15(m){ return Math.round(m/15)*15; }
+
+  function zoomControls(){
+    var z=el("div","cal-zoom");
+    var out=el("button","cal-zoom-btn","−"); out.type="button"; out.setAttribute("aria-label","Shorter rows"); out.addEventListener("click",function(){ saveHH(loadHH()-12); render(); });
+    var inn=el("button","cal-zoom-btn","+"); inn.type="button"; inn.setAttribute("aria-label","Taller rows"); inn.addEventListener("click",function(){ saveHH(loadHH()+12); render(); });
+    z.appendChild(out); z.appendChild(inn); return z;
+  }
+
+  function daysForView(){
+    var sel=parseYmd(selectedDate);
+    if(viewMode==="3day"){ return [sel,addDays(sel,1),addDays(sel,2)]; }
+    var off=(sel.getDay()+6)%7; var mon=addDays(sel,-off);
+    var n=(viewMode==="workweek")?5:7; var arr=[]; for(var i=0;i<n;i++)arr.push(addDays(mon,i)); return arr;
+  }
+
+  function buildTimelineHeader(days){
+    var box=el("div","cal-headbox"); var head=el("div","cal-head");
+    var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); });
+    var title=el("div","cal-title", niceDay(ymd(days[0]))+" – "+niceDay(ymd(days[days.length-1])));
+    var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
+    head.appendChild(prev); head.appendChild(title); head.appendChild(next);
+    box.appendChild(head); box.appendChild(zoomControls());
+    return box;
+  }
+
+  function buildWeekTimeline(days){
+    var HH=loadHH();
+    var cols="48px repeat("+days.length+",minmax(0,1fr))";
+    var wrap=el("div","cal-week");
+    var scroll=el("div","cal-week-scroll");
+
+    // sticky day-header row
+    var headRow=el("div","cal-week-head"); headRow.style.gridTemplateColumns=cols;
+    headRow.appendChild(el("div","cal-week-corner",""));
+    days.forEach(function(dt){ var ds=ymd(dt);
+      var h=el("div","cal-week-dhead"+(ds===todayStr()?" cal-week-today":""));
+      h.appendChild(el("div","cal-week-dow",["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][(dt.getDay()+6)%7]));
+      h.appendChild(el("div","cal-week-dnum",String(dt.getDate())));
+      h.addEventListener("click",function(){ selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); });
+      headRow.appendChild(h);
+    });
+    scroll.appendChild(headRow);
+
+    // all-day strip (chores + untimed todos)
+    var allRow=el("div","cal-week-allday"); allRow.style.gridTemplateColumns=cols;
+    allRow.appendChild(el("div","cal-week-allday-label","all-day"));
+    days.forEach(function(dt){ var ds=ymd(dt);
+      var cell=el("div","cal-week-allday-cell");
+      choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
+      todosOn(ds).filter(function(t){ return !t.startTime; }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
+      cell.addEventListener("click",function(){ selectedDate=ds; openTodoEditor(null); });
+      allRow.appendChild(cell);
+    });
+    scroll.appendChild(allRow);
+
+    // time grid body
+    var body=el("div","cal-week-body"); body.style.gridTemplateColumns=cols;
+    var gutter=el("div","cal-week-gutter"); gutter.style.height=(24*HH)+"px";
+    for(var g=0;g<24;g++){ var lab=el("div","cal-week-hourlabel",(g<10?"0":"")+g+":00"); lab.style.top=(g*HH)+"px"; gutter.appendChild(lab); }
+    body.appendChild(gutter);
+
+    var colEls=[];
+    days.forEach(function(dt,idx){ var ds=ymd(dt);
+      var col=el("div","cal-week-col"+(ds===todayStr()?" cal-week-coltoday":"")); col.style.height=(24*HH)+"px";
+      for(var hh=0;hh<24;hh++){ var line=el("div","cal-week-hline"); line.style.top=(hh*HH)+"px"; col.appendChild(line); }
+      (function(day){ col.addEventListener("click",function(e){ if(e.target!==col)return; var top=e.clientY-col.getBoundingClientRect().top; selectedDate=ymd(day); openTodoEditor(null, minHH(snap15(top/HH*60))); }); })(dt);
+      colEls.push(col); body.appendChild(col);
+    });
+
+    // place timed to-dos as draggable/resizable blocks
+    days.forEach(function(dt,idx){ var ds=ymd(dt);
+      todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
+        var b=makeWeekBlock(t, HH); colEls[idx].appendChild(b);
+        wireBlock(b, t, HH, days, colEls);
+      });
+      icsOn(ds).filter(function(e){ return !e.allDay&&e.startTime; }).forEach(function(ev){
+        var m=toMin(ev.startTime); var b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(m/60*HH)+"px"; b.style.height="26px";
+        b.appendChild(el("div","cal-ev-time",ev.startTime)); b.appendChild(el("div","cal-ev-title",ev.title)); colEls[idx].appendChild(b);
+      });
+    });
+
+    scroll.appendChild(body); wrap.appendChild(scroll);
+    // scroll to ~7am on open
+    setTimeout(function(){ scroll.scrollTop=Math.max(0,7*HH-20); },0);
+    return wrap;
+  }
+
+  function makeWeekBlock(t, HH){
+    var m=toMin(t.startTime); var dur=t.endTime?Math.max(15,toMin(t.endTime)-m):60;
+    var b=el("div","cal-ev cal-week-ev"+(t.done?" done":"")); b.style.top=(m/60*HH)+"px"; b.style.height=Math.max(18,dur/60*HH)+"px";
+    if(t.category)b.style.borderLeftColor=window.Cats.color(t.category);
+    b.appendChild(el("div","cal-ev-time",t.startTime+(t.endTime?"–"+t.endTime:"")));
+    b.appendChild(el("div","cal-ev-title",t.text));
+    b.appendChild(el("div","cal-ev-resize cal-ev-resize-top"));
+    b.appendChild(el("div","cal-ev-resize cal-ev-resize-bot"));
+    return b;
+  }
+
+  function wireBlock(b, t, HH, days, colEls){
+    var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, pid=null, targetIdx=0;
+    function colUnder(x){ for(var i=0;i<colEls.length;i++){ var r=colEls[i].getBoundingClientRect(); if(x>=r.left&&x<=r.right)return i; } return targetIdx; }
+    function begin(e, which){
+      mode=which; pid=e.pointerId; moved=false;
+      startMin=toMin(t.startTime); endMin=t.endTime?toMin(t.endTime):startMin+60; dur=endMin-startMin;
+      gridTop=colEls[0].getBoundingClientRect().top;
+      targetIdx=colEls.indexOf(b.parentNode);
+      try{ b.setPointerCapture(pid); }catch(_){ }
+      b.classList.add("dragging"); e.preventDefault(); e.stopPropagation();
+    }
+    function move(e){
+      if(!mode)return; if(Math.abs(e.movementX)+Math.abs(e.movementY)>0) moved=true;
+      var yMin=(e.clientY-gridTop)/HH*60;
+      if(mode==="move"){
+        var newStart=snap15(yMin - (dur/2)); // grab near center feels natural
+        newStart=Math.max(0,Math.min(1440-dur,newStart));
+        var ci=colUnder(e.clientX);
+        if(ci!==targetIdx){ targetIdx=ci; colEls[ci].appendChild(b); }
+        b.style.top=(newStart/60*HH)+"px";
+        b._ns=newStart;
+      } else if(mode==="top"){
+        var ns=Math.max(0,Math.min(endMin-15,snap15(yMin)));
+        b.style.top=(ns/60*HH)+"px"; b.style.height=((endMin-ns)/60*HH)+"px"; b._ns=ns; b._ne=endMin;
+      } else if(mode==="bot"){
+        var ne=Math.min(1440,Math.max(startMin+15,snap15(yMin)));
+        b.style.height=((ne-startMin)/60*HH)+"px"; b._ne=ne; b._ns=startMin;
+      }
+    }
+    function up(){
+      if(!mode)return; var m=mode; mode=null; b.classList.remove("dragging");
+      if(m==="move" && !moved){ openItemMenu(t); return; }
+      var list=M.loadTodos();
+      list.forEach(function(x){ if(x.id!==t.id)return;
+        if(m==="move"){ x.dueDate=ymd(days[targetIdx]); x.startTime=minHH(b._ns); x.endTime=minHH(b._ns+dur); }
+        else if(m==="top"){ x.startTime=minHH(b._ns); x.endTime=minHH(b._ne); }
+        else if(m==="bot"){ x.startTime=minHH(b._ns); x.endTime=minHH(b._ne); }
+      });
+      M.saveTodos(list); render();
+    }
+    b.addEventListener("pointerdown",function(e){ if(e.target.classList.contains("cal-ev-resize"))return; begin(e,"move"); });
+    b.querySelector(".cal-ev-resize-top").addEventListener("pointerdown",function(e){ begin(e,"top"); });
+    b.querySelector(".cal-ev-resize-bot").addEventListener("pointerdown",function(e){ begin(e,"bot"); });
+    b.addEventListener("pointermove",move);
+    b.addEventListener("pointerup",up);
+    b.addEventListener("pointercancel",function(){ mode=null; b.classList.remove("dragging"); });
   }
 
   window.CalEditors = {

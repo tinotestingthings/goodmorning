@@ -2453,3 +2453,68 @@ body::after {
   box-shadow: 0 0 0 2px rgba(216,180,106,0.22);
 }
 :root[data-theme="nova"] .tab-btn.active { color: var(--gold); }
+
+/* ============================================================
+   Outlook-style week time-grid (2026-07-24)
+   ============================================================ */
+.cal-headbox { display: flex; align-items: center; gap: 10px; }
+.cal-zoom { display: flex; gap: 6px; margin-left: auto; }
+.cal-zoom-btn {
+  width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text); font-size: 1.2rem; line-height: 1; cursor: pointer;
+}
+
+.cal-week { display: flex; flex-direction: column; min-height: 0; }
+.cal-week-scroll {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  max-height: calc(100svh - 200px);
+  border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg);
+}
+.cal-week-head {
+  display: grid; position: sticky; top: 0; z-index: 5;
+  background: var(--card-bg); border-bottom: 1px solid var(--border);
+}
+.cal-week-corner { border-right: 1px solid var(--border); }
+.cal-week-dhead {
+  text-align: center; padding: 7px 2px; cursor: pointer;
+  border-left: 1px solid var(--border);
+}
+.cal-week-dow { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.cal-week-dnum { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.cal-week-today .cal-week-dnum {
+  background: var(--skip); color: #fff; border-radius: 50%;
+  width: 28px; height: 28px; line-height: 28px; margin: 2px auto 0;
+}
+
+.cal-week-allday {
+  display: grid; border-bottom: 1px solid var(--border);
+  position: sticky; top: 44px; z-index: 4; background: var(--card-bg);
+}
+.cal-week-allday-label { font-size: 0.62rem; color: var(--text-dim); padding: 4px; text-align: right; border-right: 1px solid var(--border); }
+.cal-week-allday-cell { border-left: 1px solid var(--border); padding: 3px; display: flex; flex-direction: column; gap: 3px; min-height: 22px; cursor: pointer; }
+.cal-allday-chip { font-size: 0.7rem; padding: 2px 5px; border-radius: 6px; background: var(--skip); color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-allday-chip.cal-allday-chore { background: var(--keep); }
+.cal-allday-chip.done { opacity: 0.5; text-decoration: line-through; }
+
+.cal-week-body { display: grid; position: relative; }
+.cal-week-gutter { position: relative; border-right: 1px solid var(--border); }
+.cal-week-hourlabel { position: absolute; right: 5px; font-size: 0.64rem; color: var(--text-dim); transform: translateY(-6px); }
+.cal-week-col { position: relative; border-left: 1px solid var(--border); }
+.cal-week-coltoday { background: color-mix(in srgb, var(--skip) 7%, transparent); }
+.cal-week-hline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--border); opacity: 0.5; }
+
+.cal-week-ev {
+  position: absolute; left: 2px; right: 3px; z-index: 2;
+  background: var(--skip); color: #fff; border-left: 3px solid rgba(255,255,255,0.55);
+  border-radius: 7px; padding: 2px 6px; overflow: hidden; cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28); touch-action: none;
+  user-select: none;
+}
+.cal-week-ev.dragging { cursor: grabbing; opacity: 0.9; box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index: 10; }
+.cal-week-ev.done { opacity: 0.55; }
+.cal-week-ev .cal-ev-time { font-size: 0.62rem; opacity: 0.92; }
+.cal-week-ev .cal-ev-title { font-size: 0.76rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-week-ev.cal-ev-ics { background: #7a6bd8; cursor: default; }
+.cal-ev-resize { position: absolute; left: 0; right: 0; height: 9px; cursor: ns-resize; touch-action: none; }
+.cal-ev-resize-top { top: -1px; }
+.cal-ev-resize-bot { bottom: -1px; }
