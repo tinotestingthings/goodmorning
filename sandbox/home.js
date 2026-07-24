@@ -629,6 +629,7 @@
   }
   function saveChores(list) {
     try { localStorage.setItem(CHORES_KEY, JSON.stringify(list)); } catch (e) {}
+    if (window.AgendaSync) window.AgendaSync.pushNow();
   }
 
   function addInterval(date, every, unit) {
@@ -1080,6 +1081,7 @@
   }
   function saveTodos(list) {
     try { localStorage.setItem(TODOS_KEY, JSON.stringify(list)); } catch (e) {}
+    if (window.AgendaSync) window.AgendaSync.pushNow();
   }
 
   // A separate history log, independent of the active to-dos list, so
