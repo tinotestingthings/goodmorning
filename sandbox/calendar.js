@@ -908,9 +908,11 @@
     var colEls=[];
     days.forEach(function(dt,idx){ var ds=ymd(dt);
       var col=el("div","cal-week-col"+(ds===todayStr()?" cal-week-coltoday":"")); col.style.height=(24*HH)+"px";
+      // Hour lines are one CSS gradient instead of 24 divs per column — a big
+      // DOM-node reduction (this was the agenda's main slowness).
+      col.style.backgroundImage="repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent "+HH+"px)";
       // shade the working hours for this day per the work schedule
       if(window.WorkWeek){ var wk=window.WorkWeek.forDate(ds); if(wk.working){ var a=toMin(wk.start),b2=toMin(wk.end); if(b2>a){ var band=el("div","cal-week-workband cal-loc-"+wk.location); band.style.top=(a/60*HH)+"px"; band.style.height=((b2-a)/60*HH)+"px"; col.appendChild(band); } } }
-      for(var hh=0;hh<24;hh++){ var line=el("div","cal-week-hline"); line.style.top=(hh*HH)+"px"; col.appendChild(line); }
       colEls.push(col); body.appendChild(col);
     });
 
