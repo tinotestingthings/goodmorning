@@ -93,7 +93,21 @@
       name.type = "text"; name.value = cat.name; name.className = "field-input";
       name.addEventListener("change", function () { window.Cats.update(cat.id, name.value, color.value); });
       var del = el("button", "sched-del", "\u00d7"); del.type = "button";
-      del.addEventListener("click", function () { window.Cats.remove(cat.id); render(); });
+      del.addEventListener("click", function () {
+        // Safety: don't lose a category (and every item's colour) on a mis-tap.
+        var used = 0;
+        try {
+          if (window.DayModel) {
+            used = window.DayModel.loadTodos().filter(function (t) { return t.category === cat.id; }).length
+                 + window.DayModel.loadChores().filter(function (c) { return c.category === cat.id; }).length;
+          }
+        } catch (e) {}
+        var msg = 'Delete the category "' + cat.name + '"?'
+          + (used > 0 ? "\n\n" + used + " item" + (used === 1 ? "" : "s") + " use it \u2014 they'll keep their data but lose this colour." : "")
+          + "\n\nThis can't be undone.";
+        if (typeof confirm === "function" && !confirm(msg)) return;
+        window.Cats.remove(cat.id); render();
+      });
       row.appendChild(color); row.appendChild(name); row.appendChild(del);
       list.appendChild(row);
     });

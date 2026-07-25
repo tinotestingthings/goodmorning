@@ -2609,7 +2609,7 @@ body::after {
 .cal-allday-add { color: var(--text-dim); opacity: 0.5; font-size: 1rem; text-align: center; line-height: 1; }
 
 /* smaller week/day range title */
-.cal-title { font-size: 0.95rem; font-weight: 600; }
+.cal-title { font-size: 0.95rem; font-weight: 600; flex: 1; text-align: center; }
 
 /* view segmented control (Month / Week / My Day / More) */
 .cal-viewseg { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -2628,3 +2628,12 @@ body::after {
 
 /* category (colour) manage link + coloured selects */
 .cal-cat-manage { appearance: none; background: none; border: none; color: var(--skip); font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+
+/* multi-day (holiday-style) span bar in the all-day row */
+.cal-week-allday { grid-auto-rows: minmax(20px, auto); row-gap: 2px; }
+.cal-allday-span {
+  align-self: center; margin: 0 2px; padding: 2px 8px; border-radius: 6px;
+  background: var(--skip); color: #fff; font-size: 0.72rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.cal-allday-span.done { opacity: 0.5; text-decoration: line-through; }

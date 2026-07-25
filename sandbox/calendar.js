@@ -47,7 +47,8 @@
   function choresAll(){ if(!_choreCache)_choreCache=M.loadChores(); return _choreCache; }
   function calInvalidate(){ _todoCache=null; _choreCache=null; }
 
-  function todosOn(ds){ return todosAll().filter(function(t){ return t.dueDate===ds && catOk(t); }); }
+  function isMultiDay(t){ return !!(t.endDate && t.dueDate && t.endDate>t.dueDate); }
+  function todosOn(ds){ return todosAll().filter(function(t){ if(!catOk(t))return false; if(t.dueDate===ds)return true; return isMultiDay(t) && t.dueDate<=ds && ds<=t.endDate; }); }
 
   // chore occurrence on a single day: 'due' | 'done' | null
   function choreStateOn(chore, ds){
@@ -73,8 +74,12 @@
     var marks={}; var today=todayStr();
     function bump(ds,k){ if(ds<startStr||ds>endStr)return; marks[ds]=marks[ds]||{}; marks[ds][k]=true; if(marks[ds]._cat===undefined)marks[ds]._cat=null; }
     todosAll().forEach(function(t){ if(!t.dueDate||!catOk(t))return;
-      if(t.done) bump(t.dueDate,"todoDone"); else { bump(t.dueDate,"todo"); if(t.dueDate<today)bump(t.dueDate,"overdue"); }
-      if(t.category&&marks[t.dueDate])marks[t.dueDate]._cat=window.Cats.color(t.category);
+      var last=isMultiDay(t)?t.endDate:t.dueDate; var d=parseYmd(t.dueDate);
+      for(var g=0;g<420;g++){ var ds=ymd(d); if(ds>endStr)break;
+        if(t.done) bump(ds,"todoDone"); else { bump(ds,"todo"); if(ds<today)bump(ds,"overdue"); }
+        if(t.category&&marks[ds])marks[ds]._cat=window.Cats.color(t.category);
+        if(ds>=last)break; d=addDays(d,1);
+      }
     });
     choresAll().forEach(function(c){ if(!catOk(c))return;
       var d=parseYmd(startStr);
@@ -123,7 +128,8 @@
       seg.appendChild(b);
     });
     var moreOn=CAL_MORE_VIEWS.some(function(m){ return m[0]===viewMode; });
-    var moreBtn=el("button","cal-viewseg-btn cal-viewmore"+(moreOn?" active":""), (moreOn?viewLabel(viewMode):"More")+" ▾"); moreBtn.type="button";
+    var moreBtn=el("button","cal-viewseg-btn cal-viewmore"+(moreOn?" active":""), moreOn?viewLabel(viewMode):"+"); moreBtn.type="button";
+    moreBtn.setAttribute("aria-label","More views");
     moreBtn.addEventListener("click",openViewMenu);
     seg.appendChild(moreBtn);
     bar.appendChild(seg);
@@ -693,6 +699,10 @@
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
+    // optional end date → a multi-day (all-day) item, e.g. a holiday
+    var eRow=el("div","inline-form-row"); eRow.appendChild(el("span","inline-form-label","Ends"));
+    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input"; if(existing&&existing.endDate)endDate.value=existing.endDate; eRow.appendChild(endDate);
+    eRow.appendChild(el("span","inline-form-hint","(optional · multi-day)")); box.appendChild(eRow);
     // Time matters in a calendar context, so when there IS one (editing a
     // timed item, or dragging out a block on the grid) the Time row stays
     // visible up front rather than hidden under "More options".
@@ -739,7 +749,10 @@
     var actions=el("div","inline-form-row inline-form-actions");
     var save=el("button","btn btn-primary",existing?"Save":"+ Add to-do"); save.type="button";
     save.addEventListener("click",function(){ var txt=text.value.trim(); if(!txt){ M.toast("Type something first"); return; }
-      var fields={ text:txt, dueDate:date.value||null, startTime:st.value||null, endTime:et.value||null, tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
+      var multiDay = endDate.value && date.value && endDate.value>date.value;
+      var fields={ text:txt, dueDate:date.value||null, endDate:endDate.value||null,
+        startTime: multiDay?null:(st.value||null), endTime: multiDay?null:(et.value||null),
+        tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
       var list=M.loadTodos();
       if(existing){ list.forEach(function(x){ if(x.id===existing.id){ for(var k in fields)x[k]=fields[k]; } }); }
       else { fields.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); fields.done=false; fields.snoozes=0; list.push(fields); }
@@ -924,14 +937,27 @@
 
     // all-day strip (chores + untimed todos)
     var allRow=el("div","cal-week-allday"); allRow.style.gridTemplateColumns=cols;
-    allRow.appendChild(el("div","cal-week-allday-label","all-day"));
+    var adLabel=el("div","cal-week-allday-label","all-day"); adLabel.style.gridRow="1"; allRow.appendChild(adLabel);
     days.forEach(function(dt){ var ds=ymd(dt);
-      var cell=el("div","cal-week-allday-cell");
+      var cell=el("div","cal-week-allday-cell"); cell.style.gridRow="1";
       choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
-      todosOn(ds).filter(function(t){ return !t.startTime; }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
+      // single-day untimed items are chips; multi-day items render as a span bar below
+      todosOn(ds).filter(function(t){ return !t.startTime && !isMultiDay(t); }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
       if(!cell.childNodes.length) cell.appendChild(el("div","cal-allday-add","+")); // tappable hint to add an untimed task
       cell.addEventListener("click",function(){ selectedDate=ds; openTodoEditor(null); });
       allRow.appendChild(cell);
+    });
+    // multi-day items as continuous bars spanning their day columns (like Outlook holidays)
+    var wkStart=ymd(days[0]), wkEnd=ymd(days[days.length-1]);
+    todosAll().filter(function(t){ return catOk(t) && isMultiDay(t) && t.dueDate<=wkEnd && t.endDate>=wkStart; }).forEach(function(t){
+      var si=0; while(si<days.length && ymd(days[si])<t.dueDate) si++;
+      var ei=days.length-1; while(ei>=0 && ymd(days[ei])>t.endDate) ei--;
+      if(ei<si) return;
+      var bar=el("div","cal-allday-span"+(t.done?" done":""), t.text);
+      if(t.category){ var cc=window.Cats.color(t.category); if(cc)bar.style.background=cc; }
+      bar.style.gridColumn=(si+2)+" / "+(ei+3);
+      bar.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); });
+      allRow.appendChild(bar);
     });
     scroll.appendChild(allRow);
 
