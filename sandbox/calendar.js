@@ -971,6 +971,9 @@
     var scroll=el("div","cal-week-scroll");
 
     // sticky day-header row
+    // header + all-day row freeze together as one sticky block (so the all-day
+    // row stays glued under the day names, not behind them).
+    var frozen=el("div","cal-week-frozen");
     var headRow=el("div","cal-week-head"); headRow.style.gridTemplateColumns=cols;
     headRow.appendChild(el("div","cal-week-corner",""));
     days.forEach(function(dt){ var ds=ymd(dt);
@@ -981,7 +984,7 @@
       h.addEventListener("click",function(){ selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); });
       headRow.appendChild(h);
     });
-    scroll.appendChild(headRow);
+    frozen.appendChild(headRow);
 
     // all-day strip (chores + untimed todos)
     var allRow=el("div","cal-week-allday"); allRow.style.gridTemplateColumns=cols;
@@ -1009,7 +1012,8 @@
       bar.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); });
       allRow.appendChild(bar);
     });
-    scroll.appendChild(allRow);
+    frozen.appendChild(allRow);
+    scroll.appendChild(frozen);
 
     // time grid body
     var body=el("div","cal-week-body"); body.style.gridTemplateColumns=cols;

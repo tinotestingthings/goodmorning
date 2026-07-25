@@ -2478,8 +2478,10 @@ body::after {
   overflow-y: auto; -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg);
 }
+/* the whole frozen block (day names + all-day row) sticks as one unit */
+.cal-week-frozen { position: sticky; top: 0; z-index: 6; background: var(--card-bg); }
 .cal-week-head {
-  display: grid; position: sticky; top: 0; z-index: 5;
+  display: grid; z-index: 5;
   background: var(--card-bg); border-bottom: 1px solid var(--border);
 }
 .cal-week-corner { border-right: 1px solid var(--border); }
@@ -2496,7 +2498,7 @@ body::after {
 
 .cal-week-allday {
   display: grid; border-bottom: 1px solid var(--border);
-  position: sticky; top: 44px; z-index: 4; background: var(--card-bg);
+  z-index: 4; background: var(--card-bg);
 }
 .cal-week-allday-label { font-size: 0.62rem; color: var(--text-dim); padding: 4px; text-align: right; border-right: 1px solid var(--border); }
 .cal-week-allday-cell { border-left: 1px solid var(--border); padding: 3px; display: flex; flex-direction: column; gap: 3px; min-height: 22px; cursor: pointer; }
