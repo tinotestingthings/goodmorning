@@ -100,12 +100,13 @@
     if(viewYear==null){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); }
     calInvalidate();
     root.innerHTML="";
+    root.classList.remove("cal-fill");           // timeline views fill the height; others scroll
     root.appendChild(buildCalHeader());          // single row: ☰ · range · view button
     if(searchOpen){ root.appendChild(buildSearch()); return; }
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
-    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.appendChild(buildWeekTimeline(daysForView())); return; }
+    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.classList.add("cal-fill"); root.appendChild(buildWeekTimeline(daysForView())); return; }
     if(schedMode) root.appendChild(buildSchedBar());
     root.appendChild(buildGrid());
     root.appendChild(buildDayPanel());

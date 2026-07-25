@@ -1900,10 +1900,18 @@ body::after {
 
 .calendar-view {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 12px 14px 24px;
 }
+/* Timeline views (week/day/etc.) fill the exact available height and scroll
+   INTERNALLY (so the all-day row can stay frozen and there's no leftover
+   empty margin at the bottom). Other views keep the outer scroll above. */
+.calendar-view.cal-fill { overflow: hidden; padding: 10px 12px 0; }
+.calendar-view.cal-fill .cal-week { flex: 1; min-height: 0; }
 
 .cal-headbox { margin-bottom: 8px; }
 .cal-head {
@@ -2466,8 +2474,8 @@ body::after {
 
 .cal-week { display: flex; flex-direction: column; min-height: 0; }
 .cal-week-scroll {
+  flex: 1; min-height: 0;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
-  max-height: calc(100svh - 200px);
   border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg);
 }
 .cal-week-head {
@@ -2700,3 +2708,11 @@ body::after {
   border-radius: 10px; padding: 7px 11px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .cal-viewbtn.active { border-color: var(--skip); color: var(--skip); }
+
+/* wider layout on tablet/laptop (mobile stays a single column) */
+@media (min-width: 768px) {
+  body { max-width: 980px; }
+}
+@media (min-width: 1200px) {
+  body { max-width: 1200px; }
+}
