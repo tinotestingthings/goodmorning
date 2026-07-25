@@ -100,18 +100,43 @@
     if(viewYear==null){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); }
     calInvalidate();
     root.innerHTML="";
-    root.appendChild(buildTopBar());
-    root.appendChild(buildFilterChips());
+    root.appendChild(buildCalHeader());          // single row: ☰ · range · view button
     if(searchOpen){ root.appendChild(buildSearch()); return; }
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
-    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ var wdays=daysForView(); root.appendChild(buildTimelineHeader(wdays)); root.appendChild(buildWeekTimeline(wdays)); return; }
-    // grid views (month only now)
-    root.appendChild(buildGridHeader());
-    if(viewMode==="month" && schedMode) root.appendChild(buildSchedBar());
+    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.appendChild(buildWeekTimeline(daysForView())); return; }
+    if(schedMode) root.appendChild(buildSchedBar());
     root.appendChild(buildGrid());
     root.appendChild(buildDayPanel());
+  }
+
+  function headerTitle(){
+    if(viewMode==="month") return MONTHS[viewMonth]+" "+viewYear;
+    if(viewMode==="agenda") return "Agenda";
+    if(viewMode==="done") return "Done";
+    if(viewMode==="myday") return "My Day";
+    var days=daysForView();
+    return days.length===1
+      ? (ymd(days[0])===todayStr()?"Today":niceDay(ymd(days[0])))
+      : niceDay(ymd(days[0]))+" – "+niceDay(ymd(days[days.length-1]));
+  }
+
+  // The whole calendar chrome in ONE row: hamburger · date range (with ‹ › nav
+  // where it applies) · a button showing the current view that opens the picker.
+  function buildCalHeader(){
+    var box=el("div","cal-headbar");
+    var burger=el("button","cal-burger","☰"); burger.type="button"; burger.setAttribute("aria-label","Calendar menu"); burger.addEventListener("click",openCalDrawer); box.appendChild(burger);
+    var hasNav = ["month","week","workweek","3day","day"].indexOf(viewMode)!==-1;
+    if(hasNav){ var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); }); box.appendChild(prev); }
+    box.appendChild(el("div","cal-title", headerTitle()));
+    if(hasNav){ var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); }); box.appendChild(next); }
+    if(schedMode){
+      var done=el("button","cal-viewbtn active","Done"); done.type="button"; done.addEventListener("click",function(){ schedMode=false; schedSel={}; render(); }); box.appendChild(done);
+    } else {
+      var vbtn=el("button","cal-viewbtn", viewLabel(viewMode)+" ▾"); vbtn.type="button"; vbtn.setAttribute("aria-label","Change view"); vbtn.addEventListener("click",openViewMenu); box.appendChild(vbtn);
+    }
+    return box;
   }
 
   // Minimal top bar: ☰ (opens the drawer with everything) + the primary
@@ -154,6 +179,12 @@
     panel.appendChild(item("Search",function(){ searchOpen=true; render(); }));
     panel.appendChild(item("Work schedule",function(){ openWorkSchedule(); }));
     panel.appendChild(item("Plan work (month)",function(){ viewMode="month"; saveViewMode("month"); schedMode=true; schedSel={}; render(); }));
+    var cats=window.Cats?window.Cats.load():[];
+    if(cats.length){
+      panel.appendChild(el("div","cal-drawer-sub","Filter by colour"));
+      panel.appendChild(item("All",function(){ catFilter="all"; render(); }, catFilter==="all"));
+      cats.forEach(function(c){ var it=item(c.name,function(){ catFilter=c.id; render(); }, catFilter===c.id); var dot=el("span","cal-chip-dot"); dot.style.background=c.color; dot.style.marginRight="8px"; it.insertBefore(dot,it.firstChild); panel.appendChild(it); });
+    }
     backdrop.appendChild(panel);
     backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
     document.body.appendChild(backdrop);
@@ -162,11 +193,12 @@
 
   var CAL_MORE_VIEWS=[["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
   function viewLabel(v){ var all=[["month","Month"],["week","Week"],["myday","My Day"]].concat(CAL_MORE_VIEWS); for(var i=0;i<all.length;i++)if(all[i][0]===v)return all[i][1]; return v; }
+  var CAL_ALL_VIEWS=[["month","Month"],["week","Week"],["myday","My Day"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
   function openViewMenu(){
     var backdrop=el("div","card-menu-backdrop"); var sheet=el("div","card-menu");
     function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },180); }
-    sheet.appendChild(el("div","capture-heading","More views"));
-    CAL_MORE_VIEWS.forEach(function(p){
+    sheet.appendChild(el("div","capture-heading","View"));
+    CAL_ALL_VIEWS.forEach(function(p){
       var b=el("button","card-menu-item"+(viewMode===p[0]?" active":""),""); b.type="button";
       b.innerHTML='<span class="cm-label">'+p[1]+'</span>';
       b.addEventListener("click",function(){ close(); viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
@@ -174,6 +206,7 @@
     });
     var cancel=el("button","card-menu-cancel","Cancel"); cancel.type="button"; cancel.addEventListener("click",close);
     sheet.appendChild(cancel);
+    if(window.Sheet)window.Sheet.swipeClose(sheet,close);
     backdrop.appendChild(sheet); backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
     document.body.appendChild(backdrop); (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }

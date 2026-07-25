@@ -2689,3 +2689,14 @@ body::after {
 }
 .capture-fab:hover, .capture-fab:focus { opacity: 1; right: 16px; }
 .capture-fab:active { opacity: 1; right: 16px; }
+
+/* ---- single-row calendar header ---- */
+.cal-headbar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; }
+.cal-headbar .cal-burger { width: 38px; height: 36px; font-size: 1.05rem; }
+.cal-headbar .cal-title { flex: 1; text-align: center; font-size: 0.95rem; font-weight: 600; }
+.cal-headbar .cal-nav { flex: 0 0 auto; appearance: none; background: transparent; border: none; color: var(--text); font-size: 1.3rem; line-height: 1; padding: 4px 6px; cursor: pointer; }
+.cal-viewbtn {
+  flex: 0 0 auto; appearance: none; border: 1px solid var(--border); background: var(--card-bg); color: var(--text);
+  border-radius: 10px; padding: 7px 11px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.cal-viewbtn.active { border-color: var(--skip); color: var(--skip); }
