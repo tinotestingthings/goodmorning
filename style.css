@@ -2587,3 +2587,96 @@ main#deckArea {
 /* all-day add hint */
 .cal-week-allday-cell { align-items: stretch; justify-content: center; }
 .cal-allday-add { color: var(--text-dim); opacity: 0.5; font-size: 1rem; text-align: center; line-height: 1; }
+
+/* smaller week/day range title */
+.cal-title { font-size: 0.95rem; font-weight: 600; flex: 1; text-align: center; }
+
+/* view segmented control (Month / Week / My Day / More) */
+.cal-viewseg { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cal-viewseg-btn { appearance: none; background: transparent; border: none; border-right: 1px solid var(--border); color: var(--text-dim); font-size: 0.82rem; padding: 7px 10px; cursor: pointer; white-space: nowrap; }
+.cal-viewseg-btn:last-child { border-right: none; }
+.cal-viewseg-btn.active { background: var(--skip); color: #fff; font-weight: 600; }
+.card-menu-item.active .cm-label { color: var(--skip); font-weight: 700; }
+
+/* editor: sticky action bar at the top so the keyboard can't hide Save */
+.cal-editor-sheet .inline-form-actions,
+.inline-form-actions {
+  position: sticky; top: 0; z-index: 3; background: var(--bg);
+  padding: 6px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+
+/* category (colour) manage link + coloured selects */
+.cal-cat-manage { appearance: none; background: none; border: none; color: var(--skip); font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+
+/* multi-day (holiday-style) span bar in the all-day row */
+.cal-week-allday { grid-auto-rows: minmax(20px, auto); row-gap: 2px; }
+.cal-allday-span {
+  align-self: center; margin: 0 2px; padding: 2px 8px; border-radius: 6px;
+  background: var(--skip); color: #fff; font-size: 0.72rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.cal-allday-span.done { opacity: 0.5; text-decoration: line-through; }
+
+/* all-day row: allow horizontal drag-create (vertical still scrolls) */
+.cal-week-allday-cell { touch-action: pan-y; }
+
+.cal-allday-add { pointer-events: none; }
+
+/* ---- swipe-down handle on sheets ---- */
+.sheet-handle {
+  width: 42px; height: 5px; border-radius: 3px; background: var(--border);
+  margin: 8px auto 6px; flex: 0 0 auto; touch-action: none; cursor: grab;
+}
+.sheet-handle:active { cursor: grabbing; }
+
+/* ---- calendar: minimal top bar with hamburger + view toggle ---- */
+.cal-topbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+.cal-burger {
+  appearance: none; border: 1px solid var(--border); background: var(--card-bg); color: var(--text);
+  width: 40px; height: 38px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex: 0 0 auto;
+}
+.cal-topbar .cal-viewseg { flex: 1; }
+
+/* ---- calendar left drawer (Google-Calendar style) ---- */
+.cal-drawer-backdrop {
+  position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,0.45);
+  opacity: 0; transition: opacity 0.22s ease;
+}
+.cal-drawer-backdrop.show { opacity: 1; }
+.cal-drawer {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 82%; max-width: 320px;
+  background: var(--bg); border-right: 1px solid var(--border);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+  transform: translateX(-100%); transition: transform 0.24s ease;
+  overflow-y: auto; padding: 14px 10px calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 2px;
+}
+.cal-drawer-backdrop.show .cal-drawer { transform: translateX(0); }
+.cal-drawer-title { font-size: 1.2rem; font-weight: 700; color: var(--text); padding: 6px 10px 10px; }
+.cal-drawer-sub { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 12px 10px 4px; }
+.cal-drawer-item {
+  appearance: none; text-align: left; background: transparent; border: none;
+  color: var(--text); font-size: 1rem; padding: 12px 12px; border-radius: 10px; cursor: pointer;
+}
+.cal-drawer-item:active { background: var(--surface, rgba(127,127,127,0.12)); }
+.cal-drawer-item.active { background: color-mix(in srgb, var(--skip) 16%, transparent); color: var(--skip); font-weight: 600; }
+
+/* ---- quick-capture: peeking "cookie-banner" tab, forward on tap ---- */
+.capture-fab {
+  right: -6px; width: 48px; height: 48px; opacity: 0.42;
+  transition: opacity 0.15s ease, right 0.15s ease, transform 0.08s ease;
+}
+.capture-fab:hover, .capture-fab:focus { opacity: 1; right: 16px; }
+.capture-fab:active { opacity: 1; right: 16px; }
+
+/* ---- single-row calendar header ---- */
+.cal-headbar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; }
+.cal-headbar .cal-burger { width: 38px; height: 36px; font-size: 1.05rem; }
+.cal-headbar .cal-title { flex: 1; text-align: center; font-size: 0.95rem; font-weight: 600; }
+.cal-headbar .cal-nav { flex: 0 0 auto; appearance: none; background: transparent; border: none; color: var(--text); font-size: 1.3rem; line-height: 1; padding: 4px 6px; cursor: pointer; }
+.cal-viewbtn {
+  flex: 0 0 auto; appearance: none; border: 1px solid var(--border); background: var(--card-bg); color: var(--text);
+  border-radius: 10px; padding: 7px 11px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.cal-viewbtn.active { border-color: var(--skip); color: var(--skip); }

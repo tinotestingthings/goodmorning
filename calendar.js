@@ -39,7 +39,16 @@
   // ---- data ----
   function catOk(item){ return catFilter==="all" || item.category===catFilter; }
 
-  function todosOn(ds){ return M.loadTodos().filter(function(t){ return t.dueDate===ds && catOk(t); }); }
+  // Render-scoped cache: loadTodos/loadChores re-parse localStorage on every
+  // call, and the grid calls them per day (and marksFor across ~42 days), so
+  // one render parsed storage dozens of times. Cache per render/interaction.
+  var _todoCache=null, _choreCache=null;
+  function todosAll(){ if(!_todoCache)_todoCache=M.loadTodos(); return _todoCache; }
+  function choresAll(){ if(!_choreCache)_choreCache=M.loadChores(); return _choreCache; }
+  function calInvalidate(){ _todoCache=null; _choreCache=null; }
+
+  function isMultiDay(t){ return !!(t.endDate && t.dueDate && t.endDate>t.dueDate); }
+  function todosOn(ds){ return todosAll().filter(function(t){ if(!catOk(t))return false; if(t.dueDate===ds)return true; return isMultiDay(t) && t.dueDate<=ds && ds<=t.endDate; }); }
 
   // chore occurrence on a single day: 'due' | 'done' | null
   function choreStateOn(chore, ds){
@@ -57,18 +66,22 @@
 
   function choresOn(ds){
     var out=[];
-    M.loadChores().forEach(function(c){ if(!catOk(c)) return; var st=choreStateOn(c,ds); if(st) out.push({chore:c,state:st}); });
+    choresAll().forEach(function(c){ if(!catOk(c)) return; var st=choreStateOn(c,ds); if(st) out.push({chore:c,state:st}); });
     return out;
   }
 
   function marksFor(startStr,endStr){
     var marks={}; var today=todayStr();
     function bump(ds,k){ if(ds<startStr||ds>endStr)return; marks[ds]=marks[ds]||{}; marks[ds][k]=true; if(marks[ds]._cat===undefined)marks[ds]._cat=null; }
-    M.loadTodos().forEach(function(t){ if(!t.dueDate||!catOk(t))return;
-      if(t.done) bump(t.dueDate,"todoDone"); else { bump(t.dueDate,"todo"); if(t.dueDate<today)bump(t.dueDate,"overdue"); }
-      if(t.category&&marks[t.dueDate])marks[t.dueDate]._cat=window.Cats.color(t.category);
+    todosAll().forEach(function(t){ if(!t.dueDate||!catOk(t))return;
+      var last=isMultiDay(t)?t.endDate:t.dueDate; var d=parseYmd(t.dueDate);
+      for(var g=0;g<420;g++){ var ds=ymd(d); if(ds>endStr)break;
+        if(t.done) bump(ds,"todoDone"); else { bump(ds,"todo"); if(ds<today)bump(ds,"overdue"); }
+        if(t.category&&marks[ds])marks[ds]._cat=window.Cats.color(t.category);
+        if(ds>=last)break; d=addDays(d,1);
+      }
     });
-    M.loadChores().forEach(function(c){ if(!catOk(c))return;
+    choresAll().forEach(function(c){ if(!catOk(c))return;
       var d=parseYmd(startStr);
       for(var i=0;i<420;i++){ var ds=ymd(d); if(ds>endStr)break; var st=choreStateOn(c,ds);
         if(st==="done")bump(ds,"choreDone"); else if(st==="due"){ bump(ds,"choreDue"); if(ds<today)bump(ds,"overdue"); }
@@ -85,45 +98,117 @@
     if(!M){ M=window.DayModel; if(!M){ root.innerHTML=""; root.appendChild(el("p","dash-empty","Loading…")); return; } }
     if(viewMode==null) viewMode=loadViewMode();
     if(viewYear==null){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); }
+    calInvalidate();
     root.innerHTML="";
-    root.appendChild(buildTopBar());
-    root.appendChild(buildFilterChips());
+    root.appendChild(buildCalHeader());          // single row: ☰ · range · view button
     if(searchOpen){ root.appendChild(buildSearch()); return; }
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
-    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ var wdays=daysForView(); root.appendChild(buildTimelineHeader(wdays)); root.appendChild(buildWeekTimeline(wdays)); return; }
-    // grid views (month only now)
-    root.appendChild(buildGridHeader());
-    if(viewMode==="month" && schedMode) root.appendChild(buildSchedBar());
+    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.appendChild(buildWeekTimeline(daysForView())); return; }
+    if(schedMode) root.appendChild(buildSchedBar());
     root.appendChild(buildGrid());
     root.appendChild(buildDayPanel());
   }
 
+  function headerTitle(){
+    if(viewMode==="month") return MONTHS[viewMonth]+" "+viewYear;
+    if(viewMode==="agenda") return "Agenda";
+    if(viewMode==="done") return "Done";
+    if(viewMode==="myday") return "My Day";
+    var days=daysForView();
+    return days.length===1
+      ? (ymd(days[0])===todayStr()?"Today":niceDay(ymd(days[0])))
+      : niceDay(ymd(days[0]))+" – "+niceDay(ymd(days[days.length-1]));
+  }
+
+  // The whole calendar chrome in ONE row: hamburger · date range (with ‹ › nav
+  // where it applies) · a button showing the current view that opens the picker.
+  function buildCalHeader(){
+    var box=el("div","cal-headbar");
+    var burger=el("button","cal-burger","☰"); burger.type="button"; burger.setAttribute("aria-label","Calendar menu"); burger.addEventListener("click",openCalDrawer); box.appendChild(burger);
+    var hasNav = ["month","week","workweek","3day","day"].indexOf(viewMode)!==-1;
+    if(hasNav){ var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); }); box.appendChild(prev); }
+    box.appendChild(el("div","cal-title", headerTitle()));
+    if(hasNav){ var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); }); box.appendChild(next); }
+    if(schedMode){
+      var done=el("button","cal-viewbtn active","Done"); done.type="button"; done.addEventListener("click",function(){ schedMode=false; schedSel={}; render(); }); box.appendChild(done);
+    } else {
+      var vbtn=el("button","cal-viewbtn", viewLabel(viewMode)+" ▾"); vbtn.type="button"; vbtn.setAttribute("aria-label","Change view"); vbtn.addEventListener("click",openViewMenu); box.appendChild(vbtn);
+    }
+    return box;
+  }
+
+  // Minimal top bar: ☰ (opens the drawer with everything) + the primary
+  // Month/Week/My Day toggle. Everything else lives in the drawer to keep the
+  // mobile screen for the calendar itself.
   function buildTopBar(){
     var bar=el("div","cal-topbar");
-    var todayBtn=el("button","cal-today-btn","Today"); todayBtn.type="button";
-    todayBtn.addEventListener("click",function(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); });
-    bar.appendChild(todayBtn);
-
-    var sel=document.createElement("select"); sel.className="field-select cal-view-select";
-    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["myday","My Day"],["done","Done"]].forEach(function(p){
-      var o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]; sel.appendChild(o);
-    });
-    sel.value=viewMode;
-    sel.addEventListener("change",function(){ viewMode=sel.value; saveViewMode(viewMode); searchOpen=false; render(); });
-    bar.appendChild(sel);
-
-    var workBtn=el("button","cal-icon-btn","🗓"); workBtn.type="button";
-    workBtn.setAttribute("aria-label","Work schedule");
-    workBtn.addEventListener("click",openWorkSchedule);
-    bar.appendChild(workBtn);
-
-    var searchBtn=el("button","cal-icon-btn", searchOpen?"✕":"🔍"); searchBtn.type="button";
-    searchBtn.setAttribute("aria-label","Search");
-    searchBtn.addEventListener("click",function(){ searchOpen=!searchOpen; render(); });
-    bar.appendChild(searchBtn);
+    var burger=el("button","cal-burger","☰"); burger.type="button"; burger.setAttribute("aria-label","Calendar menu");
+    burger.addEventListener("click",openCalDrawer);
+    bar.appendChild(burger);
+    bar.appendChild(viewToggle());
     return bar;
+  }
+  function viewToggle(){
+    var seg=el("div","cal-viewseg");
+    [["month","Month"],["week","Week"],["myday","My Day"]].forEach(function(p){
+      var b=el("button","cal-viewseg-btn"+(viewMode===p[0]?" active":""),p[1]); b.type="button";
+      b.addEventListener("click",function(){ viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
+      seg.appendChild(b);
+    });
+    return seg;
+  }
+  function goToday(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); }
+  function setView(v){ viewMode=v; saveViewMode(v); searchOpen=false; render(); }
+
+  // Google-Calendar-style left drawer holding all the controls that used to
+  // crowd the top: Today, every view, Search, Work schedule, Plan work.
+  function openCalDrawer(){
+    var backdrop=el("div","cal-drawer-backdrop"); var panel=el("div","cal-drawer");
+    function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },240); }
+    function item(label,onClick,active){ var b=el("button","cal-drawer-item"+(active?" active":""),label); b.type="button"; b.addEventListener("click",function(){ close(); onClick(); }); return b; }
+    panel.appendChild(el("div","cal-drawer-title","Calendar"));
+    panel.appendChild(item("Today",goToday));
+    panel.appendChild(item("+ New task",function(){ openTodoEditor(null); }));
+    panel.appendChild(el("div","cal-drawer-sub","Views"));
+    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["day","Day"],["myday","My Day"],["agenda","Agenda"],["done","Done"]].forEach(function(p){
+      panel.appendChild(item(p[1],function(){ setView(p[0]); }, viewMode===p[0]));
+    });
+    panel.appendChild(el("div","cal-drawer-sub","Tools"));
+    panel.appendChild(item("Search",function(){ searchOpen=true; render(); }));
+    panel.appendChild(item("Work schedule",function(){ openWorkSchedule(); }));
+    panel.appendChild(item("Plan work (month)",function(){ viewMode="month"; saveViewMode("month"); schedMode=true; schedSel={}; render(); }));
+    var cats=window.Cats?window.Cats.load():[];
+    if(cats.length){
+      panel.appendChild(el("div","cal-drawer-sub","Filter by colour"));
+      panel.appendChild(item("All",function(){ catFilter="all"; render(); }, catFilter==="all"));
+      cats.forEach(function(c){ var it=item(c.name,function(){ catFilter=c.id; render(); }, catFilter===c.id); var dot=el("span","cal-chip-dot"); dot.style.background=c.color; dot.style.marginRight="8px"; it.insertBefore(dot,it.firstChild); panel.appendChild(it); });
+    }
+    backdrop.appendChild(panel);
+    backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
+    document.body.appendChild(backdrop);
+    (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
+  }
+
+  var CAL_MORE_VIEWS=[["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
+  function viewLabel(v){ var all=[["month","Month"],["week","Week"],["myday","My Day"]].concat(CAL_MORE_VIEWS); for(var i=0;i<all.length;i++)if(all[i][0]===v)return all[i][1]; return v; }
+  var CAL_ALL_VIEWS=[["month","Month"],["week","Week"],["myday","My Day"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
+  function openViewMenu(){
+    var backdrop=el("div","card-menu-backdrop"); var sheet=el("div","card-menu");
+    function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },180); }
+    sheet.appendChild(el("div","capture-heading","View"));
+    CAL_ALL_VIEWS.forEach(function(p){
+      var b=el("button","card-menu-item"+(viewMode===p[0]?" active":""),""); b.type="button";
+      b.innerHTML='<span class="cm-label">'+p[1]+'</span>';
+      b.addEventListener("click",function(){ close(); viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
+      sheet.appendChild(b);
+    });
+    var cancel=el("button","card-menu-cancel","Cancel"); cancel.type="button"; cancel.addEventListener("click",close);
+    sheet.appendChild(cancel);
+    if(window.Sheet)window.Sheet.swipeClose(sheet,close);
+    backdrop.appendChild(sheet); backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
+    document.body.appendChild(backdrop); (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }
 
   // ---- work-schedule editor (default hours + per-day location) ----
@@ -164,6 +249,7 @@
     var cancel=el("button","card-menu-cancel","Close"); cancel.type="button"; cancel.addEventListener("click",close);
     sheet.appendChild(cancel);
 
+    if(window.Sheet)window.Sheet.swipeClose(sheet,close);
     backdrop.appendChild(sheet);
     backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
     document.body.appendChild(backdrop);
@@ -238,9 +324,9 @@
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head);
-    if(viewMode==="month"){
-      var plan=el("button","cal-plan-btn"+(schedMode?" active":""), schedMode?"Done planning":"Plan work"); plan.type="button";
-      plan.addEventListener("click",function(){ schedMode=!schedMode; schedSel={}; render(); });
+    if(viewMode==="month" && schedMode){
+      var plan=el("button","cal-plan-btn active","Done planning"); plan.type="button";
+      plan.addEventListener("click",function(){ schedMode=false; schedSel={}; render(); });
       box.appendChild(plan);
     }
     return box;
@@ -656,11 +742,20 @@
   }
 
   var TZS=["Local","UTC","Europe/Amsterdam","Europe/London","America/New_York","America/Los_Angeles","Asia/Tokyo","Australia/Sydney"];
-  function openTodoEditor(existing,prefillTime,prefillEnd){
+  function openTodoEditor(existing,prefillTime,prefillEnd,prefillEndDate){
     addMode="todo"; var box=el("div","inline-form");
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
+    // optional end date → a multi-day (all-day) item, e.g. a holiday
+    var eRow=el("div","inline-form-row"); eRow.appendChild(el("span","inline-form-label","Ends"));
+    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input";
+    if(existing&&existing.endDate)endDate.value=existing.endDate; else if(prefillEndDate)endDate.value=prefillEndDate;
+    if(!endDate.value)endDate.value=date.value;            // default to the start day — only the day needs changing for a range
+    eRow.appendChild(endDate);
+    eRow.appendChild(el("span","inline-form-hint","(same day = single; later = multi-day)")); box.appendChild(eRow);
+    // keep the end from falling before the start when the start day changes
+    date.addEventListener("change",function(){ if(!endDate.value||endDate.value<date.value)endDate.value=date.value; });
     // Time matters in a calendar context, so when there IS one (editing a
     // timed item, or dragging out a block on the grid) the Time row stays
     // visible up front rather than hidden under "More options".
@@ -669,7 +764,7 @@
     // text + day + reminder. (An existing item with any of these set opens
     // with the section expanded so nothing looks lost.)
     var moreBox=el("div","inline-form-more hidden");
-    var hasMore=!!(existing&&(existing.tz||existing.category||existing.url||existing.note));
+    var hasMore=!!(existing&&(existing.tz||existing.url||existing.note));
     // time (optional -> timed event)
     var tRow=el("div","inline-form-row"); tRow.appendChild(el("span","inline-form-label","Time"));
     var st=document.createElement("input"); st.type="time"; st.className="field-input"; if(existing&&existing.startTime)st.value=existing.startTime; else if(prefillTime)st.value=prefillTime; tRow.appendChild(st);
@@ -677,8 +772,10 @@
     (timeContext?box:moreBox).appendChild(tRow);
     // timezone
     var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); moreBox.appendChild(zRow);
-    // category
-    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Category")); var cat=catSelect(existing?existing.category:""); cRow.appendChild(cat); moreBox.appendChild(cRow);
+    // category (visible — this is how you colour an item) with a manage link
+    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Colour")); var cat=catSelect(existing?existing.category:"");
+    var manage=el("button","cal-cat-manage","Manage…"); manage.type="button"; manage.addEventListener("click",function(){ addMode=null; if(window.App)window.App.go("settings"); });
+    cRow.appendChild(cat); cRow.appendChild(manage); box.appendChild(cRow);
     // reminders (multiple)
     var remWrap=el("div","inline-form-col"); remWrap.appendChild(el("span","inline-form-label","Reminders"));
     var rems=(existing&&Array.isArray(existing.reminders))?existing.reminders.slice():[];
@@ -700,10 +797,15 @@
     box.appendChild(moreToggle); box.appendChild(moreBox);
     if(hasMore){ moreBox.classList.remove("hidden"); moreToggle.textContent="Fewer options ▴"; }
 
-    var actions=el("div","inline-form-row");
+    // Actions sit at the TOP (sticky) so the phone keyboard + autofill bar can't
+    // cover the save button when the text field is focused.
+    var actions=el("div","inline-form-row inline-form-actions");
     var save=el("button","btn btn-primary",existing?"Save":"+ Add to-do"); save.type="button";
     save.addEventListener("click",function(){ var txt=text.value.trim(); if(!txt){ M.toast("Type something first"); return; }
-      var fields={ text:txt, dueDate:date.value||null, startTime:st.value||null, endTime:et.value||null, tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
+      var multiDay = endDate.value && date.value && endDate.value>date.value;
+      var fields={ text:txt, dueDate:date.value||null, endDate:endDate.value||null,
+        startTime: multiDay?null:(st.value||null), endTime: multiDay?null:(et.value||null),
+        tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
       var list=M.loadTodos();
       if(existing){ list.forEach(function(x){ if(x.id===existing.id){ for(var k in fields)x[k]=fields[k]; } }); }
       else { fields.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); fields.done=false; fields.snoozes=0; list.push(fields); }
@@ -712,7 +814,7 @@
     actions.appendChild(save);
     if(existing){ var del=el("button","btn btn-danger","Delete"); del.type="button"; del.addEventListener("click",function(){ if(!window.confirm("Delete this to-do?"))return; M.saveTodos(M.loadTodos().filter(function(x){return x.id!==existing.id;})); addMode=null; render(); }); actions.appendChild(del); }
     var cancel=el("button","cal-link","Cancel"); cancel.type="button"; cancel.addEventListener("click",function(){ addMode=null; render(); }); actions.appendChild(cancel);
-    box.appendChild(actions); todoEditor=box; render(); setTimeout(function(){ text.focus(); },0);
+    box.insertBefore(actions, box.firstChild); todoEditor=box; render(); setTimeout(function(){ text.focus(); },0);
   }
   function openChoreEditor(existing){
     addMode="chore"; var box=el("div","inline-form");
@@ -858,12 +960,6 @@
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head);
-    var tools=el("div","cal-tl-tools");
-    var add=el("button","cal-tl-add","+ Task"); add.type="button";
-    add.addEventListener("click",function(){ openTodoEditor(null); }); // untimed → lands in the all-day row
-    tools.appendChild(add);
-    tools.appendChild(zoomControls());
-    box.appendChild(tools);
     return box;
   }
 
@@ -888,14 +984,29 @@
 
     // all-day strip (chores + untimed todos)
     var allRow=el("div","cal-week-allday"); allRow.style.gridTemplateColumns=cols;
-    allRow.appendChild(el("div","cal-week-allday-label","all-day"));
-    days.forEach(function(dt){ var ds=ymd(dt);
-      var cell=el("div","cal-week-allday-cell");
+    var adLabel=el("div","cal-week-allday-label","all-day"); adLabel.style.gridRow="1"; allRow.appendChild(adLabel);
+    var allCells=[];
+    days.forEach(function(dt,idx){ var ds=ymd(dt);
+      var cell=el("div","cal-week-allday-cell"); cell.style.gridRow="1";
       choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
-      todosOn(ds).filter(function(t){ return !t.startTime; }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
+      // single-day untimed items are chips; multi-day items render as a span bar below
+      todosOn(ds).filter(function(t){ return !t.startTime && !isMultiDay(t); }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
       if(!cell.childNodes.length) cell.appendChild(el("div","cal-allday-add","+")); // tappable hint to add an untimed task
-      cell.addEventListener("click",function(){ selectedDate=ds; openTodoEditor(null); });
+      allCells.push({ el: cell, idx: idx });
       allRow.appendChild(cell);
+    });
+    wireAllDayCreate(allRow, allCells, days);
+    // multi-day items as continuous bars spanning their day columns (like Outlook holidays)
+    var wkStart=ymd(days[0]), wkEnd=ymd(days[days.length-1]);
+    todosAll().filter(function(t){ return catOk(t) && isMultiDay(t) && t.dueDate<=wkEnd && t.endDate>=wkStart; }).forEach(function(t){
+      var si=0; while(si<days.length && ymd(days[si])<t.dueDate) si++;
+      var ei=days.length-1; while(ei>=0 && ymd(days[ei])>t.endDate) ei--;
+      if(ei<si) return;
+      var bar=el("div","cal-allday-span"+(t.done?" done":""), t.text);
+      if(t.category){ var cc=window.Cats.color(t.category); if(cc)bar.style.background=cc; }
+      bar.style.gridColumn=(si+2)+" / "+(ei+3);
+      bar.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); });
+      allRow.appendChild(bar);
     });
     scroll.appendChild(allRow);
 
@@ -916,31 +1027,8 @@
       colEls.push(col); body.appendChild(col);
     });
 
-    // place timed items as draggable/resizable blocks, laid out side-by-side
-    // when they overlap in time (like Outlook). The work-hours band is NOT an
-    // item, so it never pushes real blocks aside — they just sit on top of it.
-    days.forEach(function(dt,idx){ var ds=ymd(dt);
-      var items=[];
-      todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
-        var s=toMin(t.startTime), e=t.endTime?Math.max(s+15,toMin(t.endTime)):s+60;
-        items.push({ kind:"todo", ref:t, s:s, e:e });
-      });
-      icsOn(ds).filter(function(ev){ return !ev.allDay&&ev.startTime; }).forEach(function(ev){
-        var s=toMin(ev.startTime); items.push({ kind:"ics", ref:ev, s:s, e:s+30 });
-      });
-      layoutOverlaps(items);
-      items.forEach(function(it){
-        var b;
-        if(it.kind==="todo"){ b=makeWeekBlock(it.ref, HH); wireBlock(b, it.ref, HH, days, colEls); }
-        else { b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(it.s/60*HH)+"px"; b.style.height="26px";
-          b.appendChild(el("div","cal-ev-time",it.ref.startTime)); b.appendChild(el("div","cal-ev-title",it.ref.title)); }
-        var wpct=100/it.cols;
-        b.style.left="calc("+(it.col*wpct)+"% + 1px)";
-        b.style.width="calc("+wpct+"% - "+(it.cols>1?2:4)+"px)";
-        b.style.right="auto";
-        colEls[idx].appendChild(b);
-      });
-    });
+    // place timed items as draggable/resizable blocks (side-by-side on overlap)
+    days.forEach(function(dt,idx){ layoutColumnBlocks(colEls[idx], dt, HH, days, colEls); });
 
     scroll.appendChild(body); wrap.appendChild(scroll);
     // Preserve scroll position across re-renders (a drop re-renders — without
@@ -963,6 +1051,7 @@
     var ov=el("div","cal-editor-overlay");
     var sheet=el("div","cal-editor-sheet");
     sheet.appendChild(inner);
+    if(window.Sheet)window.Sheet.swipeClose(sheet,function(){ addMode=null; render(); });
     ov.appendChild(sheet);
     ov.addEventListener("click",function(e){ if(e.target===ov){ addMode=null; render(); } });
     return ov;
@@ -1054,6 +1143,45 @@
     });
   }
 
+  // ---- HOLD, then drag SIDEWAYS across the all-day row to create a multi-day
+  // item (e.g. a holiday) — the horizontal counterpart of the vertical
+  // drag-to-size. A tap adds a single untimed task for that day. ----
+  function wireAllDayCreate(allRow, cells, days){
+    var HOLD=260, MOVE=8;
+    cells.forEach(function(c){
+      var timer=null, active=false, startIdx=c.idx, curIdx=c.idx, ghost=null, sx=0, sy=0, pid=null;
+      c.el.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+      function idxUnder(x){ for(var i=0;i<cells.length;i++){ var r=cells[i].el.getBoundingClientRect(); if(x>=r.left&&x<=r.right)return cells[i].idx; } return curIdx; }
+      function cleanup(){ if(timer){clearTimeout(timer);timer=null;} if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null; active=false; }
+      c.el.addEventListener("pointerdown",function(e){
+        if(e.target!==c.el) return;              // not when tapping a chip
+        sx=e.clientX; sy=e.clientY; pid=e.pointerId; startIdx=c.idx; curIdx=c.idx;
+        try{ c.el.setPointerCapture(pid); }catch(_){}
+        timer=setTimeout(function(){ timer=null; active=true;
+          ghost=el("div","cal-allday-span cal-week-ghost"); ghost.style.gridColumn=(startIdx+2)+" / "+(startIdx+3); allRow.appendChild(ghost);
+          if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
+        }, HOLD);
+      });
+      c.el.addEventListener("pointermove",function(e){
+        if(timer){ if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>MOVE){ clearTimeout(timer); timer=null; } return; }
+        if(!active||!ghost) return; e.preventDefault();
+        curIdx=idxUnder(e.clientX);
+        var a=Math.min(startIdx,curIdx), b=Math.max(startIdx,curIdx);
+        ghost.style.gridColumn=(a+2)+" / "+(b+3);
+      });
+      function finish(){
+        var wasActive=active, s=Math.min(startIdx,curIdx), en=Math.max(startIdx,curIdx);
+        cleanup();
+        selectedDate=ymd(days[s]);
+        if(!wasActive){ openTodoEditor(null); return; }                 // tap → single untimed task
+        if(s===en){ openTodoEditor(null); }                              // held on one day → single
+        else { openTodoEditor(null,null,null,ymd(days[en])); }           // spanned → multi-day (start→end)
+      }
+      c.el.addEventListener("pointerup",finish);
+      c.el.addEventListener("pointercancel",cleanup);
+    });
+  }
+
   // ---- two-finger pinch to change vertical scale (live scaleY preview,
   // commit to px-per-hour on release) ----
   function wirePinch(scroll, body, HH){
@@ -1074,10 +1202,35 @@
     scroll.addEventListener("pointerup",endPt); scroll.addEventListener("pointercancel",endPt);
   }
 
+  // (Re)build just one day column's event blocks — used at first render AND on
+  // a drag/resize drop instead of re-rendering the whole calendar (perf).
+  function layoutColumnBlocks(colEl, dt, HH, days, colEls){
+    [].slice.call(colEl.querySelectorAll(".cal-week-ev")).forEach(function(n){ if(!n.classList.contains("cal-week-ghost")) n.parentNode.removeChild(n); });
+    var ds=ymd(dt), items=[];
+    todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
+      var s=toMin(t.startTime), e=t.endTime?Math.max(s+15,toMin(t.endTime)):s+60; items.push({ kind:"todo", ref:t, s:s, e:e });
+    });
+    icsOn(ds).filter(function(ev){ return !ev.allDay&&ev.startTime; }).forEach(function(ev){
+      var s=toMin(ev.startTime); items.push({ kind:"ics", ref:ev, s:s, e:s+30 });
+    });
+    layoutOverlaps(items);
+    items.forEach(function(it){
+      var b;
+      if(it.kind==="todo"){ b=makeWeekBlock(it.ref, HH); wireBlock(b, it.ref, HH, days, colEls); }
+      else { b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(it.s/60*HH)+"px"; b.style.height="26px";
+        b.appendChild(el("div","cal-ev-time",it.ref.startTime)); b.appendChild(el("div","cal-ev-title",it.ref.title)); }
+      var wpct=100/it.cols;
+      b.style.left="calc("+(it.col*wpct)+"% + 1px)";
+      b.style.width="calc("+wpct+"% - "+(it.cols>1?2:4)+"px)";
+      b.style.right="auto";
+      colEl.appendChild(b);
+    });
+  }
+
   function makeWeekBlock(t, HH){
     var m=toMin(t.startTime); var dur=t.endTime?Math.max(15,toMin(t.endTime)-m):60;
     var b=el("div","cal-ev cal-week-ev"+(t.done?" done":"")); b.style.top=(m/60*HH)+"px"; b.style.height=Math.max(18,dur/60*HH)+"px";
-    if(t.category)b.style.borderLeftColor=window.Cats.color(t.category);
+    if(t.category){ var cc=window.Cats.color(t.category); if(cc){ b.style.background=cc; b.style.borderLeftColor="rgba(255,255,255,0.6)"; } }
     b.appendChild(el("div","cal-ev-time",t.startTime+(t.endTime?"–"+t.endTime:"")));
     b.appendChild(el("div","cal-ev-title",t.text));
     b.appendChild(el("div","cal-ev-resize cal-ev-resize-top"));
@@ -1132,7 +1285,10 @@
         if(m==="move"){ x.dueDate=ymd(days[targetIdx]); }
         x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
       });
-      M.saveTodos(list); render();
+      M.saveTodos(list); calInvalidate();
+      // Re-layout only the affected column(s) instead of the whole calendar.
+      layoutColumnBlocks(colEls[originIdx], days[originIdx], HH, days, colEls);
+      if(targetIdx!==originIdx) layoutColumnBlocks(colEls[targetIdx], days[targetIdx], HH, days, colEls);
     }
     b.addEventListener("pointerdown",function(e){ if(e.target.classList.contains("cal-ev-resize"))return; begin(e,"move"); });
     b.querySelector(".cal-ev-resize-top").addEventListener("pointerdown",function(e){ e.stopPropagation(); begin(e,"top"); });

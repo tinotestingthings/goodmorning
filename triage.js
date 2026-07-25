@@ -183,6 +183,7 @@
     cancel.addEventListener("click", close);
     menu.appendChild(cancel);
 
+    if (window.Sheet) window.Sheet.swipeClose(menu, close);
     backdrop.appendChild(menu);
     backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
     document.body.appendChild(backdrop);
