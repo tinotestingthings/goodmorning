@@ -114,36 +114,50 @@
     root.appendChild(buildDayPanel());
   }
 
+  // Minimal top bar: ☰ (opens the drawer with everything) + the primary
+  // Month/Week/My Day toggle. Everything else lives in the drawer to keep the
+  // mobile screen for the calendar itself.
   function buildTopBar(){
     var bar=el("div","cal-topbar");
-    var todayBtn=el("button","cal-today-btn","Today"); todayBtn.type="button";
-    todayBtn.addEventListener("click",function(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); });
-    bar.appendChild(todayBtn);
-
-    // Primary segmented control (Month / Week / My Day) + a "More" for the rest.
+    var burger=el("button","cal-burger","☰"); burger.type="button"; burger.setAttribute("aria-label","Calendar menu");
+    burger.addEventListener("click",openCalDrawer);
+    bar.appendChild(burger);
+    bar.appendChild(viewToggle());
+    return bar;
+  }
+  function viewToggle(){
     var seg=el("div","cal-viewseg");
     [["month","Month"],["week","Week"],["myday","My Day"]].forEach(function(p){
       var b=el("button","cal-viewseg-btn"+(viewMode===p[0]?" active":""),p[1]); b.type="button";
       b.addEventListener("click",function(){ viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
       seg.appendChild(b);
     });
-    var moreOn=CAL_MORE_VIEWS.some(function(m){ return m[0]===viewMode; });
-    var moreBtn=el("button","cal-viewseg-btn cal-viewmore"+(moreOn?" active":""), moreOn?viewLabel(viewMode):"+"); moreBtn.type="button";
-    moreBtn.setAttribute("aria-label","More views");
-    moreBtn.addEventListener("click",openViewMenu);
-    seg.appendChild(moreBtn);
-    bar.appendChild(seg);
+    return seg;
+  }
+  function goToday(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); }
+  function setView(v){ viewMode=v; saveViewMode(v); searchOpen=false; render(); }
 
-    var workBtn=el("button","cal-icon-btn","🗓"); workBtn.type="button";
-    workBtn.setAttribute("aria-label","Work schedule");
-    workBtn.addEventListener("click",openWorkSchedule);
-    bar.appendChild(workBtn);
-
-    var searchBtn=el("button","cal-icon-btn", searchOpen?"✕":"🔍"); searchBtn.type="button";
-    searchBtn.setAttribute("aria-label","Search");
-    searchBtn.addEventListener("click",function(){ searchOpen=!searchOpen; render(); });
-    bar.appendChild(searchBtn);
-    return bar;
+  // Google-Calendar-style left drawer holding all the controls that used to
+  // crowd the top: Today, every view, Search, Work schedule, Plan work.
+  function openCalDrawer(){
+    var backdrop=el("div","cal-drawer-backdrop"); var panel=el("div","cal-drawer");
+    function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },240); }
+    function item(label,onClick,active){ var b=el("button","cal-drawer-item"+(active?" active":""),label); b.type="button"; b.addEventListener("click",function(){ close(); onClick(); }); return b; }
+    panel.appendChild(el("div","cal-drawer-title","Calendar"));
+    panel.appendChild(item("Today",goToday));
+    panel.appendChild(item("+ New task",function(){ openTodoEditor(null); }));
+    panel.appendChild(el("div","cal-drawer-sub","Views"));
+    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["day","Day"],["myday","My Day"],["agenda","Agenda"],["done","Done"]].forEach(function(p){
+      panel.appendChild(item(p[1],function(){ setView(p[0]); }, viewMode===p[0]));
+    });
+    panel.appendChild(el("div","cal-drawer-sub","Tools"));
+    panel.appendChild(item("Search",function(){ searchOpen=true; render(); }));
+    panel.appendChild(item("Work schedule",function(){ openWorkSchedule(); }));
+    panel.appendChild(item("Plan work (month)",function(){ viewMode="month"; saveViewMode("month"); schedMode=true; schedSel={}; render(); }));
+    backdrop.appendChild(panel);
+    backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
+    document.body.appendChild(backdrop);
+    (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }
 
   var CAL_MORE_VIEWS=[["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
@@ -202,6 +216,7 @@
     var cancel=el("button","card-menu-cancel","Close"); cancel.type="button"; cancel.addEventListener("click",close);
     sheet.appendChild(cancel);
 
+    if(window.Sheet)window.Sheet.swipeClose(sheet,close);
     backdrop.appendChild(sheet);
     backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
     document.body.appendChild(backdrop);
@@ -276,9 +291,9 @@
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head);
-    if(viewMode==="month"){
-      var plan=el("button","cal-plan-btn"+(schedMode?" active":""), schedMode?"Done planning":"Plan work"); plan.type="button";
-      plan.addEventListener("click",function(){ schedMode=!schedMode; schedSel={}; render(); });
+    if(viewMode==="month" && schedMode){
+      var plan=el("button","cal-plan-btn active","Done planning"); plan.type="button";
+      plan.addEventListener("click",function(){ schedMode=false; schedSel={}; render(); });
       box.appendChild(plan);
     }
     return box;
@@ -912,12 +927,6 @@
     var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
     head.appendChild(prev); head.appendChild(title); head.appendChild(next);
     box.appendChild(head);
-    var tools=el("div","cal-tl-tools");
-    var add=el("button","cal-tl-add","+ Task"); add.type="button";
-    add.addEventListener("click",function(){ openTodoEditor(null); }); // untimed → lands in the all-day row
-    tools.appendChild(add);
-    tools.appendChild(zoomControls());
-    box.appendChild(tools);
     return box;
   }
 
@@ -1009,6 +1018,7 @@
     var ov=el("div","cal-editor-overlay");
     var sheet=el("div","cal-editor-sheet");
     sheet.appendChild(inner);
+    if(window.Sheet)window.Sheet.swipeClose(sheet,function(){ addMode=null; render(); });
     ov.appendChild(sheet);
     ov.addEventListener("click",function(e){ if(e.target===ov){ addMode=null; render(); } });
     return ov;

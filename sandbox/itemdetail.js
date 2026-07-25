@@ -292,6 +292,7 @@
 
     function finish() {
       panel.appendChild(body);
+      if (global.Sheet) global.Sheet.swipeClose(panel, close);
       overlay.appendChild(panel);
       overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
       document.body.appendChild(overlay);

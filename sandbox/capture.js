@@ -110,6 +110,7 @@
         sheet.insertBefore(rel, cancel);
       });
     }
+    if (global.Sheet) global.Sheet.swipeClose(sheet, close);
     backdrop.appendChild(sheet);
     backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
     document.body.appendChild(backdrop);
