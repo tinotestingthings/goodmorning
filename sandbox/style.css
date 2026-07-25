@@ -2607,3 +2607,24 @@ body::after {
 /* all-day add hint */
 .cal-week-allday-cell { align-items: stretch; justify-content: center; }
 .cal-allday-add { color: var(--text-dim); opacity: 0.5; font-size: 1rem; text-align: center; line-height: 1; }
+
+/* smaller week/day range title */
+.cal-title { font-size: 0.95rem; font-weight: 600; }
+
+/* view segmented control (Month / Week / My Day / More) */
+.cal-viewseg { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cal-viewseg-btn { appearance: none; background: transparent; border: none; border-right: 1px solid var(--border); color: var(--text-dim); font-size: 0.82rem; padding: 7px 10px; cursor: pointer; white-space: nowrap; }
+.cal-viewseg-btn:last-child { border-right: none; }
+.cal-viewseg-btn.active { background: var(--skip); color: #fff; font-weight: 600; }
+.card-menu-item.active .cm-label { color: var(--skip); font-weight: 700; }
+
+/* editor: sticky action bar at the top so the keyboard can't hide Save */
+.cal-editor-sheet .inline-form-actions,
+.inline-form-actions {
+  position: sticky; top: 0; z-index: 3; background: var(--bg);
+  padding: 6px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+
+/* category (colour) manage link + coloured selects */
+.cal-cat-manage { appearance: none; background: none; border: none; color: var(--skip); font-size: 0.82rem; cursor: pointer; white-space: nowrap; }

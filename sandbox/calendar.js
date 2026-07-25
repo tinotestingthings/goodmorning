@@ -39,7 +39,15 @@
   // ---- data ----
   function catOk(item){ return catFilter==="all" || item.category===catFilter; }
 
-  function todosOn(ds){ return M.loadTodos().filter(function(t){ return t.dueDate===ds && catOk(t); }); }
+  // Render-scoped cache: loadTodos/loadChores re-parse localStorage on every
+  // call, and the grid calls them per day (and marksFor across ~42 days), so
+  // one render parsed storage dozens of times. Cache per render/interaction.
+  var _todoCache=null, _choreCache=null;
+  function todosAll(){ if(!_todoCache)_todoCache=M.loadTodos(); return _todoCache; }
+  function choresAll(){ if(!_choreCache)_choreCache=M.loadChores(); return _choreCache; }
+  function calInvalidate(){ _todoCache=null; _choreCache=null; }
+
+  function todosOn(ds){ return todosAll().filter(function(t){ return t.dueDate===ds && catOk(t); }); }
 
   // chore occurrence on a single day: 'due' | 'done' | null
   function choreStateOn(chore, ds){
@@ -57,18 +65,18 @@
 
   function choresOn(ds){
     var out=[];
-    M.loadChores().forEach(function(c){ if(!catOk(c)) return; var st=choreStateOn(c,ds); if(st) out.push({chore:c,state:st}); });
+    choresAll().forEach(function(c){ if(!catOk(c)) return; var st=choreStateOn(c,ds); if(st) out.push({chore:c,state:st}); });
     return out;
   }
 
   function marksFor(startStr,endStr){
     var marks={}; var today=todayStr();
     function bump(ds,k){ if(ds<startStr||ds>endStr)return; marks[ds]=marks[ds]||{}; marks[ds][k]=true; if(marks[ds]._cat===undefined)marks[ds]._cat=null; }
-    M.loadTodos().forEach(function(t){ if(!t.dueDate||!catOk(t))return;
+    todosAll().forEach(function(t){ if(!t.dueDate||!catOk(t))return;
       if(t.done) bump(t.dueDate,"todoDone"); else { bump(t.dueDate,"todo"); if(t.dueDate<today)bump(t.dueDate,"overdue"); }
       if(t.category&&marks[t.dueDate])marks[t.dueDate]._cat=window.Cats.color(t.category);
     });
-    M.loadChores().forEach(function(c){ if(!catOk(c))return;
+    choresAll().forEach(function(c){ if(!catOk(c))return;
       var d=parseYmd(startStr);
       for(var i=0;i<420;i++){ var ds=ymd(d); if(ds>endStr)break; var st=choreStateOn(c,ds);
         if(st==="done")bump(ds,"choreDone"); else if(st==="due"){ bump(ds,"choreDue"); if(ds<today)bump(ds,"overdue"); }
@@ -85,6 +93,7 @@
     if(!M){ M=window.DayModel; if(!M){ root.innerHTML=""; root.appendChild(el("p","dash-empty","Loading…")); return; } }
     if(viewMode==null) viewMode=loadViewMode();
     if(viewYear==null){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); }
+    calInvalidate();
     root.innerHTML="";
     root.appendChild(buildTopBar());
     root.appendChild(buildFilterChips());
@@ -106,13 +115,18 @@
     todayBtn.addEventListener("click",function(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); });
     bar.appendChild(todayBtn);
 
-    var sel=document.createElement("select"); sel.className="field-select cal-view-select";
-    [["month","Month"],["week","Week"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["myday","My Day"],["done","Done"]].forEach(function(p){
-      var o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]; sel.appendChild(o);
+    // Primary segmented control (Month / Week / My Day) + a "More" for the rest.
+    var seg=el("div","cal-viewseg");
+    [["month","Month"],["week","Week"],["myday","My Day"]].forEach(function(p){
+      var b=el("button","cal-viewseg-btn"+(viewMode===p[0]?" active":""),p[1]); b.type="button";
+      b.addEventListener("click",function(){ viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
+      seg.appendChild(b);
     });
-    sel.value=viewMode;
-    sel.addEventListener("change",function(){ viewMode=sel.value; saveViewMode(viewMode); searchOpen=false; render(); });
-    bar.appendChild(sel);
+    var moreOn=CAL_MORE_VIEWS.some(function(m){ return m[0]===viewMode; });
+    var moreBtn=el("button","cal-viewseg-btn cal-viewmore"+(moreOn?" active":""), (moreOn?viewLabel(viewMode):"More")+" ▾"); moreBtn.type="button";
+    moreBtn.addEventListener("click",openViewMenu);
+    seg.appendChild(moreBtn);
+    bar.appendChild(seg);
 
     var workBtn=el("button","cal-icon-btn","🗓"); workBtn.type="button";
     workBtn.setAttribute("aria-label","Work schedule");
@@ -124,6 +138,24 @@
     searchBtn.addEventListener("click",function(){ searchOpen=!searchOpen; render(); });
     bar.appendChild(searchBtn);
     return bar;
+  }
+
+  var CAL_MORE_VIEWS=[["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
+  function viewLabel(v){ var all=[["month","Month"],["week","Week"],["myday","My Day"]].concat(CAL_MORE_VIEWS); for(var i=0;i<all.length;i++)if(all[i][0]===v)return all[i][1]; return v; }
+  function openViewMenu(){
+    var backdrop=el("div","card-menu-backdrop"); var sheet=el("div","card-menu");
+    function close(){ backdrop.classList.remove("show"); setTimeout(function(){ if(backdrop.parentNode)backdrop.parentNode.removeChild(backdrop); },180); }
+    sheet.appendChild(el("div","capture-heading","More views"));
+    CAL_MORE_VIEWS.forEach(function(p){
+      var b=el("button","card-menu-item"+(viewMode===p[0]?" active":""),""); b.type="button";
+      b.innerHTML='<span class="cm-label">'+p[1]+'</span>';
+      b.addEventListener("click",function(){ close(); viewMode=p[0]; saveViewMode(viewMode); searchOpen=false; render(); });
+      sheet.appendChild(b);
+    });
+    var cancel=el("button","card-menu-cancel","Cancel"); cancel.type="button"; cancel.addEventListener("click",close);
+    sheet.appendChild(cancel);
+    backdrop.appendChild(sheet); backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
+    document.body.appendChild(backdrop); (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }
 
   // ---- work-schedule editor (default hours + per-day location) ----
@@ -669,7 +701,7 @@
     // text + day + reminder. (An existing item with any of these set opens
     // with the section expanded so nothing looks lost.)
     var moreBox=el("div","inline-form-more hidden");
-    var hasMore=!!(existing&&(existing.tz||existing.category||existing.url||existing.note));
+    var hasMore=!!(existing&&(existing.tz||existing.url||existing.note));
     // time (optional -> timed event)
     var tRow=el("div","inline-form-row"); tRow.appendChild(el("span","inline-form-label","Time"));
     var st=document.createElement("input"); st.type="time"; st.className="field-input"; if(existing&&existing.startTime)st.value=existing.startTime; else if(prefillTime)st.value=prefillTime; tRow.appendChild(st);
@@ -677,8 +709,10 @@
     (timeContext?box:moreBox).appendChild(tRow);
     // timezone
     var zRow=el("div","inline-form-row"); zRow.appendChild(el("span","inline-form-label","Zone")); var tz=document.createElement("select"); tz.className="field-select field-select-wide"; TZS.forEach(function(z){ var o=document.createElement("option"); o.value=z==="Local"?"":z; o.textContent=z; tz.appendChild(o); }); if(existing&&existing.tz)tz.value=existing.tz; zRow.appendChild(tz); moreBox.appendChild(zRow);
-    // category
-    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Category")); var cat=catSelect(existing?existing.category:""); cRow.appendChild(cat); moreBox.appendChild(cRow);
+    // category (visible — this is how you colour an item) with a manage link
+    var cRow=el("div","inline-form-row"); cRow.appendChild(el("span","inline-form-label","Colour")); var cat=catSelect(existing?existing.category:"");
+    var manage=el("button","cal-cat-manage","Manage…"); manage.type="button"; manage.addEventListener("click",function(){ addMode=null; if(window.App)window.App.go("settings"); });
+    cRow.appendChild(cat); cRow.appendChild(manage); box.appendChild(cRow);
     // reminders (multiple)
     var remWrap=el("div","inline-form-col"); remWrap.appendChild(el("span","inline-form-label","Reminders"));
     var rems=(existing&&Array.isArray(existing.reminders))?existing.reminders.slice():[];
@@ -700,7 +734,9 @@
     box.appendChild(moreToggle); box.appendChild(moreBox);
     if(hasMore){ moreBox.classList.remove("hidden"); moreToggle.textContent="Fewer options ▴"; }
 
-    var actions=el("div","inline-form-row");
+    // Actions sit at the TOP (sticky) so the phone keyboard + autofill bar can't
+    // cover the save button when the text field is focused.
+    var actions=el("div","inline-form-row inline-form-actions");
     var save=el("button","btn btn-primary",existing?"Save":"+ Add to-do"); save.type="button";
     save.addEventListener("click",function(){ var txt=text.value.trim(); if(!txt){ M.toast("Type something first"); return; }
       var fields={ text:txt, dueDate:date.value||null, startTime:st.value||null, endTime:et.value||null, tz:tz.value||null, category:cat.value||null, reminders:rems.slice(), url:url.value.trim()||null, note:note.value.trim()||null };
@@ -712,7 +748,7 @@
     actions.appendChild(save);
     if(existing){ var del=el("button","btn btn-danger","Delete"); del.type="button"; del.addEventListener("click",function(){ if(!window.confirm("Delete this to-do?"))return; M.saveTodos(M.loadTodos().filter(function(x){return x.id!==existing.id;})); addMode=null; render(); }); actions.appendChild(del); }
     var cancel=el("button","cal-link","Cancel"); cancel.type="button"; cancel.addEventListener("click",function(){ addMode=null; render(); }); actions.appendChild(cancel);
-    box.appendChild(actions); todoEditor=box; render(); setTimeout(function(){ text.focus(); },0);
+    box.insertBefore(actions, box.firstChild); todoEditor=box; render(); setTimeout(function(){ text.focus(); },0);
   }
   function openChoreEditor(existing){
     addMode="chore"; var box=el("div","inline-form");
@@ -916,31 +952,8 @@
       colEls.push(col); body.appendChild(col);
     });
 
-    // place timed items as draggable/resizable blocks, laid out side-by-side
-    // when they overlap in time (like Outlook). The work-hours band is NOT an
-    // item, so it never pushes real blocks aside — they just sit on top of it.
-    days.forEach(function(dt,idx){ var ds=ymd(dt);
-      var items=[];
-      todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
-        var s=toMin(t.startTime), e=t.endTime?Math.max(s+15,toMin(t.endTime)):s+60;
-        items.push({ kind:"todo", ref:t, s:s, e:e });
-      });
-      icsOn(ds).filter(function(ev){ return !ev.allDay&&ev.startTime; }).forEach(function(ev){
-        var s=toMin(ev.startTime); items.push({ kind:"ics", ref:ev, s:s, e:s+30 });
-      });
-      layoutOverlaps(items);
-      items.forEach(function(it){
-        var b;
-        if(it.kind==="todo"){ b=makeWeekBlock(it.ref, HH); wireBlock(b, it.ref, HH, days, colEls); }
-        else { b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(it.s/60*HH)+"px"; b.style.height="26px";
-          b.appendChild(el("div","cal-ev-time",it.ref.startTime)); b.appendChild(el("div","cal-ev-title",it.ref.title)); }
-        var wpct=100/it.cols;
-        b.style.left="calc("+(it.col*wpct)+"% + 1px)";
-        b.style.width="calc("+wpct+"% - "+(it.cols>1?2:4)+"px)";
-        b.style.right="auto";
-        colEls[idx].appendChild(b);
-      });
-    });
+    // place timed items as draggable/resizable blocks (side-by-side on overlap)
+    days.forEach(function(dt,idx){ layoutColumnBlocks(colEls[idx], dt, HH, days, colEls); });
 
     scroll.appendChild(body); wrap.appendChild(scroll);
     // Preserve scroll position across re-renders (a drop re-renders — without
@@ -1074,10 +1087,35 @@
     scroll.addEventListener("pointerup",endPt); scroll.addEventListener("pointercancel",endPt);
   }
 
+  // (Re)build just one day column's event blocks — used at first render AND on
+  // a drag/resize drop instead of re-rendering the whole calendar (perf).
+  function layoutColumnBlocks(colEl, dt, HH, days, colEls){
+    [].slice.call(colEl.querySelectorAll(".cal-week-ev")).forEach(function(n){ if(!n.classList.contains("cal-week-ghost")) n.parentNode.removeChild(n); });
+    var ds=ymd(dt), items=[];
+    todosOn(ds).filter(function(t){ return t.startTime; }).forEach(function(t){
+      var s=toMin(t.startTime), e=t.endTime?Math.max(s+15,toMin(t.endTime)):s+60; items.push({ kind:"todo", ref:t, s:s, e:e });
+    });
+    icsOn(ds).filter(function(ev){ return !ev.allDay&&ev.startTime; }).forEach(function(ev){
+      var s=toMin(ev.startTime); items.push({ kind:"ics", ref:ev, s:s, e:s+30 });
+    });
+    layoutOverlaps(items);
+    items.forEach(function(it){
+      var b;
+      if(it.kind==="todo"){ b=makeWeekBlock(it.ref, HH); wireBlock(b, it.ref, HH, days, colEls); }
+      else { b=el("div","cal-ev cal-ev-ics cal-week-ev"); b.style.top=(it.s/60*HH)+"px"; b.style.height="26px";
+        b.appendChild(el("div","cal-ev-time",it.ref.startTime)); b.appendChild(el("div","cal-ev-title",it.ref.title)); }
+      var wpct=100/it.cols;
+      b.style.left="calc("+(it.col*wpct)+"% + 1px)";
+      b.style.width="calc("+wpct+"% - "+(it.cols>1?2:4)+"px)";
+      b.style.right="auto";
+      colEl.appendChild(b);
+    });
+  }
+
   function makeWeekBlock(t, HH){
     var m=toMin(t.startTime); var dur=t.endTime?Math.max(15,toMin(t.endTime)-m):60;
     var b=el("div","cal-ev cal-week-ev"+(t.done?" done":"")); b.style.top=(m/60*HH)+"px"; b.style.height=Math.max(18,dur/60*HH)+"px";
-    if(t.category)b.style.borderLeftColor=window.Cats.color(t.category);
+    if(t.category){ var cc=window.Cats.color(t.category); if(cc){ b.style.background=cc; b.style.borderLeftColor="rgba(255,255,255,0.6)"; } }
     b.appendChild(el("div","cal-ev-time",t.startTime+(t.endTime?"–"+t.endTime:"")));
     b.appendChild(el("div","cal-ev-title",t.text));
     b.appendChild(el("div","cal-ev-resize cal-ev-resize-top"));
@@ -1132,7 +1170,10 @@
         if(m==="move"){ x.dueDate=ymd(days[targetIdx]); }
         x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
       });
-      M.saveTodos(list); render();
+      M.saveTodos(list); calInvalidate();
+      // Re-layout only the affected column(s) instead of the whole calendar.
+      layoutColumnBlocks(colEls[originIdx], days[originIdx], HH, days, colEls);
+      if(targetIdx!==originIdx) layoutColumnBlocks(colEls[targetIdx], days[targetIdx], HH, days, colEls);
     }
     b.addEventListener("pointerdown",function(e){ if(e.target.classList.contains("cal-ev-resize"))return; begin(e,"move"); });
     b.querySelector(".cal-ev-resize-top").addEventListener("pointerdown",function(e){ e.stopPropagation(); begin(e,"top"); });
