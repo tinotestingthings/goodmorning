@@ -694,14 +694,14 @@
   }
 
   var TZS=["Local","UTC","Europe/Amsterdam","Europe/London","America/New_York","America/Los_Angeles","Asia/Tokyo","Australia/Sydney"];
-  function openTodoEditor(existing,prefillTime,prefillEnd){
+  function openTodoEditor(existing,prefillTime,prefillEnd,prefillEndDate){
     addMode="todo"; var box=el("div","inline-form");
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
     // optional end date → a multi-day (all-day) item, e.g. a holiday
     var eRow=el("div","inline-form-row"); eRow.appendChild(el("span","inline-form-label","Ends"));
-    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input"; if(existing&&existing.endDate)endDate.value=existing.endDate; eRow.appendChild(endDate);
+    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input"; if(existing&&existing.endDate)endDate.value=existing.endDate; else if(prefillEndDate)endDate.value=prefillEndDate; eRow.appendChild(endDate);
     eRow.appendChild(el("span","inline-form-hint","(optional · multi-day)")); box.appendChild(eRow);
     // Time matters in a calendar context, so when there IS one (editing a
     // timed item, or dragging out a block on the grid) the Time row stays
@@ -938,15 +938,17 @@
     // all-day strip (chores + untimed todos)
     var allRow=el("div","cal-week-allday"); allRow.style.gridTemplateColumns=cols;
     var adLabel=el("div","cal-week-allday-label","all-day"); adLabel.style.gridRow="1"; allRow.appendChild(adLabel);
-    days.forEach(function(dt){ var ds=ymd(dt);
+    var allCells=[];
+    days.forEach(function(dt,idx){ var ds=ymd(dt);
       var cell=el("div","cal-week-allday-cell"); cell.style.gridRow="1";
       choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
       // single-day untimed items are chips; multi-day items render as a span bar below
       todosOn(ds).filter(function(t){ return !t.startTime && !isMultiDay(t); }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
       if(!cell.childNodes.length) cell.appendChild(el("div","cal-allday-add","+")); // tappable hint to add an untimed task
-      cell.addEventListener("click",function(){ selectedDate=ds; openTodoEditor(null); });
+      allCells.push({ el: cell, idx: idx });
       allRow.appendChild(cell);
     });
+    wireAllDayCreate(allRow, allCells, days);
     // multi-day items as continuous bars spanning their day columns (like Outlook holidays)
     var wkStart=ymd(days[0]), wkEnd=ymd(days[days.length-1]);
     todosAll().filter(function(t){ return catOk(t) && isMultiDay(t) && t.dueDate<=wkEnd && t.endDate>=wkStart; }).forEach(function(t){
@@ -1090,6 +1092,45 @@
       }
       col.addEventListener("pointerup",finish);
       col.addEventListener("pointercancel",cleanup);
+    });
+  }
+
+  // ---- HOLD, then drag SIDEWAYS across the all-day row to create a multi-day
+  // item (e.g. a holiday) — the horizontal counterpart of the vertical
+  // drag-to-size. A tap adds a single untimed task for that day. ----
+  function wireAllDayCreate(allRow, cells, days){
+    var HOLD=260, MOVE=8;
+    cells.forEach(function(c){
+      var timer=null, active=false, startIdx=c.idx, curIdx=c.idx, ghost=null, sx=0, sy=0, pid=null;
+      c.el.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+      function idxUnder(x){ for(var i=0;i<cells.length;i++){ var r=cells[i].el.getBoundingClientRect(); if(x>=r.left&&x<=r.right)return cells[i].idx; } return curIdx; }
+      function cleanup(){ if(timer){clearTimeout(timer);timer=null;} if(ghost&&ghost.parentNode)ghost.parentNode.removeChild(ghost); ghost=null; active=false; }
+      c.el.addEventListener("pointerdown",function(e){
+        if(e.target!==c.el) return;              // not when tapping a chip
+        sx=e.clientX; sy=e.clientY; pid=e.pointerId; startIdx=c.idx; curIdx=c.idx;
+        try{ c.el.setPointerCapture(pid); }catch(_){}
+        timer=setTimeout(function(){ timer=null; active=true;
+          ghost=el("div","cal-allday-span cal-week-ghost"); ghost.style.gridColumn=(startIdx+2)+" / "+(startIdx+3); allRow.appendChild(ghost);
+          if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
+        }, HOLD);
+      });
+      c.el.addEventListener("pointermove",function(e){
+        if(timer){ if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>MOVE){ clearTimeout(timer); timer=null; } return; }
+        if(!active||!ghost) return; e.preventDefault();
+        curIdx=idxUnder(e.clientX);
+        var a=Math.min(startIdx,curIdx), b=Math.max(startIdx,curIdx);
+        ghost.style.gridColumn=(a+2)+" / "+(b+3);
+      });
+      function finish(){
+        var wasActive=active, s=Math.min(startIdx,curIdx), en=Math.max(startIdx,curIdx);
+        cleanup();
+        selectedDate=ymd(days[s]);
+        if(!wasActive){ openTodoEditor(null); return; }                 // tap → single untimed task
+        if(s===en){ openTodoEditor(null); }                              // held on one day → single
+        else { openTodoEditor(null,null,null,ymd(days[en])); }           // spanned → multi-day (start→end)
+      }
+      c.el.addEventListener("pointerup",finish);
+      c.el.addEventListener("pointercancel",cleanup);
     });
   }
 

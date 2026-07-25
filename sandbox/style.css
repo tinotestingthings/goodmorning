@@ -2637,3 +2637,6 @@ body::after {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
 }
 .cal-allday-span.done { opacity: 0.5; text-decoration: line-through; }
+
+/* all-day row: allow horizontal drag-create (vertical still scrolls) */
+.cal-week-allday-cell { touch-action: pan-y; }
