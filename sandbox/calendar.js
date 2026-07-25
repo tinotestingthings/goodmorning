@@ -701,8 +701,13 @@
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
     // optional end date → a multi-day (all-day) item, e.g. a holiday
     var eRow=el("div","inline-form-row"); eRow.appendChild(el("span","inline-form-label","Ends"));
-    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input"; if(existing&&existing.endDate)endDate.value=existing.endDate; else if(prefillEndDate)endDate.value=prefillEndDate; eRow.appendChild(endDate);
-    eRow.appendChild(el("span","inline-form-hint","(optional · multi-day)")); box.appendChild(eRow);
+    var endDate=document.createElement("input"); endDate.type="date"; endDate.className="field-input";
+    if(existing&&existing.endDate)endDate.value=existing.endDate; else if(prefillEndDate)endDate.value=prefillEndDate;
+    if(!endDate.value)endDate.value=date.value;            // default to the start day — only the day needs changing for a range
+    eRow.appendChild(endDate);
+    eRow.appendChild(el("span","inline-form-hint","(same day = single; later = multi-day)")); box.appendChild(eRow);
+    // keep the end from falling before the start when the start day changes
+    date.addEventListener("change",function(){ if(!endDate.value||endDate.value<date.value)endDate.value=date.value; });
     // Time matters in a calendar context, so when there IS one (editing a
     // timed item, or dragging out a block on the grid) the Time row stays
     // visible up front rather than hidden under "More options".

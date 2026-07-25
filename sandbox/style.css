@@ -2640,3 +2640,5 @@ body::after {
 
 /* all-day row: allow horizontal drag-create (vertical still scrolls) */
 .cal-week-allday-cell { touch-action: pan-y; }
+
+.cal-allday-add { pointer-events: none; }
