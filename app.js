@@ -96,9 +96,20 @@
   }
 
   // ---- service worker (installability + offline shell) ----
+  // Auto-update: check for a new service worker on every load, and when one
+  // takes control (the SW calls skipWaiting + clients.claim), reload once so
+  // the new shell is used immediately — no more manually clearing the cache
+  // after a deploy.
   if ("serviceWorker" in navigator) {
+    var swReloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (swReloaded) return; swReloaded = true; global.location.reload();
+    });
     global.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").catch(function () {});
+      navigator.serviceWorker.register("sw.js").then(function (reg) {
+        try { reg.update(); } catch (e) {}
+        setInterval(function () { try { reg.update(); } catch (e) {} }, 60 * 60 * 1000);
+      }).catch(function () {});
     });
   }
 })(window);
