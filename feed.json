@@ -1,112 +1,101 @@
 {
-  "generated": "2026-07-26T07:00",
-  "daily": [
-    {
-      "id": "2026-07-24-bert-hubert-amerikaans-bedrijf-encryptie-us-overheid",
-      "title": "Bert Hubert: kan een Amerikaans bedrijf met encryptie de Amerikaanse overheid buiten de deur houden?",
-      "source": "Bert Hubert (berthub.eu/articles), post dated 2026-07-21",
-      "url": "",
-      "date": "2026-07-24",
-      "summary": "Bert Hubert (21 juli): een Amerikaans bedrijf kan zich met encryptie, EU-servers of eigen sleutels niet onttrekken aan toegang door de Amerikaanse overheid zolang het een Amerikaanse rechtspersoon is — dat raakt de kern van het CLOUD Act-probleem niet. Sluit aan bij de Solvinity/CLOUD Act- en SURF/Nextcloud-DPIA-notities. Permalink nog te bevestigen bij bewaren."
-    },
-    {
-      "id": "2026-07-25-ec-tiktok-dsa-minderjarigen-voorlopige-bevinding",
-      "title": "EC: voorlopige bevinding dat TikTok de DSA schendt met accountinstellingen voor minderjarigen",
-      "source": "Europese Commissie, Shaping Europe's digital future (digital-strategy.ec.europa.eu), 24 juli 2026",
-      "url": "https://digital-strategy.ec.europa.eu/en/news/commission-preliminary-finds-tiktok-breach-digital-services-act-failing-ensure-safe-accounts-minors",
-      "date": "2026-07-25",
-      "summary": "De Commissie informeert TikTok voorlopig dat de default accountinstellingen voor minderjarigen de DSA schenden: accounts kunnen op 'openbaar', en content van 16-17-jarigen kan via de For You-feed worden aanbevolen — verhoogd risico op ongewenst contact, cyberpesten en predatoir gedrag. Voorlopige bevinding; bij definitieve vaststelling boete tot 6% wereldwijde jaaromzet. Sluit aan bij de Meta- en X-DSA-notities."
-    }
-  ],
-  "today": "2026-07-26",
+  "generated": "2026-07-27T06:45",
+  "daily": [],
+  "today": "2026-07-27",
   "tasks": [
     {
-      "id": "2026-07-25-ec-transparantie-richtsnoeren-ai-act-artikel-50",
-      "title": "Europese Commissie richtsnoeren transparantieverplichtingen AI Act (art. 50) — doornemen",
+      "id": "2026-07-27-check-edpb-art-33-breach-notification-template-consultation",
+      "title": "Check out the EDPB Art. 33 breach-notification template consultation",
       "status": "todo",
-      "detail": "Verifieer de status van de EC-richtsnoeren (20 juli 2026) en leg de watermarking-/disclosure-verplichtingen tegen de eigen compliance-praktijk, met oog op toepassing vanaf 2 aug 2026.",
-      "hint": "Aansluitend op de 2 aug art. 50(2)-deadline in de radar."
+      "detail": "EDPB public consultation on the draft common Art. 33 data-breach-notification template; it closes 5 August 2026.",
+      "hint": "You asked for this on Monday — roughly a week left before it closes."
+    },
+    {
+      "id": "2026-07-25-ec-transparantie-richtsnoeren-ai-act-artikel-50",
+      "title": "EC richtsnoeren transparantieverplichtingen AI Act (art. 50) — doornemen",
+      "status": "todo",
+      "detail": "Verifieer de status van de EC-richtsnoeren en leg de watermarking-/disclosure-verplichtingen tegen de eigen compliance-praktijk.",
+      "hint": "Art. 50(2) obligations become applicable 2 Aug."
     },
     {
       "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-      "title": "Fill in real resources for \"Work compliance topics\"",
+      "title": "Fill in real resources for ‘Work compliance topics’",
       "status": "doing",
-      "detail": "ISO-standaarden zijn geüpload naar 20 Sources/Laws and Standards; bijna klaar (Tinus, 2026-07-21).",
-      "hint": "Laatste zetje om af te ronden?"
-    },
-    {
-      "id": "2026-07-11-piano-practice-happy-birthday-jazz",
-      "title": "Piano practice — Happy Birthday jazz",
-      "status": "todo",
-      "detail": "Huidige lesnummer: Happy Birthday jazz.",
-      "hint": "Even oefenen vandaag?"
+      "detail": "Replace the placeholder topic names (ISO 27001, ISO 27701, EU AI Act, GDPR) with real resources/content.",
+      "hint": "Already in progress."
     }
   ],
   "projects": [
     {
       "id": "2026-07-11-daily-habits-hub-site",
-      "title": "Project: a daily \"things to do everyday\" hub site",
+      "title": "Daily “things to do everyday” hub site",
       "status": "active",
       "updated": "2026-07-25",
-      "line": "Wil een site met dagelijkse dingen (noten oefenen, intervaltraining, oefeningen, to-do); nu gehost op tinotestingthings.github.io met alleen de NoteSprint-pagina."
-    },
-    {
-      "id": "2026-07-11-finance-and-markets-learning-interest",
-      "title": "Finance and markets — learning interest",
-      "status": "active",
-      "updated": "",
-      "line": "Wil kennis opbouwen over finance — de markten en aandelen, niet persoonlijke financiën."
-    },
-    {
-      "id": "2026-07-11-personal-productivity-mental-health-management",
-      "title": "Personal productivity as mental health management",
-      "status": "active",
-      "updated": "",
-      "line": "Wil leren over persoonlijke productiviteit als beheer van mentale gezondheid, rust en endorfines."
+      "line": "A site with things to just do every day: practise notes, interval training, exercises, check the day’s to-do."
     },
     {
       "id": "2026-07-11-work-compliance-topics-resources-to-gather",
       "title": "Work compliance topics — resources to gather",
       "status": "active",
       "updated": "2026-07-21",
-      "line": "Werk-relevante bronnen verzamelen over ISO 27001, ISO 27701, EU AI Act en GDPR."
+      "line": "Gather work-relevant resources on compliance topics (ISO, AI Act, GDPR)."
     },
     {
       "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
-      "title": "Daily digest app — instructions & Claude Code build prompt",
+      "title": "Daily-digest app — instructions and build prompt",
       "status": "active",
       "updated": "2026-07-21",
-      "line": "Sub-doc van de daily habits hub (bucket one: de swipe feed); statische site + decision queue die Tinus in Claude plakt om de filing uit te voeren."
+      "line": "Instructions and build prompt for the goodmorning daily-digest swipe app (sub-doc of the hub site)."
+    },
+    {
+      "id": "2026-07-11-finance-and-markets-learning-interest",
+      "title": "Finance and markets — learning interest",
+      "status": "active",
+      "updated": "2026-07-11",
+      "line": "Learn and build knowledge about finance — the markets and stocks, not personal finance."
+    },
+    {
+      "id": "2026-07-11-personal-productivity-mental-health-management",
+      "title": "Personal productivity as mental health management",
+      "status": "active",
+      "updated": "2026-07-11",
+      "line": "Personal productivity mostly as managing mental health, rest, and endorphins."
     },
     {
       "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
       "title": "Cooking — improving recipes",
       "status": "idea-stage",
-      "updated": "",
-      "line": "Recepten starten en verbeteren op basis van bestaande, via het second brain."
+      "updated": "2026-07-11",
+      "line": "Start and improve recipes based on current ones, using the second brain."
     },
     {
       "id": "2026-07-14-cookie-scanner-applicatie",
-      "title": "Project: Cookie Scanner Applicatie",
+      "title": "Cookie Scanner Applicatie",
       "status": "idea-stage",
-      "updated": "",
-      "line": "Tool die een URL auditeert op cookies/trackers naar het model van mickbeer.com (forensische netwerkanalyse, bewijs gescheiden van interpretatie)."
+      "updated": "2026-07-14",
+      "line": "A cookie-scanner app idea: forensic network analysis of sites/apps, before vs. after consent."
     },
     {
       "id": "2026-07-14-team-verbetering-idee",
       "title": "Team verbetering — idee",
       "status": "idea-stage",
       "updated": "2026-07-20",
-      "line": "Idee om het team te verbeteren, o.a. een 2-maandelijkse strategiesessie met mede-seniors."
+      "line": "An idea about how to improve our team."
     }
   ],
   "radar": {
-    "updated": "2026-07-24 12:31",
-    "follow_ups": 0,
-    "headline": "Commission adopts final Guidelines on AI Act Article 50 transparency obligations",
+    "updated": "2026-07-27 06:33",
+    "follow_ups": 1,
+    "headline": "Digital Omnibus on AI published in the Official Journal — Regulation (EU) 2026/1744, in force 27 July 2026.",
     "deadlines": [
-      { "date": "2026-08-01", "label": "Potjewijd treedt aan als AP-voorzitter" },
-      { "date": "2026-08-02", "label": "AI Act art. 50(2) transparantie-/watermarking-verplichtingen van toepassing" }
+      {
+        "date": "2026-08-01",
+        "label": "Geert Potjewijd takes office as AP chair"
+      },
+      {
+        "date": "2026-08-02",
+        "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
+      }
     ]
   }
 }
