@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-27T06:45",
+  "generated": "2026-07-27T07:10",
   "daily": [],
   "today": "2026-07-27",
   "tasks": [
@@ -88,10 +88,6 @@
     "follow_ups": 1,
     "headline": "Digital Omnibus on AI published in the Official Journal — Regulation (EU) 2026/1744, in force 27 July 2026.",
     "deadlines": [
-      {
-        "date": "2026-08-01",
-        "label": "Geert Potjewijd takes office as AP chair"
-      },
       {
         "date": "2026-08-02",
         "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
