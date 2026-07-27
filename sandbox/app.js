@@ -95,6 +95,16 @@
     boot();
   }
 
+  // ---- sandbox-only marker (path-based → never appears on the live app) ----
+  if (global.location && global.location.pathname.indexOf("/sandbox/") !== -1) {
+    var addSbx = function () {
+      if (document.querySelector(".sbx-badge")) return;
+      var b = document.createElement("div"); b.className = "sbx-badge"; b.textContent = "SANDBOX";
+      document.body.appendChild(b);
+    };
+    if (document.body) addSbx(); else document.addEventListener("DOMContentLoaded", addSbx);
+  }
+
   // ---- service worker (installability + offline shell) ----
   // Auto-update: check for a new service worker on every load, and when one
   // takes control (the SW calls skipWaiting + clients.claim), reload once so
