@@ -548,6 +548,18 @@
 
   function decide(item, action, flashEl) {
     if (flashEl) vibrate(12);
+    // "Make into task" also drops a schedulable to-do onto the calendar (dated
+    // today) so it can be scheduled immediately — alongside the vault task the
+    // bridge files from this decision.
+    if (action === "task" && window.DayModel) {
+      try {
+        var d = new Date(), p = function (n) { return n < 10 ? "0" + n : "" + n; };
+        var ymd = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+        var list = window.DayModel.loadTodos();
+        list.push({ id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7), text: item.title || "(task)", dueDate: ymd, startTime: null, endTime: null, done: false, snoozes: 0 });
+        window.DayModel.saveTodos(list);
+      } catch (e) {}
+    }
     flashDecision(flashEl, DECISION_LABELS[action] || action.toUpperCase(), DECISION_COLORS[action] || "--skip");
     lastAction = { type: "decide", id: item.id, prevPointer: pointer };
     decisions[item.id] = action;

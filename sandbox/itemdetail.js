@@ -8,7 +8,7 @@
 
   var STATUSES = {
     task: [["todo", "To do"], ["doing", "Doing"], ["done", "Done"]],
-    project: [["idea-stage", "Idea"], ["active", "Active"], ["paused", "Paused"]],
+    project: [["idea-stage", "Idea"], ["active", "Active"], ["paused", "Paused"], ["done", "Finished"]],
     radar: [["open", "Open"], ["follow-up", "Follow up"], ["reviewed", "Reviewed"]]
   };
   var SECTIONS = { task: "tasks", project: "projects", radar: "radar" };
@@ -95,11 +95,43 @@
   }
 
   // ---- sheet ----
+  function todayStr() {
+    var d = new Date(), p = function (n) { return n < 10 ? "0" + n : "" + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
+  // Put an item (or subtask) onto the calendar as a to-do — appears instantly
+  // (the calendar reads the same store) and rides the cross-device agenda sync.
+  function scheduleTodo(text, dateVal, startVal, endVal) {
+    if (!global.DayModel) { toast("Calendar not ready"); return; }
+    var list = global.DayModel.loadTodos();
+    list.push({
+      id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      text: text, dueDate: dateVal || todayStr(), startTime: startVal || null, endTime: endVal || null,
+      done: false, snoozes: 0
+    });
+    global.DayModel.saveTodos(list);
+    toast("Added to calendar");
+  }
+
   function open(item, type) {
     var section = SECTIONS[type] || "tasks";
     var id = item.id;
     var changed = false;
     flushPending();
+
+    // Round-trip: if this device has no local copy (fresh device, or after a
+    // cache clear) but the feed carries the vault's notes/subtasks, seed the
+    // local store from the feed so they show up and stay editable.
+    if (item.subtasks && item.subtasks.length && getSubtasks(id).length === 0) {
+      setSubtasks(id, item.subtasks.map(function (s) {
+        return typeof s === "string" ? { text: s, done: false } : { text: s.text, done: !!s.done };
+      }));
+    }
+    if (item.notes && item.notes.length && getNotes(section, id).length === 0) {
+      setNotes(section, id, item.notes.map(function (n) {
+        return typeof n === "string" ? { text: n, ts: "" } : { text: n.text, ts: n.ts || "" };
+      }));
+    }
 
     var overlay = el("div", "detail-overlay");
     var panel = el("div", "detail-panel");
@@ -178,6 +210,18 @@
       finish();
       return;
     }
+
+    // ---- schedule the whole item into the calendar ----
+    body.appendChild(el("div", "detail-section-label", "Schedule in calendar"));
+    var schedRow = el("div", "detail-add-row");
+    var schedDate = document.createElement("input"); schedDate.type = "date"; schedDate.className = "detail-input"; schedDate.value = todayStr();
+    var schedTime = document.createElement("input"); schedTime.type = "time"; schedTime.className = "detail-input";
+    var schedBtn = el("button", "detail-add-btn", "Add");
+    schedBtn.type = "button";
+    schedBtn.addEventListener("click", function () { scheduleTodo(item.title, schedDate.value, schedTime.value || null, null); });
+    schedRow.appendChild(schedDate); schedRow.appendChild(schedTime); schedRow.appendChild(schedBtn);
+    body.appendChild(schedRow);
+
     body.appendChild(el("div", "detail-section-label", "Subtasks"));
     var subList = el("div", "detail-subs");
     body.appendChild(subList);
@@ -201,6 +245,12 @@
         });
         rowEl.appendChild(box);
         rowEl.appendChild(el("span", "detail-sub-text", s.text));
+        var sched = el("button", "detail-sub-sched", "");
+        sched.type = "button";
+        sched.setAttribute("aria-label", "Add subtask to calendar");
+        sched.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>';
+        sched.addEventListener("click", function () { scheduleTodo(s.text, todayStr(), null, null); });
+        rowEl.appendChild(sched);
         var del = el("button", "detail-sub-del", "×");
         del.type = "button";
         del.addEventListener("click", function () {
