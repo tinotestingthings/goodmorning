@@ -1321,14 +1321,23 @@
     return t;
   }
 
+  // Badges must mirror the live set the tile bodies show — exclude removed
+  // items and reflect local status changes (a finished/removed item drops the
+  // count on the next render) so the number never goes stale vs. the list.
   function taskBadge(today) {
-    var n = (today.tasks || []).length;
+    var n = (today.tasks || []).filter(function (t) {
+      return !isRemoved(t.id) && localStatus("tasks", t.id, t.status) !== "done";
+    }).length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-blue" };
   }
 
   function projectBadge(today) {
-    var projects = today.projects || [];
-    var active = projects.filter(function (p) { return p.status === "active"; }).length;
+    var projects = (today.projects || []).filter(function (p) {
+      return !isRemoved(p.id) && localStatus("projects", p.id, p.status) !== "done";
+    });
+    var active = projects.filter(function (p) {
+      return localStatus("projects", p.id, p.status) === "active";
+    }).length;
     var n = active > 0 ? active : projects.length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
   }
@@ -1608,6 +1617,22 @@
   // so it sits fixed in the top-right corner across every tab and survives
   // scrolling — it used to live inside the scrollable Today view and would
   // scroll out of sight.
+  function renderSandboxReset() {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sandbox-reset-btn";
+    btn.innerHTML = "\u21ba";
+    btn.setAttribute("aria-label", "Reset sandbox data");
+    btn.addEventListener("click", function () {
+      if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
+      Object.keys(localStorage).forEach(function (key) {
+        if (key.indexOf("dd.") === 0) localStorage.removeItem(key);
+      });
+      window.location.reload();
+    });
+    return btn;
+  }
+  document.body.appendChild(renderSandboxReset());
 
   // Expose the shared task model + helpers so the Calendar tab can read and
   // edit the exact same chores/to-dos (single source of truth — the calendar

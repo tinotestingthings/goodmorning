@@ -24,6 +24,17 @@
 
   var KINDS = [["note", "Note"], ["task", "Task"], ["project", "Project"]];
 
+  // Local log of what was captured, so the History view can show it even after
+  // the Supabase rows are drained into the vault. Capped to the last 60.
+  function logCapture(kind, title, held) {
+    try {
+      var list = JSON.parse(localStorage.getItem("sbx.capture.log") || "[]");
+      list.push({ kind: kind, title: title, held: !!held, at: new Date().toISOString() });
+      if (list.length > 60) list = list.slice(list.length - 60);
+      localStorage.setItem("sbx.capture.log", JSON.stringify(list));
+    } catch (e) {}
+  }
+
   function openSheet() {
     var backdrop = el("div", "card-menu-backdrop");
     var sheet = el("div", "card-menu capture-sheet");
@@ -74,6 +85,7 @@
       global.SB.from("captures").insert({ kind: kind, title: title, body: body, status: status }).then(function (res) {
         send.disabled = false; send.textContent = "Add to inbox";
         if (res && res.error) { toast("Failed: " + res.error.message); return; }
+        logCapture(kind, title, holdCb.checked);
         toast(holdCb.checked ? "Held to ponder" : "Added to inbox");
         close();
       }, function (err) {
@@ -118,15 +130,78 @@
     setTimeout(function () { ta.focus(); }, 60);
   }
 
+  // ---- movable FAB: hold & drag to reposition, snaps to the nearest side,
+  // remembers where you left it. A plain tap still opens the capture sheet. ----
+  var POS_KEY = "sbx.fabpos";
+  function loadPos() { try { var p = JSON.parse(localStorage.getItem(POS_KEY)); if (p && p.side) return p; } catch (e) {} return null; }
+  function savePos(p) { try { localStorage.setItem(POS_KEY, JSON.stringify(p)); } catch (e) {} }
+
+  function applyPos(fab, p) {
+    if (!p) return;
+    fab.classList.add("capture-fab-moved");
+    var h = fab.offsetHeight || 56;
+    var top = Math.max(12, Math.min(p.top, window.innerHeight - h - 12));
+    fab.style.top = top + "px"; fab.style.bottom = "auto"; fab.style.opacity = "1";
+    if (p.side === "left") { fab.style.left = "16px"; fab.style.right = "auto"; }
+    else { fab.style.right = "16px"; fab.style.left = "auto"; }
+  }
+
+  function wireDrag(fab) {
+    var sx = 0, sy = 0, grabX = 0, grabY = 0, dragging = false, pid = null;
+    fab.addEventListener("pointerdown", function (e) {
+      pid = e.pointerId; sx = e.clientX; sy = e.clientY; dragging = false;
+      var r = fab.getBoundingClientRect(); grabX = e.clientX - r.left; grabY = e.clientY - r.top;
+    });
+    fab.addEventListener("pointermove", function (e) {
+      if (pid === null) return;
+      if (!dragging) {
+        if (Math.abs(e.clientX - sx) < 6 && Math.abs(e.clientY - sy) < 6) return;
+        dragging = true;
+        try { fab.setPointerCapture(pid); } catch (_) {}
+        fab.classList.add("capture-fab-dragging", "capture-fab-moved");
+        fab.style.transition = "none";
+      }
+      if (e.cancelable) e.preventDefault();
+      var w = fab.offsetWidth || 56, h = fab.offsetHeight || 56;
+      var left = Math.max(6, Math.min(e.clientX - grabX, window.innerWidth - w - 6));
+      var top = Math.max(12, Math.min(e.clientY - grabY, window.innerHeight - h - 12));
+      fab.style.left = left + "px"; fab.style.right = "auto";
+      fab.style.top = top + "px"; fab.style.bottom = "auto"; fab.style.opacity = "1";
+    });
+    function end() {
+      if (pid === null) return;
+      try { fab.releasePointerCapture(pid); } catch (_) {}
+      pid = null;
+      if (!dragging) return;
+      dragging = false;
+      fab.classList.remove("capture-fab-dragging");
+      fab.style.transition = "";
+      var r = fab.getBoundingClientRect();
+      var side = (r.left + r.width / 2) < window.innerWidth / 2 ? "left" : "right";
+      var pos = { side: side, top: Math.round(r.top) };
+      savePos(pos); applyPos(fab, pos);
+      fab._justDragged = true;
+      setTimeout(function () { fab._justDragged = false; }, 80);
+    }
+    fab.addEventListener("pointerup", end);
+    fab.addEventListener("pointercancel", end);
+  }
+
   function mount() {
     if (document.querySelector(".capture-fab")) return;
     var fab = el("button", "capture-fab");
     fab.type = "button";
-    fab.setAttribute("aria-label", "Quick capture");
+    fab.setAttribute("aria-label", "Quick capture (hold and drag to move)");
     fab.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-    fab.addEventListener("click", openSheet);
+    fab.addEventListener("click", function (e) {
+      if (fab._justDragged) { e.preventDefault(); e.stopPropagation(); return; }
+      openSheet();
+    });
     document.body.appendChild(fab);
+    applyPos(fab, loadPos());
+    wireDrag(fab);
+    window.addEventListener("resize", function () { applyPos(fab, loadPos()); });
   }
 
   if (document.body) mount();

@@ -79,6 +79,18 @@
     if (cur !== lastSynced) push(cur);
   }
 
+  // Manual "Sync now": if we have unpushed local edits, push them so the other
+  // device gets them; otherwise force a fresh pull of the server copy.
+  function pullNow() {
+    if (!global.SB || !userId || busy) return;
+    var cur = snapshot();
+    if (lastSynced !== null && cur !== lastSynced) { push(cur); return; }
+    remoteStamp = null; pull();
+  }
+
+  function ready() { return started && !!userId; }
+  function status() { try { return localStorage.getItem("dd.agendasync.status"); } catch (e) { return null; } }
+
   function tick() {
     if (busy || !global.SB || !userId) return;
     var cur = snapshot();
@@ -110,5 +122,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 
-  global.AgendaSync = { pushNow: pushNow, tick: tick };
+  global.AgendaSync = { pushNow: pushNow, pullNow: pullNow, tick: tick, ready: ready, status: status };
 })(window);

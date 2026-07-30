@@ -106,6 +106,7 @@
     if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
     if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
     if(viewMode==="done"){ root.appendChild(buildDone()); return; }
+    if(viewMode==="history"){ root.appendChild(buildHistory()); return; }
     if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.classList.add("cal-fill"); root.appendChild(buildWeekTimeline(daysForView())); return; }
     if(schedMode) root.appendChild(buildSchedBar());
     root.appendChild(buildGrid());
@@ -116,6 +117,7 @@
     if(viewMode==="month") return MONTHS[viewMonth]+" "+viewYear;
     if(viewMode==="agenda") return "Agenda";
     if(viewMode==="done") return "Done";
+    if(viewMode==="history") return "History";
     if(viewMode==="myday") return "My Day";
     var days=daysForView();
     return days.length===1
@@ -177,6 +179,7 @@
       panel.appendChild(item(p[1],function(){ setView(p[0]); }, viewMode===p[0]));
     });
     panel.appendChild(el("div","cal-drawer-sub","Tools"));
+    panel.appendChild(item("History",function(){ setView("history"); }, viewMode==="history"));
     panel.appendChild(item("Search",function(){ searchOpen=true; render(); }));
     panel.appendChild(item("Work schedule",function(){ openWorkSchedule(); }));
     panel.appendChild(item("Plan work (month)",function(){ viewMode="month"; saveViewMode("month"); schedMode=true; schedSel={}; render(); }));
@@ -186,14 +189,37 @@
       panel.appendChild(item("All",function(){ catFilter="all"; render(); }, catFilter==="all"));
       cats.forEach(function(c){ var it=item(c.name,function(){ catFilter=c.id; render(); }, catFilter===c.id); var dot=el("span","cal-chip-dot"); dot.style.background=c.color; dot.style.marginRight="8px"; it.insertBefore(dot,it.firstChild); panel.appendChild(it); });
     }
+    panel.appendChild(el("div","cal-drawer-sub","Sync"));
+    var syncInfo=el("div","cal-drawer-syncinfo",agendaSyncLabel());
+    syncInfo.style.cssText="padding:4px 16px 8px;font-size:12px;opacity:.65;";
+    panel.appendChild(syncInfo);
+    panel.appendChild(item("Sync now",function(){
+      if(window.AgendaSync&&window.AgendaSync.pullNow){ window.AgendaSync.pullNow(); M.toast("Syncing…"); setTimeout(render,1400); }
+    }));
     backdrop.appendChild(panel);
     backdrop.addEventListener("click",function(e){ if(e.target===backdrop)close(); });
     document.body.appendChild(backdrop);
     (window.requestAnimationFrame||setTimeout)(function(){ backdrop.classList.add("show"); });
   }
 
+  // Human-readable last-sync state for the drawer indicator.
+  function agendaSyncLabel(){
+    var A=window.AgendaSync;
+    if(!A||!A.ready||!A.ready()) return "Not signed in — schedule won't sync across devices";
+    var s=A.status?A.status():null;
+    if(!s) return "Not synced yet — tap Sync now";
+    if(s.indexOf("error:")===0) return "Sync error — tap Sync now";
+    var iso=s.replace(/^ok\s+/,"");
+    var t=new Date(iso); if(isNaN(t.getTime())) return "Synced";
+    var mins=Math.round((Date.now()-t.getTime())/60000);
+    if(mins<1) return "Synced just now";
+    if(mins<60) return "Synced "+mins+" min ago";
+    var hrs=Math.round(mins/60); if(hrs<24) return "Synced "+hrs+"h ago";
+    return "Synced "+Math.round(hrs/24)+"d ago";
+  }
+
   var CAL_MORE_VIEWS=[["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
-  function viewLabel(v){ var all=[["month","Month"],["week","Week"],["myday","My Day"]].concat(CAL_MORE_VIEWS); for(var i=0;i<all.length;i++)if(all[i][0]===v)return all[i][1]; return v; }
+  function viewLabel(v){ if(v==="history")return "History"; var all=[["month","Month"],["week","Week"],["myday","My Day"]].concat(CAL_MORE_VIEWS); for(var i=0;i<all.length;i++)if(all[i][0]===v)return all[i][1]; return v; }
   var CAL_ALL_VIEWS=[["month","Month"],["week","Week"],["myday","My Day"],["workweek","Work week"],["3day","3 days"],["day","Day"],["agenda","Agenda"],["done","Done"]];
   function openViewMenu(){
     var backdrop=el("div","card-menu-backdrop"); var sheet=el("div","card-menu");
@@ -347,7 +373,8 @@
 
   function dayCell(dObj,marks,today,inMonth){
     var ds=ymd(dObj);
-    var cell=el("button","cal-cell"); cell.type="button"; cell.setAttribute("data-date",ds);
+    var isMonth=(viewMode==="month");
+    var cell=el("button","cal-cell"+(isMonth?" cal-cell-month":"")); cell.type="button"; cell.setAttribute("data-date",ds);
     if(inMonth===false)cell.classList.add("cal-cell-out");
     if(ds===today)cell.classList.add("cal-cell-today");
     if(ds===selectedDate && !schedMode)cell.classList.add("cal-cell-selected");
@@ -364,6 +391,22 @@
       if(m.event)dots.appendChild(el("span","cal-dot cal-dot-event"));
       if((m.todoDone||m.choreDone)&&!m.todo&&!m.choreDue&&!m.overdue&&!m.event)dots.appendChild(el("span","cal-dot cal-dot-done"));
       cell.appendChild(dots);
+    }
+    // Month view: render untimed/all-day to-dos as tappable chips so they can
+    // be opened, edited, or deleted straight from the grid (not just the panel).
+    if(isMonth){
+      var chipItems=todosOn(ds).filter(function(t){ return !t.startTime; });
+      if(chipItems.length){
+        var chipBox=el("div","cal-cell-chips");
+        chipItems.slice(0,2).forEach(function(t){
+          var c=el("div","cal-cell-chip"+(t.done?" done":""),t.text);
+          if(t.category&&window.Cats){ var cc=window.Cats.color(t.category); if(cc)c.style.background=cc; }
+          c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); });
+          chipBox.appendChild(c);
+        });
+        if(chipItems.length>2) chipBox.appendChild(el("div","cal-cell-more","+"+(chipItems.length-2)+" more"));
+        cell.appendChild(chipBox);
+      }
     }
     cell.addEventListener("click",function(){
       if(schedMode){ if(schedSel[ds])delete schedSel[ds]; else schedSel[ds]=true; render(); return; }
@@ -716,6 +759,55 @@
     wrap.appendChild(el("h3","cal-agenda-head","Completed to-dos"));
     if(!doneTodos.length) wrap.appendChild(el("p","cal-empty","Nothing completed yet."));
     else { var tl=el("div","cal-item-list"); doneTodos.forEach(function(t){ tl.appendChild(todoItem(t,false)); }); wrap.appendChild(tl); }
+    return wrap;
+  }
+
+  // One place for everything that's "been and gone": archived tasks/projects
+  // (restorable), completed to-dos + chores, and quick captures. Reads the
+  // various local logs directly so it survives cache of the feed.
+  function histLoad(k,def){ try{ var v=JSON.parse(localStorage.getItem(k)); return v==null?def:v; }catch(e){ return def; } }
+  function histRow(name,date){ var r=el("div","history-row"); r.appendChild(el("span","history-row-name",name)); r.appendChild(el("span","history-row-date",(date||"").slice(0,10))); return r; }
+  function buildHistory(){
+    var wrap=el("div","cal-agenda");
+    wrap.appendChild(el("h2","cal-day-title","History"));
+
+    // Archived tasks & projects (restorable)
+    var rm=histLoad("sbx.removed",{});
+    var arch=Object.keys(rm).map(function(id){ var v=rm[id]; if(v&&typeof v==="object")return {id:id,title:v.title||id,type:v.type||v.section,at:v.at}; return {id:id,title:id,type:null,at:null}; });
+    arch.sort(function(a,b){ return (b.at||"")<(a.at||"")?-1:1; });
+    wrap.appendChild(el("h3","cal-agenda-head","Archived tasks & projects"));
+    if(!arch.length) wrap.appendChild(el("p","cal-empty","Nothing archived."));
+    else { var al=el("div","cal-item-list");
+      arch.forEach(function(e){ var row=el("div","cal-item");
+        var body=el("div","cal-item-body"); body.appendChild(el("div","cal-item-title",e.title));
+        var sub=[]; if(e.type)sub.push(/proj/.test(e.type)?"Project":"Task"); if(e.at)sub.push("archived "+e.at.slice(0,10));
+        body.appendChild(el("div","cal-item-sub",sub.join(" · ")||"archived"));
+        row.appendChild(body);
+        var rb=el("button","cal-restore","Restore"); rb.type="button";
+        rb.addEventListener("click",function(){ var m=histLoad("sbx.removed",{}); delete m[e.id]; try{localStorage.setItem("sbx.removed",JSON.stringify(m));}catch(_){} if(M.toast)M.toast("Restored to your lists"); render(); });
+        row.appendChild(rb); al.appendChild(row);
+      }); wrap.appendChild(al);
+    }
+
+    // Completed to-dos (full log, most recent first)
+    var th=histLoad("sbx.todos.history",[]).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,40);
+    wrap.appendChild(el("h3","cal-agenda-head","Completed to-dos"));
+    if(!th.length) wrap.appendChild(el("p","cal-empty","Nothing completed yet."));
+    else { var hl=el("div","history-list"); th.forEach(function(e){ hl.appendChild(histRow(e.text,e.date)); }); wrap.appendChild(hl); }
+
+    // Chore completions
+    var ce=[]; M.loadChores().forEach(function(c){ (c.log||[]).forEach(function(iso){ ce.push({name:c.name,date:iso}); }); });
+    ce.sort(function(a,b){ return new Date(b.date)-new Date(a.date); }); ce=ce.slice(0,40);
+    wrap.appendChild(el("h3","cal-agenda-head","Chore completions"));
+    if(!ce.length) wrap.appendChild(el("p","cal-empty","No chores done yet."));
+    else { var cl=el("div","history-list"); ce.forEach(function(e){ cl.appendChild(histRow(e.name,e.date)); }); wrap.appendChild(cl); }
+
+    // Quick captures
+    var caps=histLoad("sbx.capture.log",[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
+    wrap.appendChild(el("h3","cal-agenda-head","Quick captures"));
+    if(!caps.length) wrap.appendChild(el("p","cal-empty","Nothing captured yet."));
+    else { var ql=el("div","history-list"); caps.forEach(function(e){ ql.appendChild(histRow((e.title||"(untitled)")+(e.held?" · held":"")+(e.kind?" · "+e.kind:""),e.at)); }); wrap.appendChild(ql); }
+
     return wrap;
   }
 

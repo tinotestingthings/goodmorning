@@ -167,7 +167,7 @@
           if (!sure) return;
         }
         var rm = loadJSON("dd.removed", {});
-        rm[id] = true;
+        rm[id] = { title: item.title || id, section: section, type: type, at: new Date().toISOString() };
         saveJSON("dd.removed", rm);
         enqueue({ type: "remove", target_id: id, section: section });
         changed = true;

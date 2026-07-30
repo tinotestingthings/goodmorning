@@ -18,7 +18,8 @@
     light:  { label: "Light",  bg: "#f5f6f8" },
     orange: { label: "Orange", bg: "#fff6ee" },
     ocean:  { label: "Ocean",  bg: "#0b1622" },
-    forest: { label: "Forest", bg: "#0e1712" }
+    forest: { label: "Forest", bg: "#0e1712" },
+    emoji:  { label: "Emoji+", bg: "#fbf3ff" }
   };
 
   function defaults() {

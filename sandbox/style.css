@@ -252,9 +252,9 @@ body {
 
 .loop-card {
   appearance: none;
-  border: none;
+  border: 1.5px solid transparent;
   background: var(--card-bg);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -1295,6 +1295,22 @@ main#deckArea {
   flex-shrink: 0;
 }
 
+/* Restore button in the History view */
+.cal-restore {
+  appearance: none;
+  border: 1px solid var(--skip);
+  background: transparent;
+  color: var(--skip);
+  border-radius: 9px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
+}
+.cal-restore:active { background: var(--skip); color: #fff; }
+
 /* ---- one-off to-dos (inside the To-dos tile's accordion card) ---- */
 
 .todo-list {
@@ -2019,6 +2035,21 @@ main#deckArea {
 .cal-cell-selected .cal-dot-todo { background: #fff; }
 .cal-cell-selected .cal-dot-chore { background: #fff; }
 
+/* Month cells that carry all-day items grow to fit tappable chips (the grid
+   scrolls, so the square aspect is relaxed only in month view). */
+.cal-cell-month { aspect-ratio: auto; min-height: 64px; justify-content: flex-start; align-items: stretch; padding: 4px 4px 5px; gap: 2px; }
+.cal-cell-month .cal-cell-num { align-self: flex-start; padding-left: 3px; }
+.cal-cell-month .cal-dots { align-self: flex-start; padding-left: 3px; }
+.cal-cell-chips { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: auto; }
+.cal-cell-chip {
+  font-size: 0.62rem; line-height: 1.3; padding: 1px 5px; border-radius: 4px;
+  background: var(--skip); color: #fff; text-align: left; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cal-cell-chip.done { opacity: 0.55; text-decoration: line-through; }
+.cal-cell-more { font-size: 0.6rem; color: var(--text-dim); padding-left: 3px; }
+.cal-cell-selected .cal-cell-chip { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.9); }
+
 /* day detail */
 .cal-day {
   margin-top: 16px;
@@ -2115,6 +2146,19 @@ main#deckArea {
   --text-dim: #93a894; --border: #26382c;
   --keep: #43b96a; --dismiss: #d9713f; --skip: #5aa06a; --accent: #a6e3b0;
 }
+/* Emoji+ : a bright, playful light palette that also sprinkles emoji onto the
+   main labels (see accents below) for a friendlier home screen. */
+:root[data-theme="emoji"] {
+  --bg: #fbf3ff; --card-bg: #ffffff; --text: #2a2140;
+  --text-dim: #8a7fa8; --border: #ecdcfb;
+  --keep: #2fae66; --dismiss: #f0616f; --skip: #7c5cff; --accent: #ff9f43;
+}
+:root[data-theme="emoji"] .tile-tasks .tile-label::before { content: "✅ "; }
+:root[data-theme="emoji"] .tile-projects .tile-label::before { content: "🚀 "; }
+:root[data-theme="emoji"] .loop-card-title::before { content: "🌅 "; }
+:root[data-theme="emoji"] .done-title::before { content: "🎉 "; }
+:root[data-theme="emoji"] .radar-strip-label::before { content: "📡 "; }
+:root[data-theme="emoji"] .home-greeting::after { content: " ✨"; }
 
 /* ---- settings tab ---- */
 
@@ -2335,6 +2379,7 @@ main#deckArea {
 .capture-fab,
 .hdr-btn,
 .tile,
+.loop-card,
 .pin-key,
 .auth-primary {
   background-image: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 55%);
@@ -2346,7 +2391,8 @@ main#deckArea {
 .detail-add-btn:active,
 .capture-fab:active,
 .hdr-btn:active,
-.tile:active {
+.tile:active,
+.loop-card:active {
   box-shadow: 0 0 1px rgba(0,0,0,0.3), inset 0 1px 2px rgba(0,0,0,0.18);
   filter: brightness(0.97);
 }
@@ -2377,9 +2423,8 @@ main#deckArea {
    surface, a visible ring, and a hairline glow so it reads as THE main
    action on the home screen. */
 .loop-card {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 3px 14px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.05);
+  background: var(--card-bg);
+  border: 1.5px solid transparent;
 }
 .loop-card .loop-card-title { color: var(--text); }
 .loop-card .loop-card-sub { color: var(--text-dim); }
@@ -2424,14 +2469,11 @@ main#deckArea {
 /* Nova-specific depth: slightly stronger elevation + gold focus ring */
 :root[data-theme="nova"] .card,
 :root[data-theme="nova"] .tile,
+:root[data-theme="nova"] .loop-card,
 :root[data-theme="nova"] .accordion-card,
 :root[data-theme="nova"] .detail-panel,
 :root[data-theme="nova"] .card-menu {
   box-shadow: 0 4px 20px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.05);
-}
-:root[data-theme="nova"] .loop-card {
-  border-color: rgba(216,180,106,0.35) !important;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.4), 0 0 0 1px rgba(216,180,106,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 :root[data-theme="nova"] .detail-input:focus,
 :root[data-theme="nova"] .capture-textarea:focus,
@@ -2679,6 +2721,10 @@ main#deckArea {
 }
 .capture-fab:hover, .capture-fab:focus { opacity: 1; right: 16px; }
 .capture-fab:active { opacity: 1; right: 16px; }
+/* draggable: no native gestures on the button, and once moved it stays put */
+.capture-fab { touch-action: none; }
+.capture-fab-moved { right: 16px; opacity: 1; }
+.capture-fab-dragging { cursor: grabbing; transition: none !important; box-shadow: 0 10px 26px rgba(0,0,0,0.4); }
 
 /* ---- single-row calendar header ---- */
 .cal-headbar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; }

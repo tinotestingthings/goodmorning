@@ -1321,14 +1321,23 @@
     return t;
   }
 
+  // Badges must mirror the live set the tile bodies show — exclude removed
+  // items and reflect local status changes (a finished/removed item drops the
+  // count on the next render) so the number never goes stale vs. the list.
   function taskBadge(today) {
-    var n = (today.tasks || []).length;
+    var n = (today.tasks || []).filter(function (t) {
+      return !isRemoved(t.id) && localStatus("tasks", t.id, t.status) !== "done";
+    }).length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-blue" };
   }
 
   function projectBadge(today) {
-    var projects = today.projects || [];
-    var active = projects.filter(function (p) { return p.status === "active"; }).length;
+    var projects = (today.projects || []).filter(function (p) {
+      return !isRemoved(p.id) && localStatus("projects", p.id, p.status) !== "done";
+    });
+    var active = projects.filter(function (p) {
+      return localStatus("projects", p.id, p.status) === "active";
+    }).length;
     var n = active > 0 ? active : projects.length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
   }
