@@ -1,38 +1,15 @@
 {
-  "generated": "2026-07-29T06:40:41Z",
+  "generated": "2026-07-30T06:33:00Z",
   "daily": [],
-  "radar_week": {
-    "week_of": "2026-07-27",
-    "items": [
-      {
-        "id": "2026-07-27-digital-omnibus-ai-published-official-journal",
-        "title": "Digital Omnibus on AI published in the Official Journal — Reg. (EU) 2026/1744, in force 27 July 2026",
-        "date": "2026-07-27",
-        "summary": "The long-open OJ question is resolved: the AI-specific Digital Omnibus was published 24 July 2026 as Regulation (EU) 2026/1744 and entered into force 27 July, settling the amended AI Act deadline dates."
-      },
-      {
-        "id": "2026-07-24-commission-art-50-transparency-guidelines-final",
-        "title": "Commission adopts final Guidelines on AI Act Article 50 transparency obligations",
-        "date": "2026-07-24",
-        "summary": "The Commission adopted the final Article 50 transparency guidelines on 20 July 2026, under two weeks before those obligations start applying on 2 August 2026."
-      },
-      {
-        "id": "2026-07-23-edpb-data-breach-notification-template",
-        "title": "EDPB common template for personal data breach notification (Art. 33)",
-        "date": "2026-07-23",
-        "summary": "EDPB's draft common Art. 33 breach-notification template (~120 fields, seven sections) is in public consultation until 5 August 2026."
-      }
-    ]
-  },
   "today": {
-    "date": "2026-07-29",
+    "date": "2026-07-30",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-        "title": "Fill in real content for the \"Work compliance topics\" note",
+        "title": "Fill in real resources for \"Work compliance topics\"",
         "status": "doing",
-        "detail": "The note currently holds only placeholder topic names (ISO 27001, ISO 27701, EU AI Act, GDPR) with no actual content.",
-        "hint": "Tinus's note: just GDPR and AI Act still need adding.",
+        "detail": "ISO 27001/27701 standards are uploaded and filed to 20 Sources/Laws and Standards; GDPR and AI Act resources still need to be added.",
+        "hint": "Add GDPR + AI Act content next",
         "notes": [
           "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
         ],
@@ -40,19 +17,19 @@
       },
       {
         "id": "2026-07-28-food-with-me-workdays-15h",
-        "title": "Bring food for ~15:00 on workdays",
+        "title": "Always have food with me for ~15:00 on workdays",
         "status": "todo",
-        "detail": "Make sure to always have food on hand for around 15:00 on workdays.",
-        "hint": "Recurring habit — pack it the night before.",
+        "detail": "Make sure to always carry food for around 15:00 on workdays.",
+        "hint": "Overlaps with 'eat more during work afternoons'",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-28-piano-learn-familiar",
-        "title": "Learn \"Familiar\" on piano",
+        "title": "Piano - learn Familiar",
         "status": "todo",
-        "detail": "Learn to play the song Familiar on piano.",
-        "hint": "",
+        "detail": "Learn to play Familiar on piano.",
+        "hint": "Separate from the Happy Birthday piano task",
         "notes": [],
         "subtasks": []
       }
@@ -63,7 +40,7 @@
         "title": "Personal productivity as mental health management",
         "status": "active",
         "updated": "2026-07-11",
-        "line": "Learning about personal productivity framed mainly around managing mental health, rest, and endorphins.",
+        "line": "Learning interest framing personal productivity as mental-health management — rest, endorphins, managing energy.",
         "notes": [],
         "subtasks": []
       },
@@ -71,8 +48,8 @@
         "id": "2026-07-11-work-compliance-topics-resources-to-gather",
         "title": "Work compliance topics — resources to gather",
         "status": "active",
-        "updated": "2026-07-21",
-        "line": "Ongoing collection of work-relevant resources across the compliance topics (ISO, AI Act, GDPR).",
+        "updated": "2026-07-21 08:06",
+        "line": "Placeholder tracking ISO 27001/27701, EU AI Act and GDPR resources; ISO standards uploaded, GDPR + AI Act still to add.",
         "notes": [],
         "subtasks": []
       },
@@ -80,8 +57,8 @@
         "id": "2026-07-14-cookie-scanner-applicatie",
         "title": "Cookie Scanner Applicatie",
         "status": "active",
-        "updated": "2026-07-28",
-        "line": "Building a cookie-scanner app; reference is Mick Beer's forensic before/after-consent network-analysis method.",
+        "updated": "2026-07-28 06:47",
+        "line": "Building a cookie/tracker scanner app modelled on Mick Beer's forensic pre-vs-post-consent network analysis method.",
         "notes": [],
         "subtasks": []
       },
@@ -89,8 +66,8 @@
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-07-28",
-        "line": "Hub project collecting goodmorning-app improvement ideas as subtasks.",
+        "updated": "2026-07-30 06:33",
+        "line": "Hub collecting goodmorning-app improvement ideas as subtasks; newest is a Backlog list type (general/recurring).",
         "notes": [],
         "subtasks": [
           {
@@ -106,7 +83,7 @@
             "done": false
           },
           {
-            "text": "Unify task/project architecture (both have subtasks and idea/backlog->to-do->active->done->cancel; no mandatory deadline)",
+            "text": "Unify task/project architecture (both have subtasks + idea/backlog→to-do→active→done→cancel; no mandatory deadline)",
             "done": false
           },
           {
@@ -126,7 +103,7 @@
             "done": false
           },
           {
-            "text": "Quick-capture box: history / \"see history\" button of posted ideas",
+            "text": "Quick-capture box: history / \"see history\" of posted ideas",
             "done": false
           },
           {
@@ -134,7 +111,7 @@
             "done": false
           },
           {
-            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe build a better gym tracker",
+            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe a better gym tracker",
             "done": false
           },
           {
@@ -144,6 +121,10 @@
           {
             "text": "Scan existing notes to check labelling; introduce table-style labelling if needed",
             "done": false
+          },
+          {
+            "text": "New \"Backlog\" list type splitting into general + recurring (recurring tracks last-done); convert items into task or project (Backlog→Note→Task→Project)",
+            "done": false
           }
         ]
       },
@@ -152,7 +133,7 @@
         "title": "Cooking — improving recipes",
         "status": "idea-stage",
         "updated": "2026-07-11",
-        "line": "Start and improve recipes based on existing ones, using the second brain.",
+        "line": "Start and improve recipes based on current ones, using the second brain.",
         "notes": [],
         "subtasks": []
       },
@@ -160,8 +141,8 @@
         "id": "2026-07-11-finance-and-markets-learning-interest",
         "title": "Finance and markets — learning interest",
         "status": "idea-stage",
-        "updated": "2026-07-28",
-        "line": "Building knowledge about finance — the markets and stocks, not personal finance.",
+        "updated": "2026-07-28 06:47",
+        "line": "Learning interest in the markets and stocks (not personal finance).",
         "notes": [],
         "subtasks": []
       },
@@ -169,8 +150,8 @@
         "id": "2026-07-14-team-verbetering-idee",
         "title": "Team verbetering — idee",
         "status": "idea-stage",
-        "updated": "2026-07-28",
-        "line": "An idea for how to improve the team.",
+        "updated": "2026-07-28 06:47",
+        "line": "Ideas to improve the team: bi-monthly strategy session, action list for the manager, more visibility.",
         "notes": [
           "2026-07-28 (Tinus): The gist of this idea should be in the description in the app, at least"
         ],
@@ -180,8 +161,8 @@
         "id": "2026-07-28-learn-pistol-squats",
         "title": "Learn pistol squats",
         "status": "idea-stage",
-        "updated": "2026-07-28",
-        "line": "Learn pistol squats for both legs (knees permitting), plus the Russian pistol-squat dance.",
+        "updated": "2026-07-28 06:47",
+        "line": "Learn pistol squats for both legs (if knee-safe), including the Russian pistol squat dance.",
         "notes": [],
         "subtasks": []
       },
@@ -189,64 +170,47 @@
         "id": "2026-07-28-link-chatgpt-work-to-app",
         "title": "Link ChatGPT Work to the app",
         "status": "idea-stage",
-        "updated": "2026-07-28",
+        "updated": "2026-07-28 06:47",
         "line": "Link ChatGPT Work to the app to avoid vendor lock-in.",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-11-daily-habits-hub-site",
-        "title": "Daily \"things to do everyday\" hub site",
+        "title": "A daily \"things to do everyday\" hub site",
         "status": "done",
-        "updated": "2026-07-28",
-        "line": "Finished — the daily-habits hub site is done.",
+        "updated": "2026-07-28 06:47",
+        "line": "Daily 'things to do every day' hub site (tinotestingthings.github.io, NoteSprint app); marked done.",
         "notes": [
           "2026-07-24 (Tinus): Done"
         ],
         "subtasks": []
-      },
-      {
-        "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
-        "title": "Daily digest app — instructions & build prompt",
-        "status": "done",
-        "updated": "2026-07-28",
-        "line": "Finished — the daily digest / goodmorning app spec and build prompt is complete and in use.",
-        "notes": [],
-        "subtasks": []
       }
     ],
     "radar": {
-      "updated": "2026-07-27 06:33",
+      "updated": "2026-07-30 06:33",
       "follow_ups": 1,
-      "headline": "Digital Omnibus on AI published as Regulation (EU) 2026/1744, in force 27 July 2026 — the amended AI Act deadlines are now settled law.",
+      "headline": "Italy's Garante issued fresh fines: €7.72m against energy suppliers + credit bureaux over creditworthiness scoring, and €158k against Character.AI over minors' data.",
       "deadlines": [
         {
           "date": "2026-08-02",
           "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
         },
         {
-          "date": "2026-08-05",
-          "label": "EDPB Art. 33 breach-notification template consultation closes"
-        },
-        {
-          "date": "2026-08-10",
-          "label": "AP DPIA-exceptions (employee data) consultation closes"
-        },
-        {
-          "date": "2026-08-15",
-          "label": "Cyberbeveiligingswet + Wwke enter into force"
-        },
-        {
-          "date": "2026-10-31",
-          "label": "ISO/IEC 27701:2025 certification-body transition deadline"
-        },
-        {
           "date": "2026-12-02",
-          "label": "Art. 50(2) grace period ends + new CSAM/non-consensual-imagery prohibition takes effect"
+          "label": "Art. 50(2) watermarking grace period ends (pre-2 Aug systems) + new CSAM / non-consensual intimate imagery prohibition takes effect"
         },
         {
           "date": "2027-08-02",
           "label": "GPAI providers with pre-Aug-2025 models: full compliance deadline"
+        },
+        {
+          "date": "2027-12-02",
+          "label": "Standalone high-risk AI (Annex III) obligations become applicable"
+        },
+        {
+          "date": "2028-08-02",
+          "label": "High-risk AI embedded in products (Annex I) compliance deadline"
         }
       ]
     }
