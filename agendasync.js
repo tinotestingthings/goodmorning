@@ -43,14 +43,29 @@
   function push(cur) {
     if (!global.SB || !userId) return;
     busy = true;
-    global.SB.from("agenda_state")
-      .upsert({ user_id: userId, data: JSON.parse(cur), updated_at: new Date().toISOString() }, { onConflict: "user_id" })
-      .then(function (res) {
-        busy = false;
-        if (res && res.error) { note(res.error.message); return; }
-        lastSynced = cur;
-        note(null);
-      }, function (err) { busy = false; note((err && err.message) || "push failed"); });
+    var mine;
+    try { mine = JSON.parse(cur); } catch (e) { mine = {}; }
+    // MERGE, don't clobber. Live (dd.*) and sandbox (sbx.*) share one
+    // per-user agenda_state row. A full upsert of only our own keys would wipe
+    // the other environment's keys (this is exactly how the sandbox once
+    // erased the live agenda). So read the current row, overwrite ONLY our
+    // KEYS, and write the merged object back. Small read-modify-write race is
+    // fine for a single user.
+    global.SB.from("agenda_state").select("data").eq("user_id", userId).then(function (rd) {
+      if (rd && rd.error) { busy = false; note(rd.error.message); return; }
+      var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
+      KEYS.forEach(function (k) {
+        if (Object.prototype.hasOwnProperty.call(mine, k)) merged[k] = mine[k];
+      });
+      global.SB.from("agenda_state")
+        .upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
+        .then(function (res) {
+          busy = false;
+          if (res && res.error) { note(res.error.message); return; }
+          lastSynced = cur;
+          note(null);
+        }, function (err) { busy = false; note((err && err.message) || "push failed"); });
+    }, function (err) { busy = false; note((err && err.message) || "push read failed"); });
   }
 
   function pull(cb) {
