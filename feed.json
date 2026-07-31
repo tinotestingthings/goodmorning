@@ -1,21 +1,29 @@
 {
-  "generated": "2026-07-31T06:45:00Z",
+  "generated": "2026-07-31T23:15:59.772898Z",
   "daily": [
     {
       "id": "2026-07-30-enschede-wifi-tracking-boete-raad-van-state",
       "title": "Enschede hoeft €600.000 boete wegens wifi-tracking niet te betalen (Raad van State)",
       "source": "Security.NL",
       "url": "https://www.security.nl/posting/947115/Enschede+hoeft+600_000+euro+boete+wegens+wifi-tracking+niet+te+betalen",
-      "date": "2026-07-30",
-      "summary": "De Raad van State verklaart het hoger beroep van de AP ongegrond: Enschede hoeft de boete van €600.000 voor wifi-tracking niet te betalen. De AP verliest niet op de inhoud maar omdat het dragend bewijs (MAC-adres + locatie = persoonsgegevens) te laat/te procedureel is aangedragen — het stond niet in het oorspronkelijke boetebesluit. Relevant voor de handhavings-/bewijslastlijn."
+      "date": "2026-07-29",
+      "summary": "De Raad van State heeft het hoger beroep van de Autoriteit Persoonsgegevens ongegrond verklaard: de gemeente Enschede hoeft een boete van €600.000 die de AP wegens wifi-tracking had opgelegd niet te betalen. Eerder oordeelde de rechtbank al dat de AP de boete \"op onjuiste gronden\" had opgelegd, omdat niet bewezen is dat de gemeente persoonsgegevens heeft verwerkt van eigenaren van mobiele telefoons waarvan de wifi tijdens de passantentellingen aanstond. (Bron: Security.NL, redactie, 29 juli 2026.)\n\nDe zaak gaat terug tot 2017, toen Enschede via sensoren de drukte in de binnenstad wilde meten. Een gespecialiseerd bedrijf plaatste meetkastjes in winkelstraten die wifi-signalen van passerende telefoons opvingen; elke telefoon werd via een unieke code (het — gepseudonimiseerde en later ingekorte — MAC-adres) apart geregistreerd. De AP stelde dat \"tellen\" over langere tijd verandert in het \"volgen\" van mensen, dat de privacy van burgers niet goed was gewaarborgd, en legde de boete op. De gemeente stapte naar de rechter, die oordeelde dat de AP onvoldoende had onderzocht of de identiteit van gebruikers daadwerkelijk te achterhalen was.\n\nIn hoger beroep stelde de AP dat natuurlijke personen al direct geïdentificeerd waren via de combinatie van MAC-adres en locatiegegevens, en dat er dus sprake was van verwerking van persoonsgegevens. De Afdeling bestuursrechtspraak wijst dat af op procedureel-bewijsrechtelijke gronden: bij een bestuurlijk boetebesluit moet het dragend bewijs van de overtreding rond zijn *bij de voltooiing van de besluitvorming*, niet pas later. Omdat de AP dit standpunt niet in haar oorspronkelijke besluit had ingenomen, toetst de Raad van State het niet, en blijft het rechtbankoordeel staan.\n\nRelevant voor de handhavings-/bewijslastlijn: de AP verliest hier niet op de inhoud (of MAC-adres + locatie persoonsgegevens zijn), maar omdat ze het bewijs te laat/te procedureel heeft aangedragen — een terugkerend kritiekpunt. De onderliggende uitspraak staat op raadvanstate.nl (zaaknr. 202401622/1/A3). Enschede is met de passantentelling overigens al op 1 mei 2020 gestopt."
     },
     {
       "id": "2026-07-30-volkskrant-is-privacy-een-exclusief-recht-voor-de-rijken",
       "title": "Volkskrant-column: \"Is privacy een exclusief recht voor de rijken?\"",
-      "source": "de Volkskrant",
+      "source": "Volkskrant",
       "url": "https://www.volkskrant.nl/columns-van-de-dag/is-privacy-een-exclusief-recht-voor-de-rijken~b7205cad/",
       "date": "2026-07-30",
-      "summary": "Opiniecolumn over de vraag of privacy in de praktijk een luxe wordt die alleen welgestelden zich kunnen veroorloven (gratis-diensten-voor-data vs. betaalde privacyvriendelijke alternatieven, 'pay or okay'). Volledige tekst niet opgehaald (Volkskrant staat op de fetch-blocklist + paywall) — samenvatting is indicatief o.b.v. titel/context, niet de strekking van de auteur. Door Tinus aangedragen."
+      "summary": "Een column uit de Volkskrant-reeks \"Columns van de dag\", getiteld *\"Is privacy een exclusief recht voor de rijken?\"* — een opiniestuk over de vraag of privacy in de praktijk een luxe wordt die alleen welgestelden zich kunnen veroorloven (denk aan gratis-diensten-in-ruil-voor-data versus betaalde privacy-vriendelijke alternatieven, \"pay or okay\"-modellen, en de sociale gelaagdheid van databescherming).\n\n**Volledige tekst niet opgehaald:** de Volkskrant-URL staat op de fetch-blocklist van deze omgeving, dus de inhoud kon niet automatisch worden binnengehaald (waarschijnlijk ook paywall). Bovenstaande beschrijving is op basis van titel en context, niet van de tekst zelf — behandel de samenvatting als indicatief, niet als de strekking van de auteur."
+    },
+    {
+      "id": "2026-07-31-noyb-dict-cc-avg-klacht-1741-partners-consent",
+      "title": "NOYB: AVG-klacht tegen dict.cc — 1.741 \"geïnformeerde\" toestemmingen met één klik",
+      "source": "NOYB",
+      "url": "https://noyb.eu/en/1741-informed-consents-one-click-gdpr-complaint-against-dictcc-filed",
+      "date": "2026-07-30",
+      "summary": "NOYB heeft op donderdag 30 juli 2026 een AVG-klacht ingediend bij de Oostenrijkse toezichthouder (Datenschutzbehörde) tegen het online woordenboek dict.cc. De kern van de klacht: bezoekers worden met één enkele klik verleid tot toestemming voor online tracking door **1.741 \"partners\"**. Volgens NOYB maakt dat werkelijk geïnformeerde toestemming onmogelijk, en schendt de opzet daarmee de AVG.\n\nDe AVG eist dat toestemming vrij, geïnformeerd, specifiek en ondubbelzinnig wordt gegeven. NOYB rekent voor dat het lezen van de privacyverklaringen van al die 1.741 partnerbedrijven — zelfs bij slechts zes minuten scannen per verklaring — minstens 170 uur zou kosten, oftewel meer dan een volledige werkweek voor één enkel toestemmingsverzoek. In de praktijk kan een gebruiker dus onmogelijk weten wie precies toegang tot zijn gegevens krijgt en waarvoor die worden gebruikt. Het \"één klik = akkoord met 1.741 partijen\"-model is precies het soort consent-dark-pattern dat NOYB al langer bestrijdt.\n\nNOYB vraagt de Oostenrijkse toezichthouder om verwijdering van de onrechtmatig verwerkte persoonsgegevens en om oplegging van een boete. De zaak is inhoudelijk verwant aan de bredere lijn van cookie-banner-/consent-klachten die in het vault al aanwezig is (o.a. de NOYB \"Pay or Okay\"-zaken en de eerdere cookie-banner-klachten), en sluit aan op het thema van doorgeschoten \"partnerlijsten\" in TCF/IAB-achtige toestemmingsschermen.\n\nOp het moment van vastleggen was de klacht ook opgepikt door onder meer MLex en Hacker News; de samenvatting hierboven is geschreven op basis van de NOYB-eigen aankondiging en de zoeksnippets."
     }
   ],
   "today": {
