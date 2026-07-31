@@ -1,77 +1,74 @@
 {
-  "generated": "2026-07-30T06:33:00Z",
-  "daily": [],
+  "generated": "2026-07-31T06:45:00Z",
+  "daily": [
+    {
+      "id": "2026-07-30-enschede-wifi-tracking-boete-raad-van-state",
+      "title": "Enschede hoeft €600.000 boete wegens wifi-tracking niet te betalen (Raad van State)",
+      "source": "Security.NL",
+      "url": "https://www.security.nl/posting/947115/Enschede+hoeft+600_000+euro+boete+wegens+wifi-tracking+niet+te+betalen",
+      "date": "2026-07-30",
+      "summary": "De Raad van State verklaart het hoger beroep van de AP ongegrond: Enschede hoeft de boete van €600.000 voor wifi-tracking niet te betalen. De AP verliest niet op de inhoud maar omdat het dragend bewijs (MAC-adres + locatie = persoonsgegevens) te laat/te procedureel is aangedragen — het stond niet in het oorspronkelijke boetebesluit. Relevant voor de handhavings-/bewijslastlijn."
+    },
+    {
+      "id": "2026-07-30-volkskrant-is-privacy-een-exclusief-recht-voor-de-rijken",
+      "title": "Volkskrant-column: \"Is privacy een exclusief recht voor de rijken?\"",
+      "source": "de Volkskrant",
+      "url": "https://www.volkskrant.nl/columns-van-de-dag/is-privacy-een-exclusief-recht-voor-de-rijken~b7205cad/",
+      "date": "2026-07-30",
+      "summary": "Opiniecolumn over de vraag of privacy in de praktijk een luxe wordt die alleen welgestelden zich kunnen veroorloven (gratis-diensten-voor-data vs. betaalde privacyvriendelijke alternatieven, 'pay or okay'). Volledige tekst niet opgehaald (Volkskrant staat op de fetch-blocklist + paywall) — samenvatting is indicatief o.b.v. titel/context, niet de strekking van de auteur. Door Tinus aangedragen."
+    }
+  ],
   "today": {
-    "date": "2026-07-30",
+    "date": "2026-07-31",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
         "title": "Fill in real resources for \"Work compliance topics\"",
         "status": "doing",
-        "detail": "ISO 27001/27701 standards are uploaded and filed to 20 Sources/Laws and Standards; GDPR and AI Act resources still need to be added.",
-        "hint": "Add GDPR + AI Act content next",
+        "detail": "Fill in real resources/content for the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR). ISO/NEN standards are filed to 20 Sources; GDPR and AI Act are what's left.",
+        "hint": "Just the GDPR and AI Act pieces remain — per your note.",
         "notes": [
           "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
         ],
         "subtasks": []
       },
       {
+        "id": "2026-07-11-piano-practice-happy-birthday-jazz",
+        "title": "Piano practice — Happy Birthday jazz",
+        "status": "todo",
+        "detail": "Learn the current lesson song, Happy Birthday jazz.",
+        "hint": "One short run-through counts.",
+        "notes": [
+          "2026-07-24 (Tinus): Testnotitie"
+        ],
+        "subtasks": [
+          {
+            "text": "Maybe start",
+            "done": false
+          }
+        ]
+      },
+      {
         "id": "2026-07-28-food-with-me-workdays-15h",
         "title": "Always have food with me for ~15:00 on workdays",
         "status": "todo",
-        "detail": "Make sure to always carry food for around 15:00 on workdays.",
-        "hint": "Overlaps with 'eat more during work afternoons'",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-28-piano-learn-familiar",
-        "title": "Piano - learn Familiar",
-        "status": "todo",
-        "detail": "Learn to play Familiar on piano.",
-        "hint": "Separate from the Happy Birthday piano task",
+        "detail": "Make sure to always carry food for around 15:00 on workdays (keeps forgetting). Overlaps with the 'eat more during work afternoons' task.",
+        "hint": "Pack a snack the night before.",
         "notes": [],
         "subtasks": []
       }
     ],
     "projects": [
       {
-        "id": "2026-07-11-personal-productivity-mental-health-management",
-        "title": "Personal productivity as mental health management",
-        "status": "active",
-        "updated": "2026-07-11",
-        "line": "Learning interest framing personal productivity as mental-health management — rest, endorphins, managing energy.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
-        "title": "Work compliance topics — resources to gather",
-        "status": "active",
-        "updated": "2026-07-21 08:06",
-        "line": "Placeholder tracking ISO 27001/27701, EU AI Act and GDPR resources; ISO standards uploaded, GDPR + AI Act still to add.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-14-cookie-scanner-applicatie",
-        "title": "Cookie Scanner Applicatie",
-        "status": "active",
-        "updated": "2026-07-28 06:47",
-        "line": "Building a cookie/tracker scanner app modelled on Mick Beer's forensic pre-vs-post-consent network analysis method.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-07-30 06:33",
-        "line": "Hub collecting goodmorning-app improvement ideas as subtasks; newest is a Backlog list type (general/recurring).",
+        "updated": "2026-07-30",
+        "line": "Hub for goodmorning app improvements; new app-improvement notes get added here as subtasks.",
         "notes": [],
         "subtasks": [
           {
-            "text": "Quick-capture \"+\" button: make it movable (hold & drag), staying sticky to screen sides",
+            "text": "Quick-capture '+' button: make it movable (hold & drag), staying sticky to screen sides",
             "done": false
           },
           {
@@ -79,11 +76,11 @@
             "done": false
           },
           {
-            "text": "History view of projects and tasks, with option to re-open/edit",
+            "text": "History view of projects and tasks, with option to re-open/edit them",
             "done": false
           },
           {
-            "text": "Unify task/project architecture (both have subtasks + idea/backlog→to-do→active→done→cancel; no mandatory deadline)",
+            "text": "Unify task/project architecture (both have subtasks and idea/backlog→to-do→active→done→cancel states)",
             "done": false
           },
           {
@@ -95,7 +92,7 @@
             "done": false
           },
           {
-            "text": "All-day items should behave like normal calendar tasks (currently can't be deleted)",
+            "text": "All-day items should behave like normal calendar tasks (currently can't even be deleted)",
             "done": false
           },
           {
@@ -103,7 +100,7 @@
             "done": false
           },
           {
-            "text": "Quick-capture box: history / \"see history\" of posted ideas",
+            "text": "Quick-capture box: history / 'see history' of posted ideas",
             "done": false
           },
           {
@@ -111,11 +108,11 @@
             "done": false
           },
           {
-            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe a better gym tracker",
+            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe build a better gym tracker",
             "done": false
           },
           {
-            "text": "\"Copy gym schedule\": copy next 14 days of gym days/times to share",
+            "text": "'Copy gym schedule' feature: copy next 14 days of gym days/times to share",
             "done": false
           },
           {
@@ -123,10 +120,37 @@
             "done": false
           },
           {
-            "text": "New \"Backlog\" list type splitting into general + recurring (recurring tracks last-done); convert items into task or project (Backlog→Note→Task→Project)",
+            "text": "New 'Backlog' list type (Backlog-general + Backlog-recurring), convertible to task/project",
             "done": false
           }
         ]
+      },
+      {
+        "id": "2026-07-11-personal-productivity-mental-health-management",
+        "title": "Personal productivity as mental health management",
+        "status": "active",
+        "updated": "2026-07-11",
+        "line": "Learning interest: productivity as managing mental health, rest, and endorphins — finishing tasks better and steering focus.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
+        "title": "Work compliance topics — resources to gather",
+        "status": "active",
+        "updated": "2026-07-21",
+        "line": "ISO/27701 side covered (standards filed to 20 Sources); GDPR and EU AI Act primary texts accumulating via Compliance Radar.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-14-cookie-scanner-applicatie",
+        "title": "Cookie Scanner Applicatie",
+        "status": "active",
+        "updated": "2026-07-28",
+        "line": "Tool concept: enter a URL, agent runs a forensic before/after-consent cookie/tracker audit and produces an evidence report. Next step: scope the MVP.",
+        "notes": [],
+        "subtasks": []
       },
       {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
@@ -141,8 +165,8 @@
         "id": "2026-07-11-finance-and-markets-learning-interest",
         "title": "Finance and markets — learning interest",
         "status": "idea-stage",
-        "updated": "2026-07-28 06:47",
-        "line": "Learning interest in the markets and stocks (not personal finance).",
+        "updated": "2026-07-28",
+        "line": "Build knowledge about finance — the markets and stocks, not personal finance.",
         "notes": [],
         "subtasks": []
       },
@@ -150,8 +174,8 @@
         "id": "2026-07-14-team-verbetering-idee",
         "title": "Team verbetering — idee",
         "status": "idea-stage",
-        "updated": "2026-07-28 06:47",
-        "line": "Ideas to improve the team: bi-monthly strategy session, action list for the manager, more visibility.",
+        "updated": "2026-07-28",
+        "line": "Ideas to improve the team: bi-monthly strategy session with a fellow senior, keep a requirements/action list for the manager, and create more visibility upward.",
         "notes": [
           "2026-07-28 (Tinus): The gist of this idea should be in the description in the app, at least"
         ],
@@ -161,16 +185,16 @@
         "id": "2026-07-28-learn-pistol-squats",
         "title": "Learn pistol squats",
         "status": "idea-stage",
-        "updated": "2026-07-28 06:47",
-        "line": "Learn pistol squats for both legs (if knee-safe), including the Russian pistol squat dance.",
+        "updated": "2026-07-28",
+        "line": "Learn pistol squats for both legs (if knee-safe), plus the Russian pistol squat dance.",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-28-link-chatgpt-work-to-app",
-        "title": "Link ChatGPT Work to the app",
+        "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
         "status": "idea-stage",
-        "updated": "2026-07-28 06:47",
+        "updated": "2026-07-28",
         "line": "Link ChatGPT Work to the app to avoid vendor lock-in.",
         "notes": [],
         "subtasks": []
@@ -179,38 +203,55 @@
         "id": "2026-07-11-daily-habits-hub-site",
         "title": "A daily \"things to do everyday\" hub site",
         "status": "done",
-        "updated": "2026-07-28 06:47",
-        "line": "Daily 'things to do every day' hub site (tinotestingthings.github.io, NoteSprint app); marked done.",
+        "updated": "2026-07-28",
+        "line": "Daily-habits hub / morning ritual loop; web app is live (the goodmorning app). Marked done, kept in Projects.",
         "notes": [
           "2026-07-24 (Tinus): Done"
         ],
         "subtasks": []
+      },
+      {
+        "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
+        "title": "Daily digest app — instructions & build prompt",
+        "status": "done",
+        "updated": "2026-07-28",
+        "line": "Living feed/queue contract for the goodmorning app read by the daily-digest scheduled task. Build complete; kept as the active spec.",
+        "notes": [],
+        "subtasks": []
       }
     ],
     "radar": {
-      "updated": "2026-07-30 06:33",
+      "updated": "2026-07-30",
       "follow_ups": 1,
-      "headline": "Italy's Garante issued fresh fines: €7.72m against energy suppliers + credit bureaux over creditworthiness scoring, and €158k against Character.AI over minors' data.",
+      "headline": "Italy's Garante issued child-privacy and credit-scoring fines (30 Jul); AI Act Art. 50(2) transparency/watermarking rules apply from 2 Aug.",
       "deadlines": [
         {
           "date": "2026-08-02",
           "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
         },
         {
+          "date": "2026-08-05",
+          "label": "EDPB Art. 33 breach-notification template consultation closes"
+        },
+        {
+          "date": "2026-08-10",
+          "label": "AP DPIA-exceptions consultation closes"
+        },
+        {
+          "date": "2026-08-15",
+          "label": "Cyberbeveiligingswet + Wwke enter into force"
+        },
+        {
+          "date": "2026-10-31",
+          "label": "ISO/IEC 27701:2025 certification-body transition deadline"
+        },
+        {
           "date": "2026-12-02",
-          "label": "Art. 50(2) watermarking grace period ends (pre-2 Aug systems) + new CSAM / non-consensual intimate imagery prohibition takes effect"
+          "label": "Art. 50(2) grace period ends; new CSAM/non-consensual-imagery prohibition takes effect"
         },
         {
           "date": "2027-08-02",
-          "label": "GPAI providers with pre-Aug-2025 models: full compliance deadline"
-        },
-        {
-          "date": "2027-12-02",
-          "label": "Standalone high-risk AI (Annex III) obligations become applicable"
-        },
-        {
-          "date": "2028-08-02",
-          "label": "High-risk AI embedded in products (Annex I) compliance deadline"
+          "label": "GPAI providers (pre-Aug-2025 models): full compliance deadline"
         }
       ]
     }
