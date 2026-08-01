@@ -204,6 +204,24 @@
     });
     body.appendChild(seg);
 
+    // ---- promote task <-> project ----
+    // These are vault items, so the actual file move (30 Tasks <-> 40 Projects)
+    // happens on the next daily-digest sync via a `convert` action; the sheet
+    // just enqueues it and tells the user it lands on next sync.
+    if (type === "task" || type === "project") {
+      body.appendChild(el("div", "detail-section-label", type === "project" ? "Make this a task" : "Make this a project"));
+      var to = type === "project" ? "task" : "project";
+      var convBtn = el("button", "detail-convert-btn", "Convert to " + (to === "project" ? "project" : "task"));
+      convBtn.type = "button";
+      convBtn.addEventListener("click", function () {
+        enqueue({ type: "convert", target_id: id, section: section, body: to });
+        changed = true;
+        toast("Will move to " + (to === "project" ? "Projects" : "Tasks") + " on next sync");
+        close();
+      });
+      body.appendChild(convBtn);
+    }
+
     // ---- subtasks (not for radar deadlines) ----
     if (type === "radar") {
       body.appendChild(buildNotesSection());
