@@ -1,51 +1,44 @@
 {
-  "generated": "2026-07-31T23:15:59.772898Z",
+  "generated": "2026-08-01T06:42:00Z",
   "daily": [
     {
-      "id": "2026-07-30-enschede-wifi-tracking-boete-raad-van-state",
-      "title": "Enschede hoeft €600.000 boete wegens wifi-tracking niet te betalen (Raad van State)",
+      "id": "2026-08-01-bits-of-freedom-superteleurgesteld-ap-meer-handhaven",
+      "title": "Bits of Freedom 'superteleurgesteld' in AP, roept op tot meer handhaving",
       "source": "Security.NL",
-      "url": "https://www.security.nl/posting/947115/Enschede+hoeft+600_000+euro+boete+wegens+wifi-tracking+niet+te+betalen",
-      "date": "2026-07-29",
-      "summary": "De Raad van State heeft het hoger beroep van de Autoriteit Persoonsgegevens ongegrond verklaard: de gemeente Enschede hoeft een boete van €600.000 die de AP wegens wifi-tracking had opgelegd niet te betalen. Eerder oordeelde de rechtbank al dat de AP de boete \"op onjuiste gronden\" had opgelegd, omdat niet bewezen is dat de gemeente persoonsgegevens heeft verwerkt van eigenaren van mobiele telefoons waarvan de wifi tijdens de passantentellingen aanstond. (Bron: Security.NL, redactie, 29 juli 2026.)\n\nDe zaak gaat terug tot 2017, toen Enschede via sensoren de drukte in de binnenstad wilde meten. Een gespecialiseerd bedrijf plaatste meetkastjes in winkelstraten die wifi-signalen van passerende telefoons opvingen; elke telefoon werd via een unieke code (het — gepseudonimiseerde en later ingekorte — MAC-adres) apart geregistreerd. De AP stelde dat \"tellen\" over langere tijd verandert in het \"volgen\" van mensen, dat de privacy van burgers niet goed was gewaarborgd, en legde de boete op. De gemeente stapte naar de rechter, die oordeelde dat de AP onvoldoende had onderzocht of de identiteit van gebruikers daadwerkelijk te achterhalen was.\n\nIn hoger beroep stelde de AP dat natuurlijke personen al direct geïdentificeerd waren via de combinatie van MAC-adres en locatiegegevens, en dat er dus sprake was van verwerking van persoonsgegevens. De Afdeling bestuursrechtspraak wijst dat af op procedureel-bewijsrechtelijke gronden: bij een bestuurlijk boetebesluit moet het dragend bewijs van de overtreding rond zijn *bij de voltooiing van de besluitvorming*, niet pas later. Omdat de AP dit standpunt niet in haar oorspronkelijke besluit had ingenomen, toetst de Raad van State het niet, en blijft het rechtbankoordeel staan.\n\nRelevant voor de handhavings-/bewijslastlijn: de AP verliest hier niet op de inhoud (of MAC-adres + locatie persoonsgegevens zijn), maar omdat ze het bewijs te laat/te procedureel heeft aangedragen — een terugkerend kritiekpunt. De onderliggende uitspraak staat op raadvanstate.nl (zaaknr. 202401622/1/A3). Enschede is met de passantentelling overigens al op 1 mei 2020 gestopt."
-    },
-    {
-      "id": "2026-07-30-volkskrant-is-privacy-een-exclusief-recht-voor-de-rijken",
-      "title": "Volkskrant-column: \"Is privacy een exclusief recht voor de rijken?\"",
-      "source": "Volkskrant",
-      "url": "https://www.volkskrant.nl/columns-van-de-dag/is-privacy-een-exclusief-recht-voor-de-rijken~b7205cad/",
-      "date": "2026-07-30",
-      "summary": "Een column uit de Volkskrant-reeks \"Columns van de dag\", getiteld *\"Is privacy een exclusief recht voor de rijken?\"* — een opiniestuk over de vraag of privacy in de praktijk een luxe wordt die alleen welgestelden zich kunnen veroorloven (denk aan gratis-diensten-in-ruil-voor-data versus betaalde privacy-vriendelijke alternatieven, \"pay or okay\"-modellen, en de sociale gelaagdheid van databescherming).\n\n**Volledige tekst niet opgehaald:** de Volkskrant-URL staat op de fetch-blocklist van deze omgeving, dus de inhoud kon niet automatisch worden binnengehaald (waarschijnlijk ook paywall). Bovenstaande beschrijving is op basis van titel en context, niet van de tekst zelf — behandel de samenvatting als indicatief, niet als de strekking van de auteur."
-    },
-    {
-      "id": "2026-07-31-noyb-dict-cc-avg-klacht-1741-partners-consent",
-      "title": "NOYB: AVG-klacht tegen dict.cc — 1.741 \"geïnformeerde\" toestemmingen met één klik",
-      "source": "NOYB",
-      "url": "https://noyb.eu/en/1741-informed-consents-one-click-gdpr-complaint-against-dictcc-filed",
-      "date": "2026-07-30",
-      "summary": "NOYB heeft op donderdag 30 juli 2026 een AVG-klacht ingediend bij de Oostenrijkse toezichthouder (Datenschutzbehörde) tegen het online woordenboek dict.cc. De kern van de klacht: bezoekers worden met één enkele klik verleid tot toestemming voor online tracking door **1.741 \"partners\"**. Volgens NOYB maakt dat werkelijk geïnformeerde toestemming onmogelijk, en schendt de opzet daarmee de AVG.\n\nDe AVG eist dat toestemming vrij, geïnformeerd, specifiek en ondubbelzinnig wordt gegeven. NOYB rekent voor dat het lezen van de privacyverklaringen van al die 1.741 partnerbedrijven — zelfs bij slechts zes minuten scannen per verklaring — minstens 170 uur zou kosten, oftewel meer dan een volledige werkweek voor één enkel toestemmingsverzoek. In de praktijk kan een gebruiker dus onmogelijk weten wie precies toegang tot zijn gegevens krijgt en waarvoor die worden gebruikt. Het \"één klik = akkoord met 1.741 partijen\"-model is precies het soort consent-dark-pattern dat NOYB al langer bestrijdt.\n\nNOYB vraagt de Oostenrijkse toezichthouder om verwijdering van de onrechtmatig verwerkte persoonsgegevens en om oplegging van een boete. De zaak is inhoudelijk verwant aan de bredere lijn van cookie-banner-/consent-klachten die in het vault al aanwezig is (o.a. de NOYB \"Pay or Okay\"-zaken en de eerdere cookie-banner-klachten), en sluit aan op het thema van doorgeschoten \"partnerlijsten\" in TCF/IAB-achtige toestemmingsschermen.\n\nOp het moment van vastleggen was de klacht ook opgepikt door onder meer MLex en Hacker News; de samenvatting hierboven is geschreven op basis van de NOYB-eigen aankondiging en de zoeksnippets."
+      "url": "https://www.security.nl/posting/947389/Bits+of+Freedom+'superteleurgesteld'+in+Autoriteit+Persoonsgegevens",
+      "date": "2026-08-01",
+      "summary": "Bits of Freedom-directeur Evelyn Austin noemt de digitale-burgerrechtenbeweging 'superteleurgesteld' in de AP: bedrijven en overheden overtreden nog op grote schaal de privacywetten en de toezichthouder dwingt geen gedragsverandering af. Privacy-expert Floor Terra valt bij — de AP waarschuwde politieke partijen al in 2023 voor tracking, maar dat gaat onverminderd door. De AP zegt te kiezen voor snelle interventies boven boetes; critici wijzen op structurele onderbegroting. Timing valt samen met de machtswisseling: Geert Potjewijd volgt op 1 aug 2026 Aleid Wolfsen op als AP-voorzitter. Sluit aan op Mick Beers trackingwerk in het vault."
     }
   ],
   "today": {
-    "date": "2026-07-31",
+    "date": "2026-08-01",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
         "title": "Fill in real resources for \"Work compliance topics\"",
         "status": "doing",
-        "detail": "Fill in real resources/content for the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR). ISO/NEN standards are filed to 20 Sources; GDPR and AI Act are what's left.",
-        "hint": "Just the GDPR and AI Act pieces remain — per your note.",
+        "detail": "Fill in real resources/content for the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR); ISO/NEN standards are filed, GDPR and AI Act still to add.",
+        "hint": "Add the GDPR and AI Act material — per Tinus's note that's all that's left.",
         "notes": [
           "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
         ],
-        "subtasks": []
+        "subtasks": [
+          {
+            "text": "Add gdpr",
+            "done": false
+          },
+          {
+            "text": "Add ai act and ai act changes from omnibus",
+            "done": false
+          }
+        ]
       },
       {
         "id": "2026-07-11-piano-practice-happy-birthday-jazz",
         "title": "Piano practice — Happy Birthday jazz",
-        "status": "todo",
-        "detail": "Learn the current lesson song, Happy Birthday jazz.",
-        "hint": "One short run-through counts.",
+        "status": "doing",
+        "detail": "Current lesson song is a jazz arrangement of Happy Birthday.",
+        "hint": "Sit down and start on it.",
         "notes": [
           "2026-07-24 (Tinus): Testnotitie"
         ],
@@ -60,85 +53,19 @@
         "id": "2026-07-28-food-with-me-workdays-15h",
         "title": "Always have food with me for ~15:00 on workdays",
         "status": "todo",
-        "detail": "Make sure to always carry food for around 15:00 on workdays (keeps forgetting). Overlaps with the 'eat more during work afternoons' task.",
-        "hint": "Pack a snack the night before.",
+        "detail": "Make sure to always have food on hand for around 15:00 on workdays.",
+        "hint": "Overlaps with the 'eat more during work afternoons' task — consider merging.",
         "notes": [],
         "subtasks": []
       }
     ],
     "projects": [
       {
-        "id": "2026-07-28-goodmorning-app-improvements",
-        "title": "Goodmorning app improvements",
-        "status": "active",
-        "updated": "2026-07-30",
-        "line": "Hub for goodmorning app improvements; new app-improvement notes get added here as subtasks.",
-        "notes": [],
-        "subtasks": [
-          {
-            "text": "Quick-capture '+' button: make it movable (hold & drag), staying sticky to screen sides",
-            "done": false
-          },
-          {
-            "text": "Calendar: duplicate a box on PC via shift+drag",
-            "done": false
-          },
-          {
-            "text": "History view of projects and tasks, with option to re-open/edit them",
-            "done": false
-          },
-          {
-            "text": "Unify task/project architecture (both have subtasks and idea/backlog→to-do→active→done→cancel states)",
-            "done": false
-          },
-          {
-            "text": "Morning loop tile style should match the other tiles",
-            "done": false
-          },
-          {
-            "text": "Add an emoji+ theme",
-            "done": false
-          },
-          {
-            "text": "All-day items should behave like normal calendar tasks (currently can't even be deleted)",
-            "done": false
-          },
-          {
-            "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style",
-            "done": false
-          },
-          {
-            "text": "Quick-capture box: history / 'see history' of posted ideas",
-            "done": false
-          },
-          {
-            "text": "Triage: add a history view",
-            "done": false
-          },
-          {
-            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe build a better gym tracker",
-            "done": false
-          },
-          {
-            "text": "'Copy gym schedule' feature: copy next 14 days of gym days/times to share",
-            "done": false
-          },
-          {
-            "text": "Scan existing notes to check labelling; introduce table-style labelling if needed",
-            "done": false
-          },
-          {
-            "text": "New 'Backlog' list type (Backlog-general + Backlog-recurring), convertible to task/project",
-            "done": false
-          }
-        ]
-      },
-      {
         "id": "2026-07-11-personal-productivity-mental-health-management",
         "title": "Personal productivity as mental health management",
         "status": "active",
         "updated": "2026-07-11",
-        "line": "Learning interest: productivity as managing mental health, rest, and endorphins — finishing tasks better and steering focus.",
+        "line": "Learning interest framing productivity as managing mental health, rest, and endorphins.",
         "notes": [],
         "subtasks": []
       },
@@ -147,7 +74,7 @@
         "title": "Work compliance topics — resources to gather",
         "status": "active",
         "updated": "2026-07-21",
-        "line": "ISO/27701 side covered (standards filed to 20 Sources); GDPR and EU AI Act primary texts accumulating via Compliance Radar.",
+        "line": "Placeholder hub for work-relevant compliance resources; being filled via the linked task (ISO done, GDPR/AI Act pending).",
         "notes": [],
         "subtasks": []
       },
@@ -156,16 +83,82 @@
         "title": "Cookie Scanner Applicatie",
         "status": "active",
         "updated": "2026-07-28",
-        "line": "Tool concept: enter a URL, agent runs a forensic before/after-consent cookie/tracker audit and produces an evidence report. Next step: scope the MVP.",
+        "line": "App idea for forensic before/after-consent network analysis of sites, inspired by Mick Beer's method.",
         "notes": [],
         "subtasks": []
+      },
+      {
+        "id": "2026-07-28-goodmorning-app-improvements",
+        "title": "Goodmorning app improvements",
+        "status": "active",
+        "updated": "2026-08-01",
+        "line": "Hub collecting app-improvement notes as subtasks; 3 more marked done this run (movable quick-capture, morning-loop tile style, emoji+ theme).",
+        "notes": [],
+        "subtasks": [
+          {
+            "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides",
+            "done": true
+          },
+          {
+            "text": "Calendar: duplicate a box on PC via shift+drag",
+            "done": false
+          },
+          {
+            "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+            "done": false
+          },
+          {
+            "text": "Unify task/project architecture (both have subtasks and idea/backlog → to-do → active → done → cancel states)",
+            "done": false
+          },
+          {
+            "text": "Morning loop tile style should match the other tiles",
+            "done": true
+          },
+          {
+            "text": "Add an emoji+ theme",
+            "done": true
+          },
+          {
+            "text": "All-day items should behave like normal calendar tasks",
+            "done": false
+          },
+          {
+            "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style",
+            "done": false
+          },
+          {
+            "text": "Quick-capture box: history / \"see history\" button",
+            "done": false
+          },
+          {
+            "text": "Triage: add a history view",
+            "done": false
+          },
+          {
+            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker)",
+            "done": false
+          },
+          {
+            "text": "\"Copy gym schedule\" feature in agenda settings",
+            "done": false
+          },
+          {
+            "text": "Scan existing notes to check labelling is correct",
+            "done": false
+          },
+          {
+            "text": "New \"Backlog\" list type (see build spec)",
+            "done": false
+          }
+        ]
       },
       {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
         "title": "Cooking — improving recipes",
         "status": "idea-stage",
         "updated": "2026-07-11",
-        "line": "Start and improve recipes based on current ones, using the second brain.",
+        "line": "Start and improve recipes based on existing ones, using the second brain.",
         "notes": [],
         "subtasks": []
       },
@@ -174,7 +167,7 @@
         "title": "Finance and markets — learning interest",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Build knowledge about finance — the markets and stocks, not personal finance.",
+        "line": "Build knowledge about markets and stocks (not personal finance).",
         "notes": [],
         "subtasks": []
       },
@@ -183,7 +176,7 @@
         "title": "Team verbetering — idee",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Ideas to improve the team: bi-monthly strategy session with a fellow senior, keep a requirements/action list for the manager, and create more visibility upward.",
+        "line": "Ideas for improving the team; gist should live in the app description.",
         "notes": [
           "2026-07-28 (Tinus): The gist of this idea should be in the description in the app, at least"
         ],
@@ -194,13 +187,13 @@
         "title": "Learn pistol squats",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Learn pistol squats for both legs (if knee-safe), plus the Russian pistol squat dance.",
+        "line": "Learn pistol squats for both legs (knees permitting), incl. the Russian pistol-squat dance.",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-28-link-chatgpt-work-to-app",
-        "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+        "title": "Link ChatGPT Work to the app",
         "status": "idea-stage",
         "updated": "2026-07-28",
         "line": "Link ChatGPT Work to the app to avoid vendor lock-in.",
@@ -208,11 +201,20 @@
         "subtasks": []
       },
       {
+        "id": "2026-08-01-backlog-list-type-build-spec",
+        "title": "Backlog list type — build spec",
+        "status": "idea-stage",
+        "updated": "2026-08-01",
+        "line": "Sub-doc of Goodmorning app improvements fleshing out the new Backlog list type (scope, data model, build steps).",
+        "notes": [],
+        "subtasks": []
+      },
+      {
         "id": "2026-07-11-daily-habits-hub-site",
-        "title": "A daily \"things to do everyday\" hub site",
+        "title": "Daily 'things to do everyday' hub site",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Daily-habits hub / morning ritual loop; web app is live (the goodmorning app). Marked done, kept in Projects.",
+        "line": "Site for daily habits (notes practice, interval training, exercises, to-dos) — marked done.",
         "notes": [
           "2026-07-24 (Tinus): Done"
         ],
@@ -223,7 +225,7 @@
         "title": "Daily digest app — instructions & build prompt",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Living feed/queue contract for the goodmorning app read by the daily-digest scheduled task. Build complete; kept as the active spec.",
+        "line": "Build spec for the goodmorning swipe-feed app — marked done.",
         "notes": [],
         "subtasks": []
       }
@@ -231,35 +233,11 @@
     "radar": {
       "updated": "2026-07-30",
       "follow_ups": 1,
-      "headline": "Italy's Garante issued child-privacy and credit-scoring fines (30 Jul); AI Act Art. 50(2) transparency/watermarking rules apply from 2 Aug.",
+      "headline": "Garante fines Character.AI €158,000 over minors' data + age-verification failures",
       "deadlines": [
         {
           "date": "2026-08-02",
-          "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable"
-        },
-        {
-          "date": "2026-08-05",
-          "label": "EDPB Art. 33 breach-notification template consultation closes"
-        },
-        {
-          "date": "2026-08-10",
-          "label": "AP DPIA-exceptions consultation closes"
-        },
-        {
-          "date": "2026-08-15",
-          "label": "Cyberbeveiligingswet + Wwke enter into force"
-        },
-        {
-          "date": "2026-10-31",
-          "label": "ISO/IEC 27701:2025 certification-body transition deadline"
-        },
-        {
-          "date": "2026-12-02",
-          "label": "Art. 50(2) grace period ends; new CSAM/non-consensual-imagery prohibition takes effect"
-        },
-        {
-          "date": "2027-08-02",
-          "label": "GPAI providers (pre-Aug-2025 models): full compliance deadline"
+          "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable (pre-existing systems get a grace period to 2 Dec 2026)"
         }
       ]
     }
