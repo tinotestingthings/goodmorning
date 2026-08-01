@@ -1,0 +1,315 @@
+[
+{
+"id": "2026-07-11-battlefield-6-helicopter-flying-practice-goal",
+"type": "task",
+"state": "todo",
+"title": "Battlefield 6 — helicopter flying practice goal",
+"note": "I play Battlefield 6 on mouse and keyboard — I should get better at flying helicopters.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-piano-practice-happy-birthday-jazz",
+"type": "task",
+"state": "active",
+"title": "Piano practice — Happy Birthday jazz",
+"note": "Goal: learn my current song for piano lessons.",
+"subtasks": [
+{
+"text": "Maybe start",
+"done": false
+}
+],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-weekend-and-gym-routine-scheduling",
+"type": "task",
+"state": "todo",
+"title": "Weekend and gym routine — scheduling for after-work suggestions",
+"note": "Goal: add my weekend free-ness and gym routines to the second brain, so I can get suggestions for what to do after work.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-13-fix-invalid-recipe-tag-names",
+"type": "task",
+"state": "todo",
+"title": "Fix invalid recipe tag names",
+"note": "Some ingredient tags used across the 32 recipe notes filed in `20 Sources` on 2026-07-13 contain spaces, which aren't valid Obsidian tags — e.g. `parmezaanse kaas`, `griekse yoghurt`, `crème fraîche`, `ras el hanout`, `rode wijn`, `italiaanse kruiden`, `groene peper`, `haver fraî",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-13-notebooklm-in-daily-routines",
+"type": "task",
+"state": "todo",
+"title": "I should definitely use NotebookLM more in my daily routines",
+"note": "Idea: start actually using [NotebookLM](https://notebooklm.google.com/) more as part of my daily routines.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-eat-more-during-work-afternoons",
+"type": "task",
+"state": "todo",
+"title": "Eat more during work afternoons",
+"note": "I need to eat more during work after lunch, around 14:30 or 15:30. I keep forgetting.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-fill-in-work-compliance-topics-resources",
+"type": "task",
+"state": "active",
+"title": "Fill in real resources for \"Work compliance topics\"",
+"note": "Fill in real resources/content for the \"Work compliance topics\" note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names with no actual content.",
+"subtasks": [
+{
+"text": "Add gdpr",
+"done": false
+},
+{
+"text": "Add ai act and ai act changes from omnibus",
+"done": false
+}
+],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-foot-muscle-exercises",
+"type": "task",
+"state": "todo",
+"title": "Voetspieroefeningen overwegen",
+"note": "Spieren in voet regelmatig klachten, vermoedelijk te slap/te weinig kracht. Aandachtspunt: voetspieroefeningen / krachtopbouw overwegen.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-standing-desk-more-often",
+"type": "task",
+"state": "todo",
+"title": "Vaker staand werken",
+"note": "Vaker staand werken achter bureau i.p.v. zitten. Reden: te veel zitten is slecht (houding, doorbloeding, energie).",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-walk-more-twice-a-week",
+"type": "task",
+"state": "todo",
+"title": "Walk more",
+"note": "I need to walk more — probably go for a proper walk at least 2 times a week.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-25-ec-transparantie-richtsnoeren-ai-act-artikel-50",
+"type": "task",
+"state": "done",
+"title": "Europese Commissie richtsnoeren transparantieverplichtingen AI Act (art. 50) — doornemen",
+"note": "Van de goodmorning-triage als taak gemarkeerd (in plaats van bewaren als bron): de definitieve/concept-status van deze richtsnoeren op de EC-pagina verifiëren en de watermarking-/disclosure-verplichtingen tegen de eigen compliance-praktijk leggen, met het oog op de toepassing van",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-28-food-with-me-workdays-15h",
+"type": "task",
+"state": "todo",
+"title": "Always have food with me for ~15:00 on workdays",
+"note": "I need to make sure I always have food with me for like 15:00 on workdays.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-28-piano-learn-familiar",
+"type": "task",
+"state": "todo",
+"title": "Piano - learn Familiar",
+"note": "Learn to play *Familiar* on piano.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-cooking-improving-recipes-using-second-brain",
+"type": "project",
+"state": "idea",
+"title": "Cooking — improving recipes",
+"note": "Goal: start and improve recipes based on current ones, using the second brain.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-daily-habits-hub-site",
+"type": "project",
+"state": "done",
+"title": "Project: a daily \"things to do everyday\" hub site",
+"note": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-finance-and-markets-learning-interest",
+"type": "project",
+"state": "idea",
+"title": "Finance and markets — learning interest",
+"note": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-personal-productivity-mental-health-management",
+"type": "project",
+"state": "active",
+"title": "Personal productivity as mental health management",
+"note": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-11-work-compliance-topics-resources-to-gather",
+"type": "project",
+"state": "active",
+"title": "Work compliance topics — resources to gather",
+"note": "Topics to add work-relevant resources on: - ISO 27001 - ISO 27701 - EU AI Act - GDPR",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-cookie-scanner-applicatie",
+"type": "project",
+"state": "active",
+"title": "Project: Cookie Scanner Applicatie",
+"note": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostnamen, cookie-looptijden) gescheiden van ",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-14-team-verbetering-idee",
+"type": "project",
+"state": "idea",
+"title": "Team verbetering — idee",
+"note": "Idee over hoe we ons team kunnen verbeteren: - 2-maandelijkse strategiesessie met mede-senior - Meer eisen en actielijst bijhouden voor onze manager - Meer zichtbaarheid creëren naar de manager",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
+"type": "project",
+"state": "done",
+"title": "Daily digest app — instructions & Claude Code build prompt",
+"note": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed). Decisions made 2026-07-15:",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-28-goodmorning-app-improvements",
+"type": "project",
+"state": "active",
+"title": "Goodmorning app improvements",
+"note": "Hub project for improvements to the goodmorning app. Per Tinus's instruction (app note, 2026-07-27): \"Make a Project with 'Goodmorning app improvements'. If I put notes here that are improvements to the app, add them as subtasks.\" Future app-improvement notes get added here as su",
+"subtasks": [
+{
+"text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
+"done": true
+},
+{
+"text": "Calendar: duplicate a box on PC via shift+drag",
+"done": false
+},
+{
+"text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+"done": false
+},
+{
+"text": "Morning loop tile style should match the other tiles",
+"done": true
+},
+{
+"text": "Add an emoji+ theme",
+"done": true
+},
+{
+"text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
+"done": false
+},
+{
+"text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
+"done": false
+},
+{
+"text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
+"done": false
+},
+{
+"text": "Triage: add a history view",
+"done": false
+},
+{
+"text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
+"done": false
+},
+{
+"text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
+"done": false
+},
+{
+"text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+"done": false
+}
+],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-28-learn-pistol-squats",
+"type": "project",
+"state": "idea",
+"title": "Learn pistol squats",
+"note": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-07-28-link-chatgpt-work-to-app",
+"type": "project",
+"state": "idea",
+"title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+"note": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+},
+{
+"id": "2026-08-01-backlog-list-type-build-spec",
+"type": "project",
+"state": "active",
+"title": "Backlog list type — build spec",
+"note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Fleshes out the \"New Backlog list type\" subtask into scope, data model, and build steps.",
+"subtasks": [],
+"recurrence": null,
+"source": "vault"
+}
+]

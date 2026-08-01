@@ -131,6 +131,48 @@
     save(list);
   }
 
+  // ---- one-time migration seed (Supabase-primary switch) --------------------
+  // Vault tasks/projects are seeded into the store once, client-side, so they
+  // are written under the user's own auth (the service role can't write this
+  // table). Runs AFTER the first agenda sync pull (so the server copy can't
+  // clobber the seed), merges by id (never duplicates), and sets a flag so it
+  // never runs again — deletes stick.
+  var SEED_FLAG = "sbx.itemsSeeded";
+  function seedOnce() {
+    try { if (localStorage.getItem(SEED_FLAG)) return; } catch (e) { return; }
+    fetch("items-seed.json", { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error("no seed");
+      return r.json();
+    }).then(function (seed) {
+      if (!Array.isArray(seed)) return;
+      var list = load();
+      var have = {};
+      list.forEach(function (x) { have[x.id] = true; });
+      var maxOrder = 0;
+      list.forEach(function (x) { if ((x.order || 0) > maxOrder) maxOrder = x.order || 0; });
+      var now = nowISO(), added = 0;
+      seed.forEach(function (s) {
+        if (have[s.id]) return;
+        maxOrder += 1;
+        list.push({
+          id: s.id, type: s.type === "project" ? "project" : "task",
+          state: STATES.indexOf(s.state) !== -1 ? s.state : "todo",
+          title: s.title || s.id, note: s.note || "", subtasks: s.subtasks || [],
+          recurrence: s.recurrence || null, source: s.source || "vault",
+          order: maxOrder, created: now, updated: now
+        });
+        added += 1;
+      });
+      if (added > 0) save(list);
+      try { localStorage.setItem(SEED_FLAG, now); } catch (e) {}
+      if (added > 0 && global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
+    }).catch(function () { /* offline / no seed — try again next boot */ });
+  }
+  // Run after the first agenda pull; fall back to a delayed run if that event
+  // never fires (e.g. not signed in — local-only, nothing to clobber).
+  document.addEventListener("dd-agenda-ready", seedOnce);
+  setTimeout(seedOnce, 8000);
+
   global.Items = {
     STATES: STATES,
     all: all,
@@ -141,6 +183,7 @@
     update: update,
     remove: remove,
     move: move,
-    setOrder: setOrder
+    setOrder: setOrder,
+    seedOnce: seedOnce
   };
 })(window);

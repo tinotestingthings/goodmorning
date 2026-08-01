@@ -120,7 +120,12 @@
     if (started || !session) return;
     started = true;
     userId = session.user.id;
-    pull(function () { if (lastSynced === null) lastSynced = snapshot(); });
+    pull(function () {
+      if (lastSynced === null) lastSynced = snapshot();
+      // Signal that the first pull is done so one-time client migrations can run
+      // without being clobbered by a subsequent server snapshot.
+      try { document.dispatchEvent(new Event("dd-agenda-ready")); } catch (e) {}
+    });
     setInterval(tick, POLL_MS);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
   }

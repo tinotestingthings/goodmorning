@@ -2879,3 +2879,27 @@ main#deckArea {
   cursor: pointer;
 }
 .detail-convert-btn:active { background: var(--border); }
+
+/* ---- inline item editor (state + subtasks) ---- */
+.item-panel-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-dim); margin: 8px 4px 4px;
+}
+.item-state-seg { display: flex; gap: 4px; flex-wrap: wrap; padding: 0 4px; }
+.item-state-btn {
+  appearance: none; border: 1px solid var(--border); background: none; color: var(--text-dim);
+  border-radius: 8px; padding: 5px 9px; font-size: 0.74rem; font-weight: 600; cursor: pointer;
+}
+.item-state-btn.active { background: var(--skip); color: #fff; border-color: var(--skip); }
+.item-subs { display: flex; flex-direction: column; gap: 4px; padding: 0 4px; }
+.item-sub { display: flex; align-items: center; gap: 8px; }
+.item-sub.done .item-sub-text { text-decoration: line-through; color: var(--text-dim); }
+.item-sub-check {
+  appearance: none; width: 20px; height: 20px; flex-shrink: 0; border: 1.5px solid var(--border);
+  border-radius: 6px; background: none; color: var(--keep); font-size: 0.8rem; line-height: 1; cursor: pointer;
+}
+.item-sub-check.checked { border-color: var(--keep); }
+.item-sub-text { flex: 1; min-width: 0; font-size: 0.85rem; color: var(--text); }
+.item-sub-del { appearance: none; background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 0 4px; }
+.item-sub-add { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.item-sub-add .field-input { flex: 1; min-width: 0; }
