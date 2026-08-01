@@ -548,6 +548,156 @@
     collapsible(container, primary, rest, projectRow);
   }
 
+  // ---- Backlog (unified items store) --------------------------------------
+  // The Backlog is every unified item in the "backlog" state: things you don't
+  // want to forget but that aren't a dated to-do yet. Manually reorderable;
+  // each item can be promoted up the spectrum — Scheduled task / Task / Project
+  // / Note — reusing the app's existing calendar + capture paths. Promotion
+  // removes the item from the backlog so each thing lives in exactly one place.
+  var ICON_BACKLOG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 6h9M4 12h9M4 18h5"/><path d="M16 15l2.4 2.4L23 13"/></svg>';
+
+  function backlogBadge() {
+    var n = window.Items ? window.Items.backlog().length : 0;
+    return { text: n > 0 ? String(n) : "", cls: "tile-badge-gray" };
+  }
+
+  function newTodoId() {
+    return "td-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6);
+  }
+
+  // Promote a backlog item into the vault via the existing Supabase `captures`
+  // path (files to 10 Notes / 30 Tasks / 40 Projects on the next sync), then
+  // drop it from the backlog.
+  function backlogCapture(kind, item, doneMsg, refresh) {
+    if (!global.SB) { toast("Not connected — try again"); return; }
+    var body = item.title + (item.note ? "\n\n" + item.note : "") + "\n\n(promoted from Backlog)";
+    global.SB.from("captures").insert({ kind: kind, title: item.title.slice(0, 120), body: body, status: "new" }).then(function (res) {
+      if (res && res.error) { toast("Failed: " + res.error.message); return; }
+      window.Items.remove(item.id);
+      toast(doneMsg);
+      refresh();
+    }, function (err) { toast("Failed: " + ((err && err.message) || "unknown")); });
+  }
+
+  // Inline date picker → creates a calendar to-do (sbx.todos, the exact store
+  // the Calendar reads) and drops the backlog item. Existing to-dos untouched.
+  function backlogScheduleForm(item, refresh) {
+    var form = el("div", "backlog-schedule");
+    var d = document.createElement("input");
+    d.type = "date"; d.className = "field-input"; d.value = localDateStr();
+    form.appendChild(d);
+    var go = el("button", "btn btn-primary btn-sm", "Schedule");
+    go.type = "button";
+    go.addEventListener("click", function () {
+      var todos = loadTodos();
+      todos.push({ id: newTodoId(), text: item.title, dueDate: d.value || localDateStr(), startTime: null, endTime: null, category: null, note: item.note || null, done: false });
+      saveTodos(todos);
+      window.Items.remove(item.id);
+      toast("Scheduled → Calendar");
+      refresh();
+    });
+    form.appendChild(go);
+    return form;
+  }
+
+  function backlogRow(item, idx, count, refresh) {
+    var li = el("div", "backlog-item");
+
+    var row = el("div", "backlog-row");
+    var ord = el("div", "backlog-ord");
+    var up = el("button", "backlog-ord-btn", "▲"); up.type = "button"; up.disabled = idx === 0;
+    up.addEventListener("click", function (e) { e.stopPropagation(); window.Items.move(item.id, -1); refresh(); });
+    var dn = el("button", "backlog-ord-btn", "▼"); dn.type = "button"; dn.disabled = idx === count - 1;
+    dn.addEventListener("click", function (e) { e.stopPropagation(); window.Items.move(item.id, 1); refresh(); });
+    ord.appendChild(up); ord.appendChild(dn);
+    row.appendChild(ord);
+
+    row.appendChild(el("span", "backlog-type backlog-type-" + item.type, item.type === "project" ? "Project" : "Task"));
+    row.appendChild(el("span", "backlog-title", item.title));
+    var menuBtn = el("button", "backlog-menu-btn", "⋯"); menuBtn.type = "button";
+    row.appendChild(menuBtn);
+    li.appendChild(row);
+
+    var panel = el("div", "backlog-actions hidden");
+    menuBtn.addEventListener("click", function () { panel.classList.toggle("hidden"); });
+
+    function actBtn(label, cls, fn) {
+      var b = el("button", "backlog-act" + (cls ? " " + cls : ""), label); b.type = "button";
+      b.addEventListener("click", fn); return b;
+    }
+
+    var schedWrap = el("div", "backlog-sched-wrap hidden");
+    panel.appendChild(actBtn("📅  Schedule…", "", function () {
+      schedWrap.classList.toggle("hidden");
+      if (!schedWrap.firstChild) schedWrap.appendChild(backlogScheduleForm(item, refresh));
+    }));
+    panel.appendChild(schedWrap);
+
+    panel.appendChild(actBtn("→  Make a task", "", function () { backlogCapture("task", item, "Sent to Tasks (files on next sync)", refresh); }));
+    panel.appendChild(actBtn("◈  Make a project", "", function () { backlogCapture("project", item, "Sent to Projects (files on next sync)", refresh); }));
+    panel.appendChild(actBtn("📝  Save as note", "", function () { backlogCapture("note", item, "Saved as note (files on next sync)", refresh); }));
+    panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {
+      window.Items.update(item.id, { type: item.type === "project" ? "task" : "project" }); refresh();
+    }));
+    panel.appendChild(actBtn("Rename", "", function () {
+      var name = window.prompt("Rename backlog item", item.title);
+      if (name && name.trim()) { window.Items.update(item.id, { title: name.trim() }); refresh(); }
+    }));
+    panel.appendChild(actBtn("🗑  Delete", "backlog-act-danger", function () {
+      if (window.confirm("Delete \"" + item.title + "\" from the backlog?")) { window.Items.remove(item.id); refresh(); }
+    }));
+
+    li.appendChild(panel);
+    return li;
+  }
+
+  function buildBacklogBody(container) {
+    if (!window.Items) { container.appendChild(el("p", "dash-empty", "Backlog unavailable.")); return; }
+
+    var add = el("div", "backlog-add");
+    var input = document.createElement("input");
+    input.type = "text"; input.className = "field-input backlog-add-input"; input.placeholder = "Add to backlog…";
+    var typeSeg = el("div", "backlog-seg");
+    var addType = "task";
+    [["task", "Task"], ["project", "Project"]].forEach(function (pair) {
+      var b = el("button", "backlog-seg-btn" + (pair[0] === addType ? " active" : ""), pair[1]); b.type = "button";
+      b.addEventListener("click", function () {
+        addType = pair[0];
+        typeSeg.querySelectorAll(".backlog-seg-btn").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+      });
+      typeSeg.appendChild(b);
+    });
+    var addBtn = el("button", "btn btn-primary btn-sm", "Add"); addBtn.type = "button";
+    function doAdd() {
+      var v = (input.value || "").trim();
+      if (!v) { toast("Type something first"); return; }
+      window.Items.add({ title: v, type: addType, state: "backlog" });
+      input.value = "";
+      refresh();
+    }
+    addBtn.addEventListener("click", doAdd);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") doAdd(); });
+    add.appendChild(input); add.appendChild(typeSeg); add.appendChild(addBtn);
+    container.appendChild(add);
+
+    var listWrap = el("div", "backlog-list");
+    container.appendChild(listWrap);
+
+    function refresh() {
+      listWrap.innerHTML = "";
+      var items = window.Items.backlog();
+      if (items.length === 0) {
+        listWrap.appendChild(el("p", "dash-empty", "Backlog is empty. Add something you don't want to forget."));
+        return;
+      }
+      items.forEach(function (it, i) { listWrap.appendChild(backlogRow(it, i, items.length, refresh)); });
+    }
+    refresh();
+  }
+
   function daysUntil(dateStr) {
     var now = new Date();
     var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1385,7 +1535,9 @@
       { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
         build: function (c) { buildTasksBody(c, today); } },
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
-        build: function (c) { buildProjectsBody(c, today); } }
+        build: function (c) { buildProjectsBody(c, today); } },
+      { key: "backlog", label: "Backlog", icon: ICON_BACKLOG, badge: backlogBadge(),
+        build: function (c) { buildBacklogBody(c); } }
     ];
 
     // Remember which tile is open across re-renders (a detail-sheet edit
@@ -1428,30 +1580,25 @@
 
     appendUrgentCards(rowsWrap); // static cards, own row each, no accordion
 
-    var pendingTile = null;
-    function flushPending() {
-      if (!pendingTile) return;
-      rowsWrap.appendChild(pendingTile.el);
-      anchorEls[pendingTile.key] = pendingTile.el;
-      pendingTile = null;
+    // Tasks · Projects · Backlog sit three-across in one row; the accordion
+    // for whichever tile is open drops in below the whole row.
+    var PER_ROW = 3;
+    var rowBuf = [];
+    function flushRow() {
+      if (rowBuf.length === 0) return;
+      var row = el("div", "tile-row tile-row-" + rowBuf.length);
+      rowBuf.forEach(function (b) { row.appendChild(b.el); });
+      rowsWrap.appendChild(row);
+      rowBuf.forEach(function (b) { anchorEls[b.key] = row; });
+      rowBuf = [];
     }
-
     sections.forEach(function (s) {
       var t = tile(s.key, s.label, s.icon, s.badge, function () { setOpen(s.key); });
       tileEls[s.key] = t;
-      if (pendingTile) {
-        var row = el("div", "tile-row");
-        row.appendChild(pendingTile.el);
-        row.appendChild(t);
-        rowsWrap.appendChild(row);
-        anchorEls[pendingTile.key] = row;
-        anchorEls[s.key] = row;
-        pendingTile = null;
-      } else {
-        pendingTile = { key: s.key, el: t };
-      }
+      rowBuf.push({ key: s.key, el: t });
+      if (rowBuf.length === PER_ROW) flushRow();
     });
-    flushPending();
+    flushRow();
 
     // Restore a previously-open tile (survives detail-sheet re-renders).
     if (openKey && tileEls[openKey]) {
