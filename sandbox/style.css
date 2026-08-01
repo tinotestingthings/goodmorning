@@ -1571,6 +1571,10 @@ main#deckArea {
 .chip-todo { background: rgba(74, 144, 217, 0.16); color: var(--skip); }
 .chip-paused { background: rgba(217, 164, 65, 0.16); color: #d9a441; }
 .chip-idea-stage { background: var(--border); color: var(--text-dim); }
+.chip-idea { background: var(--border); color: var(--text-dim); }
+.chip-backlog { background: color-mix(in srgb, #b48ead 22%, transparent); color: #b48ead; }
+.chip-done { background: rgba(47, 174, 102, 0.16); color: var(--keep); }
+.chip-cancelled { background: var(--border); color: var(--text-dim); text-decoration: line-through; }
 
 .project-row { padding: 2px 0; }
 .project-dim .dash-item-title { color: var(--text-dim); font-weight: 400; }
@@ -2860,3 +2864,5 @@ main#deckArea {
 .backlog-sched-wrap { padding: 2px 4px; }
 .backlog-schedule { display: flex; gap: 8px; align-items: center; padding: 4px 4px 8px; }
 .backlog-schedule .field-input { flex: 1; min-width: 0; }
+.app-items { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.app-items:empty { margin-top: 0; }

@@ -505,13 +505,15 @@
 
   function buildTasksBody(container, today) {
     var tasks = (today.tasks || []).filter(function (t) { return !isRemoved(t.id); });
-    if (tasks.length === 0) {
-      container.appendChild(el("p", "dash-empty", "No suggestions today."));
-      return;
+    if (tasks.length > 0) {
+      var list = el("ul", "dash-list");
+      tasks.forEach(function (t) { list.appendChild(taskRow(t)); });
+      container.appendChild(list);
     }
-    var list = el("ul", "dash-list");
-    tasks.forEach(function (t) { list.appendChild(taskRow(t)); });
-    container.appendChild(list);
+    var appCount = buildAppItemsSection(container, "task");
+    if (tasks.length === 0 && appCount === 0) {
+      container.appendChild(el("p", "dash-empty", "No suggestions today."));
+    }
   }
 
   function projectRow(p) {
@@ -534,18 +536,20 @@
 
   function buildProjectsBody(container, today) {
     var projects = (today.projects || []).filter(function (p) { return !isRemoved(p.id); });
-    if (projects.length === 0) {
-      container.appendChild(el("p", "dash-empty", "No project data in feed."));
-      return;
+    if (projects.length > 0) {
+      var order = { active: 0, paused: 1, "idea-stage": 2 };
+      var sorted = projects.slice().sort(function (a, b) {
+        return (order[a.status] || 0) - (order[b.status] || 0);
+      });
+      var primary = sorted.filter(function (p) { return p.status === "active"; });
+      var rest = sorted.filter(function (p) { return p.status !== "active"; });
+      if (primary.length === 0) { primary = sorted; rest = []; }
+      collapsible(container, primary, rest, projectRow);
     }
-    var order = { active: 0, paused: 1, "idea-stage": 2 };
-    var sorted = projects.slice().sort(function (a, b) {
-      return (order[a.status] || 0) - (order[b.status] || 0);
-    });
-    var primary = sorted.filter(function (p) { return p.status === "active"; });
-    var rest = sorted.filter(function (p) { return p.status !== "active"; });
-    if (primary.length === 0) { primary = sorted; rest = []; }
-    collapsible(container, primary, rest, projectRow);
+    var appCount = buildAppItemsSection(container, "project");
+    if (projects.length === 0 && appCount === 0) {
+      container.appendChild(el("p", "dash-empty", "No project data in feed."));
+    }
   }
 
   // ---- Backlog (unified items store) --------------------------------------
@@ -635,8 +639,8 @@
     }));
     panel.appendChild(schedWrap);
 
-    panel.appendChild(actBtn("→  Make a task", "", function () { backlogCapture("task", item, "Sent to Tasks (files on next sync)", refresh); }));
-    panel.appendChild(actBtn("◈  Make a project", "", function () { backlogCapture("project", item, "Sent to Projects (files on next sync)", refresh); }));
+    panel.appendChild(actBtn("→  Make a task", "", function () { window.Items.update(item.id, { state: "todo", type: "task" }); toast("Moved to Tasks"); refresh(); }));
+    panel.appendChild(actBtn("◈  Make a project", "", function () { window.Items.update(item.id, { state: "active", type: "project" }); toast("Moved to Projects"); refresh(); }));
     panel.appendChild(actBtn("📝  Save as note", "", function () { backlogCapture("note", item, "Saved as note (files on next sync)", refresh); }));
     panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {
       window.Items.update(item.id, { type: item.type === "project" ? "task" : "project" }); refresh();
@@ -696,6 +700,69 @@
       items.forEach(function (it, i) { listWrap.appendChild(backlogRow(it, i, items.length, refresh)); });
     }
     refresh();
+  }
+
+  // App-side (sbx.items) tasks/projects that are open (not backlog/done/
+  // cancelled). These render right inside the Tasks / Projects tiles alongside
+  // the vault-fed rows, so a promoted or app-created item shows up instantly.
+  function openAppItems(type) {
+    if (!window.Items) return [];
+    var rank = { active: 0, todo: 1, idea: 2 };
+    return window.Items.all().filter(function (x) {
+      return x.type === type && (x.state === "idea" || x.state === "todo" || x.state === "active");
+    }).sort(function (a, b) { return (rank[a.state] || 0) - (rank[b.state] || 0); });
+  }
+
+  function appItemRow(item, refresh) {
+    var li = el("div", "backlog-item app-item");
+    var row = el("div", "backlog-row");
+    row.appendChild(chip(item.state));
+    row.appendChild(el("span", "backlog-title", item.title));
+    var menuBtn = el("button", "backlog-menu-btn", "⋯"); menuBtn.type = "button";
+    row.appendChild(menuBtn);
+    li.appendChild(row);
+
+    var panel = el("div", "backlog-actions hidden");
+    menuBtn.addEventListener("click", function () { panel.classList.toggle("hidden"); });
+    function actBtn(label, cls, fn) {
+      var b = el("button", "backlog-act" + (cls ? " " + cls : ""), label); b.type = "button";
+      b.addEventListener("click", fn); return b;
+    }
+
+    var schedWrap = el("div", "backlog-sched-wrap hidden");
+    panel.appendChild(actBtn("📅  Schedule…", "", function () {
+      schedWrap.classList.toggle("hidden");
+      if (!schedWrap.firstChild) schedWrap.appendChild(backlogScheduleForm(item, refresh));
+    }));
+    panel.appendChild(schedWrap);
+    panel.appendChild(actBtn("✓  Mark done", "", function () { window.Items.update(item.id, { state: "done" }); toast("Marked done"); refresh(); }));
+    panel.appendChild(actBtn("↩  Move to backlog", "", function () { window.Items.update(item.id, { state: "backlog" }); refresh(); }));
+    panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {
+      window.Items.update(item.id, { type: item.type === "project" ? "task" : "project" }); refresh();
+    }));
+    panel.appendChild(actBtn("Rename", "", function () {
+      var name = window.prompt("Rename", item.title);
+      if (name && name.trim()) { window.Items.update(item.id, { title: name.trim() }); refresh(); }
+    }));
+    panel.appendChild(actBtn("🗑  Delete", "backlog-act-danger", function () {
+      if (window.confirm("Delete \"" + item.title + "\"?")) { window.Items.remove(item.id); refresh(); }
+    }));
+
+    li.appendChild(panel);
+    return li;
+  }
+
+  // Renders the app-side items for a tile and returns how many there were, so
+  // the caller can decide whether to show an "empty" message.
+  function buildAppItemsSection(container, type) {
+    var wrap = el("div", "app-items");
+    container.appendChild(wrap);
+    function refresh() {
+      wrap.innerHTML = "";
+      openAppItems(type).forEach(function (it) { wrap.appendChild(appItemRow(it, refresh)); });
+    }
+    refresh();
+    return openAppItems(type).length;
   }
 
   function daysUntil(dateStr) {
@@ -1478,6 +1545,7 @@
     var n = (today.tasks || []).filter(function (t) {
       return !isRemoved(t.id) && localStatus("tasks", t.id, t.status) !== "done";
     }).length;
+    n += openAppItems("task").length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-blue" };
   }
 
@@ -1489,6 +1557,7 @@
       return localStatus("projects", p.id, p.status) === "active";
     }).length;
     var n = active > 0 ? active : projects.length;
+    n += openAppItems("project").length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
   }
 
