@@ -1,24 +1,24 @@
 {
-  "generated": "2026-08-01T06:42:00Z",
+  "generated": "2026-08-03T06:33:00Z",
   "daily": [
     {
-      "id": "2026-08-01-bits-of-freedom-superteleurgesteld-ap-meer-handhaven",
-      "title": "Bits of Freedom 'superteleurgesteld' in AP, roept op tot meer handhaving",
-      "source": "Security.NL",
-      "url": "https://www.security.nl/posting/947389/Bits+of+Freedom+'superteleurgesteld'+in+Autoriteit+Persoonsgegevens",
+      "id": "2026-08-03-mickbeer-radiozenders-mediahuis-tracking-russische-adverteerder",
+      "title": "Mick Beer: Mediahuis-radiozenders deelden verkooplijst met Russische adverteerder",
+      "source": "mickbeer.com",
+      "url": "(permalink niet bevestigd — check mickbeer.com/artikelen)",
       "date": "2026-08-01",
-      "summary": "Bits of Freedom-directeur Evelyn Austin noemt de digitale-burgerrechtenbeweging 'superteleurgesteld' in de AP: bedrijven en overheden overtreden nog op grote schaal de privacywetten en de toezichthouder dwingt geen gedragsverandering af. Privacy-expert Floor Terra valt bij — de AP waarschuwde politieke partijen al in 2023 voor tracking, maar dat gaat onverminderd door. De AP zegt te kiezen voor snelle interventies boven boetes; critici wijzen op structurele onderbegroting. Timing valt samen met de machtswisseling: Geert Potjewijd volgt op 1 aug 2026 Aleid Wolfsen op als AP-voorzitter. Sluit aan op Mick Beers trackingwerk in het vault."
+      "summary": "Nieuw forensisch onderzoek van Mick Beer: de radiozenders van Mediahuis (Radio Veronica, SLAM!, Sublime, 100% NL) deelden tot 29 juli 2026 één gezamenlijke advertentie-verkooplijst met de zeven Mediahuis-kranten, met daarop o.a. een advertentiebedrijf uit Moskou. Beer mat ook vijf trackingcookies vóór enige klik en een ontbrekende weigerknop in de eerste consent-laag — patronen die de rechtsgeldigheid van de toestemming en een doorgifte-naar-derde-land-vraag raken. Verlengt zijn reeks over stille datastromen richting Russische advertentiepartijen (vgl. het Telegraaf-stuk van 28 juli). Permalink/datum nog te verifiëren op mickbeer.com."
     }
   ],
   "today": {
-    "date": "2026-08-01",
+    "date": "2026-08-03",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
         "title": "Fill in real resources for \"Work compliance topics\"",
         "status": "doing",
-        "detail": "Fill in real resources/content for the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR); ISO/NEN standards are filed, GDPR and AI Act still to add.",
-        "hint": "Add the GDPR and AI Act material — per Tinus's note that's all that's left.",
+        "detail": "Fill in real content for the Work compliance topics note (ISO 27001, ISO 27701, EU AI Act, GDPR); the ISO/NEN standards are filed to 20 Sources — GDPR and the AI Act (incl. Omnibus changes) still to add.",
+        "hint": "Two items left: add GDPR and the AI Act.",
         "notes": [
           "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
         ],
@@ -34,27 +34,20 @@
         ]
       },
       {
-        "id": "2026-07-11-piano-practice-happy-birthday-jazz",
-        "title": "Piano practice — Happy Birthday jazz",
-        "status": "doing",
-        "detail": "Current lesson song is a jazz arrangement of Happy Birthday.",
-        "hint": "Sit down and start on it.",
-        "notes": [
-          "2026-07-24 (Tinus): Testnotitie"
-        ],
-        "subtasks": [
-          {
-            "text": "Maybe start",
-            "done": false
-          }
-        ]
+        "id": "2026-07-28-piano-learn-familiar",
+        "title": "Piano - learn Familiar",
+        "status": "todo",
+        "detail": "Learn to play Familiar on piano.",
+        "hint": "",
+        "notes": [],
+        "subtasks": []
       },
       {
         "id": "2026-07-28-food-with-me-workdays-15h",
         "title": "Always have food with me for ~15:00 on workdays",
         "status": "todo",
         "detail": "Make sure to always have food on hand for around 15:00 on workdays.",
-        "hint": "Overlaps with the 'eat more during work afternoons' task — consider merging.",
+        "hint": "Overlaps with the 'eat more during work afternoons' task.",
         "notes": [],
         "subtasks": []
       }
@@ -65,7 +58,7 @@
         "title": "Personal productivity as mental health management",
         "status": "active",
         "updated": "2026-07-11",
-        "line": "Learning interest framing productivity as managing mental health, rest, and endorphins.",
+        "line": "Learning interest: personal productivity as mental-health management — rest, endorphins, brain-active/relaxed balance, and finishing tasks better.",
         "notes": [],
         "subtasks": []
       },
@@ -74,7 +67,7 @@
         "title": "Work compliance topics — resources to gather",
         "status": "active",
         "updated": "2026-07-21",
-        "line": "Placeholder hub for work-relevant compliance resources; being filled via the linked task (ISO done, GDPR/AI Act pending).",
+        "line": "Placeholder tracking work-compliance resources to gather (ISO 27001/27701, EU AI Act, GDPR); ISO/NEN standards now filed to 20 Sources, GDPR and AI Act primary texts accruing via Compliance Radar.",
         "notes": [],
         "subtasks": []
       },
@@ -83,7 +76,7 @@
         "title": "Cookie Scanner Applicatie",
         "status": "active",
         "updated": "2026-07-28",
-        "line": "App idea for forensic before/after-consent network analysis of sites, inspired by Mick Beer's method.",
+        "line": "Concept for a tool that audits a URL's cookies/trackers before vs after consent (Mick Beer-style forensic method); next step is scoping an MVP.",
         "notes": [],
         "subtasks": []
       },
@@ -91,12 +84,12 @@
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-08-01",
-        "line": "Hub collecting app-improvement notes as subtasks; 3 more marked done this run (movable quick-capture, morning-loop tile style, emoji+ theme).",
+        "updated": "2026-08-03",
+        "line": "Hub project collecting goodmorning-app improvements as subtasks; phase-1 unified task/project store + Backlog built in the sandbox, awaiting promote-to-live.",
         "notes": [],
         "subtasks": [
           {
-            "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides",
+            "text": "Quick-capture \"+\" button: make it movable (hold & drag), sticky to screen sides",
             "done": true
           },
           {
@@ -104,11 +97,11 @@
             "done": false
           },
           {
-            "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+            "text": "History view of projects and tasks, with re-open/edit",
             "done": false
           },
           {
-            "text": "Unify task/project architecture (both have subtasks and idea/backlog → to-do → active → done → cancel states)",
+            "text": "Unify task/project architecture (shared subtasks + free states, no mandatory deadline)",
             "done": false
           },
           {
@@ -120,7 +113,7 @@
             "done": true
           },
           {
-            "text": "All-day items should behave like normal calendar tasks",
+            "text": "All-day items should behave like normal calendar tasks (currently can't be deleted)",
             "done": false
           },
           {
@@ -128,7 +121,7 @@
             "done": false
           },
           {
-            "text": "Quick-capture box: history / \"see history\" button",
+            "text": "Quick-capture box: history / \"see history\" of posted ideas",
             "done": false
           },
           {
@@ -136,29 +129,42 @@
             "done": false
           },
           {
-            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker)",
+            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker); maybe a better gym tracker",
             "done": false
           },
           {
-            "text": "\"Copy gym schedule\" feature in agenda settings",
+            "text": "\"Copy gym schedule\" feature: copy next 14 days of gym days/times to share",
             "done": false
           },
           {
-            "text": "Scan existing notes to check labelling is correct",
+            "text": "Scan existing notes to check labelling; introduce table-style labelling if needed",
             "done": false
           },
           {
-            "text": "New \"Backlog\" list type (see build spec)",
+            "text": "New \"Backlog\" list type — general + recurring, promote to task/project",
+            "done": false
+          },
+          {
+            "text": "Compliance Radar entries should be editable like tasks and projects",
             "done": false
           }
         ]
+      },
+      {
+        "id": "2026-08-01-backlog-list-type-build-spec",
+        "title": "Backlog list type — build spec",
+        "status": "active",
+        "updated": "2026-08-01",
+        "line": "Build spec for the app's Backlog list type / unified task-project architecture; direction changed to Supabase-primary with the vault as a generated backup mirror.",
+        "notes": [],
+        "subtasks": []
       },
       {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
         "title": "Cooking — improving recipes",
         "status": "idea-stage",
         "updated": "2026-07-11",
-        "line": "Start and improve recipes based on existing ones, using the second brain.",
+        "line": "Start and improve recipes based on current ones, using the second brain.",
         "notes": [],
         "subtasks": []
       },
@@ -167,7 +173,7 @@
         "title": "Finance and markets — learning interest",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Build knowledge about markets and stocks (not personal finance).",
+        "line": "Learning interest in finance — the markets and stocks, not personal finance.",
         "notes": [],
         "subtasks": []
       },
@@ -176,7 +182,7 @@
         "title": "Team verbetering — idee",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Ideas for improving the team; gist should live in the app description.",
+        "line": "Ideas to improve the team: bi-monthly strategy session with a fellow senior, an action list for the manager, and more visibility upward.",
         "notes": [
           "2026-07-28 (Tinus): The gist of this idea should be in the description in the app, at least"
         ],
@@ -187,7 +193,7 @@
         "title": "Learn pistol squats",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Learn pistol squats for both legs (knees permitting), incl. the Russian pistol-squat dance.",
+        "line": "Learn pistol squats for both legs (if knee-safe), plus the Russian pistol-squat dance.",
         "notes": [],
         "subtasks": []
       },
@@ -196,25 +202,16 @@
         "title": "Link ChatGPT Work to the app",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Link ChatGPT Work to the app to avoid vendor lock-in.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-01-backlog-list-type-build-spec",
-        "title": "Backlog list type — build spec",
-        "status": "idea-stage",
-        "updated": "2026-08-01",
-        "line": "Sub-doc of Goodmorning app improvements fleshing out the new Backlog list type (scope, data model, build steps).",
+        "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-11-daily-habits-hub-site",
-        "title": "Daily 'things to do everyday' hub site",
+        "title": "A daily \"things to do everyday\" hub site",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Site for daily habits (notes practice, interval training, exercises, to-dos) — marked done.",
+        "line": "The daily-habits hub / goodmorning app is live; core build finished, later hub buckets parked.",
         "notes": [
           "2026-07-24 (Tinus): Done"
         ],
@@ -225,19 +222,43 @@
         "title": "Daily digest app — instructions & build prompt",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Build spec for the goodmorning swipe-feed app — marked done.",
+        "line": "Instructions and Claude Code build prompt for the daily-digest (goodmorning) app — delivered.",
         "notes": [],
         "subtasks": []
       }
     ],
     "radar": {
-      "updated": "2026-07-30",
+      "updated": "2026-08-03",
       "follow_ups": 1,
-      "headline": "Garante fines Character.AI €158,000 over minors' data + age-verification failures",
+      "headline": "AI Act Art. 50 transparency obligations are applicable/enforced from 2 Aug 2026 (AI Office + national authorities; grace period for pre-2-Aug systems runs to 2 Dec 2026).",
       "deadlines": [
         {
-          "date": "2026-08-02",
-          "label": "AI Act Art. 50(2) transparency/watermarking obligations become applicable (pre-existing systems get a grace period to 2 Dec 2026)"
+          "date": "2026-08-05",
+          "label": "EDPB Art. 33 data-breach-notification-template consultation closes"
+        },
+        {
+          "date": "2026-08-10",
+          "label": "AP DPIA-exceptions (employee data) consultation closes"
+        },
+        {
+          "date": "2026-08-15",
+          "label": "Cyberbeveiligingswet + Wwke enter into force"
+        },
+        {
+          "date": "2026-10-31",
+          "label": "ISO/IEC 27701:2025 certification-body transition deadline"
+        },
+        {
+          "date": "2026-12-02",
+          "label": "Art. 50(2) watermarking grace period ends; new CSAM/non-consensual-imagery prohibition takes effect"
+        },
+        {
+          "date": "2027-08-02",
+          "label": "GPAI providers with pre-Aug-2025 models: full compliance deadline"
+        },
+        {
+          "date": "2027-12-02",
+          "label": "Standalone high-risk AI systems (Annex III) obligations apply"
         }
       ]
     }
