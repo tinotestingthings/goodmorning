@@ -503,15 +503,13 @@
     catch (e) { return false; }
   }
 
+  // Supabase-primary: tasks live in the sbx.items store (instant, cross-device),
+  // not the daily vault feed. The vault is a generated backup mirror.
   function buildTasksBody(container, today) {
-    var tasks = (today.tasks || []).filter(function (t) { return !isRemoved(t.id); });
-    if (tasks.length === 0) {
-      container.appendChild(el("p", "dash-empty", "No suggestions today."));
-      return;
+    var appCount = buildAppItemsSection(container, "task");
+    if (appCount === 0) {
+      container.appendChild(el("p", "dash-empty", "No open tasks. Add one from the Backlog or promote something."));
     }
-    var list = el("ul", "dash-list");
-    tasks.forEach(function (t) { list.appendChild(taskRow(t)); });
-    container.appendChild(list);
   }
 
   function projectRow(p) {
@@ -533,19 +531,285 @@
   }
 
   function buildProjectsBody(container, today) {
-    var projects = (today.projects || []).filter(function (p) { return !isRemoved(p.id); });
-    if (projects.length === 0) {
-      container.appendChild(el("p", "dash-empty", "No project data in feed."));
-      return;
+    var appCount = buildAppItemsSection(container, "project");
+    if (appCount === 0) {
+      container.appendChild(el("p", "dash-empty", "No open projects. Add one from the Backlog."));
     }
-    var order = { active: 0, paused: 1, "idea-stage": 2 };
-    var sorted = projects.slice().sort(function (a, b) {
-      return (order[a.status] || 0) - (order[b.status] || 0);
+  }
+
+  // ---- Backlog (unified items store) --------------------------------------
+  // The Backlog is every unified item in the "backlog" state: things you don't
+  // want to forget but that aren't a dated to-do yet. Manually reorderable;
+  // each item can be promoted up the spectrum — Scheduled task / Task / Project
+  // / Note — reusing the app's existing calendar + capture paths. Promotion
+  // removes the item from the backlog so each thing lives in exactly one place.
+  var ICON_BACKLOG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 6h9M4 12h9M4 18h5"/><path d="M16 15l2.4 2.4L23 13"/></svg>';
+
+  function backlogBadge() {
+    var n = window.Items ? window.Items.backlog().length : 0;
+    return { text: n > 0 ? String(n) : "", cls: "tile-badge-gray" };
+  }
+
+  function newTodoId() {
+    return "td-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6);
+  }
+
+  // Promote a backlog item into the vault via the existing Supabase `captures`
+  // path (files to 10 Notes / 30 Tasks / 40 Projects on the next sync), then
+  // drop it from the backlog.
+  function backlogCapture(kind, item, doneMsg, refresh) {
+    if (!global.SB) { toast("Not connected — try again"); return; }
+    var body = item.title + (item.note ? "\n\n" + item.note : "") + "\n\n(promoted from Backlog)";
+    global.SB.from("captures").insert({ kind: kind, title: item.title.slice(0, 120), body: body, status: "new" }).then(function (res) {
+      if (res && res.error) { toast("Failed: " + res.error.message); return; }
+      window.Items.remove(item.id);
+      toast(doneMsg);
+      refresh();
+    }, function (err) { toast("Failed: " + ((err && err.message) || "unknown")); });
+  }
+
+  // Inline date picker → creates a calendar to-do (sbx.todos, the exact store
+  // the Calendar reads) and drops the backlog item. Existing to-dos untouched.
+  function backlogScheduleForm(item, refresh) {
+    var form = el("div", "backlog-schedule");
+    var d = document.createElement("input");
+    d.type = "date"; d.className = "field-input"; d.value = localDateStr();
+    form.appendChild(d);
+    var go = el("button", "btn btn-primary btn-sm", "Schedule");
+    go.type = "button";
+    go.addEventListener("click", function () {
+      var todos = loadTodos();
+      todos.push({ id: newTodoId(), text: item.title, dueDate: d.value || localDateStr(), startTime: null, endTime: null, category: null, note: item.note || null, done: false });
+      saveTodos(todos);
+      window.Items.remove(item.id);
+      toast("Scheduled → Calendar");
+      refresh();
     });
-    var primary = sorted.filter(function (p) { return p.status === "active"; });
-    var rest = sorted.filter(function (p) { return p.status !== "active"; });
-    if (primary.length === 0) { primary = sorted; rest = []; }
-    collapsible(container, primary, rest, projectRow);
+    form.appendChild(go);
+    return form;
+  }
+
+  function backlogRow(item, idx, count, refresh) {
+    var li = el("div", "backlog-item");
+
+    var row = el("div", "backlog-row");
+    var ord = el("div", "backlog-ord");
+    var up = el("button", "backlog-ord-btn", "▲"); up.type = "button"; up.disabled = idx === 0;
+    up.addEventListener("click", function (e) { e.stopPropagation(); window.Items.move(item.id, -1); refresh(); });
+    var dn = el("button", "backlog-ord-btn", "▼"); dn.type = "button"; dn.disabled = idx === count - 1;
+    dn.addEventListener("click", function (e) { e.stopPropagation(); window.Items.move(item.id, 1); refresh(); });
+    ord.appendChild(up); ord.appendChild(dn);
+    row.appendChild(ord);
+
+    row.appendChild(el("span", "backlog-type backlog-type-" + item.type, item.type === "project" ? "Project" : "Task"));
+    row.appendChild(el("span", "backlog-title", item.title));
+    var menuBtn = el("button", "backlog-menu-btn", "⋯"); menuBtn.type = "button";
+    row.appendChild(menuBtn);
+    li.appendChild(row);
+
+    var panel = el("div", "backlog-actions hidden");
+    menuBtn.addEventListener("click", function () { panel.classList.toggle("hidden"); });
+
+    function actBtn(label, cls, fn) {
+      var b = el("button", "backlog-act" + (cls ? " " + cls : ""), label); b.type = "button";
+      b.addEventListener("click", fn); return b;
+    }
+
+    var schedWrap = el("div", "backlog-sched-wrap hidden");
+    panel.appendChild(actBtn("📅  Schedule…", "", function () {
+      schedWrap.classList.toggle("hidden");
+      if (!schedWrap.firstChild) schedWrap.appendChild(backlogScheduleForm(item, refresh));
+    }));
+    panel.appendChild(schedWrap);
+
+    panel.appendChild(actBtn("→  Make a task", "", function () { window.Items.update(item.id, { state: "todo", type: "task" }); toast("Moved to Tasks"); refresh(); }));
+    panel.appendChild(actBtn("◈  Make a project", "", function () { window.Items.update(item.id, { state: "active", type: "project" }); toast("Moved to Projects"); refresh(); }));
+    panel.appendChild(actBtn("📝  Save as note", "", function () { backlogCapture("note", item, "Saved as note (files on next sync)", refresh); }));
+    panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {
+      window.Items.update(item.id, { type: item.type === "project" ? "task" : "project" }); refresh();
+    }));
+    panel.appendChild(actBtn("Rename", "", function () {
+      var name = window.prompt("Rename backlog item", item.title);
+      if (name && name.trim()) { window.Items.update(item.id, { title: name.trim() }); refresh(); }
+    }));
+    panel.appendChild(actBtn("🗑  Delete", "backlog-act-danger", function () {
+      if (window.confirm("Delete \"" + item.title + "\" from the backlog?")) { window.Items.remove(item.id); refresh(); }
+    }));
+
+    li.appendChild(panel);
+    return li;
+  }
+
+  function buildBacklogBody(container) {
+    if (!window.Items) { container.appendChild(el("p", "dash-empty", "Backlog unavailable.")); return; }
+
+    var add = el("div", "backlog-add");
+    var input = document.createElement("input");
+    input.type = "text"; input.className = "field-input backlog-add-input"; input.placeholder = "Add to backlog…";
+    var typeSeg = el("div", "backlog-seg");
+    var addType = "task";
+    [["task", "Task"], ["project", "Project"]].forEach(function (pair) {
+      var b = el("button", "backlog-seg-btn" + (pair[0] === addType ? " active" : ""), pair[1]); b.type = "button";
+      b.addEventListener("click", function () {
+        addType = pair[0];
+        typeSeg.querySelectorAll(".backlog-seg-btn").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+      });
+      typeSeg.appendChild(b);
+    });
+    var addBtn = el("button", "btn btn-primary btn-sm", "Add"); addBtn.type = "button";
+    function doAdd() {
+      var v = (input.value || "").trim();
+      if (!v) { toast("Type something first"); return; }
+      window.Items.add({ title: v, type: addType, state: "backlog" });
+      input.value = "";
+      refresh();
+    }
+    addBtn.addEventListener("click", doAdd);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") doAdd(); });
+    add.appendChild(input); add.appendChild(typeSeg); add.appendChild(addBtn);
+    container.appendChild(add);
+
+    var listWrap = el("div", "backlog-list");
+    container.appendChild(listWrap);
+
+    function refresh() {
+      listWrap.innerHTML = "";
+      var items = window.Items.backlog();
+      if (items.length === 0) {
+        listWrap.appendChild(el("p", "dash-empty", "Backlog is empty. Add something you don't want to forget."));
+        return;
+      }
+      items.forEach(function (it, i) { listWrap.appendChild(backlogRow(it, i, items.length, refresh)); });
+    }
+    refresh();
+  }
+
+  // App-side (sbx.items) tasks/projects that are open (not backlog/done/
+  // cancelled). These render right inside the Tasks / Projects tiles alongside
+  // the vault-fed rows, so a promoted or app-created item shows up instantly.
+  function openAppItems(type) {
+    if (!window.Items) return [];
+    var rank = { active: 0, todo: 1, idea: 2 };
+    return window.Items.all().filter(function (x) {
+      return x.type === type && (x.state === "idea" || x.state === "todo" || x.state === "active");
+    }).sort(function (a, b) { return (rank[a.state] || 0) - (rank[b.state] || 0); });
+  }
+
+  var ITEM_STATES = [["backlog", "Backlog"], ["idea", "Idea"], ["todo", "To-do"], ["active", "Active"], ["done", "Done"]];
+
+  // Instant state change (writes straight to the sbx.items store → Supabase).
+  function itemStateControl(item, refresh) {
+    var seg = el("div", "item-state-seg");
+    ITEM_STATES.forEach(function (pair) {
+      var b = el("button", "item-state-btn" + (item.state === pair[0] ? " active" : ""), pair[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        window.Items.update(item.id, { state: pair[0] });
+        toast(pair[1]);
+        refresh();
+      });
+      seg.appendChild(b);
+    });
+    return seg;
+  }
+
+  function itemSubtasksEditor(item, refresh) {
+    var wrap = el("div", "item-subs");
+    (item.subtasks || []).forEach(function (s, i) {
+      var rowEl = el("div", "item-sub" + (s.done ? " done" : ""));
+      var box = el("button", "item-sub-check" + (s.done ? " checked" : ""), s.done ? "✓" : "");
+      box.type = "button";
+      box.addEventListener("click", function () {
+        var cur = window.Items.get(item.id); if (!cur) return;
+        var arr = (cur.subtasks || []).slice();
+        arr[i] = { text: arr[i].text, done: !arr[i].done };
+        window.Items.update(item.id, { subtasks: arr });
+        refresh();
+      });
+      rowEl.appendChild(box);
+      rowEl.appendChild(el("span", "item-sub-text", s.text));
+      var del = el("button", "item-sub-del", "×"); del.type = "button";
+      del.addEventListener("click", function () {
+        var cur = window.Items.get(item.id); if (!cur) return;
+        var arr = (cur.subtasks || []).slice(); arr.splice(i, 1);
+        window.Items.update(item.id, { subtasks: arr });
+        refresh();
+      });
+      rowEl.appendChild(del);
+      wrap.appendChild(rowEl);
+    });
+    var addRow = el("div", "item-sub-add");
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.className = "field-input"; inp.placeholder = "Add a subtask…";
+    function addSub() {
+      var v = (inp.value || "").trim(); if (!v) return;
+      var cur = window.Items.get(item.id); if (!cur) return;
+      var arr = (cur.subtasks || []).slice(); arr.push({ text: v, done: false });
+      window.Items.update(item.id, { subtasks: arr });
+      refresh();
+    }
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") addSub(); });
+    var addB = el("button", "btn btn-primary btn-sm", "Add"); addB.type = "button";
+    addB.addEventListener("click", addSub);
+    addRow.appendChild(inp); addRow.appendChild(addB);
+    wrap.appendChild(addRow);
+    return wrap;
+  }
+
+  function appItemRow(item, refresh) {
+    var li = el("div", "backlog-item app-item");
+    var row = el("div", "backlog-row");
+    row.appendChild(chip(item.state));
+    row.appendChild(el("span", "backlog-title", item.title));
+    if (item.subtasks && item.subtasks.length) {
+      var done = item.subtasks.filter(function (s) { return s.done; }).length;
+      row.appendChild(el("span", "dash-subprog", done + "/" + item.subtasks.length));
+    }
+    var menuBtn = el("button", "backlog-menu-btn", "⋯"); menuBtn.type = "button";
+    row.appendChild(menuBtn);
+    li.appendChild(row);
+
+    var panel = el("div", "backlog-actions hidden");
+    menuBtn.addEventListener("click", function () { panel.classList.toggle("hidden"); });
+    function actBtn(label, cls, fn) {
+      var b = el("button", "backlog-act" + (cls ? " " + cls : ""), label); b.type = "button";
+      b.addEventListener("click", fn); return b;
+    }
+
+    panel.appendChild(el("div", "item-panel-label", "State"));
+    panel.appendChild(itemStateControl(item, refresh));
+    panel.appendChild(el("div", "item-panel-label", "Subtasks"));
+    panel.appendChild(itemSubtasksEditor(item, refresh));
+    panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {
+      window.Items.update(item.id, { type: item.type === "project" ? "task" : "project" });
+      toast(item.type === "project" ? "Now a task" : "Now a project"); refresh();
+    }));
+    panel.appendChild(actBtn("Rename", "", function () {
+      var name = window.prompt("Rename", item.title);
+      if (name && name.trim()) { window.Items.update(item.id, { title: name.trim() }); refresh(); }
+    }));
+    panel.appendChild(actBtn("🗑  Delete", "backlog-act-danger", function () {
+      if (window.confirm("Delete \"" + item.title + "\"?")) { window.Items.remove(item.id); refresh(); }
+    }));
+
+    li.appendChild(panel);
+    return li;
+  }
+
+  // Renders the app-side items for a tile and returns how many there were, so
+  // the caller can decide whether to show an "empty" message.
+  function buildAppItemsSection(container, type) {
+    var wrap = el("div", "app-items");
+    container.appendChild(wrap);
+    function refresh() {
+      wrap.innerHTML = "";
+      openAppItems(type).forEach(function (it) { wrap.appendChild(appItemRow(it, refresh)); });
+    }
+    refresh();
+    return openAppItems(type).length;
   }
 
   function daysUntil(dateStr) {
@@ -1325,20 +1589,12 @@
   // items and reflect local status changes (a finished/removed item drops the
   // count on the next render) so the number never goes stale vs. the list.
   function taskBadge(today) {
-    var n = (today.tasks || []).filter(function (t) {
-      return !isRemoved(t.id) && localStatus("tasks", t.id, t.status) !== "done";
-    }).length;
+    var n = openAppItems("task").length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-blue" };
   }
 
   function projectBadge(today) {
-    var projects = (today.projects || []).filter(function (p) {
-      return !isRemoved(p.id) && localStatus("projects", p.id, p.status) !== "done";
-    });
-    var active = projects.filter(function (p) {
-      return localStatus("projects", p.id, p.status) === "active";
-    }).length;
-    var n = active > 0 ? active : projects.length;
+    var n = openAppItems("project").length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
   }
 
@@ -1375,6 +1631,8 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'));
     quick.appendChild(calQuickLink("Week", "week",
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M8.5 13h0M12 13h0M15.5 13h0"/></svg>'));
+    quick.appendChild(calQuickLink("History", "history",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg>'));
     wrap.appendChild(quick);
 
     var rowsWrap = el("div", "tile-rows");
@@ -1385,7 +1643,9 @@
       { key: "tasks", label: "Tasks", icon: ICON_TASKS, badge: taskBadge(today),
         build: function (c) { buildTasksBody(c, today); } },
       { key: "projects", label: "Projects", icon: ICON_PROJECTS, badge: projectBadge(today),
-        build: function (c) { buildProjectsBody(c, today); } }
+        build: function (c) { buildProjectsBody(c, today); } },
+      { key: "backlog", label: "Backlog", icon: ICON_BACKLOG, badge: backlogBadge(),
+        build: function (c) { buildBacklogBody(c); } }
     ];
 
     // Remember which tile is open across re-renders (a detail-sheet edit
@@ -1428,30 +1688,25 @@
 
     appendUrgentCards(rowsWrap); // static cards, own row each, no accordion
 
-    var pendingTile = null;
-    function flushPending() {
-      if (!pendingTile) return;
-      rowsWrap.appendChild(pendingTile.el);
-      anchorEls[pendingTile.key] = pendingTile.el;
-      pendingTile = null;
+    // Tasks · Projects · Backlog sit three-across in one row; the accordion
+    // for whichever tile is open drops in below the whole row.
+    var PER_ROW = 3;
+    var rowBuf = [];
+    function flushRow() {
+      if (rowBuf.length === 0) return;
+      var row = el("div", "tile-row tile-row-" + rowBuf.length);
+      rowBuf.forEach(function (b) { row.appendChild(b.el); });
+      rowsWrap.appendChild(row);
+      rowBuf.forEach(function (b) { anchorEls[b.key] = row; });
+      rowBuf = [];
     }
-
     sections.forEach(function (s) {
       var t = tile(s.key, s.label, s.icon, s.badge, function () { setOpen(s.key); });
       tileEls[s.key] = t;
-      if (pendingTile) {
-        var row = el("div", "tile-row");
-        row.appendChild(pendingTile.el);
-        row.appendChild(t);
-        rowsWrap.appendChild(row);
-        anchorEls[pendingTile.key] = row;
-        anchorEls[s.key] = row;
-        pendingTile = null;
-      } else {
-        pendingTile = { key: s.key, el: t };
-      }
+      rowBuf.push({ key: s.key, el: t });
+      if (rowBuf.length === PER_ROW) flushRow();
     });
-    flushPending();
+    flushRow();
 
     // Restore a previously-open tile (survives detail-sheet re-renders).
     if (openKey && tileEls[openKey]) {
@@ -1610,7 +1865,7 @@
   // ---- sandbox-only: reset test data ----
   // Sandbox is for repeatedly testing the swipe deck, not for real triage —
   // so unlike the live app, decisions/hand-offs shouldn't just accumulate
-  // and make cards vanish for good. This wipes every dd.* key and reloads
+  // and make cards vanish for good. This wipes every sbx.* key and reloads
   // fresh against the committed sandbox feed.json.
   //
   // Mounted once directly on document.body (not re-appended inside render())
@@ -1632,8 +1887,6 @@
     });
     return btn;
   }
-  // Path-guarded (like the SANDBOX badge in app.js): this reset wipes every dd.* key,
-  // so it must NEVER mount on the live app — only under /sandbox/.
   if (window.location && window.location.pathname.indexOf("/sandbox/") !== -1) document.body.appendChild(renderSandboxReset());
 
   // Expose the shared task model + helpers so the Calendar tab can read and

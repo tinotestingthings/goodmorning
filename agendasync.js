@@ -7,7 +7,7 @@
   // boot/focus, and pushes the instant its local copy changes (home.js's
   // saveTodos/saveChores call pushNow) with a 25s safety poll behind it.
 
-  var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek")];
+  var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek"), k("items")];
   var POLL_MS = 60000; // was 25s; a push fires instantly on save anyway, so the poll can be lazy
   var lastSynced = null;   // JSON string of the state last pushed/pulled
   var remoteStamp = null;

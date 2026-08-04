@@ -3,6 +3,11 @@
 Newest first. One line per deploy to the live root.
 
 ## 2026-08-04
+- Promoted phase-1 to live: unified task/project store (`items.js` + `dd.items`),
+  Backlog list type (add/reorder/promote/schedule), and the 3-tile homepage.
+  Seeded `items-seed.json` from the current vault (26 items). Calendar/agenda
+  (`dd.todos/chores/workweek`) untouched. Emoji++ theme preserved. env.js added
+  to the service-worker precache. Cache bumped v14 -> v15.
 - New **Emoji++** theme: orange-forward, high-contrast evolution of Emoji+ (deep
   warm text on cream, vivid orange accent, stronger borders, more modern emoji
   accents across the home tiles). Selectable in Settings → Theme.

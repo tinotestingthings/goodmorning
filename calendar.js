@@ -789,6 +789,22 @@
       }); wrap.appendChild(al);
     }
 
+    // Completed tasks & projects (app items marked done/cancelled — restorable)
+    var doneItems=(window.Items?window.Items.all():[]).filter(function(x){return x.state==="done"||x.state==="cancelled";}).sort(function(a,b){return (b.updated||"")<(a.updated||"")?-1:1;});
+    wrap.appendChild(el("h3","cal-agenda-head","Completed tasks & projects"));
+    if(!doneItems.length) wrap.appendChild(el("p","cal-empty","Nothing completed yet."));
+    else { var dil=el("div","cal-item-list");
+      doneItems.forEach(function(it){ var row=el("div","cal-item");
+        var b2=el("div","cal-item-body"); b2.appendChild(el("div","cal-item-title",it.title));
+        var s2=[it.type==="project"?"Project":"Task"]; s2.push(it.state==="cancelled"?"cancelled":"done"); if(it.updated)s2.push(it.updated.slice(0,10));
+        b2.appendChild(el("div","cal-item-sub",s2.join(" · ")));
+        row.appendChild(b2);
+        var rb2=el("button","cal-restore","Restore"); rb2.type="button";
+        rb2.addEventListener("click",function(){ window.Items.update(it.id,{state:it.type==="project"?"active":"todo"}); if(M.toast)M.toast("Restored to your lists"); render(); });
+        row.appendChild(rb2); dil.appendChild(row);
+      }); wrap.appendChild(dil);
+    }
+
     // Completed to-dos (full log, most recent first)
     var th=histLoad(k("todos.history"),[]).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Completed to-dos"));
