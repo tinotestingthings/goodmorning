@@ -717,39 +717,51 @@
   }
 
   function itemSubtasksEditor(item, refresh) {
+    // Re-render ONLY the rows on each edit (never the whole tile), so the open
+    // panel stays put and several subtasks can be toggled/added in a row.
+    // Display order: not-done first, done at the bottom. Mutations use each
+    // subtask's ORIGINAL index (the stored array is never reordered).
     var wrap = el("div", "item-subs");
-    (item.subtasks || []).forEach(function (s, i) {
-      var rowEl = el("div", "item-sub" + (s.done ? " done" : ""));
-      var box = el("button", "item-sub-check" + (s.done ? " checked" : ""), s.done ? "✓" : "");
-      box.type = "button";
-      box.addEventListener("click", function () {
-        var cur = window.Items.get(item.id); if (!cur) return;
-        var arr = (cur.subtasks || []).slice();
-        arr[i] = { text: arr[i].text, done: !arr[i].done };
-        window.Items.update(item.id, { subtasks: arr });
-        refresh();
+    var rowsWrap = el("div", "item-subs-rows");
+    wrap.appendChild(rowsWrap);
+    function curSubs() { var c = window.Items.get(item.id); return (c && c.subtasks) ? c.subtasks : []; }
+    function renderRows() {
+      rowsWrap.innerHTML = "";
+      var arr = curSubs();
+      var order = arr.map(function (s, i) { return { s: s, i: i }; })
+        .sort(function (a, b) { return (a.s.done ? 1 : 0) - (b.s.done ? 1 : 0); });
+      order.forEach(function (o) {
+        var s = o.s, i = o.i;
+        var rowEl = el("div", "item-sub" + (s.done ? " done" : ""));
+        var box = el("button", "item-sub-check" + (s.done ? " checked" : ""), s.done ? "✓" : "");
+        box.type = "button";
+        box.addEventListener("click", function () {
+          var a = curSubs().slice(); if (!a[i]) return;
+          a[i] = { text: a[i].text, done: !a[i].done };
+          window.Items.update(item.id, { subtasks: a });
+          renderRows();
+        });
+        rowEl.appendChild(box);
+        rowEl.appendChild(el("span", "item-sub-text", s.text));
+        var del = el("button", "item-sub-del", "×"); del.type = "button";
+        del.addEventListener("click", function () {
+          var a = curSubs().slice(); a.splice(i, 1);
+          window.Items.update(item.id, { subtasks: a });
+          renderRows();
+        });
+        rowEl.appendChild(del);
+        rowsWrap.appendChild(rowEl);
       });
-      rowEl.appendChild(box);
-      rowEl.appendChild(el("span", "item-sub-text", s.text));
-      var del = el("button", "item-sub-del", "×"); del.type = "button";
-      del.addEventListener("click", function () {
-        var cur = window.Items.get(item.id); if (!cur) return;
-        var arr = (cur.subtasks || []).slice(); arr.splice(i, 1);
-        window.Items.update(item.id, { subtasks: arr });
-        refresh();
-      });
-      rowEl.appendChild(del);
-      wrap.appendChild(rowEl);
-    });
+    }
+    renderRows();
     var addRow = el("div", "item-sub-add");
     var inp = document.createElement("input");
     inp.type = "text"; inp.className = "field-input"; inp.placeholder = "Add a subtask…";
     function addSub() {
       var v = (inp.value || "").trim(); if (!v) return;
-      var cur = window.Items.get(item.id); if (!cur) return;
-      var arr = (cur.subtasks || []).slice(); arr.push({ text: v, done: false });
-      window.Items.update(item.id, { subtasks: arr });
-      refresh();
+      var a = curSubs().slice(); a.push({ text: v, done: false });
+      window.Items.update(item.id, { subtasks: a });
+      inp.value = ""; renderRows(); inp.focus();
     }
     inp.addEventListener("keydown", function (e) { if (e.key === "Enter") addSub(); });
     var addB = el("button", "btn btn-primary btn-sm", "Add"); addB.type = "button";
@@ -852,7 +864,16 @@
       followUps + " follow-up" + (followUps === 1 ? "" : "s") + " open";
     container.appendChild(meta);
 
-    if (radar.headline) container.appendChild(el("p", "radar-headline", radar.headline));
+    if (radar.headline) {
+      var hl = el("p", "radar-headline radar-headline-tap", radar.headline);
+      hl.addEventListener("click", function () {
+        if (!window.ItemDetail) return;
+        var hid = slugify("radar-headline-" + (radar.updated || ""));
+        ItemDetail.open({ id: hid, title: radar.headline, hint: radar.updated ? ("updated " + radar.updated) : "",
+                          status: localStatus("radar", hid, radar.follow_ups > 0 ? "follow-up" : "open") }, "radar");
+      });
+      container.appendChild(hl);
+    }
 
     var deadlines = radar.deadlines || [];
     var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);

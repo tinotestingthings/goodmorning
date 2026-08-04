@@ -2923,3 +2923,8 @@ main#deckArea {
 .item-sub-del { appearance: none; background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 0 4px; }
 .item-sub-add { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
 .item-sub-add .field-input { flex: 1; min-width: 0; }
+
+/* Clickable radar headline + agenda task rows (2026-08-04) */
+.radar-headline-tap { cursor: pointer; }
+.radar-headline-tap:hover { text-decoration: underline; }
+.cal-item-tap { cursor: pointer; }
