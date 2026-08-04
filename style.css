@@ -2160,6 +2160,26 @@ main#deckArea {
 :root[data-theme="emoji"] .radar-strip-label::before { content: "📡 "; }
 :root[data-theme="emoji"] .home-greeting::after { content: " ✨"; }
 
+/* Emoji++ : emoji+ turned up — orange-forward, high-contrast, more (modern)
+   emoji on the home screen. Deep near-black warm text on warm cream, vivid
+   orange as the dominant accent, and stronger warm borders for punch. */
+:root[data-theme="emojipp"] {
+  --bg: #fff3e0; --card-bg: #ffffff; --text: #1f1206;
+  --text-dim: #9a5a22; --border: #ffbf80;
+  --keep: #12a150; --dismiss: #e5342b; --skip: #ff6a00; --accent: #ff6a00;
+}
+:root[data-theme="emojipp"] .tile-tasks .tile-label::before    { content: "🎯 "; }
+:root[data-theme="emojipp"] .tile-projects .tile-label::before { content: "🚀 "; }
+:root[data-theme="emojipp"] .tile-todos .tile-label::before    { content: "📌 "; }
+:root[data-theme="emojipp"] .tile-chores .tile-label::before   { content: "🧽 "; }
+:root[data-theme="emojipp"] .tile-radar .tile-label::before    { content: "🛰️ "; }
+:root[data-theme="emojipp"] .tile-urgent .tile-label::before   { content: "🔥 "; }
+:root[data-theme="emojipp"] .loop-card-title::before  { content: "⚡ "; }
+:root[data-theme="emojipp"] .done-title::before       { content: "🥳 "; }
+:root[data-theme="emojipp"] .radar-strip-label::before { content: "📡 "; }
+:root[data-theme="emojipp"] .home-greeting::after     { content: " 🔥"; }
+:root[data-theme="emojipp"] .streak-chip::after       { content: " ✨"; }
+
 /* ---- settings tab ---- */
 
 .settings-view {

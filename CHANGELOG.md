@@ -3,6 +3,11 @@
 Newest first. One line per deploy to the live root.
 
 ## 2026-08-04
+- New **Emoji++** theme: orange-forward, high-contrast evolution of Emoji+ (deep
+  warm text on cream, vivid orange accent, stronger borders, more modern emoji
+  accents across the home tiles). Selectable in Settings → Theme.
+
+## 2026-08-04
 - Runtime-namespace refactor: added `env.js` (sets `DD_ENV` + `k()` from the URL
   path). All `dd.*` / `sbx.*` storage-key literals across live and sandbox now go
   through `k("name")`, so the same code reads `dd.*` at `/` and `sbx.*` under
