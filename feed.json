@@ -1,15 +1,24 @@
 {
-  "generated": "2026-08-04T06:45:00+02:00",
-  "daily": [],
+  "generated": "2026-08-04T06:48:00+02:00",
+  "daily": [
+    {
+      "id": "2026-08-04-bits-of-freedom-verbod-camerabrillen-privacy-op-straat",
+      "title": "Bits of Freedom wil verbod op camerabrillen: 'complete privacy op straat weg'",
+      "source": "Security.NL (Redactie), o.b.v. Nieuwsuur",
+      "url": "https://www.security.nl/posting/947694/Bits+of+Freedom+wil+verbod+op+camerabrillen%3A+%27Complete+privacy+op+straat+weg%27",
+      "date": "2026-08-03",
+      "summary": "Bits of Freedom (dir. Evelyn Austin) pleit tegenover Nieuwsuur voor een verbod op Meta's camerabrillen: als iedereen ze draagt ben je 'je complete privacy op straat kwijt'. Sluit aan op CNIL-waarschuwingen, een mogelijk verbod in Duitsland/Hamburg, en verboden bij DEF CON en TivoliVredenburg. Tweede zorg (jurist Meindersma): 'alles gaat naar Meta', ook binnenshuis-opnames. De EDPB komt binnenkort met onderzoek naar de maatschappelijke acceptatie van camerabrillen."
+    }
+  ],
   "today": {
     "date": "2026-08-04",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
         "title": "Fill in real resources for \"Work compliance topics\"",
-        "status": "todo",
-        "detail": "Add real content (ISO 27001/27701, EU AI Act, GDPR) to the placeholder Work-compliance-topics note; ISO standards already uploaded, GDPR and AI Act still to add.",
-        "hint": "Just GDPR and AI Act left, per your note.",
+        "status": "doing",
+        "detail": "Replace the placeholder Work compliance topics note with real content; per Tinus only GDPR and the AI Act (incl. Omnibus changes) still need adding.",
+        "hint": "Two items left",
         "notes": [
           "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
         ],
@@ -25,20 +34,20 @@
         ]
       },
       {
-        "id": "2026-07-28-food-with-me-workdays-15h",
-        "title": "Always have food with me for ~15:00 on workdays",
-        "status": "doing",
-        "detail": "Make sure to always carry food for around 15:00 on workdays.",
-        "hint": "Overlaps with the 'eat more during work afternoons' task.",
+        "id": "2026-07-13-notebooklm-in-daily-routines",
+        "title": "I should definitely use NotebookLM more in my daily routines",
+        "status": "todo",
+        "detail": "Start actually using NotebookLM more as part of daily routines.",
+        "hint": "",
         "notes": [],
         "subtasks": []
       },
       {
-        "id": "2026-07-28-piano-learn-familiar",
-        "title": "Piano - learn Familiar",
-        "status": "doing",
-        "detail": "Learn to play Familiar on piano.",
-        "hint": "Separate from the Happy Birthday piano task.",
+        "id": "2026-07-14-walk-more-twice-a-week",
+        "title": "Walk more",
+        "status": "todo",
+        "detail": "Go for a proper walk at least twice a week.",
+        "hint": "",
         "notes": [],
         "subtasks": []
       }
@@ -48,35 +57,26 @@
         "id": "2026-07-11-personal-productivity-mental-health-management",
         "title": "Personal productivity as mental health management",
         "status": "active",
-        "updated": "2026-08-04",
-        "line": "Learning interest framing personal productivity as managing mental health, rest and endorphins; two research subtasks just added.",
+        "updated": "2026-07-11",
+        "line": "Learning interest: productivity mostly as managing mental health, rest and endorphins.",
         "notes": [],
-        "subtasks": [
-          {
-            "text": "Welke wetenschap achter vitamines is er",
-            "done": false
-          },
-          {
-            "text": "Welke wetenachap achter productiviteit is er",
-            "done": false
-          }
-        ]
+        "subtasks": []
       },
       {
         "id": "2026-07-11-work-compliance-topics-resources-to-gather",
         "title": "Work compliance topics — resources to gather",
         "status": "active",
         "updated": "2026-07-21",
-        "line": "Placeholder hub for work-relevant resources on ISO 27001, ISO 27701, EU AI Act and GDPR.",
+        "line": "Gathering work-relevant resources on ISO 27001, ISO 27701, EU AI Act and GDPR.",
         "notes": [],
         "subtasks": []
       },
       {
         "id": "2026-07-14-cookie-scanner-applicatie",
-        "title": "Cookie Scanner Applicatie",
+        "title": "Project: Cookie Scanner Applicatie",
         "status": "active",
         "updated": "2026-07-28",
-        "line": "Idea for a forensic cookie/consent scanner, inspired by Mick Beer's before/after-consent network analysis method.",
+        "line": "Build idea for a forensic cookie/tracking scanner, inspired by Mick Beer's before/after-consent method.",
         "notes": [],
         "subtasks": []
       },
@@ -84,12 +84,12 @@
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-08-03",
-        "line": "Running hub of improvements for the goodmorning app; app-improvement notes get added here as subtasks.",
+        "updated": "2026-08-04",
+        "line": "Hub for goodmorning app improvements, tracked as subtasks; app-improvement notes get added here.",
         "notes": [],
         "subtasks": [
           {
-            "text": "Quick-capture \"+\" button: make it movable (hold & drag), sticky to screen sides",
+            "text": "Quick-capture \"+\" button: make it movable, sticky to screen sides",
             "done": true
           },
           {
@@ -101,7 +101,7 @@
             "done": false
           },
           {
-            "text": "Unify task/project architecture (shared states, subtasks, no mandatory deadline)",
+            "text": "Unify task/project architecture (subtasks + free-transition states)",
             "done": false
           },
           {
@@ -113,7 +113,7 @@
             "done": true
           },
           {
-            "text": "All-day items should behave like normal calendar tasks (deletable)",
+            "text": "All-day items should behave like normal calendar tasks",
             "done": false
           },
           {
@@ -121,7 +121,7 @@
             "done": false
           },
           {
-            "text": "Quick-capture box: history/\"see history\" of posted ideas",
+            "text": "Quick-capture box: history / \"see history\" button",
             "done": false
           },
           {
@@ -129,23 +129,35 @@
             "done": false
           },
           {
-            "text": "Integrate self-made utility apps (e.g. Kangaroo gym tracker)",
+            "text": "Integrate self-made utility apps; maybe a better gym tracker",
             "done": false
           },
           {
-            "text": "\"Copy gym schedule\": copy next 14 days of gym days/times to share",
+            "text": "\"Copy gym schedule\" feature in agenda settings (next 14 days)",
             "done": false
           },
           {
-            "text": "Scan existing notes for correct labelling; add table-style labels",
+            "text": "Scan existing notes for correct labelling; table-style labels",
             "done": false
           },
           {
-            "text": "New \"Backlog\" list type (general + recurring, promote to task/project)",
+            "text": "New \"Backlog\" list type (general + recurring; promote to task/project)",
             "done": false
           },
           {
-            "text": "Compliance Radar entries should be editable like tasks/projects",
+            "text": "Compliance Radar entries should be editable like tasks and projects",
+            "done": false
+          },
+          {
+            "text": "Live hotfix: title fix + reset-button path-guard",
+            "done": true
+          },
+          {
+            "text": "Make sandbox->live promotion safe (runtime namespace + guard)",
+            "done": true
+          },
+          {
+            "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
             "done": false
           }
         ]
@@ -155,7 +167,7 @@
         "title": "Backlog list type — build spec",
         "status": "active",
         "updated": "2026-08-01",
-        "line": "Build spec fleshing out the new Backlog list type (state, add/reorder/promote/schedule); phase 1 built in sandbox.",
+        "line": "Build spec fleshing out the Backlog list type (sub-doc of Goodmorning app improvements).",
         "notes": [],
         "subtasks": []
       },
@@ -164,7 +176,7 @@
         "title": "Cooking — improving recipes",
         "status": "idea-stage",
         "updated": "2026-07-11",
-        "line": "Interest in starting and improving recipes using the second brain.",
+        "line": "Start and improve recipes based on current ones, using the second brain.",
         "notes": [],
         "subtasks": []
       },
@@ -173,7 +185,7 @@
         "title": "Finance and markets — learning interest",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Wants to build knowledge of markets and stocks (not personal finance).",
+        "line": "Learn about finance — markets and stocks, not personal finance.",
         "notes": [],
         "subtasks": []
       },
@@ -182,7 +194,7 @@
         "title": "Team verbetering — idee",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Ideas to improve the team: bi-monthly strategy session, action list toward the manager, more visibility.",
+        "line": "Ideas to improve the team: bi-monthly strategy session, action list for the manager, more visibility.",
         "notes": [
           "2026-07-28 (Tinus): The gist of this idea should be in the description in the app, at least"
         ],
@@ -193,7 +205,7 @@
         "title": "Learn pistol squats",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Goal to learn pistol squats (both legs) if knee-safe, plus the Russian pistol-squat dance.",
+        "line": "Learn pistol squats (if knee-safe) for both legs, incl. the Russian pistol-squat dance.",
         "notes": [],
         "subtasks": []
       },
@@ -202,7 +214,7 @@
         "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
         "status": "idea-stage",
         "updated": "2026-07-28",
-        "line": "Idea to link ChatGPT Work into the app to avoid vendor lock-in.",
+        "line": "Link ChatGPT Work to the app to avoid vendor lock-in.",
         "notes": [],
         "subtasks": []
       },
@@ -211,7 +223,7 @@
         "title": "Project: a daily \"things to do everyday\" hub site",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Daily habits hub site concept; marked done.",
+        "line": "Daily habits hub site — done; web app is live.",
         "notes": [
           "2026-07-24 (Tinus): Done"
         ],
@@ -222,7 +234,7 @@
         "title": "Daily digest app — instructions & Claude Code build prompt",
         "status": "done",
         "updated": "2026-07-28",
-        "line": "Spec and build prompt for the daily digest / swipe app; marked done.",
+        "line": "Living feed/queue contract for the daily-digest automation — build done.",
         "notes": [],
         "subtasks": []
       }
@@ -230,19 +242,35 @@
     "radar": {
       "updated": "2026-08-03",
       "follow_ups": 1,
-      "headline": "AI Act Art. 50 transparency/watermarking obligations now applicable (in force since 2 Aug 2026).",
+      "headline": "Digital Omnibus on AI in force (Reg. (EU) 2026/1744, 27 Jul 2026); next up 5 Aug — EDPB Art. 33 breach-template consultation closes.",
       "deadlines": [
         {
+          "date": "2026-08-05",
+          "label": "EDPB Art. 33 data-breach-notification template consultation closes"
+        },
+        {
+          "date": "2026-08-10",
+          "label": "AP DPIA-exceptions (employee data) consultation closes"
+        },
+        {
           "date": "2026-08-15",
-          "label": "Cyberbeveiligingswet + Wwke enter into force (NCSC duties for ~8,000 orgs)"
+          "label": "Cyberbeveiligingswet + Wwke enter into force (NIS2)"
         },
         {
           "date": "2026-10-31",
-          "label": "ISO/IEC 27701:2025 — certification bodies must have transitioned"
+          "label": "ISO/IEC 27701:2025 certification-body transition deadline"
         },
         {
           "date": "2026-12-02",
-          "label": "Art.50(2) watermarking grace period ends; new prohibited practice (AI NCII/CSAM)"
+          "label": "Art. 50(2) watermarking grace period ends; CSAM/non-consensual-imagery prohibition takes effect"
+        },
+        {
+          "date": "2027-08-02",
+          "label": "GPAI providers (pre-Aug-2025 models) full compliance deadline"
+        },
+        {
+          "date": "2027-12-02",
+          "label": "Standalone high-risk AI (Annex III) obligations apply"
         }
       ]
     }
