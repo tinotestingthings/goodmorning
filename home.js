@@ -1632,7 +1632,9 @@
     });
     return btn;
   }
-  document.body.appendChild(renderSandboxReset());
+  // Path-guarded (like the SANDBOX badge in app.js): this reset wipes every dd.* key,
+  // so it must NEVER mount on the live app — only under /sandbox/.
+  if (window.location && window.location.pathname.indexOf("/sandbox/") !== -1) document.body.appendChild(renderSandboxReset());
 
   // Expose the shared task model + helpers so the Calendar tab can read and
   // edit the exact same chores/to-dos (single source of truth — the calendar
