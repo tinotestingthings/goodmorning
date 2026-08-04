@@ -7,7 +7,7 @@
   // boot/focus, and pushes the instant its local copy changes (home.js's
   // saveTodos/saveChores call pushNow) with a 25s safety poll behind it.
 
-  var KEYS = ["sbx.todos", "sbx.todos.history", "sbx.chores", "sbx.workweek", "sbx.items"];
+  var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek"), k("items")];
   var POLL_MS = 60000; // was 25s; a push fires instantly on save anyway, so the poll can be lazy
   var lastSynced = null;   // JSON string of the state last pushed/pulled
   var remoteStamp = null;
@@ -36,7 +36,7 @@
   }
 
   function note(err) {
-    try { localStorage.setItem("sbx.agendasync.status", err ? ("error: " + err) : ("ok " + new Date().toISOString())); } catch (e) {}
+    try { localStorage.setItem(k("agendasync.status"), err ? ("error: " + err) : ("ok " + new Date().toISOString())); } catch (e) {}
     if (err) { try { console.warn("[AgendaSync]", err); } catch (e) {} }
   }
 
@@ -104,7 +104,7 @@
   }
 
   function ready() { return started && !!userId; }
-  function status() { try { return localStorage.getItem("sbx.agendasync.status"); } catch (e) { return null; } }
+  function status() { try { return localStorage.getItem(k("agendasync.status")); } catch (e) { return null; } }
 
   function tick() {
     if (busy || !global.SB || !userId) return;

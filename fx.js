@@ -2,7 +2,7 @@
   "use strict";
   // Little completion celebration: a confetti burst + a cheerful "pling"
   // (WebAudio, no asset). Sound respects the Settings toggle (dd.sound).
-  var SOUND_KEY = "dd.sound";
+  var SOUND_KEY = k("sound");
   function soundOn() { try { return localStorage.getItem(SOUND_KEY) !== "off"; } catch (e) { return true; } }
   function setSound(on) { try { localStorage.setItem(SOUND_KEY, on ? "on" : "off"); } catch (e) {} }
 

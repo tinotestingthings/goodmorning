@@ -34,45 +34,45 @@
 
   // ---- optimistic stores ----
   function getStatus(section, id, fb) {
-    var m = loadJSON("dd.itemstatus", {});
+    var m = loadJSON(k("itemstatus"), {});
     return m[section + ":" + id] || fb;
   }
   function setStatusLocal(section, id, status) {
-    var m = loadJSON("dd.itemstatus", {});
+    var m = loadJSON(k("itemstatus"), {});
     m[section + ":" + id] = status;
-    saveJSON("dd.itemstatus", m);
+    saveJSON(k("itemstatus"), m);
   }
   function getSubtasks(id) {
-    var m = loadJSON("dd.subtasks", {});
+    var m = loadJSON(k("subtasks"), {});
     return (m[id] || []).slice();
   }
   function setSubtasks(id, list) {
-    var m = loadJSON("dd.subtasks", {});
+    var m = loadJSON(k("subtasks"), {});
     m[id] = list;
-    saveJSON("dd.subtasks", m);
+    saveJSON(k("subtasks"), m);
   }
   function getNotes(section, id) {
-    var m = loadJSON("dd.itemnotes", {});
+    var m = loadJSON(k("itemnotes"), {});
     return (m[section + ":" + id] || []).slice();
   }
   function setNotes(section, id, list) {
-    var m = loadJSON("dd.itemnotes", {});
+    var m = loadJSON(k("itemnotes"), {});
     m[section + ":" + id] = list;
-    saveJSON("dd.itemnotes", m);
+    saveJSON(k("itemnotes"), m);
   }
 
   // ---- sync (optimistic; buffer on failure) ----
   function flushPending() {
     if (!global.DigestSync || !global.SB) return;
-    var pend = loadJSON("dd.pendingActions", []);
+    var pend = loadJSON(k("pendingActions"), []);
     if (!pend.length) return;
-    saveJSON("dd.pendingActions", []);
+    saveJSON(k("pendingActions"), []);
     pend.forEach(function (row) {
       global.DigestSync.pushOne(row, function (res) {
         if (res && res.error) {
-          var p = loadJSON("dd.pendingActions", []);
+          var p = loadJSON(k("pendingActions"), []);
           p.push(row);
-          saveJSON("dd.pendingActions", p);
+          saveJSON(k("pendingActions"), p);
         }
       });
     });
@@ -82,15 +82,15 @@
     if (global.DigestSync && global.SB) {
       global.DigestSync.pushOne(row, function (res) {
         if (res && res.error) {
-          var p = loadJSON("dd.pendingActions", []);
+          var p = loadJSON(k("pendingActions"), []);
           p.push(row);
-          saveJSON("dd.pendingActions", p);
+          saveJSON(k("pendingActions"), p);
         }
       });
     } else {
-      var p = loadJSON("dd.pendingActions", []);
+      var p = loadJSON(k("pendingActions"), []);
       p.push(row);
-      saveJSON("dd.pendingActions", p);
+      saveJSON(k("pendingActions"), p);
     }
   }
 
@@ -166,9 +166,9 @@
             : true;
           if (!sure) return;
         }
-        var rm = loadJSON("dd.removed", {});
+        var rm = loadJSON(k("removed"), {});
         rm[id] = { title: item.title || id, section: section, type: type, at: new Date().toISOString() };
-        saveJSON("dd.removed", rm);
+        saveJSON(k("removed"), rm);
         enqueue({ type: "remove", target_id: id, section: section });
         changed = true;
         toast("Moved to archive");

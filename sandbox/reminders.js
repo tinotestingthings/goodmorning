@@ -3,7 +3,7 @@
   // Best-effort reminders (fires while the app is open — no push server).
   // A to-do can have several reminders, each a lead time before it's due.
   // Legacy single `reminderTime` (absolute HH:MM) is still honored.
-  var FIRED_KEY = "sbx.reminded";
+  var FIRED_KEY = k("reminded");
   function loadFired(){ try{ return JSON.parse(localStorage.getItem(FIRED_KEY))||{}; }catch(e){ return {}; } }
   function saveFired(o){ try{ localStorage.setItem(FIRED_KEY, JSON.stringify(o)); }catch(e){} }
   function pad(n){ return n<10?"0"+n:""+n; }
@@ -21,7 +21,7 @@
 
   function check(){
     if(!("Notification" in global) || Notification.permission!=="granted") return;
-    var todos; try{ todos=JSON.parse(localStorage.getItem("sbx.todos"))||[]; }catch(e){ return; }
+    var todos; try{ todos=JSON.parse(localStorage.getItem(k("todos")))||[]; }catch(e){ return; }
     var now=Date.now(); var fired=loadFired();
     todos.forEach(function(t){
       if(t.done) return;

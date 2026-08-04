@@ -179,7 +179,7 @@
 
   var WEATHER_LAT = 52.10525390586172;
   var WEATHER_LON = 5.092251555678848;
-  var WEATHER_CACHE_KEY = "dd.weather.cache";
+  var WEATHER_CACHE_KEY = k("weather.cache");
   var WEATHER_CACHE_TTL_MS = 20 * 60 * 1000;
 
   var ICON_W_SUN =
@@ -499,7 +499,7 @@
   }
 
   function isRemoved(id) {
-    try { return !!(JSON.parse(localStorage.getItem("dd.removed")) || {})[id]; }
+    try { return !!(JSON.parse(localStorage.getItem(k("removed"))) || {})[id]; }
     catch (e) { return false; }
   }
 
@@ -617,7 +617,7 @@
   // view); `lastDone` is just its most recent entry, cached for quick
   // access.
 
-  var CHORES_KEY = "dd.chores";
+  var CHORES_KEY = k("chores");
   var WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   var ICON_CHORES =
@@ -1060,8 +1060,8 @@
   // today, but not worth a proper Tasks note in the wiki" — distinct from
   // the vault-backed Tasks section above; nothing here ever syncs anywhere.
 
-  var TODOS_KEY = "dd.todos";
-  var TODO_HISTORY_KEY = "dd.todos.history";
+  var TODOS_KEY = k("todos");
+  var TODO_HISTORY_KEY = k("todos.history");
 
   var ICON_TODOS =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -1390,7 +1390,7 @@
 
     // Remember which tile is open across re-renders (a detail-sheet edit
     // re-renders Today; the open tile must not snap shut).
-    var openKey = sessionStorage.getItem("dd.dashOpen") || null;
+    var openKey = sessionStorage.getItem(k("dashOpen")) || null;
     if (openKey && !sections.some(function (s) { return s.key === openKey; })) openKey = null;
     var tileEls = {};
     var anchorEls = {}; // key -> element after which the accordion should sit
@@ -1416,8 +1416,8 @@
     function setOpen(key) {
       openKey = (openKey === key) ? null : key;
       try {
-        if (openKey) sessionStorage.setItem("dd.dashOpen", openKey);
-        else sessionStorage.removeItem("dd.dashOpen");
+        if (openKey) sessionStorage.setItem(k("dashOpen"), openKey);
+        else sessionStorage.removeItem(k("dashOpen"));
       } catch (e) {}
       Object.keys(tileEls).forEach(function (k) {
         tileEls[k].classList.toggle("tile-active", k === openKey);
@@ -1507,14 +1507,14 @@
   // immediately, before the bridge writes it back to the vault).
   function localStatus(section, id, fallback) {
     try {
-      var m = JSON.parse(localStorage.getItem("dd.itemstatus")) || {};
+      var m = JSON.parse(localStorage.getItem(k("itemstatus"))) || {};
       return m[section + ":" + id] || fallback;
     } catch (e) { return fallback; }
   }
 
   function subtaskProgress(id) {
     try {
-      var m = JSON.parse(localStorage.getItem("dd.subtasks")) || {};
+      var m = JSON.parse(localStorage.getItem(k("subtasks"))) || {};
       var list = m[id] || [];
       if (!list.length) return null;
       var done = list.filter(function (s) { return s.done; }).length;
@@ -1626,7 +1626,7 @@
     btn.addEventListener("click", function () {
       if (!window.confirm("Reset all sandbox test data (decisions, notes, progress)? This only affects the sandbox, never the live app.")) return;
       Object.keys(localStorage).forEach(function (key) {
-        if (key.indexOf("dd.") === 0) localStorage.removeItem(key);
+        if (key.indexOf(DD_ENV.ns) === 0) localStorage.removeItem(key);
       });
       window.location.reload();
     });

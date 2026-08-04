@@ -1,9 +1,9 @@
 (function () {
   "use strict";
 
-  var LS_DECISIONS = "dd.decisions";
-  var LS_HANDED_OFF = "dd.handedOff";
-  var LS_POINTER = "dd.pointer";
+  var LS_DECISIONS = k("decisions");
+  var LS_HANDED_OFF = k("handedOff");
+  var LS_POINTER = k("pointer");
 
   var deckArea = document.getElementById("deckArea");
   var feedStatus = document.getElementById("feedStatus");

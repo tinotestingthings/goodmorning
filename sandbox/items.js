@@ -17,7 +17,7 @@
   // so it mirrors to Supabase agenda_state alongside todos/chores. The
   // sandbox->live promote transforms sbx. -> dd., giving dd.items on live.
 
-  var KEY = "sbx.items";
+  var KEY = k("items");
   var STATES = ["backlog", "idea", "todo", "active", "done", "cancelled"];
 
   function load() {
@@ -137,7 +137,7 @@
   // table). Runs AFTER the first agenda sync pull (so the server copy can't
   // clobber the seed), merges by id (never duplicates), and sets a flag so it
   // never runs again — deletes stick.
-  var SEED_FLAG = "sbx.itemsSeeded";
+  var SEED_FLAG = k("itemsSeeded");
   function seedOnce() {
     try { if (localStorage.getItem(SEED_FLAG)) return; } catch (e) { return; }
     fetch("items-seed.json", { cache: "no-store" }).then(function (r) {

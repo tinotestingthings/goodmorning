@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
   // Shared category store (color-coding). Used by the calendar and settings.
-  var KEY = "dd.categories";
+  var KEY = k("categories");
   var DEFAULTS = [
     { id: "home",   name: "Home",   color: "#4a90d9" },
     { id: "work",   name: "Work",   color: "#e8730c" },

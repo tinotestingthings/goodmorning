@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var LS_SELECTED = "dd.practice.selected";
+  var LS_SELECTED = k("practice.selected");
 
   var APPS = {
     notesprint: {

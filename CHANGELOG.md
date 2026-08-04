@@ -1,0 +1,18 @@
+# Changelog
+
+Newest first. One line per deploy to the live root.
+
+## 2026-08-04
+- Runtime-namespace refactor: added `env.js` (sets `DD_ENV` + `k()` from the URL
+  path). All `dd.*` / `sbx.*` storage-key literals across live and sandbox now go
+  through `k("name")`, so the same code reads `dd.*` at `/` and `sbx.*` under
+  `/sandbox/`. Title and the sandbox reset button are namespace-derived. This
+  makes sandbox→live promotion safe: copied code self-corrects by path.
+- Added `tools/check-live-clean.sh` + CI (`.github/workflows/guard.yml`) that
+  fail any commit hardcoding a namespace, leaving "SBX" in the live title, or
+  mounting the reset button unguarded.
+- Hotfixes (commit 818ee07): live title `SBX · Daily Digest` → `Daily Digest`;
+  path-guarded the reset button so it can never wipe live `dd.*` data.
+- Incident: promoting the sandbox build to live blanked the calendar/work
+  planning (live read `sbx.*` test keys). Rolled back; no data lost. Root cause
+  and fix: see `40 Projects/2026-08-04-sandbox-live-promotion-safety-spec` in the vault.

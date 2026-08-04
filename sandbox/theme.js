@@ -9,7 +9,7 @@
   //               recently passed, wrapping around midnight.
   // Re-evaluated every minute and whenever the app regains focus.
 
-  var KEY = "sbx.theme";
+  var KEY = k("theme");
 
   // Each theme is a full palette override applied via <html data-theme="...">.
   var THEMES = {

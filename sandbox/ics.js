@@ -4,7 +4,7 @@
   // in the browser, parses VEVENTs (incl. simple RRULE), caches the expanded
   // occurrences. Cross-origin URLs need CORS enabled by the host, else the
   // fetch is blocked by the browser (reported to the user).
-  var FEEDS_KEY = "sbx.icsFeeds", CACHE_KEY = "sbx.icsCache";
+  var FEEDS_KEY = k("icsFeeds"), CACHE_KEY = k("icsCache");
 
   function loadFeeds(){ try{ return JSON.parse(localStorage.getItem(FEEDS_KEY))||[]; }catch(e){ return []; } }
   function saveFeeds(f){ try{ localStorage.setItem(FEEDS_KEY, JSON.stringify(f)); }catch(e){} }

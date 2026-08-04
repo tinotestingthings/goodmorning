@@ -13,7 +13,7 @@
   var searchOpen = false, searchQuery = "";
   var addMode = null;
 
-  var VIEW_KEY = "dd.cal.view";
+  var VIEW_KEY = k("cal.view");
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var DOW = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   var WD_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -772,7 +772,7 @@
     wrap.appendChild(el("h2","cal-day-title","History"));
 
     // Archived tasks & projects (restorable)
-    var rm=histLoad("dd.removed",{});
+    var rm=histLoad(k("removed"),{});
     var arch=Object.keys(rm).map(function(id){ var v=rm[id]; if(v&&typeof v==="object")return {id:id,title:v.title||id,type:v.type||v.section,at:v.at}; return {id:id,title:id,type:null,at:null}; });
     arch.sort(function(a,b){ return (b.at||"")<(a.at||"")?-1:1; });
     wrap.appendChild(el("h3","cal-agenda-head","Archived tasks & projects"));
@@ -784,13 +784,13 @@
         body.appendChild(el("div","cal-item-sub",sub.join(" · ")||"archived"));
         row.appendChild(body);
         var rb=el("button","cal-restore","Restore"); rb.type="button";
-        rb.addEventListener("click",function(){ var m=histLoad("dd.removed",{}); delete m[e.id]; try{localStorage.setItem("dd.removed",JSON.stringify(m));}catch(_){} if(M.toast)M.toast("Restored to your lists"); render(); });
+        rb.addEventListener("click",function(){ var m=histLoad(k("removed"),{}); delete m[e.id]; try{localStorage.setItem(k("removed"),JSON.stringify(m));}catch(_){} if(M.toast)M.toast("Restored to your lists"); render(); });
         row.appendChild(rb); al.appendChild(row);
       }); wrap.appendChild(al);
     }
 
     // Completed to-dos (full log, most recent first)
-    var th=histLoad("dd.todos.history",[]).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,40);
+    var th=histLoad(k("todos.history"),[]).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Completed to-dos"));
     if(!th.length) wrap.appendChild(el("p","cal-empty","Nothing completed yet."));
     else { var hl=el("div","history-list"); th.forEach(function(e){ hl.appendChild(histRow(e.text,e.date)); }); wrap.appendChild(hl); }
@@ -803,7 +803,7 @@
     else { var cl=el("div","history-list"); ce.forEach(function(e){ cl.appendChild(histRow(e.name,e.date)); }); wrap.appendChild(cl); }
 
     // Quick captures
-    var caps=histLoad("dd.capture.log",[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
+    var caps=histLoad(k("capture.log"),[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Quick captures"));
     if(!caps.length) wrap.appendChild(el("p","cal-empty","Nothing captured yet."));
     else { var ql=el("div","history-list"); caps.forEach(function(e){ ql.appendChild(histRow((e.title||"(untitled)")+(e.held?" · held":"")+(e.kind?" · "+e.kind:""),e.at)); }); wrap.appendChild(ql); }
@@ -1022,7 +1022,7 @@
   // full 24h timeline. Vertical zoom, drag a block day↔day + up/down
   // to reschedule, and drag its top/bottom edge to resize (15-min snap).
   // ============================================================
-  var HH_KEY="dd.cal.hh";
+  var HH_KEY=k("cal.hh");
   function loadHH(){ try{ var v=parseInt(localStorage.getItem(HH_KEY),10); return (v>=24&&v<=140)?v:46; }catch(e){ return 46; } }
   function saveHH(v){ try{ localStorage.setItem(HH_KEY, String(Math.max(24,Math.min(140,v)))); }catch(e){} }
   function minHH(m){ m=Math.max(0,Math.min(1440,Math.round(m))); var h=Math.floor(m/60), mm=m%60; return (h<10?"0":"")+h+":"+(mm<10?"0":"")+mm; }

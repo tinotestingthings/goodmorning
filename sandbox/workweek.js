@@ -7,7 +7,7 @@
   // (shading + day tags) and, later, by location-aware task suggestions
   // (e.g. "you're at a customer Thursday — near the station, do X").
 
-  var KEY = "sbx.workweek";
+  var KEY = k("workweek");
   var LOCS = [
     ["unspecified", "Unspecified"],
     ["office", "Office"],

@@ -1,9 +1,9 @@
 (function (global) {
   "use strict";
 
-  var LS_STEP = "dd.loop.step";
-  var LS_COMPLETED_DATE = "dd.loop.completedDate";
-  var LS_STREAK = "dd.loop.streak";
+  var LS_STEP = k("loop.step");
+  var LS_COMPLETED_DATE = k("loop.completedDate");
+  var LS_STREAK = k("loop.streak");
 
   function getStep() {
     return localStorage.getItem(LS_STEP) || null;
@@ -61,7 +61,7 @@
   // { section: { itemId: "text" } }. All sections share this single store
   // so any "collect notes" button (Today's Copy notes, Triage's Copy
   // decisions) picks up everything — including inbox notes — in one pass.
-  var LS_NOTES = "dd.notes";
+  var LS_NOTES = k("notes");
   var SECTION_ORDER = ["triage", "tasks", "projects", "radar"];
 
   function getNotes() {
@@ -135,8 +135,8 @@
   // view keeping its own copy of the swipe state) is what guarantees that:
   // there is only one place that assembles the queue, so the two buttons
   // can never drift out of sync with each other again.
-  var LS_DECISIONS = "dd.decisions";
-  var LS_HANDED_OFF = "dd.handedOff";
+  var LS_DECISIONS = k("decisions");
+  var LS_HANDED_OFF = k("handedOff");
 
   function loadJSON(key, fallback) {
     try {

@@ -28,10 +28,10 @@
   // the Supabase rows are drained into the vault. Capped to the last 60.
   function logCapture(kind, title, held) {
     try {
-      var list = JSON.parse(localStorage.getItem("sbx.capture.log") || "[]");
+      var list = JSON.parse(localStorage.getItem(k("capture.log")) || "[]");
       list.push({ kind: kind, title: title, held: !!held, at: new Date().toISOString() });
       if (list.length > 60) list = list.slice(list.length - 60);
-      localStorage.setItem("sbx.capture.log", JSON.stringify(list));
+      localStorage.setItem(k("capture.log"), JSON.stringify(list));
     } catch (e) {}
   }
 
@@ -132,7 +132,7 @@
 
   // ---- movable FAB: hold & drag to reposition, snaps to the nearest side,
   // remembers where you left it. A plain tap still opens the capture sheet. ----
-  var POS_KEY = "sbx.fabpos";
+  var POS_KEY = k("fabpos");
   function loadPos() { try { var p = JSON.parse(localStorage.getItem(POS_KEY)); if (p && p.side) return p; } catch (e) {} return null; }
   function savePos(p) { try { localStorage.setItem(POS_KEY, JSON.stringify(p)); } catch (e) {} }
 
