@@ -131,15 +131,20 @@
     save(list);
   }
 
-  // ---- one-time migration seed (Supabase-primary switch) --------------------
-  // Vault tasks/projects are seeded into the store once, client-side, so they
-  // are written under the user's own auth (the service role can't write this
-  // table). Runs AFTER the first agenda sync pull (so the server copy can't
-  // clobber the seed), merges by id (never duplicates), and sets a flag so it
-  // never runs again — deletes stick.
-  var SEED_FLAG = k("itemsSeeded");
-  function seedOnce() {
-    try { if (localStorage.getItem(SEED_FLAG)) return; } catch (e) { return; }
+  // ---- vault -> app reconcile (runs every load, client-side) ----------------
+  // The service role CANNOT write agenda_state, so the ONLY place dd.items can
+  // be refreshed from the vault is here, in the app, under the user's own auth.
+  // Each load we fetch items-seed.json (kept current from the vault by the daily
+  // digest) and ADD any vault item we have not seen before. A per-id "known" set
+  // means a NEW vault task appears automatically, while an item the user deleted
+  // in the app is never resurrected. We only ADD -- never delete or overwrite --
+  // so app-side edits (state, subtasks, backlog items) are always preserved.
+  var KNOWN_KEY = k("itemsKnown");
+  function loadKnown() {
+    try { var v = JSON.parse(localStorage.getItem(KNOWN_KEY)); return (v && typeof v === "object") ? v : null; }
+    catch (e) { return null; }
+  }
+  function reconcileFromVault() {
     fetch("items-seed.json", { cache: "no-store" }).then(function (r) {
       if (!r.ok) throw new Error("no seed");
       return r.json();
@@ -148,11 +153,19 @@
       var list = load();
       var have = {};
       list.forEach(function (x) { have[x.id] = true; });
+      var known = loadKnown();
+      if (known === null) {
+        // First run migrating off seed-once: treat what's already stored as
+        // "known" so we never touch it, then the pass below pulls in anything
+        // the one-time seed missed.
+        known = {};
+        list.forEach(function (x) { known[x.id] = true; });
+      }
       var maxOrder = 0;
       list.forEach(function (x) { if ((x.order || 0) > maxOrder) maxOrder = x.order || 0; });
       var now = nowISO(), added = 0;
       seed.forEach(function (s) {
-        if (have[s.id]) return;
+        if (have[s.id] || known[s.id]) return;   // present already, or seen before (respect deletions)
         maxOrder += 1;
         list.push({
           id: s.id, type: s.type === "project" ? "project" : "task",
@@ -163,15 +176,20 @@
         });
         added += 1;
       });
-      if (added > 0) save(list);
-      try { localStorage.setItem(SEED_FLAG, now); } catch (e) {}
-      if (added > 0 && global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
-    }).catch(function () { /* offline / no seed — try again next boot */ });
+      // Everything currently in the seed is now "known", so a later user
+      // deletion of any of these sticks instead of coming back next load.
+      seed.forEach(function (s) { known[s.id] = true; });
+      try { localStorage.setItem(KNOWN_KEY, JSON.stringify(known)); } catch (e) {}
+      if (added > 0) {
+        save(list);
+        if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
+      }
+    }).catch(function () { /* offline / no seed -- retry next load */ });
   }
   // Run after the first agenda pull; fall back to a delayed run if that event
-  // never fires (e.g. not signed in — local-only, nothing to clobber).
-  document.addEventListener("dd-agenda-ready", seedOnce);
-  setTimeout(seedOnce, 8000);
+  // never fires (e.g. not signed in -- local-only, nothing to clobber).
+  document.addEventListener("dd-agenda-ready", reconcileFromVault);
+  setTimeout(reconcileFromVault, 8000);
 
   global.Items = {
     STATES: STATES,
@@ -184,6 +202,6 @@
     remove: remove,
     move: move,
     setOrder: setOrder,
-    seedOnce: seedOnce
+    seedOnce: reconcileFromVault, reconcile: reconcileFromVault
   };
 })(window);

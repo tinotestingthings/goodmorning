@@ -42,7 +42,7 @@
  {
   "id": "2026-07-14-eat-more-during-work-afternoons",
   "type": "task",
-  "state": "todo",
+  "state": "done",
   "title": "Eat more during work afternoons",
   "note": "I need to eat more during work after lunch, around 14:30 or 15:30. I keep forgetting.",
   "subtasks": [],
@@ -141,7 +141,7 @@
  {
   "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
   "type": "project",
-  "state": "idea",
+  "state": "active",
   "title": "Cooking — improving recipes",
   "note": "Goal: start and improve recipes based on current ones, using the second brain.",
   "subtasks": [],
@@ -151,7 +151,7 @@
  {
   "id": "2026-07-11-daily-habits-hub-site",
   "type": "project",
-  "state": "done",
+  "state": "active",
   "title": "Project: a daily \"things to do everyday\" hub site",
   "note": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
   "subtasks": [],
@@ -220,7 +220,7 @@
  {
   "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
   "type": "project",
-  "state": "done",
+  "state": "active",
   "title": "Daily digest app — instructions & Claude Code build prompt",
   "note": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed). Decisions made 2026-07-15:",
   "subtasks": [],
@@ -323,7 +323,7 @@
  {
   "id": "2026-07-28-link-chatgpt-work-to-app",
   "type": "project",
-  "state": "idea",
+  "state": "active",
   "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
   "note": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
   "subtasks": [],
