@@ -1,23 +1,31 @@
 (function () {
   "use strict";
 
-  // Kangaroo auth gate + Supabase sync.
+  // Kangaroo auth gate + Supabase sync, with strict live/sandbox isolation.
   //
   // The gym app is a self-contained bundle that persists to localStorage under
-  // "kangaroo-*" keys. This boot script wraps it so that:
-  //   1. It only mounts for a signed-in Daily Digest user (same Supabase Auth
-  //      session as the main app — this page is same-origin, so it reads the
-  //      persisted session directly). No session -> no app, no data.
-  //   2. Its data is mirrored to a per-user `kangaroo_state` row in Supabase
-  //      (behind Row-Level Security), so it's the same everywhere and can be
-  //      backed up to the vault. Local edits are pushed on change; the server
-  //      copy is pulled on open + when the tab regains focus.
+  // logical "kangaroo-*" keys. Live (served from the repo root) and the sandbox
+  // (served under /sandbox/) are the SAME origin, so they share one localStorage
+  // AND one per-user Supabase row. To keep sandbox testing from ever touching
+  // live gym data, this boot layer namespaces every key by environment — exactly
+  // like env.js does for the main app (dd. vs sbx.):
+  //   * live   physical keys -> "dd:kangaroo-*"
+  //   * sandbox physical keys -> "sbx:kangaroo-*"
+  // The app still uses logical "kangaroo-*"; a thin Storage shim maps logical
+  // reads/writes to the environment's physical keys. In Supabase both live under
+  // one row, and each environment only ever reads/merges its OWN prefix, so a
+  // push from one side can never overwrite the other's keys. The bundle is
+  // untouched and stays portable.
   //
   // Public URL + publishable key only (same values the main app ships). Real
-  // access control is Supabase Auth + RLS, not hiding these.
+  // access control is Supabase Auth + Row-Level Security, not hiding these.
   var SUPABASE_URL = "https://bobltktjohhnoqhnxslf.supabase.co";
   var SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8SE7JZJrNv_wG-8SN6_NNA_K4Mc0yuR";
-  var PREFIX = "kangaroo-";
+
+  var IS_SANDBOX = location.pathname.indexOf("/sandbox/") !== -1;
+  var NS = IS_SANDBOX ? "sbx:" : "dd:";
+  var LOGICAL = "kangaroo-";       // what the app uses
+  var PHYS = NS + LOGICAL;         // what actually gets stored ("dd:kangaroo-" / "sbx:kangaroo-")
   var PUSH_DEBOUNCE_MS = 1500;
 
   var SB = (window.supabase && window.supabase.createClient)
@@ -30,6 +38,11 @@
   var mounted = false;
   var lastPushed = null;
   var pushTimer = null;
+
+  // Original Storage methods, captured once, used by the boot layer directly so
+  // it always talks in PHYSICAL keys and never recurses through the shim.
+  var proto = (window.Storage && window.Storage.prototype) || Object.getPrototypeOf(localStorage);
+  var oGet = proto.getItem, oSet = proto.setItem, oRem = proto.removeItem;
 
   // ---- tiny gate UI ----
   function gate(title, msg, showReload) {
@@ -63,13 +76,13 @@
     root.appendChild(wrap);
   }
 
-  // ---- localStorage snapshot of all kangaroo-* keys ----
+  // ---- snapshot / seed operate on PHYSICAL keys for THIS environment only ----
   function snapshot() {
     var o = {};
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
-      if (key && key.indexOf(PREFIX) === 0) {
-        try { o[key] = JSON.parse(localStorage.getItem(key)); } catch (e) { o[key] = null; }
+      if (key && key.indexOf(PHYS) === 0) {
+        try { o[key] = JSON.parse(oGet.call(localStorage, key)); } catch (e) { o[key] = null; }
       }
     }
     return o;
@@ -78,27 +91,34 @@
   function seed(remote) {
     if (!remote || typeof remote !== "object") return;
     Object.keys(remote).forEach(function (key) {
-      if (key.indexOf(PREFIX) !== 0) return;
+      if (key.indexOf(PHYS) !== 0) return; // only this env's keys — never the other's
       try {
-        if (remote[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, JSON.stringify(remote[key]));
+        if (remote[key] === null) oRem.call(localStorage, key);
+        else oSet.call(localStorage, key, JSON.stringify(remote[key]));
       } catch (e) {}
     });
   }
 
-  // ---- push (full upsert of this user's kangaroo keys; dedicated table) ----
+  // ---- push: MERGE — read the row, overwrite ONLY our PHYS keys, write back, so
+  // a live push can never wipe sandbox keys and vice versa (agenda_state pattern).
   function pushNow() {
     if (!SB || !userId) return;
-    var cur = JSON.stringify(snapshot());
+    var mine = snapshot();
+    var cur = JSON.stringify(mine);
     if (cur === lastPushed) return;
-    var data;
-    try { data = JSON.parse(cur); } catch (e) { return; }
-    SB.from("kangaroo_state")
-      .upsert({ user_id: userId, data: data, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
-      .then(function (res) {
-        if (res && res.error) { try { console.warn("[Kangaroo] push", res.error.message); } catch (e) {} return; }
-        lastPushed = cur;
-      }, function (err) { try { console.warn("[Kangaroo] push", (err && err.message) || err); } catch (e) {} });
+    SB.from("kangaroo_state").select("data").eq("user_id", userId).then(function (rd) {
+      if (rd && rd.error) { warn("push read", rd.error.message); return; }
+      var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
+      // drop any stale keys of ours, then set current ones
+      Object.keys(merged).forEach(function (key) { if (key.indexOf(PHYS) === 0) delete merged[key]; });
+      Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
+      SB.from("kangaroo_state")
+        .upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
+        .then(function (res) {
+          if (res && res.error) { warn("push", res.error.message); return; }
+          lastPushed = cur;
+        }, function (err) { warn("push", msg(err)); });
+    }, function (err) { warn("push read", msg(err)); });
   }
 
   function schedulePush() {
@@ -109,39 +129,47 @@
   function pull(cb) {
     if (!SB || !userId) { cb && cb(); return; }
     SB.from("kangaroo_state").select("data").eq("user_id", userId).then(function (res) {
-      if (res && res.error) { try { console.warn("[Kangaroo] pull", res.error.message); } catch (e) {} cb && cb(); return; }
+      if (res && res.error) { warn("pull", res.error.message); cb && cb(); return; }
       var row = res && res.data && res.data.length ? res.data[0] : null;
-      // Only overwrite local when we have nothing unpushed (local edits win).
       var cur = JSON.stringify(snapshot());
       if (row && row.data && (lastPushed === null || cur === lastPushed)) {
         seed(row.data);
         lastPushed = JSON.stringify(snapshot());
       }
       cb && cb();
-    }, function (err) { try { console.warn("[Kangaroo] pull", (err && err.message) || err); } catch (e) {} cb && cb(); });
+    }, function (err) { warn("pull", msg(err)); cb && cb(); });
   }
 
-  // ---- capture the app's own writes (storage events don't fire in the same
-  // document, so patch setItem before the bundle loads) ----
+  function msg(e) { return (e && e.message) || String(e); }
+  function warn() { try { console.warn.apply(console, ["[Kangaroo]"].concat([].slice.call(arguments))); } catch (e) {} }
+
+  // ---- Storage shim: map the app's logical "kangaroo-*" keys to this env's
+  // physical keys, and trigger a push on writes. Patched on the prototype (the
+  // iframe's own realm), so it never touches the parent app. ----
   function patchStorage() {
-    // Patch the prototype, not the instance: assigning localStorage.setItem
-    // directly is treated as a stored item (not a method override) by the
-    // Storage named-property setter. This iframe has its own Storage.prototype,
-    // so the patch is scoped to the gym app and never touches the parent app.
-    var proto = window.Storage && window.Storage.prototype
-      ? window.Storage.prototype
-      : Object.getPrototypeOf(localStorage);
     if (proto.__kangarooPatched) return;
     proto.__kangarooPatched = true;
-    var origSet = proto.setItem;
-    proto.setItem = function (key, val) {
-      origSet.call(this, key, val);
-      if (typeof key === "string" && key.indexOf(PREFIX) === 0) schedulePush();
+    proto.getItem = function (key) {
+      if (typeof key === "string" && key.indexOf(LOGICAL) === 0 && key.indexOf(NS) !== 0) {
+        return oGet.call(this, NS + key);
+      }
+      return oGet.call(this, key);
     };
-    var origRemove = proto.removeItem;
+    proto.setItem = function (key, val) {
+      if (typeof key === "string" && key.indexOf(LOGICAL) === 0 && key.indexOf(NS) !== 0) {
+        oSet.call(this, NS + key, val);
+        schedulePush();
+        return;
+      }
+      oSet.call(this, key, val);
+    };
     proto.removeItem = function (key) {
-      origRemove.call(this, key);
-      if (typeof key === "string" && key.indexOf(PREFIX) === 0) schedulePush();
+      if (typeof key === "string" && key.indexOf(LOGICAL) === 0 && key.indexOf(NS) !== 0) {
+        oRem.call(this, NS + key);
+        schedulePush();
+        return;
+      }
+      oRem.call(this, key);
     };
   }
 
@@ -153,37 +181,33 @@
     document.body.appendChild(s);
   }
 
+  var GATE_TITLE = "Sign in to use Kangaroo";
+  var GATE_MSG = "Open the Daily Digest app and sign in — the gym tracker unlocks with your account.";
+
   function onSignedIn(session) {
     userId = session.user.id;
-    // pull first so the app hydrates from the server copy, THEN patch + mount.
     pull(function () {
       lastPushed = JSON.stringify(snapshot());
       patchStorage();
       mountApp();
     });
-    // keep fresh when returning to the tab
     document.addEventListener("visibilitychange", function () { if (!document.hidden) pull(); });
     window.addEventListener("pagehide", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
     window.addEventListener("beforeunload", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
   }
 
   function boot() {
-    if (!SB) {
-      gate("Can't reach the login service", "Check your connection and reload.", true);
-      return;
-    }
+    if (!SB) { gate("Can't reach the login service", "Check your connection and reload.", true); return; }
     SB.auth.getSession().then(function (res) {
       var session = res && res.data && res.data.session;
       if (session) onSignedIn(session);
-      else gate("Sign in to use Kangaroo", "Open the Daily Digest app and sign in — the gym tracker unlocks with your account.", false);
-    }).catch(function () {
-      gate("Sign in to use Kangaroo", "Open the Daily Digest app and sign in — the gym tracker unlocks with your account.", false);
-    });
+      else gate(GATE_TITLE, GATE_MSG, false);
+    }).catch(function () { gate(GATE_TITLE, GATE_MSG, false); });
 
     SB.auth.onAuthStateChange(function (event, session) {
       if (event === "SIGNED_OUT" || !session) {
-        if (mounted) location.reload(); // drop the app UI on sign-out
-        else gate("Sign in to use Kangaroo", "Open the Daily Digest app and sign in — the gym tracker unlocks with your account.", false);
+        if (mounted) location.reload();
+        else gate(GATE_TITLE, GATE_MSG, false);
       } else if (session && !mounted) {
         onSignedIn(session);
       }
