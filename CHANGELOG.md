@@ -2,6 +2,11 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs lessons)
+- Removed the hardcoded "Voltooid" state on the first two lessons of each topic
+  (was faked via index<2, not tied to real progress and not resettable). Lessons
+  now just show their number + duration. Cache v21 -> v22.
+
 ## 2026-08-05 (WijnWijs fixes)
 - Quiz now shuffles the WHOLE active pool (all 210 incl. the 200), due-for-review
   first, instead of always serving the same front-of-list starter questions.
