@@ -224,24 +224,6 @@
 
     // ---- subtasks (not for radar deadlines) ----
     if (type === "radar") {
-      // Turn this radar entry into a working task/project item in the app store.
-      if (global.Items) {
-        body.appendChild(el("div", "detail-section-label", "Make into a working item"));
-        var mkRow = el("div", "detail-add-row");
-        [["task", "Make into task", "todo"], ["project", "Make into project", "active"]].forEach(function (p) {
-          var b = el("button", "detail-convert-btn", p[1]);
-          b.type = "button";
-          b.addEventListener("click", function () {
-            global.Items.add({ title: item.title,
-              note: (item.hint ? "Deadline: " + item.hint + "\n" : "") + "From Compliance Radar.",
-              type: p[0], state: p[2] });
-            toast("Added to " + (p[0] === "project" ? "Projects" : "Tasks"));
-            close();
-          });
-          mkRow.appendChild(b);
-        });
-        body.appendChild(mkRow);
-      }
       body.appendChild(buildNotesSection());
       finish();
       return;
@@ -266,12 +248,7 @@
       subList.innerHTML = "";
       var list = getSubtasks(id);
       if (!list.length) subList.appendChild(el("p", "detail-empty", "No subtasks yet."));
-      // Display not-done first, done at the bottom; keep each item's ORIGINAL
-      // index for mutation (the stored array order is never changed).
-      list.map(function (s, i) { return { s: s, i: i }; })
-        .sort(function (a, b) { return (a.s.done ? 1 : 0) - (b.s.done ? 1 : 0); })
-        .forEach(function (o) {
-        var s = o.s, i = o.i;
+      list.forEach(function (s, i) {
         var rowEl = el("div", "detail-sub" + (s.done ? " done" : ""));
         var box = el("button", "detail-check" + (s.done ? " checked" : ""));
         box.type = "button";

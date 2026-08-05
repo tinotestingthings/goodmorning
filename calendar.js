@@ -695,30 +695,8 @@
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue"));
       var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
     }
-    // All open tasks & projects from the unified store (not just scheduled
-    // to-dos) — the full task list, each row opens its detail sheet.
-    var opens=[];
-    if(window.Items){
-      var rankS={active:0,todo:1,idea:2};
-      opens=window.Items.all().filter(function(x){ return x.state==="todo"||x.state==="active"||x.state==="idea"; })
-        .sort(function(a,b){ return (rankS[a.state]||0)-(rankS[b.state]||0); });
-    }
-    if(opens.length){
-      wrap.appendChild(el("h3","cal-agenda-head","All tasks & projects"));
-      var il=el("div","cal-item-list");
-      opens.forEach(function(it){
-        var row=el("div","cal-item cal-item-tap");
-        var bd=el("div","cal-item-body");
-        var tw=el("div","cal-item-titlewrap"); tw.appendChild(el("span","cal-item-title",it.title)); bd.appendChild(tw);
-        bd.appendChild(el("div","cal-item-sub",(it.type==="project"?"Project":"Task")+" \u00b7 "+it.state));
-        row.appendChild(bd);
-        row.addEventListener("click",function(){ if(window.ItemDetail) window.ItemDetail.open(it,it.type); });
-        il.appendChild(row);
-      });
-      wrap.appendChild(il);
-    }
     var groups=collectRange(todayStr(),ymd(addDays(new Date(),45)));
-    if(!groups.length && !overdue.length && !opens.length){ wrap.appendChild(el("p","cal-empty","Nothing coming up.")); return wrap; }
+    if(!groups.length && !overdue.length){ wrap.appendChild(el("p","cal-empty","Nothing coming up.")); return wrap; }
     groups.forEach(function(g){
       wrap.appendChild(el("h3","cal-agenda-head", g.ds===todayStr()?"Today · "+niceDay(g.ds):niceDay(g.ds)));
       var list=el("div","cal-item-list");

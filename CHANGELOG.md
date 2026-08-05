@@ -2,6 +2,14 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (later)
+- Promoted the remaining pending sandbox work to live: the **Supabase-primary
+  items switch** (`items.js` one-time client-side seed migration, merges vault
+  tasks/projects by id under the user's own auth, runs once), **item-card
+  subtasks** on the home tiles (`home.js`), and smaller calendar / item-detail /
+  agenda-sync / theme / fx tweaks. Env-identity files (manifest name+theme,
+  sw cache name, index title) left as live. Cache v17 -> v18.
+
 ## 2026-08-05
 - Renamed the **Practice** tab to **Utilities** and added a third app — the
   **Kangaroo Gym Tracker** (self-contained static bundle) — beside NoteSprint +

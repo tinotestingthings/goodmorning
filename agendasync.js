@@ -1,8 +1,8 @@
 (function (global) {
   "use strict";
 
-  // Cross-device agenda sync. The calendar's to-dos + chores (dd.todos /
-  // dd.chores) are mirrored to one `agenda_state` row per user in Supabase
+  // Cross-device agenda sync. The calendar's to-dos + chores (sbx.todos /
+  // sbx.chores) are mirrored to one `agenda_state` row per user in Supabase
   // (last writer wins — fine for one person). Every device pulls on
   // boot/focus, and pushes the instant its local copy changes (home.js's
   // saveTodos/saveChores call pushNow) with a 25s safety poll behind it.
@@ -120,7 +120,12 @@
     if (started || !session) return;
     started = true;
     userId = session.user.id;
-    pull(function () { if (lastSynced === null) lastSynced = snapshot(); });
+    pull(function () {
+      if (lastSynced === null) lastSynced = snapshot();
+      // Signal that the first pull is done so one-time client migrations can run
+      // without being clobbered by a subsequent server snapshot.
+      try { document.dispatchEvent(new Event("dd-agenda-ready")); } catch (e) {}
+    });
     setInterval(tick, POLL_MS);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
   }
