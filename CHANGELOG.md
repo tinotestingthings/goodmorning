@@ -2,6 +2,15 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05
+- Renamed the **Practice** tab to **Utilities** and added a third app — the
+  **Kangaroo Gym Tracker** (self-contained static bundle) — beside NoteSprint +
+  ChordSprint. The morning loop still always opens the note game.
+- Kangaroo is **login-gated** (needs a valid Supabase session) and its data syncs
+  to a per-user `kangaroo_state` row, namespaced by environment (`dd:kangaroo-*`
+  live / `sbx:kangaroo-*` sandbox) so sandbox testing can never touch live gym
+  data. Daily digest mirrors the live data to a rolling vault file. Cache v16 -> v17.
+
 ## 2026-08-04
 - Promoted phase-1 to live: unified task/project store (`items.js` + `dd.items`),
   Backlog list type (add/reorder/promote/schedule), and the 3-tile homepage.

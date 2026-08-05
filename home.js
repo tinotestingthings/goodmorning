@@ -122,11 +122,20 @@
     var text = el("div", "loop-card-text");
     text.appendChild(el("div", "loop-card-title", "Morning loop"));
     var sub = step === "triage" ? "Continue: Triage →" :
-      step === "practice" ? "Continue: Practice →" : "Start today's loop →";
+      step === "practice" ? "Continue: Note games →" : "Start today's loop →";
     text.appendChild(el("div", "loop-card-sub", sub));
     card.appendChild(text);
 
-    card.addEventListener("click", function () { App.go(step === "practice" ? "practice" : "triage"); });
+    card.addEventListener("click", function () {
+      if (step === "practice") {
+        // Flag a morning-loop entry so the Utilities view opens the note game
+        // (not whatever app was last picked). practice.js reads + clears this.
+        window.__gmLoopPractice = true;
+        App.go("practice");
+      } else {
+        App.go("triage");
+      }
+    });
     return card;
   }
 
