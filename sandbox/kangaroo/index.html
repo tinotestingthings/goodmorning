@@ -9,6 +9,9 @@
 </head>
 <body>
 <div id="root"></div>
-<script src="bundle.js"></script>
+<!-- Supabase Auth: gate the app on a valid Daily Digest session, then sync the
+     gym data to the per-user kangaroo_state row. boot.js injects bundle.js. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="boot.js"></script>
 </body>
 </html>
