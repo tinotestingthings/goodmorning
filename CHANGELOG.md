@@ -2,6 +2,10 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs profile)
+- Replaced the hardcoded profile name "Martijn Mensink" (avatar MM) with a neutral
+  "Wijnstudent" (avatar WS, kicker "Profiel"). Cache v23 -> v24.
+
 ## 2026-08-05 (WijnWijs level lock + hardcode cleanup)
 - SDEN 3 / WSET 3 are now locked (greyed, "binnenkort") until they actually have
   content — a level unlocks automatically once it has non-starter approved
