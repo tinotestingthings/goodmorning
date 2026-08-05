@@ -2,6 +2,15 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (NoteSprint local + sync for both games)
+- NoteSprint is now a LOCAL copy behind goodmorning (/notesprint/) instead of the
+  external github.io link (external site left untouched); Utilities tab repointed.
+- NoteSprint and ChordSprint (ear-training) now sync their scores/settings to
+  per-user Supabase rows (notesprint_state / chordsprint_state), env-namespaced
+  (dd:/sbx:) behind the login gate, via a boot layer that defers each app's own
+  script until after the pull. Daily digest backs both up to rolling vault files.
+  Cache v25 -> v26.
+
 ## 2026-08-05 (WijnWijs greeting)
 - Also removed the hardcoded "Goedemorgen, Martijn." greeting -> "Goedemorgen."
   No personal name remains in the app. Cache v24 -> v25.

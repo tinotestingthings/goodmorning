@@ -9,7 +9,7 @@
   var APPS = {
     notesprint: {
       label: "NoteSprint",
-      url: "https://tinotestingthings.github.io/gamify-note-reading/"
+      url: "notesprint/index.html"
     },
     eartraining: {
       label: "ChordSprint",
