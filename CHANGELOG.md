@@ -2,6 +2,10 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs greeting)
+- Also removed the hardcoded "Goedemorgen, Martijn." greeting -> "Goedemorgen."
+  No personal name remains in the app. Cache v24 -> v25.
+
 ## 2026-08-05 (WijnWijs profile)
 - Replaced the hardcoded profile name "Martijn Mensink" (avatar MM) with a neutral
   "Wijnstudent" (avatar WS, kicker "Profiel"). Cache v23 -> v24.
