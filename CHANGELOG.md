@@ -2,6 +2,14 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs level lock + hardcode cleanup)
+- SDEN 3 / WSET 3 are now locked (greyed, "binnenkort") until they actually have
+  content — a level unlocks automatically once it has non-starter approved
+  questions. Applies to the Leren level-switch and the Settings dropdown.
+- Removed the last hardcoded demo progress: the fake "Ga verder — Frankrijk: Loire,
+  Les 4 van 7, 58%" card is now an honest "Aanbevolen" shortcut with no fake bar.
+  Cache v22 -> v23.
+
 ## 2026-08-05 (WijnWijs lessons)
 - Removed the hardcoded "Voltooid" state on the first two lessons of each topic
   (was faked via index<2, not tied to real progress and not resettable). Lessons
