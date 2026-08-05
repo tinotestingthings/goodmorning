@@ -2,6 +2,12 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs 200 questions)
+- Bundled the full SDEN2 question bank into WijnWijs: the embed was shipping only
+  the 10-question starter set, so the 200 imported questions (two 100-Q packages)
+  weren't present. Baked all 200 into the app's base set (210 total, all pass the
+  approved-question filter). Cache v19 -> v20.
+
 ## 2026-08-05 (WijnWijs)
 - Added a 4th **Utilities** app: **WijnWijs** (wine trainer, SDEN2 quiz) as a
   self-contained static bundle, beside NoteSprint / ChordSprint / Kangaroo.
