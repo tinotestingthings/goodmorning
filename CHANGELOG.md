@@ -2,6 +2,13 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs fixes)
+- Quiz now shuffles the WHOLE active pool (all 210 incl. the 200), due-for-review
+  first, instead of always serving the same front-of-list starter questions.
+- Reset the demo/test data: xp/streak start at 0, learningTopics + mastery /
+  retention / week-bar numbers zeroed, and a one-time state reset (version 2)
+  clears any already-saved test progress. Cache v20 -> v21.
+
 ## 2026-08-05 (WijnWijs 200 questions)
 - Bundled the full SDEN2 question bank into WijnWijs: the embed was shipping only
   the 10-question starter set, so the 200 imported questions (two 100-Q packages)
