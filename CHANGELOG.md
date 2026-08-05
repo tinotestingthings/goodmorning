@@ -2,6 +2,14 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-05 (WijnWijs)
+- Added a 4th **Utilities** app: **WijnWijs** (wine trainer, SDEN2 quiz) as a
+  self-contained static bundle, beside NoteSprint / ChordSprint / Kangaroo.
+- Login-gated (valid Supabase session) with its progress (`wijnwijs-v1`) synced
+  to a per-user `wine_state` row, env-namespaced (`dd:` live / `sbx:` sandbox) so
+  sandbox testing can't touch live progress. Daily digest mirrors live progress
+  to a rolling vault file. Cache v18 -> v19.
+
 ## 2026-08-05 (later)
 - Promoted the remaining pending sandbox work to live: the **Supabase-primary
   items switch** (`items.js` one-time client-side seed migration, merges vault
