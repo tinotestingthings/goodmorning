@@ -18,6 +18,10 @@
     kangaroo: {
       label: "Kangaroo",
       url: "kangaroo/index.html"
+    },
+    wine: {
+      label: "WijnWijs",
+      url: "wine/index.html"
     }
   };
 
