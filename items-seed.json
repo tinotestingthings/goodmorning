@@ -203,7 +203,7 @@
   "title": "Project: Cookie Scanner Applicatie",
   "note": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostnamen, cookie-looptijden) gescheiden van interpretatie.",
   "subtasks": [],
-  "state": "active",
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -295,6 +295,10 @@
    },
    {
     "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
+    "done": false
+   },
+   {
+    "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
     "done": false
    }
   ],
