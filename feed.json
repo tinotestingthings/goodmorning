@@ -1,50 +1,8 @@
 {
-  "generated": "2026-08-05T06:45:00Z",
-  "daily": [
-    {
-      "id": "2026-08-04-bits-of-freedom-verbod-camerabrillen-privacy-op-straat",
-      "title": "Bits of Freedom wil verbod op camerabrillen: 'complete privacy op straat weg'",
-      "source": "Security.NL (Redactie), o.b.v. Nieuwsuur",
-      "url": "https://www.security.nl/posting/947694/Bits+of+Freedom+wil+verbod+op+camerabrillen%3A+%27Complete+privacy+op+straat+weg%27",
-      "date": "2026-08-03",
-      "summary": "Bits of Freedom (directeur Evelyn Austin) pleit tegenover Nieuwsuur voor een verbod op Meta's camerabrillen: als iedereen zo'n 'gluurbril' draagt ben je je complete privacy op straat kwijt. Sluit aan op een bredere Europese lijn — CNIL waarschuwde voor normalisering van surveillance, Hamburg acht een verbod juridisch mogelijk, en DEF CON en TivoliVredenburg verboden de brillen al. Tweede zorg: alle beelden — ook opnames binnenshuis — stromen naar Meta, wat AVG-vragen oproept over grondslag en doelbinding. De EDPB komt binnenkort met een onderzoek naar de maatschappelijke acceptatie ervan."
-    },
-    {
-      "id": "2026-08-05-amnesty-bof-brief-nieuwe-ap-voorzitter-meer-handhaving",
-      "title": "Amnesty en Bits of Freedom: AP moet pal achter de burger staan (welkomstbrief aan nieuwe voorzitter Potjewijd)",
-      "source": "Security.NL (Redactie)",
-      "url": "https://www.security.nl/posting/947826/Amnesty+en+BoF:+Autoriteit+Persoonsgegevens+moet+pal+achter+burger+staan",
-      "date": "2026-08-04",
-      "summary": "Amnesty International en Bits of Freedom sturen een gezamenlijke welkomstbrief aan Geert Potjewijd, sinds deze maand de nieuwe AP-voorzitter (opvolger van Aleid Wolfsen). Kern: de AP moet 'pal achter de burger staan' en fors méér inzetten op handhaving dan op bewustwording — 'de tijd van bewustwording is voorbij', organisaties weten hun verplichtingen maar weigeren te veranderen. Extra urgentie: de overheid verzamelt zelf veel data en zet experimentele profileringsalgoritmen in, en het recht op gegevensbescherming staat onder druk door de Europese Omnibus-dereguleringsvoorstellen. Aangescherpte vervolgstap op de eerdere BoF-lijn (2026-08-01); de volledige brief staat als pdf op de BoF-site."
-    }
-  ],
-  "radar_week": {
-    "week_of": "2026-08-03",
-    "items": [
-      {
-        "id": "2026-08-03-ai-act-transparency-obligations-in-force",
-        "title": "AI Act Art. 50 transparency obligations now applicable and enforced (2 Aug 2026); Commission publishes 180+ CoP signatories",
-        "date": "2026-08-03"
-      },
-      {
-        "id": "2026-08-03-ptsb-dpc-account-takeover-fine",
-        "title": "DPC fines Permanent TSB €277,500 over contact-centre account takeovers + late breach reporting",
-        "date": "2026-08-03"
-      },
-      {
-        "id": "2026-07-30-garante-character-ai-child-privacy-fine",
-        "title": "Garante fines Character.AI €158,000 over minors' data + age-verification failures",
-        "date": "2026-07-30"
-      },
-      {
-        "id": "2026-07-30-garante-credit-scoring-energy-fines",
-        "title": "Garante fines energy suppliers + credit bureaux €7.72m over creditworthiness scoring",
-        "date": "2026-07-30"
-      }
-    ]
-  },
+  "generated": "2026-08-06T06:45:00Z",
+  "daily": [],
   "today": {
-    "date": "2026-08-05",
+    "date": "2026-08-06",
     "tasks": [
       {
         "id": "2026-07-14-fill-in-work-compliance-topics-resources",
@@ -126,7 +84,7 @@
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-08-04",
+        "updated": "2026-08-06",
         "line": "Hub for goodmorning-app improvements; sandbox->live promotion made safe and several UI items shipped, many open.",
         "notes": [],
         "subtasks": [
@@ -208,6 +166,10 @@
           },
           {
             "text": "Add the house backlog from the Familywall app",
+            "done": false
+          },
+          {
+            "text": "Postponing a task from today to tomorrow keeps the end date on today (still shows on homescreen)",
             "done": false
           }
         ]
@@ -299,14 +261,10 @@
       }
     ],
     "radar": {
-      "updated": "2026-08-03",
+      "updated": "2026-08-06",
       "follow_ups": 1,
-      "headline": "AI Act Art. 50 transparency obligations are now applicable and enforced from 2 Aug 2026; the Commission published 180+ Code-of-Practice signatories.",
+      "headline": "noyb filed a GDPR complaint (Austrian DPA, case C107) over dict.cc's one-click 'consent' to 1,741 ad partners — a signal on IAB TCF/CMP consent-fatigue design.",
       "deadlines": [
-        {
-          "date": "2026-08-05",
-          "label": "EDPB public consultation on the draft common Art. 33 data-breach notification template"
-        },
         {
           "date": "2026-08-10",
           "label": "AP consultation on the draft list of DPIA exceptions closes"
@@ -317,7 +275,7 @@
         },
         {
           "date": "2026-10-31",
-          "label": "Certification bodies must have transitioned to the new ISO/IEC version"
+          "label": "Certification bodies must have transitioned to the new ISO/IEC 27701 version"
         },
         {
           "date": "2026-12-02",
