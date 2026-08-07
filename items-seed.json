@@ -139,6 +139,16 @@
   "recurrence": null
  },
  {
+  "id": "2026-08-06-put-holidays-birthdays-non-work-in-calendar",
+  "type": "task",
+  "title": "Put holidays, birthdays and all non-work items in calendar",
+  "note": "Put holidays, birthdays and all non-work items in calender.",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
   "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
   "type": "project",
   "title": "Cooking — improving recipes",
@@ -213,7 +223,7 @@
   "title": "Team verbetering — idee",
   "note": "Idee over hoe we ons team kunnen verbeteren:",
   "subtasks": [],
-  "state": "idea",
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -300,6 +310,18 @@
    {
     "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
     "done": false
+   },
+   {
+    "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
+    "done": false
+   },
+   {
+    "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
+    "done": false
+   },
+   {
+    "text": "I should be able to hold and drag to reorder backlog items",
+    "done": false
    }
   ],
   "state": "active",
@@ -312,7 +334,7 @@
   "title": "Learn pistol squats",
   "note": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
   "subtasks": [],
-  "state": "idea",
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -322,7 +344,7 @@
   "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
   "note": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
   "subtasks": [],
-  "state": "active",
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
