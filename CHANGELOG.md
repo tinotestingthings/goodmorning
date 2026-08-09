@@ -2,6 +2,22 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-09 (P1: satellite apps could wipe their own server data)
+- WijnWijs, Kangaroo, NoteSprint and ChordSprint all shared the agenda bug that
+  wiped the live agenda, in a second form. Their push deletes their own keys from
+  the row and re-adds whatever is in localStorage — correct only if the pull
+  populated it. But all four treated a FAILED pull as success (`cb()` on the error
+  path), mounted the app on empty state, and the first write wiped the row.
+- Fix 1: a failed pull is now fatal — the app does not mount and the storage shim
+  is never armed, so no write (and therefore no push) can happen. The user gets a
+  "couldn't load, reload" gate instead of a silently empty app.
+- Fix 2: pushes are refused outright when local holds no data but the server does.
+- Fix 3: wine/kangaroo gain a `primed` flag; pushNow is a no-op until a pull has
+  actually succeeded (notesprint/ear-training already had `ready`, now only set on
+  success). Cache v29 -> v30.
+- Known trade-off: deliberately clearing ALL of an app's data no longer syncs that
+  emptiness to the other devices. Losing a "delete everything" beats losing everything.
+
 ## 2026-08-09 (agenda recovery)
 - One-time client-side restore of the wiped live agenda from the 2026-08-07 vault
   backup (8 open to-dos, 17 completed, 5 chores). agenda_state is read-only to the

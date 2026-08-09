@@ -37,6 +37,7 @@
   var userId = null;
   var mounted = false;
   var lastPushed = null;
+  var primed = false;   // true only once a pull has SUCCEEDED
   var pushTimer = null;
 
   // Original Storage methods, captured once, used by the boot layer directly so
@@ -76,6 +77,17 @@
     root.appendChild(wrap);
   }
 
+
+  // Is this value effectively "no data"? Covers JSON values (wine/kangaroo) and
+  // the raw localStorage strings the note/chord apps store.
+  function blankVal(v) {
+    if (v === null || v === undefined) return true;
+    if (typeof v === "string") { var s = v.trim(); return s === "" || s === "null" || s === "[]" || s === "{}"; }
+    if (Array.isArray(v)) return v.length === 0;
+    if (typeof v === "object") return Object.keys(v).length === 0;
+    return false;
+  }
+
   // ---- snapshot / seed operate on PHYSICAL keys for THIS environment only ----
   function snapshot() {
     var o = {};
@@ -103,12 +115,21 @@
   // a live push can never wipe sandbox keys and vice versa (agenda_state pattern).
   function pushNow() {
     if (!SB || !userId) return;
+    if (!primed) return;   // pre-pull state is not authoritative — never push it
     var mine = snapshot();
     var cur = JSON.stringify(mine);
     if (cur === lastPushed) return;
     SB.from("wine_state").select("data").eq("user_id", userId).then(function (rd) {
       if (rd && rd.error) { warn("push read", rd.error.message); return; }
       var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
+      // SAFETY NET (2026-08-09): never let an empty local state delete real
+      // server data. This routine deletes our keys then re-adds whatever is in
+      // localStorage, which is only correct if the pull actually populated it.
+      // A failed pull used to leave local empty and the first write wiped the
+      // row — exactly how the live agenda was lost. Refuse that push.
+      var _srvHas = Object.keys(merged).some(function (key) { return key.indexOf(PHYS) === 0 && !blankVal(merged[key]); });
+      var _locHas = Object.keys(mine).some(function (key) { return !blankVal(mine[key]); });
+      if (_srvHas && !_locHas) { warn("refusing to push empty local state over existing server data"); return; }
       // drop any stale keys of ours, then set current ones
       Object.keys(merged).forEach(function (key) { if (key.indexOf(PHYS) === 0) delete merged[key]; });
       Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
@@ -129,15 +150,15 @@
   function pull(cb) {
     if (!SB || !userId) { cb && cb(); return; }
     SB.from("wine_state").select("data").eq("user_id", userId).then(function (res) {
-      if (res && res.error) { warn("pull", res.error.message); cb && cb(); return; }
+      if (res && res.error) { warn("pull", res.error.message); cb && cb(false); return; }
       var row = res && res.data && res.data.length ? res.data[0] : null;
       var cur = JSON.stringify(snapshot());
       if (row && row.data && (lastPushed === null || cur === lastPushed)) {
         seed(row.data);
         lastPushed = JSON.stringify(snapshot());
       }
-      cb && cb();
-    }, function (err) { warn("pull", msg(err)); cb && cb(); });
+      cb && cb(true);
+    }, function (err) { warn("pull", msg(err)); cb && cb(false); });
   }
 
   function msg(e) { return (e && e.message) || String(e); }
@@ -186,7 +207,11 @@
 
   function onSignedIn(session) {
     userId = session.user.id;
-    pull(function () {
+    pull(function (ok) {
+      // A failed pull must NOT mount the app: it would run on empty state and
+      // the first write would push that emptiness over the server copy.
+      if (!ok) { gate("Couldn't load your wine progress", "You're online but the sync didn't answer. Reload to try again — nothing has been changed.", true); return; }
+      primed = true;
       lastPushed = JSON.stringify(snapshot());
       patchStorage();
       mountApp();

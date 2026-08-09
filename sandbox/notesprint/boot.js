@@ -74,6 +74,17 @@
     });
   }
 
+
+  // Is this value effectively "no data"? Covers JSON values (wine/kangaroo) and
+  // the raw localStorage strings the note/chord apps store.
+  function blankVal(v) {
+    if (v === null || v === undefined) return true;
+    if (typeof v === "string") { var s = v.trim(); return s === "" || s === "null" || s === "[]" || s === "{}"; }
+    if (Array.isArray(v)) return v.length === 0;
+    if (typeof v === "object") return Object.keys(v).length === 0;
+    return false;
+  }
+
   function warn() { try { console.warn.apply(console, ["[" + APP_LABEL + "]"].concat([].slice.call(arguments))); } catch (e) {} }
 
   function pushNow() {
@@ -84,6 +95,14 @@
     SB.from(TABLE).select("data").eq("user_id", userId).then(function (rd) {
       if (rd && rd.error) { warn("push read", rd.error.message); return; }
       var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
+      // SAFETY NET (2026-08-09): never let an empty local state delete real
+      // server data. This routine deletes our keys then re-adds whatever is in
+      // localStorage, which is only correct if the pull actually populated it.
+      // A failed pull used to leave local empty and the first write wiped the
+      // row — exactly how the live agenda was lost. Refuse that push.
+      var _srvHas = Object.keys(merged).some(function (key) { return isPhysical(key) && !blankVal(merged[key]); });
+      var _locHas = Object.keys(mine).some(function (key) { return !blankVal(mine[key]); });
+      if (_srvHas && !_locHas) { warn("refusing to push empty local state over existing server data"); return; }
       Object.keys(merged).forEach(function (key) { if (isPhysical(key)) delete merged[key]; });
       Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
       SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
@@ -96,12 +115,12 @@
   function pull(cb) {
     if (!SB || !userId) { cb && cb(); return; }
     SB.from(TABLE).select("data").eq("user_id", userId).then(function (res) {
-      if (res && res.error) { warn("pull", res.error.message); cb && cb(); return; }
+      if (res && res.error) { warn("pull", res.error.message); cb && cb(false); return; }
       var row = res && res.data && res.data.length ? res.data[0] : null;
       var cur = JSON.stringify(snapshot());
       if (row && row.data && (lastPushed === null || cur === lastPushed)) { seed(row.data); lastPushed = JSON.stringify(snapshot()); }
-      cb && cb();
-    }, function (err) { warn("pull", (err && err.message) || err); cb && cb(); });
+      cb && cb(true);
+    }, function (err) { warn("pull", (err && err.message) || err); cb && cb(false); });
   }
 
   function gate(title, msg, showReload) {
@@ -134,7 +153,12 @@
   function onSignedIn(session) {
     userId = session.user.id;
     ungate();
-    pull(function () { lastPushed = JSON.stringify(snapshot()); ready = true; runApp(); });
+    pull(function (ok) {
+      // Never run the app on a failed pull: it would start from empty state and
+      // the first write would wipe the server copy (2026-08-09 agenda incident).
+      if (!ok) { gate("Couldn't load your progress", "You're online but the sync didn't answer. Reload to try again — nothing has been changed.", true); return; }
+      lastPushed = JSON.stringify(snapshot()); ready = true; runApp();
+    });
     document.addEventListener("visibilitychange", function () { if (!document.hidden) pull(); });
     window.addEventListener("pagehide", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
     window.addEventListener("beforeunload", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
