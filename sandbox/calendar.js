@@ -582,7 +582,7 @@
 
   function snoozeTodo(id,days){
     var list=M.loadTodos();
-    list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } });
+    list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } });
     M.saveTodos(list); M.toast(days===7?"Pushed to next week":"Pushed to tomorrow"); render();
   }
   function toggleTodoDone(t,done){
@@ -680,7 +680,7 @@
     h.addEventListener("pointercancel",function(){ capturing=false; if(ghost){ghost.remove();ghost=null;} clearDrop(); });
     return h;
   }
-  function moveTodo(id,ds){ var list=M.loadTodos(); list.forEach(function(t){ if(t.id===id)t.dueDate=ds; }); M.saveTodos(list); selectedDate=ds; M.toast("Moved to "+niceDay(ds)); render(); }
+  function moveTodo(id,ds){ var list=M.loadTodos(); list.forEach(function(t){ if(t.id===id){ var nd=parseYmd(ds); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ds; } }); M.saveTodos(list); selectedDate=ds; M.toast("Moved to "+niceDay(ds)); render(); }
 
   // ---- agenda / my day / done ----
   function collectRange(startStr,endStr){
@@ -1290,7 +1290,7 @@
         if(s===en){ openTodoEditor(null); }                              // held on one day → single
         else { openTodoEditor(null,null,null,ymd(days[en])); }           // spanned → multi-day (start→end)
       }
-      c.el.addEventListener("pointerup",finish);
+      c.el.addEventListener("pointerup",function(e){ if(e.target&&e.target.closest&&e.target.closest(".cal-allday-chip")){ cleanup(); return; } finish(); });
       c.el.addEventListener("pointercancel",cleanup);
     });
   }
@@ -1395,7 +1395,7 @@
       if(m==="move" && !moved){ openItemMenu(t); return; }
       var list=M.loadTodos();
       list.forEach(function(x){ if(x.id!==t.id)return;
-        if(m==="move"){ x.dueDate=ymd(days[targetIdx]); }
+        if(m==="move"){ var nds=ymd(days[targetIdx]); if(x.endDate&&x.dueDate){var sp=Math.round((parseYmd(x.endDate)-parseYmd(x.dueDate))/86400000);if(!(sp>=0))sp=0;x.endDate=ymd(addDays(parseYmd(nds),sp));} x.dueDate=nds; }
         x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
       });
       M.saveTodos(list); calInvalidate();

@@ -60,6 +60,8 @@
         kind = pair[0];
         seg.querySelectorAll(".capture-seg-btn").forEach(function (x) { x.classList.remove("active"); });
         b.classList.add("active");
+        send.textContent = kind === "task" ? "Add task" : kind === "project" ? "Add project" : "Add to inbox";
+        hold.style.display = kind === "note" ? "" : "none";
       });
       seg.appendChild(b);
     });
@@ -78,6 +80,16 @@
     send.addEventListener("click", function () {
       var body = (ta.value || "").trim();
       if (!body) { toast("Type something first"); return; }
+      if (kind === "task" || kind === "project") {
+        if (!global.Items || !global.Items.add) { toast("App not ready — try again"); return; }
+        var _t = body.split("\n")[0].slice(0, 120);
+        global.Items.add({ type: kind, state: kind === "project" ? "idea" : "todo", title: _t, note: body.slice(_t.length).trim() });
+        logCapture(kind, _t, false);
+        toast(kind === "project" ? "Project added" : "Task added");
+        close();
+        if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
+        return;
+      }
       if (!global.SB) { toast("Not connected — try again"); return; }
       send.disabled = true; send.textContent = "Adding…";
       var title = body.split("\n")[0].slice(0, 120);

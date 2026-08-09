@@ -727,7 +727,7 @@
 
   function itemSubtasksEditor(item, refresh) {
     var wrap = el("div", "item-subs");
-    (item.subtasks || []).forEach(function (s, i) {
+    (item.subtasks || []).map(function (s, i) { return { s: s, i: i }; }).sort(function (a, b) { return (a.s.done ? 1 : 0) - (b.s.done ? 1 : 0); }).forEach(function (ent) { var s = ent.s, i = ent.i;
       var rowEl = el("div", "item-sub" + (s.done ? " done" : ""));
       var box = el("button", "item-sub-check" + (s.done ? " checked" : ""), s.done ? "✓" : "");
       box.type = "button";
@@ -768,7 +768,7 @@
     return wrap;
   }
 
-  function appItemRow(item, refresh) {
+  function appItemRow(item, refresh, openState) {
     var li = el("div", "backlog-item app-item");
     var row = el("div", "backlog-row");
     row.appendChild(chip(item.state));
@@ -781,8 +781,8 @@
     row.appendChild(menuBtn);
     li.appendChild(row);
 
-    var panel = el("div", "backlog-actions hidden");
-    menuBtn.addEventListener("click", function () { panel.classList.toggle("hidden"); });
+    var panel = el("div", "backlog-actions" + (openState && openState[item.id] ? "" : " hidden"));
+    menuBtn.addEventListener("click", function () { var h = panel.classList.toggle("hidden"); if (openState) openState[item.id] = !h; });
     function actBtn(label, cls, fn) {
       var b = el("button", "backlog-act" + (cls ? " " + cls : ""), label); b.type = "button";
       b.addEventListener("click", fn); return b;
@@ -813,9 +813,10 @@
   function buildAppItemsSection(container, type) {
     var wrap = el("div", "app-items");
     container.appendChild(wrap);
+    var openState = {};
     function refresh() {
       wrap.innerHTML = "";
-      openAppItems(type).forEach(function (it) { wrap.appendChild(appItemRow(it, refresh)); });
+      openAppItems(type).forEach(function (it) { wrap.appendChild(appItemRow(it, refresh, openState)); });
     }
     refresh();
     return openAppItems(type).length;
