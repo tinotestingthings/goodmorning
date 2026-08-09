@@ -191,6 +191,14 @@
    {
     "text": "Welke wetenachap achter productiviteit is er",
     "done": false
+   },
+   {
+    "text": "Welke wetenschap achter vitamines is er",
+    "done": false
+   },
+   {
+    "text": "Welke wetenachap achter productiviteit is er",
+    "done": false
    }
   ],
   "state": "active",
@@ -201,7 +209,7 @@
   "id": "2026-07-11-work-compliance-topics-resources-to-gather",
   "type": "project",
   "title": "Work compliance topics — resources to gather",
-  "note": "Topics to add work-relevant resources on:",
+  "note": "Topics to add work-relevant resources on: - ISO 27001 - ISO 27701 - EU AI Act - GDPR",
   "subtasks": [],
   "state": "active",
   "source": "vault",
@@ -221,8 +229,13 @@
   "id": "2026-07-14-team-verbetering-idee",
   "type": "project",
   "title": "Team verbetering — idee",
-  "note": "Idee over hoe we ons team kunnen verbeteren:",
-  "subtasks": [],
+  "note": "Idee over hoe we ons team kunnen verbeteren: - 2-maandelijkse strategiesessie met mede-senior - Meer eisen en actielijst bijhouden voor onze manager - Meer zichtbaarheid creëren naar de manager",
+  "subtasks": [
+   {
+    "text": "Ask claude what this tasks was meant for",
+    "done": false
+   }
+  ],
   "state": "active",
   "source": "vault",
   "recurrence": null
@@ -321,6 +334,86 @@
    },
    {
     "text": "I should be able to hold and drag to reorder backlog items",
+    "done": false
+   },
+   {
+    "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
+    "done": true
+   },
+   {
+    "text": "Calendar: duplicate a box on PC via shift+drag",
+    "done": false
+   },
+   {
+    "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+    "done": true
+   },
+   {
+    "text": "Unify task/project architecture: make tasks and projects more alike in design (both have subtasks and idea/backlog → to-do → active → done → cancel states); no mandatory deadline like Google Calendar — tasks are one-offs, projects bigger things — *phase 1 (unified `sbx.items` store + free-transition states) built in sandbox 2026-08-01; phase 2 folds the vault tasks/projects onto the shared vocab. See build spec.*",
+    "done": true
+   },
+   {
+    "text": "Morning loop tile style should match the other tiles",
+    "done": true
+   },
+   {
+    "text": "Add an emoji+ theme",
+    "done": true
+   },
+   {
+    "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
+    "done": false
+   },
+   {
+    "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
+    "done": false
+   },
+   {
+    "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
+    "done": false
+   },
+   {
+    "text": "Triage: add a history view",
+    "done": false
+   },
+   {
+    "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
+    "done": false
+   },
+   {
+    "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+    "done": false
+   },
+   {
+    "text": "New \"Backlog\" list type — general (house fixes/cleaning) + recurring (chores tracked by last-done only); promote any item into a task or project, giving a Backlog → Note → Task → Project spectrum. Full build spec: [[2026-08-01-backlog-list-type-build-spec|Backlog list type — build spec]] — *phase 1 built in sandbox 2026-08-01 (backlog as a state; add/reorder/promote/schedule). Recurring-chore sub-type folds in with phase 2.*",
+    "done": true
+   },
+   {
+    "text": "Compliance Radar entries should be editable like tasks and projects",
+    "done": false
+   },
+   {
+    "text": "Live hotfix: title `SBX · Daily Digest` → `Daily Digest`; path-guard the reset button so it can't wipe live `dd.*` data (commit 818ee07, 2026-08-04)",
+    "done": true
+   },
+   {
+    "text": "Make sandbox→live promotion safe — runtime namespace (killed the `sed` transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
+    "done": true
+   },
+   {
+    "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
+    "done": false
+   },
+   {
+    "text": "if i click on a subtask, the mother should not close everytime. cus now, i cannot edit more then 1 per time.",
+    "done": false
+   },
+   {
+    "text": "The done subtasks should be at the bottom, and the not done should be at the top.",
+    "done": false
+   },
+   {
+    "text": "I should add the house backlog from the Familywall app",
     "done": false
    }
   ],
