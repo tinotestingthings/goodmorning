@@ -248,7 +248,7 @@
       subList.innerHTML = "";
       var list = getSubtasks(id);
       if (!list.length) subList.appendChild(el("p", "detail-empty", "No subtasks yet."));
-      list.forEach(function (s, i) {
+      list.map(function (s, i) { return { s: s, i: i }; }).sort(function (a, b) { return (a.s.done ? 1 : 0) - (b.s.done ? 1 : 0); }).forEach(function (ent) { var s = ent.s, i = ent.i;
         var rowEl = el("div", "detail-sub" + (s.done ? " done" : ""));
         var box = el("button", "detail-check" + (s.done ? " checked" : ""));
         box.type = "button";

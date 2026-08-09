@@ -2,6 +2,22 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-09 (WijnWijs topic-linking + calendar/capture/subtask fixes)
+- WijnWijs: Onderwerpen are now derived from the real question bank and grouped by
+  each question's topic; tapping an onderwerp starts a practice filtered to that
+  topic. Topic progress bars and profile "Retentie" are computed from reviews
+  instead of hardcoded 0%.
+- Calendar all-day: tapping an all-day chip no longer fires the cell's
+  drag-to-create editor over the item menu, so all-day items can be opened and
+  deleted like normal tasks.
+- Postpone/move/drag now shift a to-do's end date together with its start date,
+  so postponing today->tomorrow no longer leaves the item stuck under "today".
+- Quick capture: Task/Project create an in-app item directly (Task->To-do,
+  Project->Idea) instead of a vault-inbox capture; Note still routes to the inbox.
+- Item subtasks: the Tasks/Projects panel keeps its open state across edits (edit
+  several subtasks without it snapping shut), and done subtasks sort to the bottom
+  (item panel + detail sheet). Cache v26 -> v27.
+
 ## 2026-08-05 (NoteSprint local + sync for both games)
 - NoteSprint is now a LOCAL copy behind goodmorning (/notesprint/) instead of the
   external github.io link (external site left untouched); Utilities tab repointed.
