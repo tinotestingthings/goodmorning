@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-shell-v28";
+var CACHE_NAME = "dd-shell-v29";
 
 var SHELL_FILES = [
   "./",
@@ -9,6 +9,8 @@ var SHELL_FILES = [
   "./env.js",
   "./items.js",
   "./items-seed.json",
+  "./agendarestore.js",
+  "./agenda-restore.json",
   "./style.css",
   "./app.js",
   "./theme.js",

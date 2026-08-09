@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v46";
+var CACHE_NAME = "dd-sandbox-shell-v47";
 
 var SHELL_FILES = [
   "./",
@@ -24,6 +24,8 @@ var SHELL_FILES = [
   "./itemdetail.js",
   "./items.js",
   "./items-seed.json",
+  "./agendarestore.js",
+  "./agenda-restore.json",
   "./home.js",
   "./calendar.js",
   "./triage.js",

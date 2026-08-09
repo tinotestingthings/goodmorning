@@ -2,6 +2,14 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-09 (agenda recovery)
+- One-time client-side restore of the wiped live agenda from the 2026-08-07 vault
+  backup (8 open to-dos, 17 completed, 5 chores). agenda_state is read-only to the
+  service_role by design, so the write happens in-app under the user's own auth,
+  the same way items.js seeds. Runs only after the first pull, only once, and only
+  when the local to-do list is genuinely empty, so it can never overwrite anything
+  re-created since. Cache v28 -> v29.
+
 ## 2026-08-09 (HOTFIX: agenda sync could wipe the live agenda)
 - ROOT CAUSE of the live agenda loss at 13:46Z. items.js seeded a new vault item
   via a blind `setTimeout(seedOnce, 8000)` fallback that fired BEFORE AgendaSync's
