@@ -14,6 +14,7 @@
   var userId = null;
   var started = false;
   var busy = false;
+  var primed = false;   // true only once the FIRST pull has come back
 
   function snapshot() {
     var o = {};
@@ -28,7 +29,15 @@
     try { o = JSON.parse(json); } catch (e) { return; }
     KEYS.forEach(function (k) {
       if (o && Object.prototype.hasOwnProperty.call(o, k)) {
-        if (o[k] === null) localStorage.removeItem(k);
+        if (o[k] === null) {
+          // Mirror of the push guard: a null on the server must never delete
+          // real local data. If this device still holds the only surviving
+          // copy, it keeps it (and pushes it back up on the next change).
+          var have = null;
+          try { have = localStorage.getItem(k); } catch (e) {}
+          if (have && have !== "null" && have !== "[]") return;
+          localStorage.removeItem(k);
+        }
         else localStorage.setItem(k, JSON.stringify(o[k]));
       }
     });
@@ -55,7 +64,15 @@
       if (rd && rd.error) { busy = false; note(rd.error.message); return; }
       var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
       KEYS.forEach(function (k) {
-        if (Object.prototype.hasOwnProperty.call(mine, k)) merged[k] = mine[k];
+        if (!Object.prototype.hasOwnProperty.call(mine, k)) return;
+        // NEVER let an ABSENT local key (null) erase real server data.
+        // null means "this key isn't in localStorage yet" — a booting or fresh
+        // device — which is never a state the user actually chose. An explicit
+        // empty array IS a real state (you deleted everything) and still syncs.
+        // This is the guard that was missing when the live agenda was wiped on
+        // 2026-08-09: a seed write pushed a not-yet-populated snapshot.
+        if (mine[k] === null && merged[k] !== null && merged[k] !== undefined) return;
+        merged[k] = mine[k];
       });
       global.SB.from("agenda_state")
         .upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
@@ -90,6 +107,7 @@
 
   function pushNow() {
     if (!global.SB || !userId || busy) return;
+    if (!primed) return;   // pre-pull local state is not authoritative — never push it
     var cur = snapshot();
     if (cur !== lastSynced) push(cur);
   }
@@ -98,6 +116,7 @@
   // device gets them; otherwise force a fresh pull of the server copy.
   function pullNow() {
     if (!global.SB || !userId || busy) return;
+    if (!primed) { remoteStamp = null; pull(); return; }
     var cur = snapshot();
     if (lastSynced !== null && cur !== lastSynced) { push(cur); return; }
     remoteStamp = null; pull();
@@ -108,6 +127,7 @@
 
   function tick() {
     if (busy || !global.SB || !userId) return;
+    if (!primed) { pull(); return; }
     var cur = snapshot();
     if (lastSynced !== null && cur !== lastSynced) push(cur);
     else pull();
@@ -121,6 +141,7 @@
     started = true;
     userId = session.user.id;
     pull(function () {
+      primed = true;
       if (lastSynced === null) lastSynced = snapshot();
       // Signal that the first pull is done so one-time client migrations can run
       // without being clobbered by a subsequent server snapshot.
@@ -142,5 +163,6 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 
-  global.AgendaSync = { pushNow: pushNow, pullNow: pullNow, tick: tick, ready: ready, status: status };
+  function isPrimed() { return primed; }
+  global.AgendaSync = { pushNow: pushNow, pullNow: pullNow, tick: tick, ready: ready, status: status, primed: isPrimed };
 })(window);

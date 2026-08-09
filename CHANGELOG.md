@@ -2,6 +2,24 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-09 (HOTFIX: agenda sync could wipe the live agenda)
+- ROOT CAUSE of the live agenda loss at 13:46Z. items.js seeded a new vault item
+  via a blind `setTimeout(seedOnce, 8000)` fallback that fired BEFORE AgendaSync's
+  first pull returned (the v27 cache bump forced a full shell refetch, slowing
+  boot). seedOnce -> save() -> AgendaSync.pushNow() pushed a snapshot in which
+  dd.todos/chores/history/workweek were still absent (null), and push() wrote
+  those nulls over the good server row. Every device then pulled the nulls and
+  applySnapshot() deleted them locally too.
+- Fix 1: push() never writes an ABSENT local key (null) over existing server data.
+  An explicit [] (you deleted everything) still syncs — only "not loaded yet" is
+  blocked.
+- Fix 2: applySnapshot() never deletes non-empty local data because the server
+  says null, so a device holding the last surviving copy keeps it.
+- Fix 3: AgendaSync is "primed" only after the first successful pull; pushNow /
+  tick / pullNow refuse to push before that.
+- Fix 4: items.js seedOnce waits for the first pull when a sync session is active
+  instead of firing blind at 8s. Cache v27 -> v28.
+
 ## 2026-08-09 (WijnWijs topic-linking + calendar/capture/subtask fixes)
 - WijnWijs: Onderwerpen are now derived from the real question bank and grouped by
   each question's topic; tapping an onderwerp starts a practice filtered to that

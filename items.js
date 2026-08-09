@@ -171,7 +171,20 @@
   // Run after the first agenda pull; fall back to a delayed run if that event
   // never fires (e.g. not signed in — local-only, nothing to clobber).
   document.addEventListener("dd-agenda-ready", seedOnce);
-  setTimeout(seedOnce, 8000);
+  // Fallback for the not-signed-in case (nothing to clobber). If a sync session
+  // IS active we must WAIT for the first pull — seeding before it lands writes a
+  // half-empty snapshot, and the save() below pushes it. That race wiped the live
+  // agenda on 2026-08-09, so this now retries instead of firing blind.
+  (function waitThenSeed(tries) {
+    setTimeout(function () {
+      var AS = global.AgendaSync;
+      if (AS && AS.ready && AS.ready() && AS.primed && !AS.primed()) {
+        if (tries < 30) return waitThenSeed(tries + 1);
+        return;                      // pull never landed — do NOT seed/push
+      }
+      seedOnce();
+    }, 8000);
+  })(0);
 
   global.Items = {
     STATES: STATES,
