@@ -22,6 +22,10 @@
     wine: {
       label: "WijnWijs",
       url: "wine/index.html"
+    },
+    vogelspotinus: {
+      label: "Vogelspotinus",
+      url: "vogelspotinus/index.html"
     }
   };
 
