@@ -1,0 +1,1046 @@
+:root {
+  --bg: #f4f1ea;
+  --surface: #ffffff;
+  --text: #1f2a1f;
+  --muted: #5c6b5c;
+  --accent: #2f6f4f;
+  --accent-contrast: #ffffff;
+  --border: #dedad0;
+  --danger: #a8362c;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141814;
+    --surface: #1e241e;
+    --text: #eaf0ea;
+    --muted: #9db09d;
+    --accent: #6fbf94;
+    --accent-contrast: #0c1410;
+    --border: #303a30;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #141814;
+  --surface: #1e241e;
+  --text: #eaf0ea;
+  --muted: #9db09d;
+  --accent: #6fbf94;
+  --accent-contrast: #0c1410;
+  --border: #303a30;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"],
+:root[data-theme="standard"] {
+  --bg: #f4f1ea;
+  --surface: #ffffff;
+  --text: #1f2a1f;
+  --muted: #5c6b5c;
+  --accent: #2f6f4f;
+  --accent-contrast: #ffffff;
+  --border: #dedad0;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Night: true low-light mode with a warm red/amber accent -- the classic
+   birder/astronomer "keep your night vision" convention, not just a recolor. */
+:root[data-theme="night"] {
+  --bg: #050403;
+  --surface: #120d0a;
+  --text: #f2d9c9;
+  --muted: #a8776a;
+  --accent: #d9762f;
+  --accent-contrast: #1a0f08;
+  --border: #2b1d15;
+  --danger: #e0483a;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Speels: bright, playful, emoji-forward. */
+:root[data-theme="playful"] {
+  --bg: #fff2fb;
+  --surface: #ffffff;
+  --text: #3a1240;
+  --muted: #935e9c;
+  --accent: #ff5da2;
+  --accent-contrast: #ffffff;
+  --border: #ffd3ec;
+  --danger: #ff3b3b;
+  --shadow: 0 2px 4px rgba(255, 93, 162, 0.15), 0 6px 16px rgba(255, 93, 162, 0.12);
+}
+
+[data-theme="playful"] .tile-title::before { content: "✨ "; }
+[data-theme="playful"] .section-heading::before { content: "🎉 "; }
+[data-theme="playful"] header.top h1::after { content: " 🦜"; }
+[data-theme="playful"] .card .dutch-name::before { content: "🐤 "; }
+[data-theme="playful"] .chip.active::after { content: " 🌟"; }
+[data-theme="playful"] .tile,
+[data-theme="playful"] .card,
+[data-theme="playful"] .quiz-card,
+[data-theme="playful"] .chip,
+[data-theme="playful"] button.primary,
+[data-theme="playful"] button.secondary {
+  border-radius: 20px;
+}
+
+/* Vogelaar: calm field-guide look -- cream/parchment, forest green + rust,
+   a serif heading font, "typical for a birder." */
+:root[data-theme="birder"] {
+  --bg: #f1ead9;
+  --surface: #faf5e9;
+  --text: #2b2a1f;
+  --muted: #6b6650;
+  --accent: #3c5a3f;
+  --accent-contrast: #f6f1e3;
+  --border: #d8cba9;
+  --danger: #a5432a;
+  --shadow: 0 1px 2px rgba(60, 50, 20, 0.12), 0 3px 10px rgba(60, 50, 20, 0.08);
+  --heading-font: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+}
+
+[data-theme="birder"] header.top h1,
+[data-theme="birder"] .tile-title,
+[data-theme="birder"] .card .dutch-name,
+[data-theme="birder"] .detail-body h2,
+[data-theme="birder"] .study-answer-name {
+  font-family: var(--heading-font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------
+   Shared icon system -- one consistent line-icon set (see the <symbol>
+   sprite in index.html) instead of emoji, colored via currentColor so it
+   automatically matches whichever theme/element it's placed in.
+   --------------------------------------------------------------------- */
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  vertical-align: -0.22em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.icon.icon-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+header.top {
+  padding: 0.5rem 0 0.75rem;
+}
+
+header.top h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.icon-logo {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--accent);
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0.35rem 0.25rem calc(0.35rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  z-index: 40;
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+
+.nav-btn .nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+.nav-btn .nav-icon .icon {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.nav-btn.active {
+  color: var(--accent);
+}
+
+.nav-btn.active .nav-icon {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* Home tiles */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.section-heading {
+  font-size: 1rem;
+  color: var(--muted);
+  margin: 1rem 0 0.5rem;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 1.1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  min-height: 100px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+.tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.tile-icon .icon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.tile-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.tile-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.tile-new {
+  justify-content: center;
+  align-items: center;
+  border-style: dashed;
+}
+
+.custom-tile {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.custom-tile .tile-main {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 1.1rem 0.9rem 2.1rem;
+  cursor: pointer;
+  text-align: left;
+  min-height: 100px;
+}
+
+.tile-tools {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.tile-tool-btn {
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  color: white;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tile-tool-btn .icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* Controls / search */
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.controls input[type="search"],
+.builder-field input[type="text"] {
+  flex: 1 1 200px;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1 1 200px;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrap .icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search-wrap input[type="search"] {
+  width: 100%;
+  padding-left: 2.3rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  margin-bottom: 0.75rem;
+}
+
+.filter-group {
+  margin-bottom: 0.6rem;
+}
+
+.filter-group-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.chip-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+
+.count-line {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+/* Grid + cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image-wrap,
+.detail-image-wrap,
+.quiz-image-wrap {
+  position: relative;
+  background: var(--border);
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-image-wrap img,
+.detail-image-wrap img,
+.quiz-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  cursor: zoom-in;
+}
+
+.fav-badge {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  color: gold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+  font-size: 1.1rem;
+}
+
+.card .body {
+  padding: 0.65rem 0.8rem 0.8rem;
+}
+
+.card .dutch-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.1rem;
+}
+
+.card .sub-names {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+/* Detail overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.detail-sheet {
+  background: var(--surface);
+  color: var(--text);
+  width: 100%;
+  max-width: 600px;
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: 18px 18px 0 0;
+  padding: 0 0 1.5rem;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .overlay {
+    align-items: center;
+  }
+  .detail-sheet {
+    border-radius: 18px;
+    max-height: 80vh;
+  }
+}
+
+.detail-image-wrap {
+  aspect-ratio: auto;
+  max-height: 320px;
+}
+
+.detail-close,
+.detail-fav {
+  position: absolute;
+  top: 0.6rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.detail-close {
+  right: 0.6rem;
+}
+
+.detail-fav {
+  left: 0.6rem;
+  color: gold;
+}
+
+/* Always-reachable sound control, bottom-right, fixed to the viewport (not
+   the scrolling sheet) so it never moves regardless of how much text is
+   above it or how far the sheet is scrolled -- press again to stop. */
+.detail-sound {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent);
+  cursor: pointer;
+  z-index: 55;
+}
+
+.detail-sound .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.detail-sound.playing,
+button.secondary.playing {
+  background: var(--danger);
+  color: white;
+}
+
+.detail-body {
+  padding: 1rem 1.25rem 0;
+}
+
+.detail-body h2 {
+  margin: 0 0 0.1rem;
+  font-size: 1.4rem;
+}
+
+.detail-body .names {
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+
+.field {
+  margin: 0.75rem 0;
+}
+
+.field .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin: 0 0 0.15rem;
+}
+
+.field .value {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.field a {
+  color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+}
+
+/* Fullscreen photo viewer */
+.fullscreen-viewer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  cursor: zoom-out;
+}
+
+.fullscreen-viewer.hidden {
+  display: none;
+}
+
+.fullscreen-viewer img {
+  max-width: 96vw;
+  max-height: 96vh;
+  object-fit: contain;
+}
+
+/* Quiz */
+.quiz-mode-switch {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 0.75rem;
+}
+
+.quiz-mode-switch button {
+  flex: 1 1 auto;
+}
+
+.quiz-mode-switch button {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.quiz-mode-switch button.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.quiz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.quiz-image-wrap {
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  max-height: min(280px, 32vh);
+}
+
+.quiz-sound-row {
+  margin-bottom: 0.75rem;
+}
+
+.quiz-card input[type="text"] {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  font-size: 1.05rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 0.6rem;
+}
+
+.quiz-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.choice-btn {
+  padding: 0.7rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.choice-correct {
+  background: var(--accent) !important;
+  color: var(--accent-contrast) !important;
+  border-color: var(--accent) !important;
+}
+
+.choice-wrong {
+  background: var(--danger) !important;
+  color: white !important;
+  border-color: var(--danger) !important;
+}
+
+button.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+button.primary:active {
+  transform: scale(0.96);
+}
+
+button.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+button.secondary:active {
+  transform: scale(0.96);
+}
+
+.quiz-result {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  min-height: 1.2em;
+}
+
+.quiz-result.correct { color: var(--accent); }
+.quiz-result.wrong { color: var(--danger); }
+
+.quiz-score {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.quiz-answer-names {
+  margin-top: 0.5rem;
+}
+
+.quiz-answer-names a {
+  color: var(--accent);
+}
+
+/* Builder / settings */
+.builder-field {
+  margin-bottom: 1rem;
+}
+
+.builder-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.builder-field select {
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.lang-switch {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lang-switch button {
+  flex: 1;
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.lang-switch button.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+
+/* Quiz header + options sheet -- compact so more of the game fits without
+   scrolling on short phone screens. */
+.quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+}
+
+.quiz-header h1 {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.options-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+#quiz-options-sheet .detail-body h2 {
+  margin-top: 0.25rem;
+}
+
+/* Searchable checklist (family filter, high-cardinality dimensions) */
+.searchable-checklist input[type="text"] {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+/* Specific-bird picker (Custom Game Builder) */
+.bird-pick-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+.bird-pick-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.bird-pick-row:last-child {
+  border-bottom: none;
+}
+
+.bird-pick-row img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.bird-pick-row em {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Custom-game tile with a representative photo background */
+.tile-main-photo {
+  background-size: cover;
+  background-position: center;
+  color: white !important;
+  position: relative;
+}
+
+.tile-main-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.15) 60%);
+}
+
+.tile-main-photo .tile-title,
+.tile-main-photo .mode-badge {
+  position: relative;
+  z-index: 1;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.mode-badge .icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* Study mode (Overhoren) */
+.study-progress {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+
+.tap-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.study-answer-name {
+  margin: 0.25rem 0 0.1rem;
+  font-size: 1.3rem;
+}
+
+/* Theme customizer */
+.theme-var-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.theme-var-row label {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.theme-var-row input[type="color"] {
+  width: 2.4rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+#theme-customizer button.secondary {
+  margin-top: 0.75rem;
+}
+
+/* Tighten up on short/narrow phone screens so the primary action (quiz
+   answer controls, browse results) needs less scrolling to reach. */
+@media (max-width: 420px) {
+  .app {
+    padding: 0.5rem 0.75rem calc(5rem + env(safe-area-inset-bottom));
+  }
+  .quiz-card {
+    padding: 0.85rem;
+  }
+  .card-image-wrap,
+  .detail-image-wrap {
+    max-height: 220px;
+  }
+}
+
+@media (max-height: 700px) {
+  .quiz-image-wrap {
+    max-height: 26vh;
+  }
+}
