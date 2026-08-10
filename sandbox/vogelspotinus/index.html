@@ -36,7 +36,7 @@
   <symbol id="icon-bird" viewBox="0 0 24 24"><path class="icon-fill" d="M12 11.38 C14.88 7.42 17.58 6.7 21 10.12 C16.95 13.45 13.8 14.98 12 16.06 C10.2 14.98 7.05 13.45 3 10.12 C6.42 6.7 9.12 7.42 12 11.38 Z" fill="currentColor" stroke="none" /></symbol>
 </svg>
 
-<div class="app">
+<div class="app" style="visibility:hidden">
 
   <!-- HOME -->
   <section id="screen-home" class="screen">
@@ -223,10 +223,10 @@
 
 <audio id="sound-player" preload="none"></audio>
 
-<script src="app.js"></script>
-<script src="browse.js"></script>
-<script src="quiz.js"></script>
-<script src="study.js"></script>
-<script src="custom-games.js"></script>
+<!-- Supabase Auth + sync: boot.js gates on a Daily Digest session, seeds
+     localStorage from the per-user vogelspotinus_state row, then injects the
+     app scripts (app.js, browse.js, quiz.js, study.js, custom-games.js). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="boot.js"></script>
 </body>
 </html>

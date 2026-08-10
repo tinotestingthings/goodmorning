@@ -3,23 +3,19 @@
 // browse.js / quiz.js / custom-games.js build on top of what's defined here.
 // ---------------------------------------------------------------------------
 
-// Embedded as a goodmorning utility app: mirror the host's dd./sbx. runtime
-// namespace so sandbox (served under /sandbox/) and live keep separate data,
-// exactly like the other utility apps. Keys become dd:vogelspotinus.* (live)
-// or sbx:vogelspotinus.* (sandbox); see 40 Projects/2026-08-10-vogelspotinus-
-// integration-and-backup-spec and env.js.
-const VS_NS =
-  (typeof location !== "undefined" && location.pathname.indexOf("/sandbox/") !== -1)
-    ? "sbx:"
-    : "dd:";
+// Logical storage keys. When embedded as a goodmorning utility app, boot.js
+// installs a Storage shim that maps these to environment-namespaced physical
+// keys (dd:vogelspotinus.* live / sbx:vogelspotinus.* sandbox) and syncs them
+// to the per-user vogelspotinus_state row — same pattern as the other utility
+// apps. Standalone (no boot.js), these keys are used as-is. Keep them logical.
 const STORAGE_KEYS = {
-  language: VS_NS + "vogelspotinus.language",
-  favorites: VS_NS + "vogelspotinus.favorites",
-  customGames: VS_NS + "vogelspotinus.customGames",
-  theme: VS_NS + "vogelspotinus.theme",
-  themeOverrides: VS_NS + "vogelspotinus.themeOverrides",
-  leitner: VS_NS + "vogelspotinus.leitner",
-  seededDefaults: VS_NS + "vogelspotinus.seededDefaults",
+  language: "vogelspotinus.language",
+  favorites: "vogelspotinus.favorites",
+  customGames: "vogelspotinus.customGames",
+  theme: "vogelspotinus.theme",
+  themeOverrides: "vogelspotinus.themeOverrides",
+  leitner: "vogelspotinus.leitner",
+  seededDefaults: "vogelspotinus.seededDefaults",
 };
 
 const PLACEHOLDER_IMG =
