@@ -1,308 +1,300 @@
 {
- "generated": "2026-08-07T06:45:00+02:00",
- "daily": [
-  {
-   "id": "2026-08-07-heimelijke-controle-inlogtijden-ontslag-avg-strijdig",
-   "title": "Ontslag op staande voet strandt op heimelijke controle inlogtijden — in strijd met AVG",
-   "source": "Recht.nl",
-   "url": "https://www.recht.nl/nieuws/arbeidsrecht/6a60da56a5eb9f264368/ontslag-op-staande-voet-strandt-wegens-heimelijke-controle-van-inlogtijden/",
-   "date": "2026-08-07",
-   "summary": "Een kantonrechter vernietigde een ontslag op staande voet omdat de werkgever heimelijk de in-/uitlogtijden van een werknemer onderzocht zonder gerechtvaardigd belang — in strijd met de AVG. De man werkte deels thuis om voor zijn zieke vrouw te zorgen; login-tijden zijn geen betrouwbare maat voor gewerkte uren. Werkgever moet o.a. €60.000 billijke vergoeding betalen. Concrete NL-jurisprudentie over werknemersmonitoring, bruikbaar voor de compliancepraktijk."
-  }
- ],
- "today": {
-  "date": "2026-08-07",
-  "tasks": [
-   {
-    "id": "2026-07-28-piano-learn-familiar",
-    "title": "Piano - learn Familiar",
-    "status": "doing",
-    "detail": "Currently learning to play 'Familiar' on piano for lessons.",
-    "hint": "Practice session",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-14-fill-in-work-compliance-topics-resources",
-    "title": "Fill in real resources for \"Work compliance topics\"",
-    "status": "todo",
-    "detail": "The Work-compliance-topics note still holds placeholder topic names; Tinus wants real GDPR and AI-Act (incl. omnibus changes) content added.",
-    "hint": "Two open subtasks: GDPR, AI Act",
-    "notes": [
-     "2026-07-24 22:04 (Tinus): Need to add gdpr and ai act, thats it."
-    ],
-    "subtasks": [
-     {
-      "text": "Add gdpr",
-      "done": false
-     },
-     {
-      "text": "Add ai act and ai act changes from omnibus",
-      "done": false
-     }
-    ]
-   },
-   {
-    "id": "2026-07-13-notebooklm-in-daily-routines",
-    "title": "I should definitely use NotebookLM more in my daily routines",
-    "status": "todo",
-    "detail": "Intent to start using NotebookLM more as part of daily routines; no concrete steps recorded yet.",
-    "hint": "Pick one routine to try it in",
-    "notes": [],
-    "subtasks": []
-   }
-  ],
-  "projects": [
-   {
-    "id": "2026-07-11-personal-productivity-mental-health-management",
-    "title": "Personal productivity as mental health management",
-    "status": "active",
-    "updated": "2026-08-04 21:22",
-    "line": "Treating personal productivity as mental-health management; active with open sub-goals.",
-    "notes": [],
-    "subtasks": [
-     {
-      "text": "Welke wetenschap achter vitamines is er",
-      "done": false
-     },
-     {
-      "text": "Welke wetenachap achter productiviteit is er",
-      "done": false
-     }
-    ]
-   },
-   {
-    "id": "2026-07-11-work-compliance-topics-resources-to-gather",
-    "title": "Work compliance topics — resources to gather",
-    "status": "active",
-    "updated": "2026-08-04 21:22",
-    "line": "Gathering resources on ISO 27001/27701, EU AI Act and GDPR for the consulting practice; active.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-28-goodmorning-app-improvements",
-    "title": "Goodmorning app improvements",
-    "status": "active",
-    "updated": "2026-08-07 06:45",
-    "line": "Hub project collecting goodmorning-app improvement ideas as subtasks; active, three new items added today.",
-    "notes": [],
-    "subtasks": [
-     {
-      "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
-      "done": true
-     },
-     {
-      "text": "Calendar: duplicate a box on PC via shift+drag",
-      "done": false
-     },
-     {
-      "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
-      "done": false
-     },
-     {
-      "text": "Unify task/project architecture: make tasks and projects more alike in design (both have subtasks and idea/backlog → to-do → active → done → cancel states); no mandatory deadline like Google Calendar — tasks are one-offs, projects bigger things — *phase 1 (unified `sbx.items` store + free-transition states) built in sandbox 2026-08-01; phase 2 folds the vault tasks/projects onto the shared vocab. See build spec.*",
-      "done": false
-     },
-     {
-      "text": "Morning loop tile style should match the other tiles",
-      "done": true
-     },
-     {
-      "text": "Add an emoji+ theme",
-      "done": true
-     },
-     {
-      "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
-      "done": false
-     },
-     {
-      "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
-      "done": false
-     },
-     {
-      "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
-      "done": false
-     },
-     {
-      "text": "Triage: add a history view",
-      "done": false
-     },
-     {
-      "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
-      "done": false
-     },
-     {
-      "text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
-      "done": false
-     },
-     {
-      "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
-      "done": false
-     },
-     {
-      "text": "New \"Backlog\" list type — general (house fixes/cleaning) + recurring (chores tracked by last-done only); promote any item into a task or project, giving a Backlog → Note → Task → Project spectrum. Full build spec: [[2026-08-01-backlog-list-type-build-spec|Backlog list type — build spec]] — *phase 1 built in sandbox 2026-08-01 (backlog as a state; add/reorder/promote/schedule). Recurring-chore sub-type folds in with phase 2.*",
-      "done": false
-     },
-     {
-      "text": "Compliance Radar entries should be editable like tasks and projects",
-      "done": false
-     },
-     {
-      "text": "Live hotfix: title `SBX · Daily Digest` → `Daily Digest`; path-guard the reset button so it can't wipe live `dd.*` data (commit 818ee07, 2026-08-04)",
-      "done": true
-     },
-     {
-      "text": "Make sandbox→live promotion safe — runtime namespace (killed the `sed` transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
-      "done": true
-     },
-     {
-      "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
-      "done": false
-     },
-     {
-      "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
-      "done": false
-     },
-     {
-      "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
-      "done": false
-     },
-     {
-      "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
-      "done": false
-     },
-     {
-      "text": "I should be able to hold and drag to reorder backlog items",
-      "done": false
-     }
-    ]
-   },
-   {
-    "id": "2026-07-28-link-chatgpt-work-to-app",
-    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
-    "status": "active",
-    "updated": "2026-08-04 21:22",
-    "line": "Linking ChatGPT Work to the app to avoid vendor lock-in; active.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-11-finance-and-markets-learning-interest",
-    "title": "Finance and markets — learning interest",
-    "status": "idea-stage",
-    "updated": "2026-08-04 21:22",
-    "line": "Ongoing learning interest in finance and markets; idea-stage, no active workstream.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-14-cookie-scanner-applicatie",
-    "title": "Project: Cookie Scanner Applicatie",
-    "status": "idea-stage",
-    "updated": "2026-08-06 07:09",
-    "line": "Idea for a cookie-scanner application; idea-stage.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-14-team-verbetering-idee",
-    "title": "Team verbetering — idee",
-    "status": "idea-stage",
-    "updated": "2026-08-04 22:28",
-    "line": "Team-improvement idea; idea-stage, gist to be captured in the app description.",
-    "notes": [
-     "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
-    ],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-28-learn-pistol-squats",
-    "title": "Learn pistol squats",
-    "status": "idea-stage",
-    "updated": "2026-08-04 21:22",
-    "line": "Goal to learn pistol squats; idea-stage.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
-    "title": "Cooking — improving recipes",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Recipe-improvement effort using the second brain; marked done.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-11-daily-habits-hub-site",
-    "title": "Project: a daily \"things to do everyday\" hub site",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Daily 'things to do' hub-site idea; marked done.",
-    "notes": [
-     "2026-07-24 22:16 (Tinus): Done"
-    ],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
-    "title": "Daily digest app — instructions & Claude Code build prompt",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Build spec/instructions for the daily-digest app; marked done.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-01-backlog-list-type-build-spec",
-    "title": "Backlog list type — build spec",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Build spec for the new Backlog list type; marked done.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
-    "title": "Sandbox → live promotion — safety spec",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Safety spec for sandbox→live promotion; marked done.",
-    "notes": [],
-    "subtasks": []
-   }
-  ],
-  "radar": {
-   "updated": "2026-08-06",
-   "follow_ups": 1,
-   "headline": "noyb files GDPR complaint over dict.cc's one-click 'consent' to 1,741 advertising partners (Austrian DPA, case C107) — signal on consent-fatigue / oversized CMP vendor lists.",
-   "deadlines": [
+  "generated": "2026-08-10T06:47:00Z",
+  "daily": [
     {
-     "date": "2026-08-15",
-     "label": "Cyberbeveiligingswet + Wwke enter into force (NIS2 transposition; ~8,000 orgs get NCSC-registration/risk/incident duties)"
-    },
-    {
-     "date": "2026-10-31",
-     "label": "ISO/IEC 27701:2025 — certification bodies must have transitioned"
-    },
-    {
-     "date": "2026-12-02",
-     "label": "AI Act Art. 50(2) watermarking grace period ends (pre-2 Aug 2026 systems); new prohibition on AI CSAM / non-consensual intimate imagery takes effect"
-    },
-    {
-     "date": "2027-08-02",
-     "label": "GPAI providers with pre-Aug-2025 models: full compliance deadline"
-    },
-    {
-     "date": "2027-12-02",
-     "label": "Standalone high-risk AI (Annex III) obligations become applicable"
-    },
-    {
-     "date": "2028-08-02",
-     "label": "Product-embedded high-risk AI (Annex I) compliance deadline"
+      "id": "2026-08-10-ap-meldingen-stiekem-filmen-camerabrillen-cda-d66-verbod",
+      "title": "AP krijgt meldingen over stiekem filmen via camerabril; CDA en D66 willen verbod onderzoeken",
+      "source": "Security.NL (Redactie), o.b.v. RTL Nieuws",
+      "url": "https://www.security.nl/posting/948440/Autoriteit+Persoonsgegevens+krijgt+meldingen+over+stiekem+filmen+via+camerabril",
+      "date": "2026-08-07",
+      "summary": "De Autoriteit Persoonsgegevens heeft drie meldingen gekregen over stiekem filmen via camerabrillen en begrijpt de maatschappelijke ophef; CDA (met steun van D66) wil dat het kabinet een verbod in de openbare ruimte onderzoekt. Escalatie op de 08-04 Bits of Freedom-kaart: nu de toezichthouder zelf en de Tweede Kamer. AP nuanceert wel: eigen/persoonlijk gebruik valt onder de huishoudexceptie, publiceren niet."
     }
-   ]
+  ],
+  "today": {
+    "date": "2026-08-10",
+    "tasks": [
+      {
+        "id": "2026-07-14-fill-in-work-compliance-topics-resources",
+        "title": "Fill in real resources for \"Work compliance topics\"",
+        "status": "todo",
+        "detail": "The placeholder \"Work compliance topics\" note still needs real content; Tinus scoped it down to just GDPR and the AI Act (including the Omnibus changes).",
+        "hint": "Add GDPR + AI Act content",
+        "notes": [
+          "2026-07-24 (Tinus): Need to add gdpr and ai act, thats it."
+        ],
+        "subtasks": [
+          {
+            "text": "Add gdpr",
+            "done": false
+          },
+          {
+            "text": "Add ai act and ai act changes from omnibus",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "2026-07-13-fix-invalid-recipe-tag-names",
+        "title": "Fix invalid recipe tag names",
+        "status": "todo",
+        "detail": "Several ingredient tags across the 32 recipe notes filed on 2026-07-13 contain spaces, which aren't valid Obsidian tags (e.g. `parmezaanse kaas`, `griekse yoghurt`, `crème fraîche`, `ras el hanout`).",
+        "hint": "Replace spaces in ingredient tags",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-13-notebooklm-in-daily-routines",
+        "title": "I should definitely use NotebookLM more in my daily routines",
+        "status": "todo",
+        "detail": "Idea to start actually using NotebookLM more as part of daily routines; no concrete steps captured yet.",
+        "hint": "Work NotebookLM into a routine",
+        "notes": [],
+        "subtasks": []
+      }
+    ],
+    "projects": [
+      {
+        "id": "2026-07-11-personal-productivity-mental-health-management",
+        "title": "Personal productivity as mental health management",
+        "status": "active",
+        "updated": "2026-08-04",
+        "line": "Ongoing interest in productivity-as-mental-health; gathering the science behind vitamins and productivity.",
+        "notes": [],
+        "subtasks": [
+          {
+            "text": "Welke wetenschap achter vitamines is er",
+            "done": false
+          },
+          {
+            "text": "Welke wetenachap achter productiviteit is er",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
+        "title": "Work compliance topics — resources to gather",
+        "status": "active",
+        "updated": "2026-08-04",
+        "line": "Collecting real compliance resources (ISO 27001/27701, EU AI Act, GDPR) for the practice.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-14-team-verbetering-idee",
+        "title": "Team verbetering — idee",
+        "status": "active",
+        "updated": "2026-08-07",
+        "line": "Team-improvement idea; needs its gist captured in the app description — original intent to be reconstructed.",
+        "notes": [
+          "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-28-goodmorning-app-improvements",
+        "title": "Goodmorning app improvements",
+        "status": "active",
+        "updated": "2026-08-07",
+        "line": "Running backlog of goodmorning-app tweaks; unified item store + backlog phase 1 shipped to sandbox.",
+        "notes": [],
+        "subtasks": [
+          {
+            "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
+            "done": true
+          },
+          {
+            "text": "Calendar: duplicate a box on PC via shift+drag",
+            "done": false
+          },
+          {
+            "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+            "done": false
+          },
+          {
+            "text": "Unify task/project architecture: make tasks and projects more alike in design (both have subtasks and idea/backlog → to-do → active → done → cancel states); no mandatory deadline like Google Calendar — tasks are one-offs, projects bigger things — *phase 1 (unified `sbx.items` store + free-transition states) built in sandbox 2026-08-01; phase 2 folds the vault tasks/projects onto the shared vocab. See build spec.*",
+            "done": false
+          },
+          {
+            "text": "Morning loop tile style should match the other tiles",
+            "done": true
+          },
+          {
+            "text": "Add an emoji+ theme",
+            "done": true
+          },
+          {
+            "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
+            "done": false
+          },
+          {
+            "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
+            "done": false
+          },
+          {
+            "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
+            "done": false
+          },
+          {
+            "text": "Triage: add a history view",
+            "done": false
+          },
+          {
+            "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
+            "done": false
+          },
+          {
+            "text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
+            "done": false
+          },
+          {
+            "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+            "done": false
+          },
+          {
+            "text": "New \"Backlog\" list type — general (house fixes/cleaning) + recurring (chores tracked by last-done only); promote any item into a task or project, giving a Backlog → Note → Task → Project spectrum. Full build spec: [[2026-08-01-backlog-list-type-build-spec|Backlog list type — build spec]] — *phase 1 built in sandbox 2026-08-01 (backlog as a state; add/reorder/promote/schedule). Recurring-chore sub-type folds in with phase 2.*",
+            "done": false
+          },
+          {
+            "text": "Compliance Radar entries should be editable like tasks and projects",
+            "done": false
+          },
+          {
+            "text": "Live hotfix: title `SBX · Daily Digest` → `Daily Digest`; path-guard the reset button so it can't wipe live `dd.*` data (commit 818ee07, 2026-08-04)",
+            "done": true
+          },
+          {
+            "text": "Make sandbox→live promotion safe — runtime namespace (killed the `sed` transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
+            "done": true
+          },
+          {
+            "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
+            "done": false
+          },
+          {
+            "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
+            "done": false
+          },
+          {
+            "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
+            "done": false
+          },
+          {
+            "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
+            "done": false
+          },
+          {
+            "text": "I should be able to hold and drag to reorder backlog items",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "2026-07-28-learn-pistol-squats",
+        "title": "Learn pistol squats",
+        "status": "active",
+        "updated": "2026-08-07",
+        "line": "Strength goal: work up to pistol squats.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-11-finance-and-markets-learning-interest",
+        "title": "Finance and markets — learning interest",
+        "status": "idea-stage",
+        "updated": "2026-08-04",
+        "line": "Early-stage learning interest in finance and markets.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-14-cookie-scanner-applicatie",
+        "title": "Project: Cookie Scanner Applicatie",
+        "status": "idea-stage",
+        "updated": "2026-08-06",
+        "line": "Idea for a cookie-scanner application; not yet started.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-28-link-chatgpt-work-to-app",
+        "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+        "status": "idea-stage",
+        "updated": "2026-08-07",
+        "line": "Idea to link ChatGPT Work into the app to avoid vendor lock-in.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
+        "title": "Cooking — improving recipes",
+        "status": "done",
+        "updated": "2026-08-04",
+        "line": "Recipe-improvement project; marked done.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-11-daily-habits-hub-site",
+        "title": "Project: a daily \"things to do everyday\" hub site",
+        "status": "done",
+        "updated": "2026-08-04",
+        "line": "Daily-habits hub site; marked done.",
+        "notes": [
+          "2026-07-24 22:16 (Tinus): Done"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
+        "title": "Daily digest app — instructions & Claude Code build prompt",
+        "status": "done",
+        "updated": "2026-08-04",
+        "line": "",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-08-01-backlog-list-type-build-spec",
+        "title": "Backlog list type — build spec",
+        "status": "done",
+        "updated": "2026-08-04",
+        "line": "Backlog list-type build spec; done.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-08-04-sandbox-live-promotion-safety-spec",
+        "title": "Sandbox → live promotion — safety spec",
+        "status": "done",
+        "updated": "2026-08-04",
+        "line": "Sandbox→live promotion safety spec; done.",
+        "notes": [],
+        "subtasks": []
+      }
+    ],
+    "radar": {
+      "updated": "2026-08-10",
+      "follow_ups": 1,
+      "headline": "AI Act Art. 50 transparency obligations applicable/enforced since 2 Aug 2026 (grace period for pre-Aug systems runs to 2 Dec 2026).",
+      "deadlines": [
+        {
+          "date": "2026-12-02",
+          "label": "AI Act Art. 50(2) watermarking grace period ends for pre-2-Aug-2026 systems; new prohibition on AI-generated non-consensual intimate imagery/CSAM takes effect."
+        },
+        {
+          "date": "2027-08-02",
+          "label": "GPAI providers with pre-Aug-2025 models: full compliance deadline."
+        },
+        {
+          "date": "2027-12-02",
+          "label": "Standalone high-risk AI (Annex III) obligations become applicable."
+        },
+        {
+          "date": "2028-08-02",
+          "label": "High-risk AI embedded in products (Annex I) obligations become applicable."
+        }
+      ]
+    }
   }
- }
 }
