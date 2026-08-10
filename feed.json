@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10T06:47:00Z",
+  "generated": "2026-08-10T07:16:00Z",
   "daily": [
     {
       "id": "2026-08-10-ap-meldingen-stiekem-filmen-camerabrillen-cda-d66-verbod",
@@ -7,7 +7,7 @@
       "source": "Security.NL (Redactie), o.b.v. RTL Nieuws",
       "url": "https://www.security.nl/posting/948440/Autoriteit+Persoonsgegevens+krijgt+meldingen+over+stiekem+filmen+via+camerabril",
       "date": "2026-08-07",
-      "summary": "De Autoriteit Persoonsgegevens heeft drie meldingen gekregen over stiekem filmen via camerabrillen en begrijpt de maatschappelijke ophef; CDA (met steun van D66) wil dat het kabinet een verbod in de openbare ruimte onderzoekt. Escalatie op de 08-04 Bits of Freedom-kaart: nu de toezichthouder zelf en de Tweede Kamer. AP nuanceert wel: eigen/persoonlijk gebruik valt onder de huishoudexceptie, publiceren niet."
+      "summary": "De Autoriteit Persoonsgegevens heeft drie meldingen gekregen over stiekem filmen via camerabrillen en begrijpt de maatschappelijke ophef; CDA (met steun van D66) wil dat het kabinet een verbod in de openbare ruimte onderzoekt. Escalatie op de 08-04 Bits of Freedom-kaart: nu de toezichthouder zelf en de Tweede Kamer. AP nuanceert: eigen/persoonlijk gebruik valt onder de huishoudexceptie, publiceren niet."
     }
   ],
   "today": {
@@ -57,7 +57,7 @@
         "id": "2026-07-11-personal-productivity-mental-health-management",
         "title": "Personal productivity as mental health management",
         "status": "active",
-        "updated": "2026-08-04",
+        "updated": "2026-08-10",
         "line": "Ongoing interest in productivity-as-mental-health; gathering the science behind vitamins and productivity.",
         "notes": [],
         "subtasks": [
@@ -95,7 +95,7 @@
         "id": "2026-07-28-goodmorning-app-improvements",
         "title": "Goodmorning app improvements",
         "status": "active",
-        "updated": "2026-08-07",
+        "updated": "2026-08-10",
         "line": "Running backlog of goodmorning-app tweaks; unified item store + backlog phase 1 shipped to sandbox.",
         "notes": [],
         "subtasks": [
@@ -186,6 +186,14 @@
           {
             "text": "I should be able to hold and drag to reorder backlog items",
             "done": false
+          },
+          {
+            "text": "Verify offline mode: can the app still be used offline, and are changes saved and synced when back online?",
+            "done": false
+          },
+          {
+            "text": "Integrate the **Vogelspotinus** bird-spotting/learning app as a utility app inside goodmorning (same as the Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs). It's currently a standalone no-backend PWA — to match the others it also needs to persist progress to Supabase (`dd:`/`sbx:` namespaced keys) and get a daily-digest backup leg. Full spec: [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]] (C8 backup leg + `vogelspotinus_state` table drafted; wire into the live digest task at integration time).",
+            "done": false
           }
         ]
       },
@@ -195,6 +203,15 @@
         "status": "active",
         "updated": "2026-08-07",
         "line": "Strength goal: work up to pistol squats.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
+        "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
+        "title": "Vogelspotinus — integration & backup spec",
+        "status": "active",
+        "updated": "2026-08-10",
+        "line": "Spec to bring the Vogelspotinus bird app into goodmorning as a utility app + a Supabase progress-backup leg (C8).",
         "notes": [],
         "subtasks": []
       },
