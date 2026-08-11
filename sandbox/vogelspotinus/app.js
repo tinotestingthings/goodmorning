@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   theme: "vogelspotinus.theme",
   themeOverrides: "vogelspotinus.themeOverrides",
   leitner: "vogelspotinus.leitner",
+  stats: "vogelspotinus.stats",
   seededDefaults: "vogelspotinus.seededDefaults",
 };
 
@@ -95,6 +96,35 @@ const STRINGS = {
     studyReviewing: "in herhaling",
     studyMastered: "geleerd",
     studyDone: "Niets meer te overhoren in deze selectie. Goed bezig!",
+    statHeading: "Jouw voortgang",
+    statLearnedOf: "geleerd",
+    statOf: "van",
+    statMastered: "beheerst",
+    statStreak: "dagen op rij",
+    statStreakOne: "dag",
+    statDue: "te herhalen vandaag",
+    statReviewNow: "Herhaal nu",
+    statAllCaughtUp: "Niets te herhalen vandaag — top!",
+    distNew: "nieuw",
+    distMastered: "beheerst",
+    tileReviewTitle: "Herhalen",
+    tileReviewDesc: "Kaarten die vandaag terugkomen",
+    tileMasteryTitle: "Goed gehad",
+    tileMasteryDesc: "Oefen vogels die je al kent",
+    tileWeakTitle: "Lastige vogels",
+    tileWeakDesc: "Oefen wat je vaak fout had",
+    sessSeen: "gezien",
+    sessCorrect: "goed",
+    sessLearned: "nieuw geleerd",
+    sessMastered: "nieuw beheerst",
+    sessDropped: "teruggezakt",
+    sessDone: "Sessie klaar — goed bezig!",
+    emptyPoolMsg: "Nog geen vogels hier — oefen eerst wat in de quiz.",
+    badgeFresh: "nieuw",
+    badgeLearning: "lerend",
+    badgeLearned: "geleerd",
+    badgeMastered: "beheerst",
+    badgeDue: "te herhalen",
     filterByTags: "Filter op kenmerken",
     pickSpecificBirds: "Kies specifieke vogels",
     searchBirdsPlaceholder: "Zoek een vogel om toe te voegen...",
@@ -176,6 +206,35 @@ const STRINGS = {
     studyReviewing: "reviewing",
     studyMastered: "mastered",
     studyDone: "Nothing left to study in this selection. Nice work!",
+    statHeading: "Your progress",
+    statLearnedOf: "learned",
+    statOf: "of",
+    statMastered: "mastered",
+    statStreak: "day streak",
+    statStreakOne: "day streak",
+    statDue: "due for review today",
+    statReviewNow: "Review now",
+    statAllCaughtUp: "Nothing due today — nice!",
+    distNew: "new",
+    distMastered: "mastered",
+    tileReviewTitle: "Review",
+    tileReviewDesc: "Cards that come back today",
+    tileMasteryTitle: "Got right",
+    tileMasteryDesc: "Practise birds you already know",
+    tileWeakTitle: "Tricky birds",
+    tileWeakDesc: "Drill the ones you keep missing",
+    sessSeen: "seen",
+    sessCorrect: "correct",
+    sessLearned: "newly learned",
+    sessMastered: "newly mastered",
+    sessDropped: "dropped",
+    sessDone: "Session done — nice work!",
+    emptyPoolMsg: "No birds here yet — practise in the quiz first.",
+    badgeFresh: "new",
+    badgeLearning: "learning",
+    badgeLearned: "learned",
+    badgeMastered: "mastered",
+    badgeDue: "due",
     filterByTags: "Filter by attributes",
     pickSpecificBirds: "Pick specific birds",
     searchBirdsPlaceholder: "Search a bird to add...",
@@ -826,6 +885,7 @@ function refreshCurrentScreen() {
 // ---------------------------------------------------------------------------
 
 function renderHome() {
+  renderProgressCard();
   const tiles = document.getElementById("home-tiles");
   tiles.innerHTML = "";
 
@@ -839,6 +899,19 @@ function renderHome() {
   quizTile.innerHTML = `<span class="tile-icon">${icon("target")}</span><span class="tile-title">${t("quizTile")}</span><span class="tile-desc">${t("quizTileDesc")}</span>`;
   quizTile.addEventListener("click", () => showScreen("quiz"));
 
+  const practiceDefs = [
+    { icon: "list-check", title: t("tileReviewTitle"), desc: t("tileReviewDesc"), fn: startReviewDue },
+    { icon: "check", title: t("tileMasteryTitle"), desc: t("tileMasteryDesc"), fn: startMastery },
+    { icon: "target", title: t("tileWeakTitle"), desc: t("tileWeakDesc"), fn: startWeak },
+  ];
+  for (const d of practiceDefs) {
+    const tile = document.createElement("button");
+    tile.className = "tile";
+    tile.innerHTML = `<span class="tile-icon">${icon(d.icon)}</span><span class="tile-title">${d.title}</span><span class="tile-desc">${d.desc}</span>`;
+    tile.addEventListener("click", d.fn);
+    tiles.appendChild(tile);
+  }
+
   const newGameTile = document.createElement("button");
   newGameTile.className = "tile tile-new";
   newGameTile.innerHTML = `<span class="tile-icon">${icon("plus")}</span><span class="tile-title">${t("newCustomGame")}</span>`;
@@ -849,6 +922,77 @@ function renderHome() {
   tiles.appendChild(newGameTile);
 
   if (typeof renderCustomGameTiles === "function") renderCustomGameTiles();
+}
+
+// ---------------------------------------------------------------------------
+// Progress card + practice-session launchers
+// ---------------------------------------------------------------------------
+
+function renderProgressCard() {
+  const host = document.getElementById("home-progress");
+  if (!host) return;
+  if (typeof collectionCounts !== "function") { host.innerHTML = ""; return; }
+  const c = collectionCounts();
+  const streak = currentStreak();
+  const due = dueBirds().length;
+
+  const maxBox = Math.max(1, ...c.boxes);
+  const bars = c.boxes.map((n, i) => {
+    const h = Math.round((n / maxBox) * 100);
+    return `<span class="dist-bar" title="box ${i + 1}: ${n}"><span class="dist-fill dist-b${i + 1}" style="height:${h}%"></span></span>`;
+  }).join("");
+
+  const streakLabel = streak === 1 ? t("statStreakOne") : t("statStreak");
+  const dueRow = due > 0
+    ? `<button class="stat-due" id="stat-review-btn"><span class="stat-due-n">${due}</span> <span>${t("statDue")}</span> <span class="stat-review-cta">${t("statReviewNow")} ${icon("arrow-right")}</span></button>`
+    : `<p class="stat-due stat-due-empty">${t("statAllCaughtUp")}</p>`;
+
+  host.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-figures">
+        <div class="stat-fig"><span class="stat-num">${c.learned}</span><span class="stat-lbl">${t("statLearnedOf")} <span class="stat-total">${t("statOf")} ${c.total}</span></span></div>
+        <div class="stat-fig"><span class="stat-num">${c.mastered}</span><span class="stat-lbl">${t("statMastered")}</span></div>
+        <div class="stat-fig"><span class="stat-num">${streak}</span><span class="stat-lbl">${streakLabel}</span></div>
+      </div>
+      <div class="stat-dist" aria-hidden="true">
+        <div class="dist-bars">${bars}</div>
+        <div class="dist-legend"><span>${t("distNew")}</span><span>${t("distMastered")}</span></div>
+      </div>
+      ${dueRow}
+    </div>
+  `;
+  const reviewBtn = document.getElementById("stat-review-btn");
+  if (reviewBtn) reviewBtn.addEventListener("click", startReviewDue);
+}
+
+function startReviewDue() {
+  if (!dueBirds().length) { flashMsg(t("statAllCaughtUp")); return; }
+  showScreen("quiz", { gameMode: "quiz-study", poolFn: dueBirds, title: t("tileReviewTitle") });
+}
+
+function startMastery() {
+  if (!knownPool().length) { flashMsg(t("emptyPoolMsg")); return; }
+  showScreen("quiz", { gameMode: "quiz-choice", poolFn: knownPool, title: t("tileMasteryTitle") });
+}
+
+function startWeak() {
+  if (!weakPool().length) { flashMsg(t("emptyPoolMsg")); return; }
+  showScreen("quiz", { gameMode: "quiz-choice", poolFn: weakPool, title: t("tileWeakTitle") });
+}
+
+let flashTimer = null;
+function flashMsg(msg) {
+  let el = document.getElementById("app-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "app-toast";
+    el.className = "app-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => el.classList.remove("show"), 2600);
 }
 
 // ---------------------------------------------------------------------------

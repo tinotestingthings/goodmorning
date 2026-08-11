@@ -28,6 +28,16 @@ function filteredBrowseBirds() {
   });
 }
 
+function birdBadgeHtml(bird) {
+  if (typeof getBoxInfo !== "function") return "";
+  const info = getBoxInfo(bird);
+  if (!info.started) return `<span class="bird-badge tier-fresh">${t("badgeFresh")}</span>`;
+  const tier = info.box >= MASTERED_BOX ? "mastered" : info.box >= LEARNED_BOX ? "learned" : "learning";
+  const label = tier === "mastered" ? t("badgeMastered") : tier === "learned" ? t("badgeLearned") : t("badgeLearning");
+  const due = info.dueAt && info.dueAt <= Date.now() ? `<span class="bird-badge tier-due">${t("badgeDue")}</span>` : "";
+  return `<span class="bird-badge tier-${tier}">${label} <span class="badge-box">${info.box}/${MASTERED_BOX}</span></span>${due}`;
+}
+
 function renderBrowseGrid() {
   const birds = filteredBrowseBirds();
   const countText = `${birds.length} ${t("matchingBirds")}`;
@@ -52,6 +62,7 @@ function renderBrowseGrid() {
       <div class="body">
         <p class="dutch-name">${escapeHtml(primaryName(bird))}</p>
         <p class="sub-names">${secondaryNames(bird).map(escapeHtml).join(" · ")}${secondaryNames(bird).length ? " · " : ""}<em>${escapeHtml(bird.scientificName)}</em></p>
+        <p class="bird-badges">${birdBadgeHtml(bird)}</p>
       </div>
     `;
     card.addEventListener("click", () => openDetail(bird));

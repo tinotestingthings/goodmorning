@@ -23,7 +23,7 @@
   // The app's scripts, in load order. app.js runs init() which awaits
   // loadBirds(); the others define globals it uses after that await, exactly
   // as when index.html loaded them in this order.
-  var APP_SCRIPTS = ["app.js", "browse.js", "quiz.js", "study.js", "custom-games.js"];
+  var APP_SCRIPTS = ["progress.js", "app.js", "browse.js", "quiz.js", "study.js", "custom-games.js"];
   var PUSH_DEBOUNCE_MS = 1500;
 
   var IS_SANDBOX = location.pathname.indexOf("/sandbox/") !== -1;

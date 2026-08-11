@@ -1044,3 +1044,155 @@ button.secondary:active {
     max-height: 26vh;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Progress: home status card, session summaries, browse badges, toast
+   -------------------------------------------------------------------------- */
+#home-progress { margin: 0 0 1rem; }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 1rem 1.1rem;
+}
+.stat-figures {
+  display: flex;
+  gap: 0.5rem;
+  text-align: center;
+}
+.stat-fig {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.stat-num {
+  font-family: var(--heading-font);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-lbl { font-size: 0.78rem; color: var(--muted); }
+.stat-total { display: block; font-size: 0.7rem; opacity: 0.8; }
+
+.stat-dist { margin: 0.85rem 0 0.6rem; }
+.dist-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 42px;
+}
+.dist-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: color-mix(in srgb, var(--border) 45%, transparent);
+  border-radius: 5px 5px 3px 3px;
+  overflow: hidden;
+}
+.dist-fill { width: 100%; border-radius: 5px 5px 0 0; min-height: 2px; background: var(--accent); transition: height 0.3s ease; }
+.dist-b1 { opacity: 0.35; }
+.dist-b2 { opacity: 0.5; }
+.dist-b3 { opacity: 0.68; }
+.dist-b4 { opacity: 0.84; }
+.dist-b5 { opacity: 1; }
+.dist-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.stat-due {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+.stat-due:active { transform: scale(0.99); }
+.stat-due-n { font-size: 1.15rem; font-weight: 800; }
+.stat-review-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.stat-review-cta .icon { width: 0.9em; height: 0.9em; }
+.stat-due-empty {
+  margin: 0.5rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.session-line, .quiz-session-line {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.quiz-session-line { min-height: 1rem; }
+.study-session-title {
+  margin: 0 0 0.2rem;
+  font-weight: 800;
+  font-family: var(--heading-font);
+  color: var(--text);
+}
+
+.bird-badges { margin: 0.35rem 0 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.bird-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 55%, transparent);
+  color: var(--muted);
+}
+.bird-badge .badge-box { font-weight: 600; opacity: 0.75; }
+.bird-badge.tier-learning { background: color-mix(in srgb, var(--accent) 16%, transparent); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+.bird-badge.tier-learned { background: color-mix(in srgb, var(--accent) 26%, transparent); color: var(--text); }
+.bird-badge.tier-mastered { background: var(--accent); color: var(--accent-contrast); }
+.bird-badge.tier-due { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5.5rem;
+  transform: translateX(-50%) translateY(1rem);
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 9998;
+  max-width: 80vw;
+  text-align: center;
+}
+.app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
