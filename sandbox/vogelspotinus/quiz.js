@@ -159,12 +159,10 @@ function revealAnswer(wasCorrect) {
   if (!quizCurrent) return;
   document.getElementById("quiz-input").disabled = true;
   document.getElementById("quiz-submit").disabled = true;
-  const fact = bf(quizCurrent, "fact");
   document.getElementById("quiz-answer").innerHTML = `
-    <strong>${escapeHtml(primaryName(quizCurrent))}</strong>
-    (${secondaryNames(quizCurrent).map(escapeHtml).join(", ")}${secondaryNames(quizCurrent).length ? ", " : ""}<em>${escapeHtml(quizCurrent.scientificName)}</em>)
-    ${fact ? `<p>${escapeHtml(fact)}</p>` : ""}
-    ${quizCurrent.wikipediaUrl ? `<a href="${quizCurrent.wikipediaUrl}" target="_blank" rel="noopener">${t("moreInfo")}</a>` : ""}
+    <p class="answer-headline"><strong>${escapeHtml(primaryName(quizCurrent))}</strong>
+    <span class="answer-sci">(${secondaryNames(quizCurrent).map(escapeHtml).join(", ")}${secondaryNames(quizCurrent).length ? ", " : ""}<em>${escapeHtml(quizCurrent.scientificName)}</em>)</span></p>
+    <div class="bird-info">${birdInfoRows(quizCurrent)}${birdLinkIcons(quizCurrent)}</div>
   `;
   if (wasCorrect !== null) {
     const resultEl = document.getElementById("quiz-result");

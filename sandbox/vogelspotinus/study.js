@@ -106,7 +106,6 @@ function renderStudyCard() {
     return;
   }
 
-  const fact = bf(studyCurrent, "fact");
   container.innerHTML = `
     ${progressHtml}
     <div class="quiz-image-wrap">
@@ -115,7 +114,7 @@ function renderStudyCard() {
     <h2 class="study-answer-name">${escapeHtml(primaryName(studyCurrent))}</h2>
     <p class="names">${secondaryNames(studyCurrent).map(escapeHtml).join(" &middot; ")}${secondaryNames(studyCurrent).length ? " &middot; " : ""}<em>${escapeHtml(studyCurrent.scientificName)}</em></p>
     ${studyCurrent.soundUrl ? `<button class="secondary" id="study-play-sound">${icon("speaker")} <span>${t("playCall")}</span></button>` : ""}
-    ${fact ? `<p>${escapeHtml(fact)}</p>` : ""}
+    <div class="bird-info">${birdInfoRows(studyCurrent)}${birdLinkIcons(studyCurrent)}</div>
     <div class="quiz-actions">
       <button class="secondary" id="study-didnt-know">${icon("close")} ${t("didntKnowIt")}</button>
       <button class="primary" id="study-knew">${icon("check")} ${t("knewIt")}</button>

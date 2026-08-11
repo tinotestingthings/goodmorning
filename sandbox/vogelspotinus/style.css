@@ -1196,3 +1196,26 @@ button.secondary:active {
   text-align: center;
 }
 .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Bird info block shared by Browse detail and the quiz/study reveal */
+.bird-info { text-align: left; margin-top: 0.6rem; }
+.quiz-answer-names .answer-headline { margin: 0 0 0.2rem; }
+.answer-sci { color: var(--muted); font-weight: 400; }
+
+.bird-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.75rem;
+}
+.bird-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.bird-link:hover { text-decoration: underline; }
+.bird-link .icon { width: 1em; height: 1em; }
