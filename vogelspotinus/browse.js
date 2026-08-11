@@ -28,6 +28,16 @@ function filteredBrowseBirds() {
   });
 }
 
+function birdBadgeHtml(bird) {
+  if (typeof getBoxInfo !== "function") return "";
+  const info = getBoxInfo(bird);
+  if (!info.started) return `<span class="bird-badge tier-fresh">${t("badgeFresh")}</span>`;
+  const tier = info.box >= MASTERED_BOX ? "mastered" : info.box >= LEARNED_BOX ? "learned" : "learning";
+  const label = tier === "mastered" ? t("badgeMastered") : tier === "learned" ? t("badgeLearned") : t("badgeLearning");
+  const due = info.dueAt && info.dueAt <= Date.now() ? `<span class="bird-badge tier-due">${t("badgeDue")}</span>` : "";
+  return `<span class="bird-badge tier-${tier}">${label} <span class="badge-box">${info.box}/${MASTERED_BOX}</span></span>${due}`;
+}
+
 function renderBrowseGrid() {
   const birds = filteredBrowseBirds();
   const countText = `${birds.length} ${t("matchingBirds")}`;
@@ -52,6 +62,7 @@ function renderBrowseGrid() {
       <div class="body">
         <p class="dutch-name">${escapeHtml(primaryName(bird))}</p>
         <p class="sub-names">${secondaryNames(bird).map(escapeHtml).join(" · ")}${secondaryNames(bird).length ? " · " : ""}<em>${escapeHtml(bird.scientificName)}</em></p>
+        <p class="bird-badges">${birdBadgeHtml(bird)}</p>
       </div>
     `;
     card.addEventListener("click", () => openDetail(bird));
@@ -108,7 +119,7 @@ function field(label, valueHtml) {
   return `<div class="field"><p class="label">${label}</p><p class="value">${valueHtml}</p></div>`;
 }
 
-function buildDetailHtml(bird) {
+function birdInfoRows(bird) {
   const rows = [];
   const originText = bf(bird, "origin");
   const statusLabel = filterValueLabel(
@@ -127,13 +138,23 @@ function buildDetailHtml(bird) {
   if (conservation) rows.push(field(t("conservationStatus"), escapeHtml(conservation)));
   const fact = bf(bird, "fact");
   if (fact) rows.push(field(t("fact"), escapeHtml(fact)));
+  return rows.join("");
+}
 
+// Wikipedia / Xeno-canto links rendered as small icon links, so they survive
+// wherever we show bird info (Browse detail AND the quiz/study reveal).
+function birdLinkIcons(bird) {
   const links = [];
-  if (bird.wikipediaUrl) links.push(`<a href="${bird.wikipediaUrl}" target="_blank" rel="noopener">${t("wikipediaEn")}</a>`);
-  if (bird.dutchWikipediaUrl) links.push(`<a href="${bird.dutchWikipediaUrl}" target="_blank" rel="noopener">${t("wikipediaNl")}</a>`);
-  if (bird.xenoCantoUrl) links.push(`<a href="${bird.xenoCantoUrl}" target="_blank" rel="noopener">${t("listenXenoCanto")}</a>`);
-  if (links.length) rows.push(field(t("moreInfo"), links.join(" &nbsp;·&nbsp; ")));
+  if (bird.wikipediaUrl) links.push(`<a class="bird-link" href="${bird.wikipediaUrl}" target="_blank" rel="noopener">${icon("wiki")} <span>${t("wikipediaEn")}</span></a>`);
+  if (bird.dutchWikipediaUrl) links.push(`<a class="bird-link" href="${bird.dutchWikipediaUrl}" target="_blank" rel="noopener">${icon("wiki")} <span>${t("wikipediaNl")}</span></a>`);
+  if (bird.xenoCantoUrl) links.push(`<a class="bird-link" href="${bird.xenoCantoUrl}" target="_blank" rel="noopener">${icon("speaker")} <span>${t("listenXenoCanto")}</span></a>`);
+  if (!links.length) return "";
+  return `<div class="bird-links">${links.join("")}</div>`;
+}
 
+function buildDetailHtml(bird) {
+  const rowsHtml = birdInfoRows(bird);
+  const linksHtml = birdLinkIcons(bird);
   const fav = isFavorite(bird);
   const imgUrl = bird.imageUrl || bird.imageThumbUrl || PLACEHOLDER_IMG;
 
@@ -146,7 +167,8 @@ function buildDetailHtml(bird) {
     <div class="detail-body">
       <h2>${escapeHtml(primaryName(bird))}</h2>
       <p class="names">${secondaryNames(bird).map(escapeHtml).join(" &middot; ")}${secondaryNames(bird).length ? " &middot; " : ""}<em>${escapeHtml(bird.scientificName)}</em></p>
-      ${rows.join("")}
+      ${rowsHtml}
+      ${linksHtml}
     </div>
     ${bird.soundUrl ? `<button class="detail-sound" id="detail-sound-btn">${icon("speaker")}</button>` : ""}
   `;

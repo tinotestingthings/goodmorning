@@ -34,6 +34,7 @@
   <symbol id="icon-list-check" viewBox="0 0 24 24"><line x1="9" y1="6" x2="20" y2="6" /><polyline points="3 6 4.5 7.5 6.5 5" /><line x1="9" y1="12" x2="20" y2="12" /><polyline points="3 12 4.5 13.5 6.5 11" /><line x1="9" y1="18" x2="20" y2="18" /><polyline points="3 18 4.5 19.5 6.5 17" /></symbol>
   <symbol id="icon-cursor" viewBox="0 0 24 24"><line x1="12" y1="4" x2="12" y2="20" /><line x1="8" y1="4" x2="16" y2="4" /><line x1="8" y1="20" x2="16" y2="20" /></symbol>
   <symbol id="icon-bird" viewBox="0 0 24 24"><path class="icon-fill" d="M12 11.38 C14.88 7.42 17.58 6.7 21 10.12 C16.95 13.45 13.8 14.98 12 16.06 C10.2 14.98 7.05 13.45 3 10.12 C6.42 6.7 9.12 7.42 12 11.38 Z" fill="currentColor" stroke="none" /></symbol>
+  <symbol id="icon-wiki" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><ellipse cx="12" cy="12" rx="4" ry="9" /><line x1="3.5" y1="9" x2="20.5" y2="9" /><line x1="3.5" y1="15" x2="20.5" y2="15" /></symbol>
 </svg>
 
 <div class="app" style="visibility:hidden">
@@ -43,6 +44,7 @@
     <header class="top">
       <h1><svg class="icon icon-logo"><use href="#icon-bird"/></svg> Vogelspotinus</h1>
     </header>
+    <div id="home-progress"></div>
     <div class="tile-grid" id="home-tiles"></div>
     <h2 class="section-heading" id="custom-games-heading" style="display:none;" data-i18n="yourGames"></h2>
     <div class="tile-grid" id="custom-game-tiles"></div>
@@ -82,6 +84,7 @@
     <header class="top quiz-header">
       <h1 data-i18n="quiz"></h1>
       <p class="quiz-score" id="quiz-score"></p>
+      <p class="quiz-session-line" id="quiz-session"></p>
       <button class="options-btn" id="quiz-options-btn"><svg class="icon"><use href="#icon-sliders"/></svg> <span data-i18n="options"></span></button>
     </header>
 

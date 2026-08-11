@@ -11,6 +11,7 @@ let quizMode = "text"; // 'text' | 'choice' | 'study'
 let quizPool = [];
 let quizCurrent = null;
 let quizScore = { correct: 0, total: 0 };
+let quizSession = { seen: 0, correct: 0, learned: 0, mastered: 0, dropped: 0 };
 let quizInitialized = false;
 
 function activeQuizFilters() {
@@ -21,6 +22,10 @@ function activeQuizFilters() {
 }
 
 function refreshQuizPool() {
+  if (activeGameContext && typeof activeGameContext.poolFn === "function") {
+    quizPool = activeGameContext.poolFn().filter((b) => b.imageUrl || b.imageThumbUrl);
+    return;
+  }
   quizPool = allBirds.filter((b) => matchesFilters(b, activeQuizFilters()) && (b.imageUrl || b.imageThumbUrl));
 }
 
@@ -64,8 +69,10 @@ function updateModeVisibility() {
 
 function updateScoreDisplay() {
   const scoreEl = document.getElementById("quiz-score");
-  if (quizMode === "study") return; // study.js manages its own progress readout
+  const sessEl = document.getElementById("quiz-session");
+  if (quizMode === "study") { if (sessEl) sessEl.innerHTML = ""; return; } // study.js manages its own readout
   scoreEl.textContent = `${t("scoreLabel")}: ${quizScore.correct} / ${quizScore.total}`;
+  if (sessEl) sessEl.innerHTML = sessionSummaryHtml(quizSession);
 }
 
 function resetQuizSoundButton() {
@@ -135,6 +142,7 @@ function handleChoiceAnswer(chosenBird, btnEl) {
   const correct = chosenBird === quizCurrent;
   quizScore.total += 1;
   if (correct) quizScore.correct += 1;
+  tallySession(quizSession, recordAnswer(quizCurrent, correct));
   updateScoreDisplay();
 
   document.querySelectorAll(".choice-btn").forEach((b) => (b.disabled = true));
@@ -151,12 +159,10 @@ function revealAnswer(wasCorrect) {
   if (!quizCurrent) return;
   document.getElementById("quiz-input").disabled = true;
   document.getElementById("quiz-submit").disabled = true;
-  const fact = bf(quizCurrent, "fact");
   document.getElementById("quiz-answer").innerHTML = `
-    <strong>${escapeHtml(primaryName(quizCurrent))}</strong>
-    (${secondaryNames(quizCurrent).map(escapeHtml).join(", ")}${secondaryNames(quizCurrent).length ? ", " : ""}<em>${escapeHtml(quizCurrent.scientificName)}</em>)
-    ${fact ? `<p>${escapeHtml(fact)}</p>` : ""}
-    ${quizCurrent.wikipediaUrl ? `<a href="${quizCurrent.wikipediaUrl}" target="_blank" rel="noopener">${t("moreInfo")}</a>` : ""}
+    <p class="answer-headline"><strong>${escapeHtml(primaryName(quizCurrent))}</strong>
+    <span class="answer-sci">(${secondaryNames(quizCurrent).map(escapeHtml).join(", ")}${secondaryNames(quizCurrent).length ? ", " : ""}<em>${escapeHtml(quizCurrent.scientificName)}</em>)</span></p>
+    <div class="bird-info">${birdInfoRows(quizCurrent)}${birdLinkIcons(quizCurrent)}</div>
   `;
   if (wasCorrect !== null) {
     const resultEl = document.getElementById("quiz-result");
@@ -172,6 +178,7 @@ function submitGuess() {
   const correct = matchesGuess(quizCurrent, guess);
   quizScore.total += 1;
   if (correct) quizScore.correct += 1;
+  tallySession(quizSession, recordAnswer(quizCurrent, correct));
   updateScoreDisplay();
   revealAnswer(correct);
 }
@@ -196,6 +203,9 @@ function updateQuizOptionsCount() {
 }
 
 function renderQuizScreen() {
+  quizSession = newSession();
+  const titleEl = document.querySelector("#screen-quiz .quiz-header h1");
+  if (titleEl) titleEl.textContent = (activeGameContext && activeGameContext.title) ? activeGameContext.title : t("quiz");
   const isCustomGame = activeGameContext && activeGameContext.gameMode.startsWith("quiz");
   const filterBarEl = document.getElementById("quiz-filter-bar");
   const modeSwitchEl = document.getElementById("quiz-mode-switch");
