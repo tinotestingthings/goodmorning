@@ -1131,6 +1131,20 @@
       .filter(function (x) { return x.progress.dueSoon; });
   }
 
+  // Today section only: chores actually due TODAY (not overdue, not due-soon).
+  // Pattern chores expose progress.dueToday; legacy interval chores don't, so
+  // fall back to "next occurrence is today" / never-done-with-no-future-start.
+  function dueTodayChores() {
+    return loadChores()
+      .map(function (c) { return { chore: c, progress: choreProgress(c) }; })
+      .filter(function (x) {
+        var p = x.progress;
+        if (p.doneToday || p.expired || p.notStarted) return false;
+        if (typeof p.dueToday === "boolean") return p.dueToday;
+        return p.daysUntilNext === 0 || (p.neverDone && p.nextDue == null);
+      });
+  }
+
   function choresBadge() {
     var n = dueSoonChores().length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-red" };
@@ -1381,7 +1395,7 @@
 
   function dueTodayTodos() {
     var today = localDateStr();
-    return loadTodos().filter(function (t) { return !t.done && t.dueDate && t.dueDate <= today; });
+    return loadTodos().filter(function (t) { return !t.done && t.dueDate && t.dueDate === today; });
   }
 
   function todoDueLabel(t) {
@@ -1552,10 +1566,10 @@
   }
   function appendUrgentCards(container) {
     if (!window.ItemUI || !window.DayModel) return;
-    var chores = dueSoonChores();
+    var chores = dueTodayChores();
     var todos = dueTodayTodos();
     if (!chores.length && !todos.length) return;
-    container.appendChild(el("div", "home-today-head", "Needs doing"));
+    container.appendChild(el("div", "home-today-head", "Today"));
     var list = el("div", "cal-item-list home-today-list");
     var today = localDateStr();
     chores.forEach(function (x) { list.appendChild(window.ItemUI.choreRow(x.chore, x.progress.doneToday ? "done" : "due", today, homeItemOpts())); });
@@ -1637,8 +1651,8 @@
 
     // Quick jumps into the calendar (My Day / Week).
     var quick = el("div", "cal-quicklinks");
-    quick.appendChild(calQuickLink("My Day", "myday",
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'));
+    quick.appendChild(calQuickLink("All", "agenda",
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>'));
     quick.appendChild(calQuickLink("Week", "week",
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M8.5 13h0M12 13h0M15.5 13h0"/></svg>'));
     quick.appendChild(calQuickLink("History", "history",
