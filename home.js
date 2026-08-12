@@ -1839,10 +1839,65 @@
   // or clobbering whatever the newest render() already drew.
   var renderGeneration = 0;
 
+
+  // ---- Gym status tile (Kangaroo) — added 2026-08-12 --------------------------
+  // Reads the SAME-ORIGIN localStorage that the Kangaroo app writes its per-muscle
+  // "last trained" map to (key "<env>:kangaroo-history", env = dd:/sbx:), colours
+  // each muscle by how long ago it was worked, stalest first. The header carries a
+  // small icon that opens the tracker (relative "kangaroo/" resolves to /kangaroo/
+  // on live and /sandbox/kangaroo/ in the sandbox). If the app hasn't been opened
+  // on this device yet the map is empty, so we show a gentle prompt.
+  function gymKangarooPrefix() { return (window.DD_ENV && DD_ENV.sandbox) ? "sbx:" : "dd:"; }
+
+  function renderGymStatus() {
+    var wrap = el("section", "gym-tile");
+    var head = el("div", "gym-tile-head");
+    head.appendChild(el("div", "gym-tile-title", "Gym status"));
+    var open = document.createElement("a");
+    open.className = "gym-open";
+    open.href = "kangaroo/";
+    open.title = "Open Kangaroo";
+    open.setAttribute("aria-label", "Open Kangaroo gym");
+    open.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
+    head.appendChild(open);
+    wrap.appendChild(head);
+
+    var hist = null;
+    try { hist = JSON.parse(localStorage.getItem(gymKangarooPrefix() + "kangaroo-history") || "null"); } catch (e) {}
+    if (!hist || typeof hist !== "object" || !Object.keys(hist).length) {
+      wrap.appendChild(el("div", "gym-empty", "No workouts logged yet. Open the tracker to start."));
+      return wrap;
+    }
+
+    var now = Date.now();
+    var items = Object.keys(hist).map(function (m) {
+      var t = Date.parse(hist[m]);
+      return { m: m, days: isNaN(t) ? 99999 : Math.floor((now - t) / 86400000) };
+    }).sort(function (a, b) { return b.days - a.days; });
+
+    var chips = el("div", "gym-chips");
+    items.forEach(function (it) {
+      var cls = it.days >= 7 ? "stale" : (it.days >= 3 ? "mid" : "fresh");
+      var chip = el("span", "gym-chip " + cls, it.m);
+      chip.title = it.days >= 99999 ? "no date" : (it.days + "d since trained");
+      chips.appendChild(chip);
+    });
+    wrap.appendChild(chips);
+
+    var lg = el("div", "gym-legend");
+    lg.innerHTML =
+      '<span><i style="background:var(--keep)"></i>≤2d</span>' +
+      '<span><i style="background:#d69a3c"></i>3–6d</span>' +
+      '<span><i style="background:var(--dismiss)"></i>7d+</span>';
+    wrap.appendChild(lg);
+    return wrap;
+  }
+
   function render() {
     var myGeneration = ++renderGeneration;
     view.innerHTML = "";
     view.appendChild(renderHero(myGeneration));
+    view.appendChild(renderGymStatus());
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
