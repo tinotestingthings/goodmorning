@@ -2369,6 +2369,8 @@ main#deckArea {
 /* ---- home surfaced "Today" items ---- */
 .home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 4px 2px 8px; font-weight: 700; }
 .home-today-list { margin-bottom: 14px; }
+.home-overdue-head { color: var(--dismiss); }
+.home-today-list + .home-today-head { margin-top: 4px; }
 .cal-swipeable { touch-action: pan-y; }
 
 /* ============================================================

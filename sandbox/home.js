@@ -1145,6 +1145,24 @@
       });
   }
 
+  // Overdue section: chores/to-dos whose due day is in the PAST and not done.
+  // Kept mutually exclusive with the Today lists (Today uses "=== today" /
+  // dueToday; Overdue uses strictly-before-today), so nothing shows twice.
+  function overdueChores() {
+    return loadChores()
+      .map(function (c) { return { chore: c, progress: choreProgress(c) }; })
+      .filter(function (x) {
+        var p = x.progress;
+        if (p.doneToday || p.expired || p.notStarted) return false;
+        if (typeof p.overdue === "boolean") return p.overdue && !p.dueToday;
+        return p.daysUntilNext !== null && p.daysUntilNext < 0;
+      });
+  }
+  function overdueTodos() {
+    var today = localDateStr();
+    return loadTodos().filter(function (t) { return !t.done && t.dueDate && t.dueDate < today; });
+  }
+
   function choresBadge() {
     var n = dueSoonChores().length;
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-red" };
@@ -1566,12 +1584,25 @@
   }
   function appendUrgentCards(container) {
     if (!window.ItemUI || !window.DayModel) return;
+    var today = localDateStr();
+
+    // Overdue first — most pressing. Ticking an overdue chore marks it done
+    // today (occDate = today), same as everywhere else.
+    var oChores = overdueChores();
+    var oTodos = overdueTodos();
+    if (oChores.length || oTodos.length) {
+      container.appendChild(el("div", "home-today-head home-overdue-head", "Overdue"));
+      var oList = el("div", "cal-item-list home-today-list");
+      oChores.forEach(function (x) { oList.appendChild(window.ItemUI.choreRow(x.chore, "due", today, homeItemOpts())); });
+      oTodos.forEach(function (t) { oList.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
+      container.appendChild(oList);
+    }
+
     var chores = dueTodayChores();
     var todos = dueTodayTodos();
     if (!chores.length && !todos.length) return;
     container.appendChild(el("div", "home-today-head", "Today"));
     var list = el("div", "cal-item-list home-today-list");
-    var today = localDateStr();
     chores.forEach(function (x) { list.appendChild(window.ItemUI.choreRow(x.chore, x.progress.doneToday ? "done" : "due", today, homeItemOpts())); });
     todos.forEach(function (t) { list.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
     container.appendChild(list);
