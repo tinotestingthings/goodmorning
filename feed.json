@@ -325,6 +325,43 @@
           "date": "2028-08-02",
           "label": "AI Act high-risk systems embedded in products (Annex I) — compliance deadline"
         }
+      ],
+      "items": [
+        {
+          "id": "cyberbeveiligingswet-wwke",
+          "title": "Cyberbeveiligingswet + Wwke enter into force",
+          "date": "2026-08-15"
+        },
+        {
+          "id": "iso-27701-cb-transition",
+          "title": "ISO/IEC 27701:2025 — certification bodies must have transitioned",
+          "date": "2026-10-31"
+        },
+        {
+          "id": "ai-act-art50-watermarking-grace-end",
+          "title": "AI Act Art. 50(2) watermarking grace period ends; new Art. 5 prohibition (NCII/CSAM)",
+          "date": "2026-12-02"
+        },
+        {
+          "id": "gpai-pre-aug-2025-models",
+          "title": "GPAI providers with pre-Aug-2025 models — full compliance deadline",
+          "date": "2027-08-02"
+        },
+        {
+          "id": "ai-act-annex-iii-high-risk",
+          "title": "AI Act standalone high-risk systems (Annex III) become applicable",
+          "date": "2027-12-02"
+        },
+        {
+          "id": "ai-act-annex-i-embedded-high-risk",
+          "title": "AI Act high-risk systems embedded in products (Annex I) — compliance deadline",
+          "date": "2028-08-02"
+        },
+        {
+          "id": "2026-07-23-edpb-data-breach-notification-template",
+          "title": "EDPB common template for personal data breach notification (Art. 33)",
+          "date": null
+        }
       ]
     }
   }

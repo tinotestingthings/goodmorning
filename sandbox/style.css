@@ -2920,3 +2920,10 @@ main#deckArea {
 .gym-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 11px; color: var(--text-dim); }
 .gym-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 4px; vertical-align: 0; }
 .gym-empty, .gym-loading { font-size: 13px; color: var(--text-dim); }
+
+
+/* Radar items + tasks made from them (added 2026-08-12) */
+.dl-days.dl-item { background: var(--border); color: var(--text-dim); }
+.dl-task-pill { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--keep); border: 1px solid var(--keep); border-radius: 20px; padding: 1px 7px; margin-left: 6px; }
+.detail-radar-task-wrap { margin-top: 4px; }
+.detail-radar-task { font-size: 0.9rem; color: var(--text); padding: 4px 0; }

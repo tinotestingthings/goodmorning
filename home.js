@@ -831,20 +831,57 @@
 
   var RADAR_VISIBLE_DEFAULT = 3;
 
-  function deadlineRow(d) {
-    var days = daysUntil(d.date);
-    var itemId = d.id || slugify(d.date + "-" + d.label);
+  // ---- radar items (deadlines + flagged items) + tasks made from them ----
+  function radarItemsList(radar) {
+    var arr = (radar && radar.items && radar.items.length)
+      ? radar.items
+      : ((radar && radar.deadlines) || []).map(function (d) { return { id: d.id, title: d.label, date: d.date }; });
+    var out = arr.map(function (x) {
+      var title = x.title || x.label || "";
+      var date = x.date || null;
+      return { id: x.id || slugify((date || "") + "-" + title), title: title, date: date };
+    });
+    out.sort(function (a, b) {
+      if (a.date && b.date) return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0);
+      if (a.date && !b.date) return -1;
+      if (!a.date && b.date) return 1;
+      return 0;
+    });
+    return out;
+  }
+  function radarOpenTasks() {
+    try { return loadTodos().filter(function (t) { return t.radarId && !t.done; }); }
+    catch (e) { return []; }
+  }
+  function radarOpenTaskMap() {
+    var m = {}; radarOpenTasks().forEach(function (t) { m[t.radarId] = t; }); return m;
+  }
+  function radarNearestDays(radar) {
+    var days = null;
+    radarItemsList(radar).forEach(function (it) {
+      if (it.date) { var d = daysUntil(it.date); if (d >= 0 && (days === null || d < days)) days = d; }
+    });
+    return days;
+  }
+  function radarRow(it) {
+    var openMap = radarOpenTaskMap();
+    var days = it.date ? daysUntil(it.date) : null;
     var li = el("div", "dash-item dash-item-tap");
     var row = el("div", "dl-row");
-    var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
-    row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
-    row.appendChild(el("span", "dl-label", d.label));
-    row.appendChild(el("span", "dash-date", d.date));
+    if (days === null) {
+      row.appendChild(el("span", "dl-days dl-item", "•"));
+    } else {
+      var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
+      row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
+    }
+    row.appendChild(el("span", "dl-label", it.title));
+    if (it.date) row.appendChild(el("span", "dash-date", it.date));
+    if (openMap[it.id]) row.appendChild(el("span", "dl-task-pill", "task"));
     row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
     li.addEventListener("click", function () {
       if (window.ItemDetail) {
-        ItemDetail.open({ id: itemId, title: d.label, hint: d.date, status: localStatus("radar", itemId, "open") }, "radar");
+        ItemDetail.open({ id: it.id, title: it.title, hint: it.date || "" }, "radar");
       }
     });
     return li;
@@ -856,16 +893,17 @@
       container.appendChild(el("p", "dash-empty", "No radar data in feed."));
       return;
     }
+    var openCount = radarOpenTasks().length;
     var meta = el("div", "dash-meta");
-    var followUps = radar.follow_ups || 0;
-    meta.textContent = "updated " + (radar.updated || "?") + " · " +
-      followUps + " follow-up" + (followUps === 1 ? "" : "s") + " open";
+    meta.textContent = "updated " + (radar.updated || "?") +
+      (openCount ? " · " + openCount + " open task" + (openCount === 1 ? "" : "s") : "");
     container.appendChild(meta);
 
-    var deadlines = radar.deadlines || [];
-    var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);
-    var rest = deadlines.slice(RADAR_VISIBLE_DEFAULT);
-    collapsible(container, primary, rest, deadlineRow);
+    var items = radarItemsList(radar);
+    if (!items.length) { container.appendChild(el("p", "dash-empty", "No radar items.")); return; }
+    var primary = items.slice(0, RADAR_VISIBLE_DEFAULT);
+    var rest = items.slice(RADAR_VISIBLE_DEFAULT);
+    collapsible(container, primary, rest, radarRow);
   }
 
   // ---- weekly chores (local-storage only — never touches the vault) ----
@@ -1654,12 +1692,12 @@
   function radarBadge(today) {
     var radar = today.radar;
     if (!radar) return { text: "", cls: "tile-badge-gray" };
-    if (radar.follow_ups > 0) return { text: String(radar.follow_ups), cls: "tile-badge-red" };
-    if (radar.deadlines && radar.deadlines.length > 0) {
-      var days = daysUntil(radar.deadlines[0].date);
-      var text = days < 0 ? "past" : days + "d";
+    var open = radarOpenTasks().length;
+    if (open > 0) return { text: String(open), cls: "tile-badge-red" };
+    var days = radarNearestDays(radar);
+    if (days !== null) {
       var cls = days <= 7 ? "tile-badge-red" : days <= 30 ? "tile-badge-amber" : "tile-badge-gray";
-      return { text: text, cls: cls };
+      return { text: days + "d", cls: cls };
     }
     return { text: "", cls: "tile-badge-gray" };
   }
@@ -1780,8 +1818,9 @@
   function appendRadarStrip(wrap, today) {
     var radar = today.radar;
     if (!radar) return;
-    var soonDays = (radar.deadlines && radar.deadlines.length) ? daysUntil(radar.deadlines[0].date) : null;
-    var urgent = (radar.follow_ups > 0) || (soonDays !== null && soonDays <= 7);
+    var openTasks = radarOpenTasks().length;
+    var soonDays = radarNearestDays(radar);
+    var urgent = (openTasks > 0) || (soonDays !== null && soonDays <= 7);
 
     var strip = el("div", "radar-strip" + (urgent ? " radar-strip-urgent" : ""));
     var head = el("button", "radar-strip-head");
@@ -1789,11 +1828,10 @@
     var dot = el("span", "radar-dot" + (urgent ? " radar-dot-urgent" : ""));
     head.appendChild(dot);
     head.appendChild(el("span", "radar-strip-label", "Compliance radar"));
-    var status = urgent
-      ? (radar.follow_ups > 0
-          ? radar.follow_ups + " follow-up" + (radar.follow_ups === 1 ? "" : "s")
-          : soonDays + "d to a deadline")
-      : "nothing urgent";
+    var parts = [];
+    if (openTasks > 0) parts.push(openTasks + " open task" + (openTasks === 1 ? "" : "s"));
+    if (soonDays !== null) parts.push(soonDays + "d to nearest deadline");
+    var status = parts.length ? parts.join(" · ") : "nothing urgent";
     head.appendChild(el("span", "radar-strip-status", status));
     var chev = el("span", "radar-strip-chev", "›");
     head.appendChild(chev);

@@ -113,6 +113,24 @@
     toast("Added to calendar");
   }
 
+  // Radar -> scheduled task: a normal calendar to-do, tagged with the radar id
+  // so the radar tile can show/link it and count it as an open task.
+  function makeRadarTask(text, dateVal, radarId) {
+    if (!global.DayModel) { toast("Calendar not ready"); return false; }
+    var list = global.DayModel.loadTodos();
+    list.push({
+      id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      text: text, dueDate: dateVal || todayStr(), startTime: null, endTime: null,
+      done: false, snoozes: 0, radarId: radarId || null, source: "radar"
+    });
+    global.DayModel.saveTodos(list);
+    return true;
+  }
+  function radarTaskFor(radarId) {
+    try { return (global.DayModel ? global.DayModel.loadTodos() : []).filter(function (t) { return t.radarId === radarId; }); }
+    catch (e) { return []; }
+  }
+
   function open(item, type) {
     var section = SECTIONS[type] || "tasks";
     var id = item.id;
@@ -153,7 +171,7 @@
     closeBtn.addEventListener("click", close);
     header.appendChild(closeBtn);
     header.appendChild(el("span", "detail-kind",
-      type === "project" ? "Project" : type === "radar" ? "Radar deadline" : "Task"));
+      type === "project" ? "Project" : type === "radar" ? "Radar item" : "Task"));
 
     // Remove → 99 Archive (tasks + projects only; projects need confirmation).
     if (type === "task" || type === "project") {
@@ -184,7 +202,8 @@
     var info = [item.detail, item.line, item.hint].filter(Boolean).join(" · ");
     if (info) body.appendChild(el("p", "detail-info", info));
 
-    // ---- status ----
+    // ---- status (radar items convert to a task instead — no status here) ----
+    if (type !== "radar") {
     body.appendChild(el("div", "detail-section-label", "Status"));
     var curStatus = getStatus(section, id, item.status);
     var seg = el("div", "detail-seg");
@@ -203,6 +222,7 @@
       seg.appendChild(b);
     });
     body.appendChild(seg);
+    }
 
     // ---- promote task <-> project ----
     // These are vault items, so the actual file move (30 Tasks <-> 40 Projects)
@@ -222,11 +242,41 @@
       body.appendChild(convBtn);
     }
 
-    // ---- subtasks (not for radar deadlines) ----
+    // ---- radar items: convert to a scheduled task, then notes ----
     if (type === "radar") {
+      body.appendChild(buildRadarTaskSection());
       body.appendChild(buildNotesSection());
       finish();
       return;
+    }
+
+    function buildRadarTaskSection() {
+      var wrap = el("div", "detail-radar-task-wrap");
+      var openTasks = radarTaskFor(id).filter(function (t) { return !t.done; });
+      if (openTasks.length) {
+        wrap.appendChild(el("div", "detail-section-label", "Scheduled task"));
+        openTasks.forEach(function (t) {
+          wrap.appendChild(el("div", "detail-radar-task", t.text + (t.dueDate ? " · due " + t.dueDate : "")));
+        });
+        var openBtn = el("button", "detail-convert-btn", "Open in calendar");
+        openBtn.type = "button";
+        openBtn.addEventListener("click", function () { if (global.App && App.go) App.go("calendar"); close(); });
+        wrap.appendChild(openBtn);
+        return wrap;
+      }
+      wrap.appendChild(el("div", "detail-section-label", "Make into a scheduled task"));
+      var rowEl = el("div", "detail-add-row");
+      var dateEl = document.createElement("input");
+      dateEl.type = "date"; dateEl.className = "detail-input";
+      dateEl.value = (item.hint && /^\d{4}-\d{2}-\d{2}$/.test(item.hint)) ? item.hint : todayStr();
+      var btn = el("button", "detail-add-btn", "Make task");
+      btn.type = "button";
+      btn.addEventListener("click", function () {
+        if (makeRadarTask(item.title, dateEl.value, id)) { changed = true; toast("Scheduled task created"); close(); }
+      });
+      rowEl.appendChild(dateEl); rowEl.appendChild(btn);
+      wrap.appendChild(rowEl);
+      return wrap;
     }
 
     // ---- schedule the whole item into the calendar ----
