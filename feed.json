@@ -299,11 +299,31 @@
     "radar": {
       "updated": "2026-08-10",
       "follow_ups": 1,
-      "headline": "noyb files GDPR complaint over dict.cc's one-click consent to 1,741 ad partners (2026-08-06).",
+      "headline": "6 upcoming deadlines tracked — nearest: Cyberbeveiligingswet + Wwke in force 15 Aug 2026.",
       "deadlines": [
         {
           "date": "2026-08-15",
           "label": "Cyberbeveiligingswet + Wwke enter into force"
+        },
+        {
+          "date": "2026-10-31",
+          "label": "ISO/IEC 27701:2025 — certification bodies must have transitioned"
+        },
+        {
+          "date": "2026-12-02",
+          "label": "AI Act Art. 50(2) watermarking grace period ends; new Art. 5 prohibition (NCII/CSAM)"
+        },
+        {
+          "date": "2027-08-02",
+          "label": "GPAI providers with pre-Aug-2025 models — full compliance deadline"
+        },
+        {
+          "date": "2027-12-02",
+          "label": "AI Act standalone high-risk systems (Annex III) become applicable"
+        },
+        {
+          "date": "2028-08-02",
+          "label": "AI Act high-risk systems embedded in products (Annex I) — compliance deadline"
         }
       ]
     }
