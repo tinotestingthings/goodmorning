@@ -862,8 +862,6 @@
       followUps + " follow-up" + (followUps === 1 ? "" : "s") + " open";
     container.appendChild(meta);
 
-    if (radar.headline) container.appendChild(el("p", "radar-headline", radar.headline));
-
     var deadlines = radar.deadlines || [];
     var primary = deadlines.slice(0, RADAR_VISIBLE_DEFAULT);
     var rest = deadlines.slice(RADAR_VISIBLE_DEFAULT);
