@@ -1726,6 +1726,7 @@
     }
 
     wrap.appendChild(rowsWrap);
+    wrap.appendChild(renderGymStatus());
     appendRadarStrip(wrap, today);
     return wrap;
   }
@@ -1840,14 +1841,106 @@
   var renderGeneration = 0;
 
 
-  // ---- Gym status tile (Kangaroo) — added 2026-08-12 --------------------------
-  // Reads the SAME-ORIGIN localStorage that the Kangaroo app writes its per-muscle
-  // "last trained" map to (key "<env>:kangaroo-history", env = dd:/sbx:), colours
-  // each muscle by how long ago it was worked, stalest first. The header carries a
-  // small icon that opens the tracker (relative "kangaroo/" resolves to /kangaroo/
-  // on live and /sandbox/kangaroo/ in the sandbox). If the app hasn't been opened
-  // on this device yet the map is empty, so we show a gentle prompt.
+
+
+  // ---- Gym status tile (Kangaroo) — added 2026-08-12; Supabase-backed --------
+  // Shows each muscle coloured by how long since it was trained. DATA comes from
+  // the shared kangaroo_state Supabase row (fetchAppState), so a change made in
+  // the Kangaroo app shows here automatically — on any device — with a warm
+  // localStorage cache for instant paint. The COLOURS/THRESHOLDS/LABELS below are
+  // copied verbatim from the Kangaroo bundle's recovery scale and live in this
+  // one GYM_RECOVERY constant; keep them in sync if the app's scale ever changes.
+  // fetchAppState is generic on purpose — future home tiles for the other utility
+  // apps (wine, notesprint, chord, birds) reuse it with their own *_state table.
+  var GYM_RECOVERY = {
+    buckets: [
+      { max: 2, cls: "recent", color: "#8ccf48", label: "0–2 days" },
+      { max: 4, cls: "warning", color: "#f1b84a", label: "3–4 days" },
+      { max: Infinity, cls: "overdue", color: "#f26f54", label: "5+ days" }
+    ],
+    never: { cls: "never", color: "#c4c8c2", label: "No history" }
+  };
+
   function gymKangarooPrefix() { return (window.DD_ENV && DD_ENV.sandbox) ? "sbx:" : "dd:"; }
+  function gymHistoryKey() { return gymKangarooPrefix() + "kangaroo-history"; }
+
+  // Same day math the app uses: local Y/M/D pinned to a UTC midnight index.
+  function gymDayIndex(d) { return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
+  function gymDaysSince(iso) {
+    if (!iso) return null;
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return gymDayIndex(new Date()) - gymDayIndex(d);
+  }
+  function gymBucket(days) {
+    if (days === null) return GYM_RECOVERY.never;
+    for (var i = 0; i < GYM_RECOVERY.buckets.length; i++) {
+      if (days <= GYM_RECOVERY.buckets[i].max) return GYM_RECOVERY.buckets[i];
+    }
+    return GYM_RECOVERY.buckets[GYM_RECOVERY.buckets.length - 1];
+  }
+
+  // Generic: read the current user's row from any "<app>_state" table, hand back
+  // its `data` object (or null). Reused by every future home tile.
+  function fetchAppState(table, cb) {
+    if (!window.SB) { cb(null); return; }
+    try {
+      window.SB.auth.getSession().then(function (res) {
+        var s = res && res.data && res.data.session;
+        if (!s || !s.user) { cb(null); return; }
+        window.SB.from(table).select("data").eq("user_id", s.user.id).then(function (r) {
+          if (r && r.error) { cb(null); return; }
+          var row = r && r.data && r.data.length ? r.data[0] : null;
+          cb(row && row.data ? row.data : null);
+        }, function () { cb(null); });
+      }, function () { cb(null); });
+    } catch (e) { cb(null); }
+  }
+
+  function readGymCache() {
+    try { return JSON.parse(localStorage.getItem(gymHistoryKey()) || "null"); } catch (e) { return null; }
+  }
+  function writeGymCache(hist) {
+    try { localStorage.setItem(gymHistoryKey(), JSON.stringify(hist)); } catch (e) {}
+  }
+
+  function gymLegend() {
+    var lg = el("div", "gym-legend");
+    var order = GYM_RECOVERY.buckets.concat([GYM_RECOVERY.never]);
+    order.forEach(function (b) {
+      var span = document.createElement("span");
+      var dot = document.createElement("i");
+      dot.style.background = b.color;
+      span.appendChild(dot);
+      span.appendChild(document.createTextNode(b.label));
+      lg.appendChild(span);
+    });
+    return lg;
+  }
+
+  function paintGym(body, hist) {
+    body.innerHTML = "";
+    if (!hist || typeof hist !== "object" || !Object.keys(hist).length) {
+      body.appendChild(el("div", "gym-empty", "No workouts logged yet. Open the tracker to start."));
+      body.appendChild(gymLegend());
+      return;
+    }
+    var items = Object.keys(hist).map(function (m) {
+      var days = gymDaysSince(hist[m]);
+      return { m: m, days: days, sort: days === null ? Infinity : days };
+    }).sort(function (a, b) { return b.sort - a.sort; });
+
+    var chips = el("div", "gym-chips");
+    items.forEach(function (it) {
+      var b = gymBucket(it.days);
+      var chip = el("span", "gym-chip", it.m);
+      chip.style.background = b.color;
+      chip.title = it.days === null ? "No history" : (it.days + "d since trained");
+      chips.appendChild(chip);
+    });
+    body.appendChild(chips);
+    body.appendChild(gymLegend());
+  }
 
   function renderGymStatus() {
     var wrap = el("section", "gym-tile");
@@ -1862,34 +1955,18 @@
     head.appendChild(open);
     wrap.appendChild(head);
 
-    var hist = null;
-    try { hist = JSON.parse(localStorage.getItem(gymKangarooPrefix() + "kangaroo-history") || "null"); } catch (e) {}
-    if (!hist || typeof hist !== "object" || !Object.keys(hist).length) {
-      wrap.appendChild(el("div", "gym-empty", "No workouts logged yet. Open the tracker to start."));
-      return wrap;
-    }
+    var body = el("div", "gym-body");
+    wrap.appendChild(body);
 
-    var now = Date.now();
-    var items = Object.keys(hist).map(function (m) {
-      var t = Date.parse(hist[m]);
-      return { m: m, days: isNaN(t) ? 99999 : Math.floor((now - t) / 86400000) };
-    }).sort(function (a, b) { return b.days - a.days; });
+    var cached = readGymCache();
+    if (cached) paintGym(body, cached);
+    else body.appendChild(el("div", "gym-loading", "Loading gym status…"));
 
-    var chips = el("div", "gym-chips");
-    items.forEach(function (it) {
-      var cls = it.days >= 7 ? "stale" : (it.days >= 3 ? "mid" : "fresh");
-      var chip = el("span", "gym-chip " + cls, it.m);
-      chip.title = it.days >= 99999 ? "no date" : (it.days + "d since trained");
-      chips.appendChild(chip);
+    fetchAppState("kangaroo_state", function (data) {
+      var hist = data ? (data[gymHistoryKey()] || null) : null;
+      if (hist) { writeGymCache(hist); paintGym(body, hist); }
+      else if (!cached) paintGym(body, null);
     });
-    wrap.appendChild(chips);
-
-    var lg = el("div", "gym-legend");
-    lg.innerHTML =
-      '<span><i style="background:var(--keep)"></i>≤2d</span>' +
-      '<span><i style="background:#d69a3c"></i>3–6d</span>' +
-      '<span><i style="background:var(--dismiss)"></i>7d+</span>';
-    wrap.appendChild(lg);
     return wrap;
   }
 
@@ -1897,7 +1974,6 @@
     var myGeneration = ++renderGeneration;
     view.innerHTML = "";
     view.appendChild(renderHero(myGeneration));
-    view.appendChild(renderGymStatus());
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {

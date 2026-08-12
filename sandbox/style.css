@@ -2906,7 +2906,7 @@ main#deckArea {
 .item-sub-add .field-input { flex: 1; min-width: 0; }
 
 
-/* Gym status tile (Kangaroo) — added 2026-08-12 */
+/* Gym status tile (Kangaroo) — added 2026-08-12; colours match app bundle */
 .gym-tile { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; margin-top: 12px; }
 .gym-tile-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .gym-tile-title { font-size: 15px; font-weight: 600; color: var(--text); }
@@ -2914,10 +2914,7 @@ main#deckArea {
 .gym-open:hover { color: var(--text); border-color: var(--text-dim); }
 .gym-open svg { width: 18px; height: 18px; display: block; }
 .gym-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.gym-chip { font-size: 12px; padding: 3px 10px; border-radius: 20px; line-height: 1.5; white-space: nowrap; }
-.gym-chip.fresh { color: var(--keep); background: color-mix(in srgb, var(--keep) 16%, var(--card-bg)); }
-.gym-chip.mid { color: #c98a2e; background: color-mix(in srgb, #d69a3c 18%, var(--card-bg)); }
-.gym-chip.stale { color: var(--dismiss); background: color-mix(in srgb, var(--dismiss) 16%, var(--card-bg)); }
-.gym-legend { display: flex; gap: 12px; margin-top: 10px; font-size: 11px; color: var(--text-dim); }
+.gym-chip { font-size: 12px; padding: 3px 10px; border-radius: 20px; line-height: 1.5; white-space: nowrap; color: #14261a; }
+.gym-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 11px; color: var(--text-dim); }
 .gym-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 4px; vertical-align: 0; }
-.gym-empty { font-size: 13px; color: var(--text-dim); }
+.gym-empty, .gym-loading { font-size: 13px; color: var(--text-dim); }
