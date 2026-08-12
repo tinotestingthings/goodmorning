@@ -242,3 +242,88 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();
+
+// ---- Swipe-to-flip on the body map (added 2026-08-12) ----------------------
+// The bundle already renders Front/Back toggle buttons inside .body-side-toggle.
+// This layer lets you swipe the whole visual area to flip sides, while leaving
+// every tap/click (muscle targets, buttons) working: it only acts on a decisive
+// HORIZONTAL drag, drives the existing toggle by clicking it, and swallows just
+// the trailing click so a swipe that ends on a muscle doesn't also select it.
+// Delegated on document so it survives React re-renders; the bundle is untouched.
+(function () {
+  "use strict";
+  var AREA = ".body-view-area, .body-visual, .anatomy-canvas";
+  var THRESH = 45;   // px of horizontal travel to count as a swipe
+  var RATIO = 1.4;   // horizontal must beat vertical by this factor
+  var g = null;          // gesture state while a drag is over the map
+  var swallowNext = false;
+
+  function sideButton(name) {
+    var box = document.querySelector(".body-side-toggle");
+    if (!box) return null;
+    var btns = box.querySelectorAll("button, [role=button], a");
+    for (var i = 0; i < btns.length; i++) {
+      var t = (btns[i].textContent || "").trim().toLowerCase();
+      if (t === name) return btns[i];
+    }
+    for (var j = 0; j < btns.length; j++) {
+      var u = (btns[j].textContent || "").trim().toLowerCase();
+      if (u.indexOf(name) !== -1) return btns[j];
+    }
+    return null;
+  }
+
+  // dx < 0 (swipe left) -> Back ; dx > 0 (swipe right) -> Front
+  function flip(dx) {
+    var btn = sideButton(dx < 0 ? "back" : "front");
+    if (btn) btn.click();
+  }
+
+  function start(x, y, target) {
+    if (!target || !target.closest || !target.closest(AREA)) { g = null; return; }
+    g = { x: x, y: y, moved: false };
+  }
+  function moved(x, y) {
+    if (!g) return;
+    var dx = x - g.x, dy = y - g.y;
+    if (Math.abs(dx) > THRESH && Math.abs(dx) > Math.abs(dy) * RATIO) g.moved = true;
+  }
+  function end(x, y) {
+    if (!g) return;
+    var dx = x - g.x, dy = y - g.y;
+    var isSwipe = g.moved || (Math.abs(dx) > THRESH && Math.abs(dx) > Math.abs(dy) * RATIO);
+    g = null;
+    if (isSwipe) {
+      swallowNext = true;              // eat the user's trailing click on the map
+      flip(dx);                        // synthetic toggle click (targets .body-side-toggle, not swallowed)
+      setTimeout(function () { swallowNext = false; }, 350);
+    }
+  }
+
+  // Pointer events cover mouse + most modern mobile touch.
+  document.addEventListener("pointerdown", function (e) { start(e.clientX, e.clientY, e.target); }, true);
+  document.addEventListener("pointermove", function (e) { moved(e.clientX, e.clientY); }, true);
+  document.addEventListener("pointerup", function (e) { end(e.clientX, e.clientY); }, true);
+  document.addEventListener("pointercancel", function () { g = null; }, true);
+
+  // Touch fallback (also lets us stop the page scrolling once a swipe commits).
+  document.addEventListener("touchstart", function (e) {
+    if (e.touches.length > 1) { g = null; return; }
+    var t = e.touches[0]; start(t.clientX, t.clientY, e.target);
+  }, true);
+  document.addEventListener("touchmove", function (e) {
+    if (!g) return; var t = e.touches[0]; moved(t.clientX, t.clientY);
+    if (g && g.moved) e.preventDefault();
+  }, { capture: true, passive: false });
+  document.addEventListener("touchend", function (e) {
+    var t = e.changedTouches && e.changedTouches[0];
+    if (t) end(t.clientX, t.clientY); else g = null;
+  }, true);
+
+  // Swallow ONLY the real trailing click of a swipe; let toggle/synthetic clicks through.
+  document.addEventListener("click", function (e) {
+    if (!swallowNext) return;
+    if (e.target && e.target.closest && e.target.closest(".body-side-toggle")) return;
+    e.preventDefault(); e.stopPropagation(); swallowNext = false;
+  }, true);
+})();
