@@ -22,6 +22,8 @@ const sourceUrls: Record<string, string> = {
   slachtstraat: "https://slachtstraat.nl/",
   kinepolisUtrecht: "https://kinepolis.nl/kinepolis_movie_filter_coming/UTRE/",
   nvpiPremieres: "https://www.nvpi.nl/film/bioscooppremieres",
+  nachtvandenacht: "https://nachtvandenacht.nl/",
+  oudemuziek: "https://oudemuziek.nl/en/fomu26/",
 };
 const src = (id: string, name: string, firstSeenAt: string, url = sourceUrls[id]) => ({ id, name, firstSeenAt, url });
 
@@ -64,6 +66,30 @@ const core: EventRecord[] = [
     whyRelevant: "A strong match for experimental music and unusual venues.", whyNow: "Day tickets go on sale tomorrow; the Friday programme sold out last year.", recommendedAction: "Review the first lineup before ticket sale", state: "unseen", discoveredAt: "2026-08-12", accent: "coral",
     sources: [src("lgw", "Le Guess Who? — official", "2026-08-12", "https://leguesswho.com/lgw")],
     milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-12"
+  },
+  {
+    id: "festival-oude-muziek-2026", title: "Festival Oude Muziek Utrecht 2026 — Giving Voice", shortDescription: "The world's largest early-music festival returns for its 45th edition — 300 concerts across 47 Utrecht venues over ten days, themed around the human voice.",
+    startAt: "2026-08-28T00:00:00+02:00", endAt: "2026-09-06T23:59:00+02:00", venueName: "TivoliVredenburg + venues across Utrecht", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.5,
+    primaryCategory: "Music", tags: ["music", "festival", "classical", "early-music", "ticketed"], priceLabel: "Programme dependent", isFree: false, relevance: 87, rarity: 80, preparation: 55, urgency: 88,
+    whyRelevant: "The world's largest festival dedicated to Medieval, Renaissance and Baroque music, staged across Utrecht's most beautiful venues — churches, TivoliVredenburg and hidden rooms alike.", whyNow: "The 45th edition, themed ‘Giving Voice’, runs 28 August through 6 September 2026; the official concert guide and tickets are already live.", recommendedAction: "Browse the concert guide before popular concerts sell out", state: "unseen", discoveredAt: "2026-08-13", accent: "cyan",
+    sources: [src("oudemuziek", "Festival Oude Muziek Utrecht — official", "2026-08-13")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-13"
+  },
+  {
+    id: "honthorst-retrospective-2026", title: "Gerard van Honthorst — In alles anders dan Rembrandt", shortDescription: "The first-ever major retrospective on Golden Age painter Gerard van Honthorst, in his home city, with loans from the Louvre, the Royal Collection and Galleria Borghese.",
+    startAt: "2026-04-25T00:00:00+02:00", endAt: "2026-09-13T23:59:00+02:00", venueName: "Centraal Museum — De Stallen", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.5,
+    primaryCategory: "Culture", tags: ["culture", "museum", "art", "exhibition", "last-chance"], priceLabel: "Museum admission", isFree: false, relevance: 82, rarity: 88, preparation: 20, urgency: 90,
+    whyRelevant: "Centraal Museum presents the first major retrospective ever devoted to Gerard van Honthorst (1592–1656), who was born, married and died in Utrecht.", whyNow: "The exhibition closes 13 September 2026 — about a month away.", recommendedAction: "Book a museum ticket before it closes", state: "unseen", discoveredAt: "2026-08-13", accent: "rose",
+    sources: [src("museum", "Centraal Museum — official exhibition page", "2026-08-13", "https://www.centraalmuseum.nl/en/now/exhibitions/gerard-van-honthorst-different-to-rembrandt")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-13"
+  },
+  {
+    id: "nacht-van-de-nacht-2026", title: "Nacht van de Nacht 2026 — Utrecht", shortDescription: "National dark-sky evening with dozens of local walks, stargazing evenings and lights-out actions across Utrecht province — Amersfoort, Houten, Maarssen, Rhenen, Soest, Utrecht, Vinkeveen and Wijk bij Duurstede.",
+    startAt: "2026-10-24T00:00:00+02:00", venueName: "Locations across Utrecht province", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 3,
+    primaryCategory: "Nature", tags: ["nature", "astronomy", "dark-sky", "free", "annual"], priceLabel: "Free", isFree: true, relevance: 78, rarity: 84, preparation: 35, urgency: 55,
+    whyRelevant: "A nationwide dark-sky campaign against light pollution, with dozens of Utrecht-province activities — night walks, stargazing and lights-out events.", whyNow: "The 22nd edition is confirmed for Saturday 24 October 2026; the official activities finder lists local Utrecht programming.", recommendedAction: "Browse the activities finder closer to the date for a nearby walk or stargazing event", state: "unseen", discoveredAt: "2026-08-13", accent: "stone",
+    sources: [src("nachtvandenacht", "Nacht van de Nacht — official", "2026-08-13")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-13"
   }
 ];
 

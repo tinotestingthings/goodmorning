@@ -2,6 +2,25 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-13 (Event Tracker weekly catalogue refresh)
+- Scheduled `event-tracker-catalog-refresh` run. Checked all listed Utrecht
+  sources (general/gemeente/ontdek, music, nature, museums, venues/film
+  houses, Kinepolis coming-soon, NVPI premieres) plus the Dune: Part Three
+  monitored-film sources; no changes to `sources[]` health or the film
+  snapshot were warranted.
+- Added three new core events, each independently source-verified:
+  Festival Oude Muziek Utrecht 2026 "Giving Voice" (28 Aug - 6 Sep, official
+  oudemuziek.nl), the Gerard van Honthorst retrospective at Centraal Museum
+  (closes 13 Sep, first-ever Honthorst retrospective, official museum page),
+  and Nacht van de Nacht 2026 (24 Oct, official nachtvandenacht.nl, 22nd
+  edition dark-sky campaign with Utrecht-province activities).
+- Considered and deliberately skipped: Pluk de Nacht (annual, already
+  ending), two conflicting "Kastelentocht" events (cycling vs. carriage
+  tour, ambiguous/overlapping sourcing), a "Dick Bruna 100 jaar" exhibition
+  claim that couldn't be verified against the official museum site, and
+  Jaarbeurs trade fairs (routine B2B programming, not this catalogue's
+  flavor). Cache v33 -> v34 (sandbox v50 -> v51).
+
 ## 2026-08-13 (Event Tracker promoted to live)
 - New `events/` Utilities app: personal event tracker (Discover/Inbox/Saved/
   Actions/Timeline/Sources/Archive/Settings), ported off a standalone
