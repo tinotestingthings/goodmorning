@@ -1,19 +1,49 @@
 {
-  "generated": "2026-08-12T08:55:26Z",
-  "daily": [],
-  "radar_week": {
-    "week_of": "2026-08-10",
-    "items": [
-      {
-        "id": "2026-08-06-noyb-dictcc-tcf-consent-complaint",
-        "title": "noyb files GDPR complaint over dict.cc's one-click \"consent\" to 1,741 advertising partners",
-        "date": "2026-08-06",
-        "source": "noyb"
-      }
-    ]
-  },
+  "generated": "2026-08-13T04:48:16Z",
+  "daily": [
+    {
+      "id": "2026-08-12-anthropic-watermarkt-ai-tekst-eu-ai-act-transparantie",
+      "title": "Anthropic gaat door zijn AI gegenereerde tekst watermerken (EU AI Act)",
+      "source": "https://techcrunch.com/2026/08/11/anthropic-says-it-will-watermark-text-generated-by-its-ai-models/",
+      "url": "https://techcrunch.com/2026/08/11/anthropic-says-it-will-watermark-text-generated-by-its-ai-models/",
+      "date": "2026-08-12 10:45",
+      "summary": "Anthropic gaat tekst die door zijn modellen (incl. Claude) wordt gegenereerd watermerken om te voldoen aan de EU AI Act Transparency Code (van kracht 2 aug 2026). Geldt straks over alle Claude-producten; ook oudere modellen krijgen ondersteuning. Ook Black Forest Labs, Google, Meta, Microsoft, OpenAI en Synthesia committeerden zich."
+    },
+    {
+      "id": "2026-08-12-ceva-logistics-datalek-bol-bijenkorf-ing-ajax",
+      "title": "Datalek bij logistiek reus CEVA raakt Bol, De Bijenkorf, ING, Ajax e.a.",
+      "source": "https://techcrunch.com/2026/08/10/a-data-breach-at-shipping-giant-ceva-logistics-is-rippling-across-banks-retailers-steam-gamers-and-beyond/",
+      "url": "https://techcrunch.com/2026/08/10/a-data-breach-at-shipping-giant-ceva-logistics-is-rippling-across-banks-retailers-steam-gamers-and-beyond/",
+      "date": "2026-08-12 10:45",
+      "summary": "CEVA Logistics gehackt (sinds ~29 juli); minstens 8 EU-magazijnen getroffen. Klantgegevens (namen, adressen, telefoon, e-mail) van o.a. Bol, De Bijenkorf, ING, Ajax en Ace & Tate geraakt. AP ontving datalekmeldingen van 10 organisaties."
+    },
+    {
+      "id": "2026-08-12-claude-gedeelde-chats-artifacts-geindexeerd-google",
+      "title": "Gedeelde Claude-chats en Artifacts bleken vindbaar via Google",
+      "source": "https://techcrunch.com/2026/07/27/psa-your-claude-shared-chats-and-artifacts-may-have-ended-up-on-google/",
+      "url": "https://techcrunch.com/2026/07/27/psa-your-claude-shared-chats-and-artifacts-may-have-ended-up-on-google/",
+      "date": "2026-08-12 10:45",
+      "summary": "27 juli 2026: sommige gedeelde Claude-chats/Artifacts bleken via site:claude.ai/share doorzoekbaar op Google, incl. mogelijk medische dossiers en kindergegevens. Anthropic: links verschijnen alleen in zoekresultaten als ze ergens publiek geplaatst zijn; probleem leek maandagmiddag verholpen. Buiten het reguliere venster maar door Tinus expliciet aangedragen."
+    },
+    {
+      "id": "2026-08-12-openai-daybreak-cyber-model-ai-aanvallen",
+      "title": "OpenAI lanceert nieuw cybermodel nu AI-aanvallen toenemen",
+      "source": "https://techcrunch.com/2026/08/10/as-ai-led-attacks-multiply-openai-launches-a-new-cyber-model/",
+      "url": "https://techcrunch.com/2026/08/10/as-ai-led-attacks-multiply-openai-launches-a-new-cyber-model/",
+      "date": "2026-08-12 10:45",
+      "summary": "OpenAI breidt cyberdefensiedienst Daybreak uit (tiers Blue/Red), kort na Anthropic's Mythos-cybermodel. Red-tier introduceert GPT-5.6 Cyber, vooralsnog alleen voor trusted partners (Accenture, IBM, CrowdStrike, Cloudflare)."
+    },
+    {
+      "id": "2026-08-12-zuckerberg-ai-manifest-personal-superintelligence",
+      "title": "Zuckerbergs AI-manifest is precies waarom mensen AI niet vertrouwen (TechCrunch-analyse)",
+      "source": "https://techcrunch.com/2026/08/10/mark-zuckerbergs-ai-manifesto-is-exactly-why-people-dont-like-ai/",
+      "url": "https://techcrunch.com/2026/08/10/mark-zuckerbergs-ai-manifesto-is-exactly-why-people-dont-like-ai/",
+      "date": "2026-08-12 10:45",
+      "summary": "TechCrunch-analyse van Zuckerbergs ~6.500-woorden manifest over 'personal superintelligence': zijn voorbeelden (AI-tutor, AI-advocaat, freemium+veiling) ondermijnen z'n eigen punt en illustreren waarom publiek AI wantrouwt, i.t.t. Altman/Amodei die gevaren juist erkennen."
+    }
+  ],
   "today": {
-    "date": "2026-08-12",
+    "date": "2026-08-13",
     "tasks": [
       {
         "id": "2026-07-28-piano-learn-familiar",
@@ -249,6 +279,15 @@
         "subtasks": []
       },
       {
+        "id": "2026-08-12-visit-every-park-in-utrecht",
+        "title": "Visit every park in Utrecht.",
+        "status": "idea-stage",
+        "updated": "2026-08-12 12:44",
+        "line": "Idea to visit every park in Utrecht; no further detail yet.",
+        "notes": [],
+        "subtasks": []
+      },
+      {
         "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
         "title": "Cooking — improving recipes",
         "status": "done",
@@ -297,7 +336,7 @@
       }
     ],
     "radar": {
-      "updated": "2026-08-10",
+      "updated": "2026-08-13",
       "follow_ups": 1,
       "headline": "",
       "deadlines": [
