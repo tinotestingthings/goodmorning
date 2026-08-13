@@ -26,6 +26,10 @@
     vogelspotinus: {
       label: "Vogelspotinus",
       url: "vogelspotinus/index.html"
+    },
+    events: {
+      label: "Events",
+      url: "events/index.html"
     }
   };
 

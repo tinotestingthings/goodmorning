@@ -2,6 +2,18 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-13 (Event Tracker promoted to live)
+- New `events/` Utilities app: personal event tracker (Discover/Inbox/Saved/
+  Actions/Timeline/Sources/Archive/Settings), ported off a standalone
+  Next.js/Cloudflare/D1 project onto a static bundle + Supabase persistence,
+  matching the wine/kangaroo/notesprint/vogelspotinus pattern. Tracking state
+  (save/dismiss/plan/booked, notes, manual events, source toggles, discovery
+  preferences/regions) syncs via a new `eventtracker_state` table; the event
+  catalogue itself ships baked into `bundle.js` and is not synced. Built and
+  verified in sandbox first (Tinus confirmed save/dismiss/notes/reload work),
+  then promoted surgically: new `events/` folder + tab button in index.html +
+  `APPS.events` entry in practice.js. Cache v32 -> v33.
+
 ## 2026-08-09 (P1: satellite apps could wipe their own server data)
 - WijnWijs, Kangaroo, NoteSprint and ChordSprint all shared the agenda bug that
   wiped the live agenda, in a second form. Their push deletes their own keys from
