@@ -1,0 +1,11 @@
+{
+  "name": "events-bundle-build",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "esbuild": "^0.24.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
