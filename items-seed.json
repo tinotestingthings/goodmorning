@@ -409,5 +409,15 @@
   "state": "idea",
   "source": "vault",
   "recurrence": null
+ },
+ {
+  "id": "2026-08-13-event-tracker-integration-and-backup-spec",
+  "type": "project",
+  "title": "Event Tracker — integration & backup spec",
+  "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other utility apps (Kangaroo, WijnWijs, NoteSprint, ChordSprint, Vogelspotinus), including Supabase persistence and a daily-digest backup leg.",
+  "subtasks": [],
+  "state": "active",
+  "source": "vault",
+  "recurrence": null
  }
 ]
