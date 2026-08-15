@@ -223,7 +223,7 @@
   "title": "Project: Cookie Scanner Applicatie",
   "note": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostnamen, cookie-looptijden) gescheiden van interpretatie.",
   "subtasks": [],
-  "state": "idea",
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -417,6 +417,16 @@
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other utility apps (Kangaroo, WijnWijs, NoteSprint, ChordSprint, Vogelspotinus), including Supabase persistence and a daily-digest backup leg.",
   "subtasks": [],
   "state": "active",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
+  "type": "project",
+  "title": "Een AI app waarmee je mallen voor kleding kan maken.",
+  "note": "",
+  "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  }
