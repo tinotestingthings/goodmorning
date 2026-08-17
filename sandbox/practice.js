@@ -31,6 +31,17 @@
     { key: "events", label: "Events", url: "events/index.html" }
   ];
 
+  // Tegelformaat. Drie stappen, bewaard per omgeving via k() zodat sandbox en
+  // live elkaars voorkeur niet overschrijven. Default "m" = het formaat
+  // waarmee het grid oorspronkelijk is opgeleverd.
+  var LS_SIZE = k("utilTileSize");
+  var SIZES = [["s", "Klein"], ["m", "Normaal"], ["l", "Groot"]];
+
+  function currentSize() {
+    var v = localStorage.getItem(LS_SIZE);
+    return (v === "s" || v === "m" || v === "l") ? v : "m";
+  }
+
   var launcher = document.getElementById("utilLauncher");
   var frameWrap = document.getElementById("utilFrameWrap");
   var frame = document.getElementById("practiceFrame");
@@ -38,6 +49,7 @@
   var backBtn = document.getElementById("utilBackBtn");
   var openLink = document.getElementById("openInNewTab");
   var grid = document.getElementById("utilGrid");
+  var sizeSeg = document.getElementById("utilSizeSeg");
 
   function showGrid() {
     // Blank the iframe on the way out. ChordSprint and NoteSprint play audio,
@@ -54,6 +66,31 @@
     frameTitle.textContent = app.label;
     openLink.href = app.url;
     frame.src = app.url;
+  }
+
+  function applySize(size) {
+    grid.classList.remove("util-grid--s", "util-grid--m", "util-grid--l");
+    grid.classList.add("util-grid--" + size);
+    var btns = sizeSeg.querySelectorAll(".seg-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle("active", btns[i].getAttribute("data-size") === size);
+    }
+  }
+
+  function buildSizeSeg() {
+    SIZES.forEach(function (pair) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "seg-btn";
+      b.textContent = pair[1];
+      b.setAttribute("data-size", pair[0]);
+      b.addEventListener("click", function () {
+        localStorage.setItem(LS_SIZE, pair[0]);
+        applySize(pair[0]);
+      });
+      sizeSeg.appendChild(b);
+    });
+    applySize(currentSize());
   }
 
   function buildGrid() {
@@ -81,6 +118,7 @@
 
   function init() {
     buildGrid();
+    buildSizeSeg();
     backBtn.addEventListener("click", showGrid);
 
     // Leaving the Utilities tab altogether also unloads the frame, so audio
