@@ -312,23 +312,29 @@
   var ICON_CALENDAR_STAR =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m12 12 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 18l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg>';
 
-  // Narrow, always-present tile in the hero row.
-  function renderSprintTile(opts) {
+  // "Most used apps" strip in de hero-rij. Voorlopig hardcoded op NoteSprint
+  // en ChordSprint; de lijst staat los zodat hij later uit werkelijk gebruik
+  // (of uit de *_state tabellen) gevuld kan worden zonder de opmaak te raken.
+  var MOST_USED = [
+    { label: "NoteSprint", href: "notesprint/", icon: ICON_MUSIC_NOTE },
+    { label: "ChordSprint", href: "ear-training/", icon: ICON_LISTEN }
+  ];
+
+  function renderAppTile(opts) {
     var a = document.createElement("a");
-    a.className = "sprint-tile";
+    a.className = "app-tile";
     a.href = opts.href;
-    a.setAttribute("aria-label", opts.aria);
+    a.setAttribute("aria-label", "Open " + opts.label);
 
-    var top = el("div", "sprint-tile-top");
-    var ic = el("span", "sprint-tile-icon");
-    ic.innerHTML = opts.icon;
-    top.appendChild(ic);
-    var arrow = el("span", "sprint-tile-arrow");
+    var arrow = el("span", "app-tile-arrow");
     arrow.innerHTML = ICON_ARROW_OUT;
-    top.appendChild(arrow);
-    a.appendChild(top);
+    a.appendChild(arrow);
 
-    a.appendChild(el("div", "sprint-tile-label", opts.label));
+    var ic = el("span", "app-tile-icon");
+    ic.innerHTML = opts.icon;
+    a.appendChild(ic);
+
+    a.appendChild(el("div", "app-tile-label", opts.label));
     return a;
   }
 
@@ -385,12 +391,7 @@
     var heroRow = el("div", "hero-row");
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
-    heroRow.appendChild(renderSprintTile({
-      label: "NoteSprint", href: "notesprint/", icon: ICON_MUSIC_NOTE, aria: "Open NoteSprint"
-    }));
-    heroRow.appendChild(renderSprintTile({
-      label: "ChordSprint", href: "ear-training/", icon: ICON_LISTEN, aria: "Open ChordSprint"
-    }));
+    MOST_USED.forEach(function (app) { heroRow.appendChild(renderAppTile(app)); });
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");

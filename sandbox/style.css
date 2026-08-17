@@ -2960,6 +2960,11 @@ main#deckArea {
   flex-direction: column;
 }
 
+/* Zonder deze regel wint `display: flex` van het hidden-attribuut en blijft
+   een lege Frame onder het grid staan. Zelfde reden als `.view[hidden]`. */
+.util-frame-wrap[hidden] { display: none; }
+.util-launcher[hidden] { display: none; }
+
 .util-frame-header {
   display: flex;
   align-items: center;
@@ -2977,44 +2982,52 @@ main#deckArea {
   white-space: nowrap;
 }
 
-/* ---- home: narrow sprint tiles + events tile (2026-08-17) ---- */
-.hero-row .sprint-tile { flex: 1; min-width: 0; }
+/* ---- home: "most used" app tiles + events tile (2026-08-17) ----
+   Zelfde formaat en opmaak als de kaarten in het Utilities-grid, en even
+   breed als de weertegel ernaast (92px), zodat de hero-rij één ritme houdt. */
+.hero-row { flex-wrap: wrap; }
 
-.sprint-tile {
+.app-tile {
+  position: relative;
+  width: 92px;
+  flex-shrink: 0;
   background: var(--card-bg);
   border: 1.5px solid transparent;
   border-radius: 16px;
-  padding: 12px 12px 11px;
+  padding: 14px 8px 12px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   text-decoration: none;
   color: inherit;
   touch-action: manipulation;
 }
 
-.sprint-tile:active { transform: scale(0.98); }
+.app-tile:active { transform: scale(0.97); }
 
-.sprint-tile-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px;
-}
+.app-tile-icon { width: 26px; height: 26px; color: var(--keep); }
+.app-tile-icon svg { width: 100%; height: 100%; display: block; }
 
-.sprint-tile-icon { width: 22px; height: 22px; color: var(--keep); }
-.sprint-tile-icon svg { width: 100%; height: 100%; display: block; }
-
-.sprint-tile-arrow { width: 15px; height: 15px; color: var(--text-dim); flex-shrink: 0; }
-.sprint-tile-arrow svg { width: 100%; height: 100%; display: block; }
-
-.sprint-tile-label {
-  font-size: 0.82rem;
+.app-tile-label {
+  font-size: 0.78rem;
   font-weight: 600;
-  line-height: 1.2;
+  text-align: center;
+  line-height: 1.15;
   overflow-wrap: anywhere;
 }
+
+.app-tile-arrow {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 12px;
+  height: 12px;
+  color: var(--text-dim);
+  opacity: 0.65;
+}
+.app-tile-arrow svg { width: 100%; height: 100%; display: block; }
 
 .events-tile-slot:empty { display: none; }
 
