@@ -2,6 +2,33 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-16 (Event Tracker weekly catalogue refresh)
+- Scheduled `event-tracker-catalog-refresh` run. Checked the Utrecht general/
+  music/nature/museum/venue sources, the five film sources and the Dune: Part
+  Three monitored-film sources. Dune: Part Three still verified at 18 December
+  2026 on Legendary/IMAX — no Dutch release, ticket or format change, so
+  `monitored-films.ts` is untouched.
+- Added Nederlands Film Festival 2026 (46th edition, 25 Sep - 2 Oct 2026,
+  official filmfestival.nl programme page): eight days of national premieres,
+  Gouden Kalveren, Storyspace and free NFFx030 open-air screenings across the
+  city; voorverkoop already open. Note: the NFF's own Slachtstraat venue page
+  still carries a stale "20 t/m 27 september" line — the official festival
+  page's 25 Sep - 2 Oct was taken as authoritative.
+- Added two one-night Louis Hartlooper Q&A specials from the official LHC
+  programme: The Desert Of The Real + Q&A (17 Aug, Luuk Bouwman on psychosis,
+  director present) and Fragments Of Belonging + Q&A (31 Aug, Tatjana Bozic).
+  Hartlooper snapshot record count 3 -> 5, `scrapedAt` moved to 2026-08-16.
+- Considered and deliberately skipped: Springhaver's NT Live "The Playboy Of
+  The Western World" (listed as Verwacht with no date at all — ambiguous, not
+  guessed), Springhaver's weekly Summer Film Festival and LHC's Weekly Preview
+  / filmcursussen (routine recurring programming), Kasteel de Haar's
+  Septembertraditie and garden tours (routine annual), Centraal Museum's
+  announced graffiti exhibition (no verifiable dates on the official site yet),
+  and a secondary-source claim that Bioscoop 10-Daagse now has 180+ rather than
+  150+ venues (no official basis, left as is). Kinepolis Utrecht remains
+  client-rendered and stays flagged Warning with 0 records. Cache v34 -> v35
+  (sandbox v51 -> v52).
+
 ## 2026-08-13 (Event Tracker weekly catalogue refresh)
 - Scheduled `event-tracker-catalog-refresh` run. Checked all listed Utrecht
   sources (general/gemeente/ontdek, music, nature, museums, venues/film

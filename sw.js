@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-shell-v34";
+var CACHE_NAME = "dd-shell-v35";
 
 var SHELL_FILES = [
   "./",

@@ -1,9 +1,9 @@
 import type { EventRecord } from "./types";
 
 export const filmSnapshotMeta = {
-  scrapedAt: "2026-08-12T18:35:00+02:00",
+  scrapedAt: "2026-08-16T12:10:00+02:00",
   sources: {
-    hartlooper: { status: "Healthy", records: 3 },
+    hartlooper: { status: "Healthy", records: 5 },
     springhaver: { status: "Healthy", records: 2 },
     slachtstraat: { status: "Healthy", records: 2 },
     "kinepolis-utrecht": { status: "Warning", records: 0 },
@@ -11,7 +11,7 @@ export const filmSnapshotMeta = {
   },
 } as const;
 
-const source = (id: string, name: string, url: string) => ({ id, name, url, firstSeenAt: "2026-08-12" });
+const source = (id: string, name: string, url: string, firstSeenAt = "2026-08-12") => ({ id, name, url, firstSeenAt });
 
 export const scrapedFilmEvents: EventRecord[] = [
   {
@@ -48,5 +48,19 @@ export const scrapedFilmEvents: EventRecord[] = [
     primaryCategory: "Film", tags: ["film", "nationwide", "premieres", "popular", "temporary"], priceLabel: "Programme dependent", isFree: false, relevance: 76, rarity: 70, preparation: 35, urgency: 42,
     whyRelevant: "A concentrated national window for major releases, Dutch premieres and special cinema programming.", whyNow: "NVPI confirms the campaign dates and more than 150 participating venues.", recommendedAction: "Watch for the participating programme and ticket releases", state: "unseen", discoveredAt: "2026-08-12", accent: "blue",
     sources: [source("nvpi-premieres", "NVPI — official Bioscoop 10-Daagse announcement", "https://www.nvpi.nl/film//nieuws/7321/nederland-beleeft-film-samen-tijdens-de-bioscoop-10-daagse-2026")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-12"
+  },
+  {
+    id: "desert-of-the-real-qa-2026", title: "The Desert Of The Real + Q&A", shortDescription: "Luuk Bouwman's new documentary on the experience of psychosis, followed by a Q&A with the director himself.",
+    startAt: "2026-08-17T00:00:00+02:00", venueName: "Louis Hartlooper Complex", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.4,
+    primaryCategory: "Film", tags: ["film", "documentary", "q-and-a", "one-night", "rare"], priceLabel: "See programme", isFree: false, relevance: 80, rarity: 89, preparation: 38, urgency: 92,
+    whyRelevant: "A one-night documentary screening with the filmmaker present — the kind of thing that doesn't come back once the date passes.", whyNow: "The official LHC programme lists this Q&A special for Monday 17 August; screening times are on the film page.", recommendedAction: "Check the official screening time and tickets", state: "unseen", discoveredAt: "2026-08-16", accent: "olive",
+    sources: [source("hartlooper", "Louis Hartlooper Complex — official programme", "https://hartlooper.nl/films/the-desert-of-the-real/", "2026-08-16")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-16"
+  },
+  {
+    id: "fragments-of-belonging-qa-2026", title: "Fragments Of Belonging + Q&A", shortDescription: "Tatjana Bo\u017ei\u0107's tragicomic documentary on migration, motherhood and inherited family patterns, with a Q&A by the director afterwards.",
+    startAt: "2026-08-31T00:00:00+02:00", venueName: "Louis Hartlooper Complex", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.4,
+    primaryCategory: "Film", tags: ["film", "documentary", "q-and-a", "one-night", "rare"], priceLabel: "See programme", isFree: false, relevance: 78, rarity: 88, preparation: 40, urgency: 66,
+    whyRelevant: "Another one-night documentary event at LHC with the director in the room.", whyNow: "The official LHC programme lists this Q&A special for Monday 31 August, about two weeks out.", recommendedAction: "Check the official screening time and tickets", state: "unseen", discoveredAt: "2026-08-16", accent: "coral",
+    sources: [source("hartlooper", "Louis Hartlooper Complex — official programme", "https://hartlooper.nl/films/fragments-of-belonging/", "2026-08-16")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-16"
   }
 ];

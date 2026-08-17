@@ -24,6 +24,7 @@ const sourceUrls: Record<string, string> = {
   nvpiPremieres: "https://www.nvpi.nl/film/bioscooppremieres",
   nachtvandenacht: "https://nachtvandenacht.nl/",
   oudemuziek: "https://oudemuziek.nl/en/fomu26/",
+  nff: "https://www.filmfestival.nl/festival",
 };
 const src = (id: string, name: string, firstSeenAt: string, url = sourceUrls[id]) => ({ id, name, firstSeenAt, url });
 
@@ -90,6 +91,14 @@ const core: EventRecord[] = [
     whyRelevant: "A nationwide dark-sky campaign against light pollution, with dozens of Utrecht-province activities — night walks, stargazing and lights-out events.", whyNow: "The 22nd edition is confirmed for Saturday 24 October 2026; the official activities finder lists local Utrecht programming.", recommendedAction: "Browse the activities finder closer to the date for a nearby walk or stargazing event", state: "unseen", discoveredAt: "2026-08-13", accent: "stone",
     sources: [src("nachtvandenacht", "Nacht van de Nacht — official", "2026-08-13")],
     milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-13"
+  },
+  {
+    id: "nederlands-film-festival-2026", title: "Nederlands Film Festival 2026 \u2014 46e editie", shortDescription: "Eight days in which Utrecht becomes the Dutch film capital: premieres, the Gouden Kalveren, Storyspace VR/installations in Bibliotheek Neude, Focus talks and free open-air screenings in the city districts (NFFx030).",
+    startAt: "2026-09-25T00:00:00+02:00", endAt: "2026-10-02T23:59:00+02:00", venueName: "Stadsschouwburg Utrecht + venues across the city", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.6,
+    primaryCategory: "Film", tags: ["film", "festival", "premieres", "utrecht", "annual", "digital-culture"], priceLabel: "Programme dependent", isFree: false, relevance: 88, rarity: 78, preparation: 60, urgency: 84,
+    whyRelevant: "The one week a year Utrecht is the centre of Dutch film \u2014 national premieres, the Gouden Kalf awards, and NFFx030 with immersive installations and free open-air screenings out in the neighbourhoods.", whyNow: "The 46th edition runs Friday 25 September through Friday 2 October 2026 and the voorverkoop has already opened, starting with opening film Downtown by Michiel van Erp.", recommendedAction: "Browse the programme and book the premieres before they sell out", state: "unseen", discoveredAt: "2026-08-16", accent: "forest",
+    sources: [src("nff", "Nederlands Film Festival \u2014 official programme page", "2026-08-16")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-16"
   }
 ];
 
