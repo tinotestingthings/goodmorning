@@ -2,6 +2,17 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-17 (2) — Vogelspotinus module-herbouw geintegreerd (promoted)
+
+- De standalone app is herbouwd naar ES-modules; boot.js injecteert nu een
+  enkele module-entry na de Supabase-pull in plaats van zes losse scripts.
+- Twee dataregressies gefixt die de herbouw stil zou hebben veroorzaakt:
+  vogelspotinus.stats werd niet meer geschreven (streak/longest/dailyGoal), en
+  recordAnswer wiste seen/correct/wrong/lastSeen bij het eerstvolgende antwoord.
+- Statuskaart en de tegels Herhalen / Bekende vogels / Lastige vogels terug,
+  nu als src/core/progress.js bovenop leitner.js.
+- Live cache dd-shell-v36 -> v37.
+
 ## 2026-08-17 — Utilities launcher + morning loop verwijderd (promoted from sandbox)
 
 - Utilities: de horizontale tabrij is vervangen door een launcher-grid met alle

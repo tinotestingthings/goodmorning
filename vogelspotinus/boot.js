@@ -23,7 +23,10 @@
   // The app's scripts, in load order. app.js runs init() which awaits
   // loadBirds(); the others define globals it uses after that await, exactly
   // as when index.html loaded them in this order.
-  var APP_SCRIPTS = ["progress.js", "app.js", "browse.js", "quiz.js", "study.js", "custom-games.js"];
+  // 2026-08-17: de app is herbouwd naar ES-modules; de zes losse scripts
+  // bestaan niet meer. Eén module-entry, dynamisch geinjecteerd met
+  // type="module" zodat de import-graaf klopt.
+  var APP_MODULE = "src/main.js";
   var PUSH_DEBOUNCE_MS = 1500;
 
   var IS_SANDBOX = location.pathname.indexOf("/sandbox/") !== -1;
@@ -144,12 +147,10 @@
   function runApp() {
     if (ran) return; ran = true;
     showApp();
-    APP_SCRIPTS.forEach(function (src) {
-      var s = document.createElement("script");
-      s.src = src;
-      s.async = false;
-      document.body.appendChild(s);
-    });
+    var s = document.createElement("script");
+    s.type = "module";
+    s.src = APP_MODULE;
+    document.body.appendChild(s);
   }
 
   var GT = "Sign in to use " + APP_LABEL;
