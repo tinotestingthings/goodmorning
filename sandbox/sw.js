@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v55";
+var CACHE_NAME = "dd-sandbox-shell-v56";
 
 var SHELL_FILES = [
   "./",
@@ -111,7 +111,34 @@ self.addEventListener("fetch", function (event) {
     return;
   }
 
-  // Everything else (app shell, iframe practice apps, icons) is cache-first
+  // App-shell bestanden (de HTML/JS/CSS direct onder de scope) en navigaties
+  // gaan network-first met cache-fallback. Cache-first was hier fout: elke
+  // deploy werd pas bij de TWEEDE keer openen zichtbaar, en index.html kon uit
+  // de pas lopen met een nog gecachete practice.js — dat leverde precies één
+  // leeg element op waar het script zijn inhoud in had moeten zetten.
+  // Offline blijft werken via de fallback.
+  var scopePath = new URL(self.registration.scope).pathname;
+  var rel = url.pathname.indexOf(scopePath) === 0 ? url.pathname.slice(scopePath.length) : null;
+  var isShellFile = rel !== null && rel.indexOf("/") === -1 && /\.(html|js|css)$/.test(rel);
+
+  if (event.request.mode === "navigate" || isShellFile) {
+    event.respondWith(
+      fetch(event.request).then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(event.request).then(function (cached) {
+          return cached || caches.match("./index.html");
+        });
+      })
+    );
+    return;
+  }
+
+  // De rest (iframe-apps, iconen, bundles) blijft cache-first
   // with a background revalidate, so the app opens instantly even offline
   // and quietly updates itself for next time.
   event.respondWith(

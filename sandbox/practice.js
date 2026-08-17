@@ -31,15 +31,22 @@
     { key: "events", label: "Events", url: "events/index.html" }
   ];
 
-  // Tegelformaat. Drie stappen, bewaard per omgeving via k() zodat sandbox en
-  // live elkaars voorkeur niet overschrijven. Default "m" = het formaat
-  // waarmee het grid oorspronkelijk is opgeleverd.
+  // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
+  // zodat sandbox en live elkaars voorkeur niet overschrijven. De waarde is de
+  // minimale kolombreedte in px; alles in de kaart (icoon, label, padding)
+  // schaalt in CSS mee via de --tile custom property.
   var LS_SIZE = k("utilTileSize");
-  var SIZES = [["s", "Klein"], ["m", "Normaal"], ["l", "Groot"]];
+  var SIZE_MIN = 60, SIZE_MAX = 240, SIZE_DEFAULT = 96;
+
+  // Eerdere versie bewaarde "s"/"m"/"l" — die blijven werken.
+  var LEGACY = { s: 74, m: 96, l: 128 };
 
   function currentSize() {
-    var v = localStorage.getItem(LS_SIZE);
-    return (v === "s" || v === "m" || v === "l") ? v : "m";
+    var raw = localStorage.getItem(LS_SIZE);
+    if (raw && LEGACY[raw]) return LEGACY[raw];
+    var n = parseInt(raw, 10);
+    if (!n || isNaN(n)) return SIZE_DEFAULT;
+    return Math.min(SIZE_MAX, Math.max(SIZE_MIN, n));
   }
 
   var launcher = document.getElementById("utilLauncher");
@@ -49,7 +56,7 @@
   var backBtn = document.getElementById("utilBackBtn");
   var openLink = document.getElementById("openInNewTab");
   var grid = document.getElementById("utilGrid");
-  var sizeSeg = document.getElementById("utilSizeSeg");
+  var sizeRange = document.getElementById("utilSizeRange");
 
   function showGrid() {
     // Blank the iframe on the way out. ChordSprint and NoteSprint play audio,
@@ -68,29 +75,26 @@
     frame.src = app.url;
   }
 
-  function applySize(size) {
-    grid.classList.remove("util-grid--s", "util-grid--m", "util-grid--l");
-    grid.classList.add("util-grid--" + size);
-    var btns = sizeSeg.querySelectorAll(".seg-btn");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].classList.toggle("active", btns[i].getAttribute("data-size") === size);
-    }
+  function applySize(px) {
+    grid.style.setProperty("--tile", px + "px");
   }
 
-  function buildSizeSeg() {
-    SIZES.forEach(function (pair) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "seg-btn";
-      b.textContent = pair[1];
-      b.setAttribute("data-size", pair[0]);
-      b.addEventListener("click", function () {
-        localStorage.setItem(LS_SIZE, pair[0]);
-        applySize(pair[0]);
-      });
-      sizeSeg.appendChild(b);
+  function initSize() {
+    var size = currentSize();
+    sizeRange.min = String(SIZE_MIN);
+    sizeRange.max = String(SIZE_MAX);
+    sizeRange.value = String(size);
+    applySize(size);
+
+    // "input" volgt de vinger tijdens het slepen; pas op "change" (los laten)
+    // schrijven we weg, zodat slepen niet tientallen keren naar localStorage
+    // schrijft.
+    sizeRange.addEventListener("input", function () {
+      applySize(parseInt(sizeRange.value, 10) || SIZE_DEFAULT);
     });
-    applySize(currentSize());
+    sizeRange.addEventListener("change", function () {
+      localStorage.setItem(LS_SIZE, String(parseInt(sizeRange.value, 10) || SIZE_DEFAULT));
+    });
   }
 
   function buildGrid() {
@@ -118,7 +122,7 @@
 
   function init() {
     buildGrid();
-    buildSizeSeg();
+    initSize();
     backBtn.addEventListener("click", showGrid);
 
     // Leaving the Utilities tab altogether also unloads the frame, so audio
