@@ -2,6 +2,14 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-17 (3) — service worker: network-first ook in submappen
+
+De vorige fix gold alleen voor bestanden direct onder de scope, dus utility-
+submappen (vogelspotinus/, events/, kangaroo/, ...) bleven cache-first en
+serveerden na een deploy nog de oude build. Nu geldt network-first voor alle
+HTML/JS/CSS onder de scope; afbeeldingen, iconen en statische data-JSON blijven
+cache-first. Cache dd-shell-v37 -> v38, sandbox v56 -> v57.
+
 ## 2026-08-17 (2) — Vogelspotinus module-herbouw geintegreerd (promoted)
 
 - De standalone app is herbouwd naar ES-modules; boot.js injecteert nu een

@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v56";
+var CACHE_NAME = "dd-sandbox-shell-v57";
 
 var SHELL_FILES = [
   "./",
@@ -119,7 +119,13 @@ self.addEventListener("fetch", function (event) {
   // Offline blijft werken via de fallback.
   var scopePath = new URL(self.registration.scope).pathname;
   var rel = url.pathname.indexOf(scopePath) === 0 ? url.pathname.slice(scopePath.length) : null;
-  var isShellFile = rel !== null && rel.indexOf("/") === -1 && /\.(html|js|css)$/.test(rel);
+  // 2026-08-17 (2): dit gold eerst alleen voor bestanden DIRECT onder de scope,
+  // dus submappen als vogelspotinus/ en events/ bleven cache-first. Gevolg: na
+  // een deploy draaide je daar nog de oude build, zonder enig zichtbaar teken.
+  // Nu geldt network-first voor alle HTML/JS/CSS onder de scope, ongeacht diepte.
+  // Afbeeldingen, iconen en de statische data-JSON blijven cache-first, want die
+  // zijn groot en veranderen niet per deploy.
+  var isShellFile = rel !== null && /\.(html|js|css)$/.test(rel);
 
   if (event.request.mode === "navigate" || isShellFile) {
     event.respondWith(
