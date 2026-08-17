@@ -1,59 +1,10 @@
 (function (global) {
   "use strict";
 
-  var LS_STEP = k("loop.step");
-  var LS_COMPLETED_DATE = k("loop.completedDate");
-  var LS_STREAK = k("loop.streak");
-
-  function getStep() {
-    return localStorage.getItem(LS_STEP) || null;
-  }
-
-  function setStep(step) {
-    localStorage.setItem(LS_STEP, step);
-  }
-
-  function clearStep() {
-    localStorage.removeItem(LS_STEP);
-    localStorage.removeItem(LS_COMPLETED_DATE);
-    // streak is deliberately kept across "do it again" / clearStep — it
-    // tracks calendar-day completion, not loop resets.
-  }
-
-  function isoDate(d) {
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" +
-      String(d.getDate()).padStart(2, "0");
-  }
-
-  function markDoneToday() {
-    var today = isoDate(new Date());
-    var prevCompleted = localStorage.getItem(LS_COMPLETED_DATE);
-    if (prevCompleted !== today) {
-      var yesterday = isoDate(new Date(Date.now() - 86400000));
-      var prevStreak = parseInt(localStorage.getItem(LS_STREAK), 10) || 0;
-      var streak = (prevCompleted === yesterday) ? prevStreak + 1 : 1;
-      localStorage.setItem(LS_STREAK, String(streak));
-    }
-    setStep("done");
-    localStorage.setItem(LS_COMPLETED_DATE, today);
-  }
-
-  function getCompletedDate() {
-    return localStorage.getItem(LS_COMPLETED_DATE);
-  }
-
-  function getStreak() {
-    return parseInt(localStorage.getItem(LS_STREAK), 10) || 0;
-  }
-
-  global.DigestLoop = {
-    getStep: getStep,
-    setStep: setStep,
-    clearStep: clearStep,
-    markDoneToday: markDoneToday,
-    getCompletedDate: getCompletedDate,
-    getStreak: getStreak
-  };
+  // NOTE: the "morning loop" (step/streak) was removed 2026-08-17.
+  // This file is NOT just the loop — it still owns DigestNotes,
+  // DigestQueue and DigestSync, which Triage and the vault bridge
+  // depend on. Filename kept so sw.js / index.html stay untouched.
 
   // ---- per-item notes ----
   // One note per individual item (a task, a project, a radar deadline, a

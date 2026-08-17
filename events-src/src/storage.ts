@@ -10,6 +10,10 @@ export type PersistedEventState = { state: EventState; notes?: string };
 
 export type PersistedState = {
   eventStates: Record<string, PersistedEventState>;
+  // Mirror of the "unseen" inbox count, so the goodmorning home screen can
+  // decide whether to show its Events tile without shipping the whole event
+  // catalogue into the shell. Written by EventTracker on every count change.
+  unseenCount: number;
   manualEvents: EventRecord[];
   sourceOverrides: Record<string, boolean>;
   preferences: string[];
@@ -17,7 +21,7 @@ export type PersistedState = {
 };
 
 function emptyState(): PersistedState {
-  return { eventStates: {}, manualEvents: [], sourceOverrides: {}, preferences: [], regions: [] };
+  return { eventStates: {}, manualEvents: [], sourceOverrides: {}, preferences: [], regions: [], unseenCount: 0 };
 }
 
 export function loadState(): PersistedState {
@@ -31,6 +35,7 @@ export function loadState(): PersistedState {
       sourceOverrides: parsed.sourceOverrides && typeof parsed.sourceOverrides === "object" ? parsed.sourceOverrides : {},
       preferences: Array.isArray(parsed.preferences) ? parsed.preferences : [],
       regions: Array.isArray(parsed.regions) ? parsed.regions : [],
+      unseenCount: typeof parsed.unseenCount === "number" ? parsed.unseenCount : 0,
     };
   } catch {
     return emptyState();
@@ -74,4 +79,13 @@ export function addRegion(value: string) {
   const current = loadState();
   if (current.regions.includes(value)) return;
   saveState({ regions: [...current.regions, value] });
+}
+
+// Only writes when the number actually changed — this runs on every render
+// pass of the tracker, and a write would otherwise re-sync to Supabase each
+// time for no reason.
+export function saveUnseenCount(n: number) {
+  const current = loadState();
+  if (current.unseenCount === n) return;
+  saveState({ unseenCount: n });
 }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { EventRecord, EventState, ScheduledAction, SourceRecord, View } from "./types";
 import type { MonitoredFilm } from "./monitored-films";
-import { loadState, setEventState, addManualEvent, setSourceOverride, addPreference, addRegion } from "./storage";
+import { loadState, setEventState, addManualEvent, setSourceOverride, addPreference, addRegion, saveUnseenCount } from "./storage";
 
 const nav: { id: View; label: string; icon: string }[] = [
   { id: "discover", label: "Discover", icon: "✦" }, { id: "inbox", label: "Inbox", icon: "↳" },
@@ -170,6 +170,10 @@ export function EventTracker({ initialEvents, sources: initialSources, scheduled
     changed: events.filter((e) => trackedStates.includes(e.state) && e.changes.length).length,
     deadlines: events.flatMap((e) => e.milestones).filter((m) => +new Date(m.occursAt) < +new Date("2026-08-20")).length,
   };
+
+  // Keep the persisted unseen count in step, so goodmorning's home tile knows
+  // whether there is anything to review without loading this app.
+  useEffect(() => { saveUnseenCount(counts.inbox); }, [counts.inbox]);
 
   const addManual = (form: FormData) => {
     const title = String(form.get("title") || "Untitled event");
