@@ -39,6 +39,11 @@ function activeFilters() {
 
 /** Only birds with a photo can be quizzed on sight. */
 function pool() {
+  // Escape-hatch voor de oefensessies vanaf de statuskaart: die leveren een
+  // expliciete vogellijst in plaats van filters (bv. "alles wat vandaag terug
+  // moet komen"), wat je met filterBirds niet kunt uitdrukken.
+  const explicit = gameContext()?.birds;
+  if (Array.isArray(explicit)) return explicit;
   return filterBirds(allBirds(), activeFilters()).filter(hasPhoto);
 }
 

@@ -28,6 +28,24 @@ function entryFor(bird) {
   return state[bird.scientificName] ?? { box: 1, dueAt: 0 };
 }
 
+/**
+ * Genormaliseerde rij voor een vogel: alle velden aanwezig, plus `started`
+ * (staat er uberhaupt een rij voor deze vogel). progress.js leest hierop, zodat
+ * de box-logica op een plek blijft.
+ */
+export function boxInfo(bird) {
+  const raw = state[bird.scientificName];
+  return {
+    started: !!raw,
+    box: raw?.box ?? 1,
+    dueAt: raw?.dueAt ?? 0,
+    seen: raw?.seen ?? 0,
+    correct: raw?.correct ?? 0,
+    wrong: raw?.wrong ?? 0,
+    lastSeen: raw?.lastSeen ?? 0,
+  };
+}
+
 /** Record an honest self-report. Correct promotes one box; a miss resets to box 1. */
 export function recordAnswer(bird, knewIt) {
   const before = entryFor(bird);

@@ -13,6 +13,24 @@
 
 export const STRINGS = {
   nl: {
+    // Statuskaart + oefensessies
+    tileReviewTitle: "Herhalen",
+    tileReviewDesc: "Kaarten die vandaag terugkomen",
+    tileMasteryTitle: "Bekende vogels",
+    tileMasteryDesc: "Oefen vogels die je al kent",
+    tileWeakTitle: "Lastige vogels",
+    tileWeakDesc: "Oefen wat je vaak fout had",
+    statLearnedOf: "geleerd",
+    statOf: "van",
+    statMastered: "beheerst",
+    statStreak: "dagen op rij",
+    statStreakOne: "dag op rij",
+    statDue: "te herhalen vandaag",
+    statReviewNow: "Nu oefenen",
+    statAllCaughtUp: "Niets te herhalen vandaag",
+    emptyPoolMsg: "Nog te weinig geoefend voor deze sessie",
+    distNew: "nieuw",
+    distMastered: "beheerst",
     // Navigation & screens
     home: "Home",
     browse: "Bladeren",
@@ -162,6 +180,24 @@ export const STRINGS = {
   },
 
   en: {
+    // Status card + practice sessions
+    tileReviewTitle: "Review",
+    tileReviewDesc: "Cards that come back today",
+    tileMasteryTitle: "Known birds",
+    tileMasteryDesc: "Practise birds you already know",
+    tileWeakTitle: "Tricky birds",
+    tileWeakDesc: "Drill the ones you keep missing",
+    statLearnedOf: "learned",
+    statOf: "of",
+    statMastered: "mastered",
+    statStreak: "day streak",
+    statStreakOne: "day streak",
+    statDue: "due today",
+    statReviewNow: "Practise now",
+    statAllCaughtUp: "Nothing due today",
+    emptyPoolMsg: "Not enough practice yet for this session",
+    distNew: "new",
+    distMastered: "mastered",
     // Navigation & screens
     home: "Home",
     browse: "Browse",

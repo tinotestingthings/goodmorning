@@ -10,6 +10,8 @@ import { registerScreen, showScreen, currentScreenId, refreshScreen } from "../c
 import { allBirds, hasPhoto, photoUrl } from "../core/birds.js";
 import { matchesFilters } from "../core/filters.js";
 import { allGames, deleteGame } from "../core/games.js";
+import { collectionCounts, dueBirds, knownPool, weakPool } from "../core/progress.js";
+import { currentStreak } from "../core/stats.js";
 import { openBuilder } from "./builder.js";
 
 const MODE_ICONS = {
@@ -97,8 +99,90 @@ function launchGame(game) {
   showScreen(game.gameMode === "browse" ? "browse" : "quiz", context);
 }
 
+
+// ---------------------------------------------------------------------------
+// Statuskaart + oefensessies. Deze hoorden bij de goodmorning-integratie en
+// stonden in een los progress.js dat de module-herbouw niet meenam.
+// ---------------------------------------------------------------------------
+
+function startPool(poolFn, titleKey, gameMode) {
+  const birds = poolFn();
+  if (!birds.length) {
+    flash(t(titleKey === "tileReviewTitle" ? "statAllCaughtUp" : "emptyPoolMsg"));
+    return;
+  }
+  showScreen("quiz", { gameMode, birds, title: t(titleKey) });
+}
+
+let flashTimer = null;
+function flash(msg) {
+  let el = byId("app-toast");
+  if (!el) {
+    el = h("div", { id: "app-toast", class: "app-toast" });
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+function progressCard() {
+  const c = collectionCounts();
+  const streak = currentStreak();
+  const due = dueBirds().length;
+  const maxBox = Math.max(1, ...c.boxes);
+
+  const bars = h("div", { class: "dist-bars" }, ...c.boxes.map((n, i) =>
+    h("span", { class: "dist-bar", title: `box ${i + 1}: ${n}` },
+      h("span", { class: `dist-fill dist-b${i + 1}`, style: { height: `${Math.round((n / maxBox) * 100)}%` } })
+    )
+  ));
+
+  const fig = (num, label, extra) =>
+    h("div", { class: "stat-fig" },
+      h("span", { class: "stat-num" }, String(num)),
+      h("span", { class: "stat-lbl" }, label, extra ?? null));
+
+  const dueRow = due > 0
+    ? h("button", { type: "button", class: "stat-due", onclick: () => startPool(dueBirds, "tileReviewTitle", "quiz-study") },
+        h("span", { class: "stat-due-n" }, String(due)),
+        h("span", {}, ` ${t("statDue")} `),
+        h("span", { class: "stat-review-cta" }, t("statReviewNow")))
+    : h("p", { class: "stat-due stat-due-empty" }, t("statAllCaughtUp"));
+
+  return h("div", { class: "stat-card" },
+    h("div", { class: "stat-figures" },
+      fig(c.learned, `${t("statLearnedOf")} `, h("span", { class: "stat-total" }, `${t("statOf")} ${c.total}`)),
+      fig(c.mastered, t("statMastered")),
+      fig(streak, streak === 1 ? t("statStreakOne") : t("statStreak"))),
+    h("div", { class: "stat-dist", "aria-hidden": "true" }, bars,
+      h("div", { class: "dist-legend" }, h("span", {}, t("distNew")), h("span", {}, t("distMastered")))),
+    dueRow);
+}
+
 function render() {
+  byId("home-progress").replaceChildren(progressCard());
+
   byId("home-tiles").replaceChildren(
+    tile({
+      iconName: "list-check",
+      title: t("tileReviewTitle"),
+      description: t("tileReviewDesc"),
+      onClick: () => startPool(dueBirds, "tileReviewTitle", "quiz-study"),
+    }),
+    tile({
+      iconName: "check",
+      title: t("tileMasteryTitle"),
+      description: t("tileMasteryDesc"),
+      onClick: () => startPool(knownPool, "tileMasteryTitle", "quiz-choice"),
+    }),
+    tile({
+      iconName: "target",
+      title: t("tileWeakTitle"),
+      description: t("tileWeakDesc"),
+      onClick: () => startPool(weakPool, "tileWeakTitle", "quiz-choice"),
+    }),
     tile({
       iconName: "book",
       title: t("browseTile"),
