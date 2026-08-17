@@ -159,6 +159,26 @@
   "recurrence": null
  },
  {
+  "id": "2026-08-17-learning-tool-maken-voor-mezelf-voor-coden-git-etc",
+  "type": "task",
+  "title": "Learning tool maken voor mezelf voor coden. Git etc",
+  "note": "",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-17-unbroken-kijken-over-jappenkampen",
+  "type": "task",
+  "title": "Unbroken kijken over jappenkampen",
+  "note": "",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
   "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
   "type": "project",
   "title": "Cooking — improving recipes",
