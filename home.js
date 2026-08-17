@@ -90,97 +90,6 @@
     return header;
   }
 
-  // ---- progress ring (small SVG, used on the loop card) ----
-
-  function progressRing(fraction, label) {
-    var r = 18, c = Math.round(2 * Math.PI * r);
-    var offset = Math.round(c * (1 - fraction));
-    var wrap = document.createElement("div");
-    wrap.className = "ring";
-    wrap.innerHTML =
-      '<svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true">' +
-        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="var(--border)" stroke-width="4"/>' +
-        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="var(--keep)" stroke-width="4" ' +
-          'stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + offset + '" ' +
-          'transform="rotate(-90 22 22)"/>' +
-      '</svg>' +
-      '<span class="ring-label">' + label + '</span>';
-    return wrap;
-  }
-
-  // ---- loop card (not-started / in-progress) ----
-
-  function renderLoopCard(step) {
-    var card = document.createElement("button");
-    card.type = "button";
-    card.className = "loop-card";
-
-    var fraction = step === "triage" ? 1 / 3 : step === "practice" ? 2 / 3 : 0;
-    var label = step === "triage" ? "1/3" : step === "practice" ? "2/3" : "0/3";
-    card.appendChild(progressRing(fraction, label));
-
-    var text = el("div", "loop-card-text");
-    text.appendChild(el("div", "loop-card-title", "Morning loop"));
-    var sub = step === "triage" ? "Continue: Triage →" :
-      step === "practice" ? "Continue: Note games →" : "Start today's loop →";
-    text.appendChild(el("div", "loop-card-sub", sub));
-    card.appendChild(text);
-
-    card.addEventListener("click", function () {
-      if (step === "practice") {
-        // Flag a morning-loop entry so the Utilities view opens the note game
-        // (not whatever app was last picked). practice.js reads + clears this.
-        window.__gmLoopPractice = true;
-        App.go("practice");
-      } else {
-        App.go("triage");
-      }
-    });
-    return card;
-  }
-
-  // ---- done card (celebratory, replaces the loop card once finished) ----
-
-  function renderDoneCard() {
-    var card = el("div", "done-card");
-
-    var badge = el("div", "done-badge");
-    badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-    card.appendChild(badge);
-
-    card.appendChild(el("div", "done-title", "Done for today"));
-
-    var d = DigestQueue.pendingDecisions();
-    var countsText = (d.keep.length + d.dismiss.length) > 0
-      ? d.keep.length + " keep · " + d.dismiss.length + " dismiss"
-      : (DigestLoop.getCompletedDate() ? "Completed " + DigestLoop.getCompletedDate() : "Completed");
-    card.appendChild(el("div", "done-counts", countsText));
-
-    var streak = DigestLoop.getStreak();
-    if (streak > 1) {
-      var streakEl = el("div", "streak-chip");
-      streakEl.innerHTML = '<svg class="streak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a6.5 6.5 0 1 1-13 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
-      var streakLabel = document.createElement("span");
-      streakLabel.textContent = streak + " day streak";
-      streakEl.appendChild(streakLabel);
-      card.appendChild(streakEl);
-    }
-
-    var hint = el("div", "done-hint", "everything syncs to your vault automatically");
-    card.appendChild(hint);
-
-    var againBtn = el("button", "btn btn-undo done-again-btn", "Do it again");
-    againBtn.type = "button";
-    againBtn.addEventListener("click", function () {
-      DigestLoop.clearStep();
-      App.go("triage");
-      render();
-    });
-    card.appendChild(againBtn);
-
-    return card;
-  }
-
   // ---- weather (Open-Meteo, fetched client-side — no API key, no backend) ----
   // Hardcoded to one location since this is a single-user app with no
   // settings UI. Cached in localStorage for 20 minutes so switching back to
@@ -389,6 +298,90 @@
     return { el: t, weatherState: weatherState, updateFace: updateFace };
   }
 
+  // ---- icons + tiles for the utility apps (added 2026-08-17) --------------
+  // Replaced the Morning loop card in the hero row. These are plain links:
+  // they leave the shell and open the utility app itself, same as the Gym
+  // tile's arrow does, so the arrow glyph is shared.
+
+  var ICON_ARROW_OUT =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
+  var ICON_MUSIC_NOTE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.6"/><circle cx="16.5" cy="16" r="2.6"/></svg>';
+  var ICON_LISTEN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/></svg>';
+  var ICON_CALENDAR_STAR =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m12 12 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 18l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg>';
+
+  // "Most used apps" strip in de hero-rij. Voorlopig hardcoded op NoteSprint
+  // en ChordSprint; de lijst staat los zodat hij later uit werkelijk gebruik
+  // (of uit de *_state tabellen) gevuld kan worden zonder de opmaak te raken.
+  var MOST_USED = [
+    { label: "NoteSprint", href: "notesprint/", icon: ICON_MUSIC_NOTE },
+    { label: "ChordSprint", href: "ear-training/", icon: ICON_LISTEN }
+  ];
+
+  function renderAppTile(opts) {
+    var a = document.createElement("a");
+    a.className = "app-tile";
+    a.href = opts.href;
+    a.setAttribute("aria-label", "Open " + opts.label);
+
+    var arrow = el("span", "app-tile-arrow");
+    arrow.innerHTML = ICON_ARROW_OUT;
+    a.appendChild(arrow);
+
+    var ic = el("span", "app-tile-icon");
+    ic.innerHTML = opts.icon;
+    a.appendChild(ic);
+
+    a.appendChild(el("div", "app-tile-label", opts.label));
+    return a;
+  }
+
+  // Events tile — only rendered when the Event Tracker reports unseen events.
+  // Returns an empty placeholder immediately and fills it in async, so the
+  // rest of the home screen never waits on Supabase.
+  function eventsPrefix() { return (window.DD_ENV && DD_ENV.sandbox) ? "sbx:" : "dd:"; }
+
+  function unseenEventCount(data) {
+    if (!data) return 0;
+    var raw = data[eventsPrefix() + "eventtracker"];
+    if (!raw) return 0;
+    var v;
+    try { v = (typeof raw === "string") ? JSON.parse(raw) : raw; } catch (e) { return 0; }
+    var n = v && v.unseenCount;
+    return (typeof n === "number" && n > 0) ? n : 0;
+  }
+
+  function renderEventsTile() {
+    var slot = el("div", "events-tile-slot");
+    fetchAppState("eventtracker_state", function (data) {
+      var n = unseenEventCount(data);
+      if (!n) return;                       // niets nieuws -> tile blijft weg
+      var a = document.createElement("a");
+      a.className = "events-tile";
+      a.href = "events/";
+      a.setAttribute("aria-label", "Open Event Tracker, " + n + " nieuwe events");
+
+      var ic = el("span", "events-tile-icon");
+      ic.innerHTML = ICON_CALENDAR_STAR;
+      a.appendChild(ic);
+
+      var text = el("div", "events-tile-text");
+      text.appendChild(el("div", "events-tile-title",
+        n === 1 ? "1 nieuw event" : n + " nieuwe events"));
+      text.appendChild(el("div", "events-tile-sub", "Klaar om te reviewen"));
+      a.appendChild(text);
+
+      var arrow = el("span", "events-tile-arrow");
+      arrow.innerHTML = ICON_ARROW_OUT;
+      a.appendChild(arrow);
+
+      slot.appendChild(a);
+    });
+    return slot;
+  }
+
   // ---- hero (greeting + loop/done card + mini weather tile) ----
 
   function renderHero(myGeneration) {
@@ -398,8 +391,7 @@
     var heroRow = el("div", "hero-row");
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
-    var step = DigestLoop.getStep();
-    heroRow.appendChild(step === "done" ? renderDoneCard() : renderLoopCard(step));
+    MOST_USED.forEach(function (app) { heroRow.appendChild(renderAppTile(app)); });
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");
@@ -2055,6 +2047,7 @@
     var myGeneration = ++renderGeneration;
     view.innerHTML = "";
     view.appendChild(renderHero(myGeneration));
+    view.appendChild(renderEventsTile());
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {

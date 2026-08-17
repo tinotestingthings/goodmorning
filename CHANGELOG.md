@@ -2,6 +2,23 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-17 — Utilities launcher + morning loop verwijderd (promoted from sandbox)
+
+- Utilities: de horizontale tabrij is vervangen door een launcher-grid met alle
+  zes utility-apps; tikken opent de app in dezelfde iframe met een terug-knop.
+  Slider (60-240px) voor het tegelformaat. `Finish →` verwijderd.
+- Morning loop volledig weg: loop-kaart, done-kaart, streak, voortgangsring en
+  de stap-markers. `loop.js` blijft bestaan — dat bestand bevat ook
+  DigestNotes/DigestQueue/DigestSync, waar Triage en de vault-bridge op leunen.
+- Home: twee smalle app-tegels (NoteSprint, ChordSprint) naast de weertegel, en
+  een Events-tegel die alleen verschijnt als er ongeziene events zijn.
+- Service worker: navigaties en shell-bestanden gaan nu network-first met
+  cache-fallback (waren cache-first, waardoor een deploy pas bij de tweede keer
+  openen zichtbaar werd). Live cache dd-shell-v35 -> v36.
+- Promotie-runbook gecorrigeerd: `items-seed.json` en `manifest.json` moeten
+  net als `feed.json` worden overgeslagen; de guard controleert nu ook of
+  manifest.json geen SBX-branding bevat.
+
 ## 2026-08-16 (Event Tracker weekly catalogue refresh)
 - Scheduled `event-tracker-catalog-refresh` run. Checked the Utrecht general/
   music/nature/museum/venue sources, the five film sources and the Dune: Part

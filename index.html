@@ -43,21 +43,27 @@
   </section>
 
   <section id="view-practice" class="view" hidden>
-    <div class="practice-switcher">
-      <button class="practice-tab" data-app="notesprint">NoteSprint</button>
-      <button class="practice-tab" data-app="eartraining">ChordSprint</button>
-      <button class="practice-tab" data-app="kangaroo">Kangaroo</button>
-      <button class="practice-tab" data-app="wine">WijnWijs</button>
-      <button class="practice-tab" data-app="vogelspotinus">Vogelspotinus</button>
-      <button class="practice-tab" data-app="events">Events</button>
-      <a id="openInNewTab" class="practice-openlink" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+    <div id="utilLauncher" class="util-launcher">
+      <div class="util-launcher-head">
+        <h2 class="util-title">Utilities</h2>
+        <label class="util-size" for="utilSizeRange">
+          <svg class="util-size-hint util-size-hint-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+          <input type="range" id="utilSizeRange" min="60" max="240" step="4" value="96" aria-label="Tegelformaat">
+          <svg class="util-size-hint util-size-hint-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/></svg>
+        </label>
+      </div>
+      <div id="utilGrid" class="util-grid"></div>
     </div>
-    <div class="practice-frame-wrap">
+    <div id="utilFrameWrap" class="util-frame-wrap" hidden>
+      <div class="mini-header util-frame-header">
+        <button class="back-btn" id="utilBackBtn" aria-label="Terug naar Utilities" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="util-frame-title" id="utilFrameTitle"></div>
+        <a id="openInNewTab" class="practice-openlink" target="_blank" rel="noopener noreferrer">Open ↗</a>
+      </div>
       <iframe id="practiceFrame" class="practice-frame" title="Utility app" allow="autoplay"></iframe>
     </div>
-    <footer class="bottombar">
-      <button id="continueBtn" class="btn btn-primary">Finish →</button>
-    </footer>
   </section>
 </main>
 

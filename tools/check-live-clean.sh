@@ -21,6 +21,15 @@ if grep -q "SBX" index.html; then
   fail=1
 fi
 
+# 2b) The live PWA manifest must never carry the sandbox name/branding.
+#     Added 2026-08-17: a promotion copied sandbox/manifest.json over live,
+#     which would have renamed the installed app to "SBX Digest" on the home
+#     screen. index.html was checked, manifest.json was not.
+if grep -q "SBX" manifest.json; then
+  echo "✗ manifest.json (live root) contains 'SBX' — the installed PWA would be renamed"
+  fail=1
+fi
+
 # 3) The data-wiping reset button must always be path-guarded (never mounts on live).
 if grep -nE "^\s*document\.body\.appendChild\(renderSandboxReset\(\)\);" home.js sandbox/home.js >/dev/null 2>&1; then
   echo "✗ renderSandboxReset() is mounted without a /sandbox/ path guard"

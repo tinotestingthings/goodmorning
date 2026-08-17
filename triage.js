@@ -411,13 +411,15 @@
       });
     }
 
-    var continueBtn = document.createElement("button");
-    continueBtn.className = "btn btn-primary";
-    continueBtn.textContent = "Continue to practice →";
-    continueBtn.addEventListener("click", function () {
-      App.go("practice");
+    // Was "Continue to practice →", the middle step of the old morning loop.
+    // With the loop gone this is just the way out of a finished deck.
+    var doneBtn = document.createElement("button");
+    doneBtn.className = "btn btn-primary";
+    doneBtn.textContent = "Back to Today";
+    doneBtn.addEventListener("click", function () {
+      App.go("today");
     });
-    actions.appendChild(continueBtn);
+    actions.appendChild(doneBtn);
 
     var startOverBtn = document.createElement("button");
     startOverBtn.className = "btn btn-ghost";
@@ -746,9 +748,4 @@
 
   init();
 
-  if (window.App && App.onShow) {
-    App.onShow("triage", function () {
-      DigestLoop.setStep("triage");
-    });
-  }
 })();

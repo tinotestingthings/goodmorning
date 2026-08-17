@@ -11,8 +11,11 @@ file is correct at either URL. There is no `sed` transform anymore.
 ## Rules
 1. **Never hardcode a storage key.** Use `k("todos")`, not `"dd.todos"`. The CI
    guard (`tools/check-live-clean.sh`) rejects hardcoded `dd.`/`sbx.` literals.
-2. **`feed.json` at the root is LIVE DATA** (refreshed by the daily-digest task).
-   Never overwrite it with the sandbox copy during a promotion.
+2. **Three root files are LIVE-ONLY and must never be overwritten by a
+   promotion**: `feed.json` (refreshed by the daily-digest task),
+   `items-seed.json` (live seed; sandbox holds test data) and `manifest.json`
+   (live PWA name/theme; sandbox says "SBX Digest"). The guard now catches the
+   manifest case; the other two are excluded by the copy loop.
 3. The daily-digest scheduled task only ever writes `feed.json`. It must never
    copy app code.
 
@@ -21,8 +24,12 @@ Because both builds use `k()`, promotion carries no namespace risk — the copie
 code resolves to `dd.*` on the live URL automatically.
 ```
 bash tools/check-live-clean.sh          # must pass first
-# copy sandbox app files to root, EXCEPT feed.json:
-for f in sandbox/*; do b=$(basename "$f"); [ "$b" = feed.json ] && continue
+# copy sandbox app files to root, EXCEPT the three data/branding files below.
+# feed.json      = live data, written by the daily-digest task
+# items-seed.json = live seed data; the sandbox copy is test data
+# manifest.json   = live PWA branding; the sandbox copy says "SBX Digest"
+for f in sandbox/*; do b=$(basename "$f")
+  case "$b" in feed.json|items-seed.json|manifest.json) continue;; esac
   if [ -d "$f" ]; then mkdir -p "$b"; cp -a "$f/." "$b/"; else cp -a "$f" "$b"; fi; done
 bash tools/check-live-clean.sh          # must still pass
 for f in *.js sandbox/*.js; do node --check "$f"; done
