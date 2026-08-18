@@ -2,6 +2,16 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-18 (2) — Kangaroo: versimpelde app, body map home, history, knieën
+
+Broncode nu in de repo (kangaroo-src/, bash kangaroo-src/build.sh). Body map is
+de homepage; Quick actions/This week/setup-strip weg; nieuwe History-tab
+(workouts + cardio); sessievoortgang overleeft een reload en 'Finish & log
+workout' logt ook deels afgemaakte sessies (oorzaak van de 0-workouts-teller);
+Knees toegevoegd aan body map en spierlijst. Gerichte promote van alleen
+kangaroo/ (promote.sh niet gebruikt: andere sessie had sandbox/vogelspotinus
+onder handen).
+
 ## 2026-08-18 (v2026.08.18-1) — Settings toont versie
 
 
