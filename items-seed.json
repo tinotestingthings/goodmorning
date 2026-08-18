@@ -169,6 +169,16 @@
   "recurrence": null
  },
  {
+  "id": "2026-08-17-rotate-github-pat-before-18-september",
+  "type": "task",
+  "title": "Rotate the GitHub PAT before 18 September 2026",
+  "note": "The fine-grained personal access token `tinotestingthings-token` that the daily digest uses to push `feed.json` **expires Friday 18 September 2026**. Created 20 July 2026. Do this in the week of 11 September so there's slack.",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
   "id": "2026-08-17-unbroken-kijken-over-jappenkampen",
   "type": "task",
   "title": "Unbroken kijken over jappenkampen",
@@ -436,7 +446,7 @@
   "title": "Event Tracker — integration & backup spec",
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other utility apps (Kangaroo, WijnWijs, NoteSprint, ChordSprint, Vogelspotinus), including Supabase persistence and a daily-digest backup leg.",
   "subtasks": [],
-  "state": "active",
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -446,7 +456,7 @@
   "title": "Een AI app waarmee je mallen voor kleding kan maken.",
   "note": "",
   "subtasks": [],
-  "state": "idea",
+  "state": "active",
   "source": "vault",
   "recurrence": null
  }
