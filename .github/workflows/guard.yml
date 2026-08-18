@@ -1,0 +1,20 @@
+name: live-clean guard
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: namespace / branding guard
+        run: bash tools/check-live-clean.sh
+      - name: syntax check every script (live + sandbox)
+        run: for f in *.js sandbox/*.js; do node --check "$f"; done
+      - name: agendasync behaviour tests
+        run: |
+          cd /tmp && npm i --silent jsdom
+          node "$GITHUB_WORKSPACE/tests/agendasync.behaviour.mjs" "$GITHUB_WORKSPACE"

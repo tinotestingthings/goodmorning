@@ -20,6 +20,9 @@ file is correct at either URL. There is no `sed` transform anymore.
    copy app code.
 
 ## Promote sandbox → live
+
+**Use the script:** `bash tools/promote.sh "what changed"` — it runs the guard, copies, re-guards, syntax-checks, writes the CHANGELOG line, commits, tags `vYYYY.MM.DD-n` and pushes. The manual loop below is what it does.
+
 Because both builds use `k()`, promotion carries no namespace risk — the copied
 code resolves to `dd.*` on the live URL automatically.
 ```

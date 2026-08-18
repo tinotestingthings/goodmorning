@@ -14,3 +14,6 @@ node_modules/
 
 # one-off recovery/migration dumps (see 90 System incident 2026-08-18)
 *-recovery-*.json
+
+# fuse/iCloud sync litter
+.fuse_hidden*
