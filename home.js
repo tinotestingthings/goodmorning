@@ -443,7 +443,6 @@
       // vierkant bij de eerste keer laden. (2026-08-18)
       img.loading = "eager";
       img.decoding = "async";
-      img.addEventListener("load", function () { a.classList.add("is-loaded"); });
       img.addEventListener("error", fallback);
       a.appendChild(img);
 
