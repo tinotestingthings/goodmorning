@@ -3121,13 +3121,24 @@ main#deckArea {
   background: var(--card-bg);
 }
 
+/* Ingezoomd op de kop. `object-position` kiest welk deel van de foto in het
+   vierkant valt; `scale` vergroot dat vervolgens vanuit hetzelfde punt, zodat de
+   vogel de tegel vult in plaats van een stipje in een landschap te zijn.
+   Staat de kop er bij sommige vogels af, draai --bird-zoom dan omlaag. */
+.app-tile-photo {
+  --bird-zoom: 1.45;
+  --bird-focus-y: 30%;
+}
+
 .app-tile-photo-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 32%;
+  object-position: 50% var(--bird-focus-y);
+  transform: scale(var(--bird-zoom));
+  transform-origin: 50% var(--bird-focus-y);
   display: block;
 }
 

@@ -13,12 +13,14 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const SRC = process.argv[2] || "vogelspotinus/data/birds.json";
 const OUT = SRC.replace(/birds\.json$/, "bird-tiles.json");
-const THUMB_WIDTH = 240;
+// 480 in plaats van 240: de tegel is 92px, maar we zoomen in de CSS in en
+// op een retina-scherm is 92px al 184 device-pixels. Met 240px bron werd dat
+// zichtbaar zacht zodra de zoom omhoog ging.
+const THUMB_WIDTH = 480;
 
 const birds = JSON.parse(readFileSync(SRC, "utf8"));
 
-// Wikimedia-thumbnails verkleinen we van 960px naar 240px (een tegel is 92px
-// breed). Dat doen we ALLEEN bij URL's die al een geldige /thumb/-vorm hebben:
+// Wikimedia-thumbnails verkleinen we van 960px naar 480px. Dat doen we ALLEEN bij URL's die al een geldige /thumb/-vorm hebben:
 // daar is de breedte simpelweg een segment in het pad en is vervangen veilig.
 //
 // Bij een directe bestands-URL (.../commons/3/33/Naam.jpg) zelf een thumb-pad

@@ -380,8 +380,8 @@
   // list and every bird comes round once before any repeats.
   var BIRD_STRIDE = 269;
 
-  // v2: de v1-cache kon een kapotte, zelfgebouwde thumb-URL bevatten.
-  function birdCacheKey() { return eventsPrefix() + "home-bird-v2"; }
+  // v3: v1 kon een kapotte thumb-URL bevatten, v2 nog de 240px-variant.
+  function birdCacheKey() { return eventsPrefix() + "home-bird-v3"; }
 
   function todayKey() {
     var d = new Date();
