@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-18 (v2026.08.18-1) — Settings toont versie
+
+
 ## 2026-08-17 (3) — service worker: network-first ook in submappen
 
 De vorige fix gold alleen voor bestanden direct onder de scope, dus utility-
