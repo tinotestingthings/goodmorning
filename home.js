@@ -365,6 +365,111 @@
     });
   }
 
+  // ---- bird of the day tile (added 2026-08-18) --------------------------
+  // Same 92px footprint as the app tiles beside it, but the photo IS the tile.
+  // Data comes from `vogelspotinus/data/bird-tiles.json` (built by
+  // tools/build-bird-tiles.mjs) rather than the 1 MB birds.json, and the chosen
+  // bird is cached in localStorage so a second visit on the same day costs
+  // nothing.
+
+  var ICON_BIRD =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V5l-2 2h-3a4 4 0 0 0-4 4v1a4 4 0 0 1-4 4H4.5"/><path d="m14 9-3 3"/></svg>';
+
+  var BIRD_TILE_SRC = "vogelspotinus/data/bird-tiles.json";
+  // Coprime with 561 (= 3 x 11 x 17), so consecutive days land far apart in the
+  // list and every bird comes round once before any repeats.
+  var BIRD_STRIDE = 269;
+
+  function birdCacheKey() { return eventsPrefix() + "home-bird"; }
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  function birdForToday(list) {
+    if (!list || !list.length) return null;
+    var days = Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
+    return list[((days * BIRD_STRIDE) % list.length + list.length) % list.length];
+  }
+
+  function readBirdCache() {
+    try {
+      var raw = localStorage.getItem(birdCacheKey());
+      if (!raw) return null;
+      var v = JSON.parse(raw);
+      return (v && v.date === todayKey() && v.n && v.u) ? v : null;
+    } catch (e) { return null; }
+  }
+
+  function writeBirdCache(bird) {
+    try {
+      localStorage.setItem(birdCacheKey(), JSON.stringify({
+        date: todayKey(), n: bird.n, u: bird.u
+      }));
+    } catch (e) {}
+  }
+
+  function renderBirdTile() {
+    var slot = el("div", "bird-tile-slot");
+
+    // If anything at all goes wrong — offline, bad JSON, dead image — fall back
+    // to a plain icon tile so the hero row never shows a broken box.
+    function fallback() {
+      slot.innerHTML = "";
+      slot.appendChild(renderAppTile({
+        label: "Vogels",
+        href: "vogelspotinus/",
+        icon: ICON_BIRD
+      }));
+    }
+
+    function paint(bird) {
+      var a = document.createElement("a");
+      a.className = "app-tile app-tile-photo";
+      a.href = "vogelspotinus/";
+      a.setAttribute("aria-label", "Open Vogelspotinus. Vogel van vandaag: " + bird.n);
+
+      var img = document.createElement("img");
+      img.className = "app-tile-photo-img";
+      img.src = bird.u;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.addEventListener("error", fallback);
+      a.appendChild(img);
+
+      var arrow = el("span", "app-tile-arrow");
+      arrow.innerHTML = ICON_ARROW_OUT;
+      a.appendChild(arrow);
+
+      a.appendChild(el("div", "app-tile-photo-name", bird.n));
+
+      slot.innerHTML = "";
+      slot.appendChild(a);
+    }
+
+    var cached = readBirdCache();
+    if (cached) {
+      paint(cached);
+      return slot;
+    }
+
+    fetch(BIRD_TILE_SRC)
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (list) {
+        var bird = birdForToday(list);
+        if (!bird) return fallback();
+        writeBirdCache(bird);
+        paint(bird);
+      })
+      .catch(fallback);
+
+    return slot;
+  }
+
   // Events tile — only rendered when the Event Tracker reports unseen events.
   // Returns an empty placeholder immediately and fills it in async, so the
   // rest of the home screen never waits on Supabase.
@@ -419,6 +524,7 @@
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
     MOST_USED.forEach(function (app) { heroRow.appendChild(renderAppTile(app)); });
+    heroRow.appendChild(renderBirdTile());
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");
