@@ -17,33 +17,28 @@ const THUMB_WIDTH = 240;
 
 const birds = JSON.parse(readFileSync(SRC, "utf8"));
 
-// Wikimedia levert drie vormen aan, en alle drie moeten naar een 240px-thumb:
-//   1. .../commons/thumb/a/a1/Naam.jpg/960px-Naam.jpg      -> breedte vervangen
-//   2. .../commons/thumb/a/ab/Naam.tif/lossy-page1-960px-Naam.tif.jpg
-//                                                          -> idem, maar de
-//      breedte staat niet direct achter een slash
-//   3. .../commons/0/0b/Naam.jpg                           -> geen thumb; die
-//      moeten we zelf opbouwen
-// Vorm 3 bouwen we alleen om voor jpg en png, waar de thumb dezelfde extensie
-// houdt. Bij tif/svg/gif verzint Commons een andere extensie en zouden we een
-// dode URL construeren; die laten we dan liever ongemoeid (groter, maar heel).
+// Wikimedia-thumbnails verkleinen we van 960px naar 240px (een tegel is 92px
+// breed). Dat doen we ALLEEN bij URL's die al een geldige /thumb/-vorm hebben:
+// daar is de breedte simpelweg een segment in het pad en is vervangen veilig.
+//
+// Bij een directe bestands-URL (.../commons/3/33/Naam.jpg) zelf een thumb-pad
+// construeren bleek FOUT: Wikimedia gaf een HTML-foutpagina terug, die Chrome
+// vervolgens tegenhield met CORB, en de tegel bleef leeg. Zulke URL's laten we
+// dus met rust — liever een groter plaatje dan geen plaatje.
+//
+// Voor de zekerheid schrijven we de originele URL mee als `o`. Faalt de
+// geoptimaliseerde variant alsnog, dan valt de tegel daarop terug.
 const shrink = (raw) => {
-  const url = raw.trim().replace(/\?.*$/, "");
+  const url = raw.trim();
+  if (!url.includes("/thumb/")) return url;
 
-  if (url.includes("/thumb/")) {
-    const cut = url.lastIndexOf("/");
-    const head = url.slice(0, cut + 1);
-    const tail = url.slice(cut + 1).replace(/(^|-)\d+px-/, `$1${THUMB_WIDTH}px-`);
-    return head + tail;
-  }
-
-  const m = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/commons)\/([0-9a-f])\/([0-9a-f]{2})\/(.+\.(?:jpg|jpeg|png))$/i);
-  if (m) {
-    const [, base, a, ab, file] = m;
-    return `${base}/thumb/${a}/${ab}/${file}/${THUMB_WIDTH}px-${file}`;
-  }
-
-  return url;
+  const cut = url.lastIndexOf("/");
+  const head = url.slice(0, cut + 1);
+  const tail = url
+    .slice(cut + 1)
+    .replace(/\?.*$/, "")
+    .replace(/(^|-)\d+px-/, `$1${THUMB_WIDTH}px-`);
+  return head + tail;
 };
 
 // Nederlandse Wikipedia-namen dragen soms een disambiguatiesuffix ("Vink
@@ -53,10 +48,16 @@ const cleanName = (name) =>
 
 const tiles = birds
   .filter((b) => b.imageThumbUrl)
-  .map((b) => ({
-    n: cleanName(b.dutchName || b.englishName || b.scientificName),
-    u: shrink(b.imageThumbUrl),
-  }))
+  .map((b) => {
+    const original = b.imageThumbUrl.trim();
+    const optimised = shrink(original);
+    const tile = {
+      n: cleanName(b.dutchName || b.englishName || b.scientificName),
+      u: optimised,
+    };
+    if (optimised !== original) tile.o = original;
+    return tile;
+  })
   .filter((b) => b.n && b.u);
 
 writeFileSync(OUT, JSON.stringify(tiles), "utf8");

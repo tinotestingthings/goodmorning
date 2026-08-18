@@ -380,7 +380,8 @@
   // list and every bird comes round once before any repeats.
   var BIRD_STRIDE = 269;
 
-  function birdCacheKey() { return eventsPrefix() + "home-bird"; }
+  // v2: de v1-cache kon een kapotte, zelfgebouwde thumb-URL bevatten.
+  function birdCacheKey() { return eventsPrefix() + "home-bird-v2"; }
 
   function todayKey() {
     var d = new Date();
@@ -407,7 +408,7 @@
   function writeBirdCache(bird) {
     try {
       localStorage.setItem(birdCacheKey(), JSON.stringify({
-        date: todayKey(), n: bird.n, u: bird.u
+        date: todayKey(), n: bird.n, u: bird.u, o: bird.o
       }));
     } catch (e) {}
   }
@@ -457,7 +458,18 @@
       // zit - precies wat hier gebeurt.
       img.loading = "eager";
       img.decoding = "async";
-      img.addEventListener("error", showIcon);
+      // Faalt de verkleinde variant, probeer dan eenmalig de originele URL uit
+      // birds.json - die gebruikt de Vogelspotinus-app zelf ook, dus die werkt.
+      // Pas als ook die faalt vallen we terug op het icoon.
+      var triedOriginal = false;
+      img.addEventListener("error", function () {
+        if (!triedOriginal && bird.o) {
+          triedOriginal = true;
+          img.src = bird.o;
+          return;
+        }
+        showIcon();
+      });
       img.src = bird.u;
       a.appendChild(img);
 
