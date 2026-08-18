@@ -72,6 +72,15 @@
         // This is the guard that was missing when the live agenda was wiped on
         // 2026-08-09: a seed write pushed a not-yet-populated snapshot.
         if (mine[k] === null && merged[k] !== null && merged[k] !== undefined) return;
+        // Tweede vangnet: een lijst die op de server flink gevuld is mag nooit
+        // in één push naar leeg. Losse items weggooien blijft gewoon werken;
+        // alleen de "alles ineens weg"-sprong wordt geblokkeerd, want die kwam
+        // tot nu toe altijd van een bug en nooit van een gebruiker.
+        if (Array.isArray(merged[k]) && merged[k].length >= 5 &&
+            Array.isArray(mine[k]) && mine[k].length === 0) {
+          note("geblokkeerd: push zou " + k + " van " + merged[k].length + " naar 0 brengen");
+          return;
+        }
         merged[k] = mine[k];
       });
       global.SB.from("agenda_state")
@@ -85,10 +94,14 @@
     }, function (err) { busy = false; note((err && err.message) || "push read failed"); });
   }
 
+  // cb krijgt `true` als de pull ECHT gelukt is. Dat onderscheid ontbrak en was
+  // de kern van het incident op 2026-08-18: bij een mislukte pull vuurde de app
+  // alsnog "eerste pull klaar" af, waarna een migratiescript een lege lokale
+  // staat als waarheid aannam en die naar de server duwde. (2026-08-18)
   function pull(cb) {
-    if (!global.SB || !userId) { cb && cb(); return; }
+    if (!global.SB || !userId) { cb && cb(false); return; }
     global.SB.from("agenda_state").select("data,updated_at").eq("user_id", userId).then(function (res) {
-      if (res && res.error) { note(res.error.message); cb && cb(); return; }
+      if (res && res.error) { note(res.error.message); cb && cb(false); return; }
       if (res && res.data && res.data.length) {
         var row = res.data[0];
         if (row.updated_at !== remoteStamp) {
@@ -101,8 +114,8 @@
           }
         }
       }
-      cb && cb();
-    }, function (err) { note((err && err.message) || "pull failed"); cb && cb(); });
+      cb && cb(true);
+    }, function (err) { note((err && err.message) || "pull failed"); cb && cb(false); });
   }
 
   function pushNow() {
@@ -116,7 +129,11 @@
   // device gets them; otherwise force a fresh pull of the server copy.
   function pullNow() {
     if (!global.SB || !userId || busy) return;
-    if (!primed) { remoteStamp = null; pull(); return; }
+    if (!primed) {
+      remoteStamp = null;
+      pull(function (ok) { if (ok) { primed = true; if (lastSynced === null) lastSynced = snapshot(); } });
+      return;
+    }
     var cur = snapshot();
     if (lastSynced !== null && cur !== lastSynced) { push(cur); return; }
     remoteStamp = null; pull();
@@ -127,7 +144,15 @@
 
   function tick() {
     if (busy || !global.SB || !userId) return;
-    if (!primed) { pull(); return; }
+    if (!primed) {
+      pull(function (ok) {
+        if (!ok) return;
+        primed = true;
+        if (lastSynced === null) lastSynced = snapshot();
+        try { document.dispatchEvent(new Event("dd-agenda-ready")); } catch (e) {}
+      });
+      return;
+    }
     var cur = snapshot();
     if (lastSynced !== null && cur !== lastSynced) push(cur);
     else pull();
@@ -140,11 +165,13 @@
     if (started || !session) return;
     started = true;
     userId = session.user.id;
-    pull(function () {
+    pull(function (ok) {
+      // Alleen na een geslaagde pull is de lokale staat gezaghebbend. Mislukt
+      // hij, dan blijft `primed` false: er wordt niets gepusht en er gaat geen
+      // "ready"-signaal uit. De poll hieronder probeert het gewoon opnieuw.
+      if (!ok) { note("first pull failed - staying unprimed, will retry"); return; }
       primed = true;
       if (lastSynced === null) lastSynced = snapshot();
-      // Signal that the first pull is done so one-time client migrations can run
-      // without being clobbered by a subsequent server snapshot.
       try { document.dispatchEvent(new Event("dd-agenda-ready")); } catch (e) {}
     });
     setInterval(tick, POLL_MS);
