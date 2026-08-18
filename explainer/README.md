@@ -46,6 +46,44 @@ Timing zit in `src/theme.ts` (`BEATS`), teksten en bronnamen in `src/data.ts`.
 Kleuren zijn letterlijk de app-tokens uit `../style.css`, zodat video en app
 één geheel zijn.
 
+## Eigen video erin (schermopname, clip)
+
+Remotion speelt gewoon mp4/webm/mov af.
+
+1. Zet het bestand in `public/`, bijvoorbeeld `public/app-demo.mp4`.
+2. Gebruik `<ScreenRecording>`:
+
+```tsx
+import { ScreenRecording } from "../components/ScreenRecording";
+
+<ScreenRecording file="app-demo.mp4" startFrom={90} endAt={420} />
+```
+
+`startFrom` en `endAt` zijn **frames** van de compositie (30 fps), niet seconden
+— `startFrom={90}` slaat dus de eerste 3 seconden van je opname over.
+
+### In de telefoon monteren
+
+De `PhoneFrame` is een gewone container, dus een portret-schermopname past er
+zo in. In `src/scenes/Beat4Triage.tsx` vervang je de inhoud van de
+`<PhoneFrame>` door:
+
+```tsx
+<PhoneFrame width={400}>
+  <ScreenRecording file="app-demo.mp4" />
+</PhoneFrame>
+```
+
+Let op: een telefoonopname is meestal ~1170px breed en wordt hier op 400px
+getoond, dus dat is scherp. Andersom — een klein UI-element opblazen naar
+1080p — wordt zacht. Neem daarom liever op met de telefoon in portret en knip
+strak bij, in plaats van in te zoomen op een detail.
+
+### Geluid
+
+`<ScreenRecording>` staat op `muted`. Wil je wel geluid, haal die prop weg; voor
+losse audio gebruik je `<Audio src={staticFile("...")} />` uit `remotion`.
+
 ## Aanpassen
 
 - **Andere lengte?** Pas `BEATS` in `src/theme.ts` aan; `TOTAL` moet gelijk zijn
