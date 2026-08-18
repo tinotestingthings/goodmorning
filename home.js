@@ -334,8 +334,35 @@
     ic.innerHTML = opts.icon;
     a.appendChild(ic);
 
-    a.appendChild(el("div", "app-tile-label", opts.label));
+    var label = el("div", "app-tile-label", opts.label);
+    a.appendChild(label);
+    fitTileLabel(label);
     return a;
+  }
+
+  // Shrink an app-tile label until it fits the tile on one line. The tile is a
+  // fixed 92px, so a longer name than "NoteSprint" (e.g. "ChordSprint") used to
+  // break mid-word onto a second line. Runs after layout via rAF, because the
+  // element isn't in the document yet when renderAppTile returns.
+  var TILE_LABEL_MAX = 0.78;   // rem, matches the CSS default
+  var TILE_LABEL_MIN = 0.6;    // rem, below this we wrap instead of shrinking
+  function fitTileLabel(label) {
+    requestAnimationFrame(function () {
+      if (!label.isConnected) return;
+      var size = TILE_LABEL_MAX;
+      label.classList.remove("is-wrapped");
+      label.style.fontSize = "";
+      var guard = 0;
+      while (label.scrollWidth > label.clientWidth + 0.5 &&
+             size > TILE_LABEL_MIN && guard++ < 16) {
+        size = Math.round((size - 0.02) * 100) / 100;
+        label.style.fontSize = size + "rem";
+      }
+      // Still too wide even at the floor size: let it wrap rather than clip.
+      if (label.scrollWidth > label.clientWidth + 0.5) {
+        label.classList.add("is-wrapped");
+      }
+    });
   }
 
   // Events tile — only rendered when the Event Tracker reports unseen events.

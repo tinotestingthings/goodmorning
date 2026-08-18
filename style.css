@@ -3061,7 +3061,7 @@ main#deckArea {
   background: var(--card-bg);
   border: 1.5px solid transparent;
   border-radius: 16px;
-  padding: 14px 8px 12px;
+  padding: 14px 6px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3077,13 +3077,24 @@ main#deckArea {
 .app-tile-icon { width: 26px; height: 26px; color: var(--keep); }
 .app-tile-icon svg { width: 100%; height: 100%; display: block; }
 
+/* Label fits the 92px tile on ONE line. `width:100%` is what makes the
+   overflow measurable (a centred flex child would otherwise shrink to fit,
+   so scrollWidth would always equal clientWidth); fitTileLabel() in home.js
+   then steps the font size down until it fits, and only falls back to
+   wrapping if even the floor size is too wide. Fixes "ChordSprint" breaking
+   mid-word onto a second line (2026-08-18). */
 .app-tile-label {
+  width: 100%;
   font-size: 0.78rem;
   font-weight: 600;
   text-align: center;
   line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
   overflow-wrap: anywhere;
 }
+
+.app-tile-label.is-wrapped { white-space: normal; }
 
 .app-tile-arrow {
   position: absolute;
