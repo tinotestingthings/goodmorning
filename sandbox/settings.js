@@ -22,6 +22,20 @@
     root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
     root.appendChild(buildIcsFeeds());
+    var ver = buildVersion();
+    if (ver) root.appendChild(ver);
+  }
+
+  // Build stamp, only shown when env.js actually sets one.
+  function buildVersion() {
+    var v = window.DD_ENV && window.DD_ENV.version;
+    if (!v) return null;
+    var p = el("p", "settings-sub", "Version " + v);
+    p.style.fontSize = "0.72rem";
+    p.style.textAlign = "center";
+    p.style.marginTop = "24px";
+    p.style.marginBottom = "0";
+    return p;
   }
 
   function buildIcsFeeds() {
