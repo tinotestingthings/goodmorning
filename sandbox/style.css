@@ -3107,8 +3107,6 @@ main#deckArea {
 }
 .app-tile-arrow svg { width: 100%; height: 100%; display: block; }
 
-.bird-tile-slot:empty { display: none; }
-
 /* Vogel van de dag: het plaatje IS de tegel. Vierkant, zelfde 92px breedte als
    de tegels ernaast. `object-position` staat op 32% in plaats van het midden:
    bij een liggende bron snijdt `cover` alleen links/rechts weg en blijft de

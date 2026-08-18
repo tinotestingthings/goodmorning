@@ -413,68 +413,80 @@
   }
 
   function renderBirdTile() {
-    var slot = el("div", "bird-tile-slot");
+    // BELANGRIJK: we geven hier direct het <a class="app-tile"> terug en vullen
+    // dat later, precies zoals renderAppTile doet. De eerste versie zat in een
+    // extra <div class="bird-tile-slot"> wrapper, en dat was fout: die wrapper
+    // is zelf het flex-item in .hero-row, zonder `width: 92px` en zonder
+    // `flex-shrink: 0` (die staan op .app-tile, dus op het KIND). In een rij die
+    // al vol is kreeg de wrapper daardoor vrijwel geen ruimte toebedeeld.
+    // (2026-08-18)
+    var a = document.createElement("a");
+    a.href = "vogelspotinus/";
 
-    // If anything at all goes wrong — offline, bad JSON, dead image — fall back
-    // to a plain icon tile so the hero row never shows a broken box.
-    function fallback() {
-      slot.innerHTML = "";
-      slot.appendChild(renderAppTile({
-        label: "Vogels",
-        href: "vogelspotinus/",
-        icon: ICON_BIRD
-      }));
+    function arrowNode() {
+      var arrow = el("span", "app-tile-arrow");
+      arrow.innerHTML = ICON_ARROW_OUT;
+      return arrow;
     }
 
-    function paint(bird) {
-      var a = document.createElement("a");
+    // Valt terug op een gewone icoontegel: bij het opstarten, en zodra data of
+    // afbeelding het laat afweten. Zo staat er altijd iets klikbaars.
+    function showIcon() {
+      a.className = "app-tile";
+      a.setAttribute("aria-label", "Open Vogelspotinus");
+      a.innerHTML = "";
+      a.appendChild(arrowNode());
+      var ic = el("span", "app-tile-icon");
+      ic.innerHTML = ICON_BIRD;
+      a.appendChild(ic);
+      var label = el("div", "app-tile-label", "Vogels");
+      a.appendChild(label);
+      fitTileLabel(label);
+    }
+
+    function showBird(bird) {
       a.className = "app-tile app-tile-photo";
-      a.href = "vogelspotinus/";
       a.setAttribute("aria-label", "Open Vogelspotinus. Vogel van vandaag: " + bird.n);
+      a.innerHTML = "";
 
       var img = document.createElement("img");
       img.className = "app-tile-photo-img";
-      img.src = bird.u;
       img.alt = "";
       // Bewust "eager": de tegel staat boven de vouw, en bij lazy stelt de
-      // browser het laden uit zolang het element nog in een losgekoppelde
-      // boom zit — precies wat hier gebeurt, want het homescreen wordt eerst
-      // opgebouwd en pas daarna in de DOM gehangen. Gevolg was een grijs
-      // vierkant bij de eerste keer laden. (2026-08-18)
+      // browser het laden uit zolang het element nog in een losgekoppelde boom
+      // zit - precies wat hier gebeurt.
       img.loading = "eager";
       img.decoding = "async";
-      img.addEventListener("error", fallback);
+      img.addEventListener("error", showIcon);
+      img.src = bird.u;
       a.appendChild(img);
 
-      var arrow = el("span", "app-tile-arrow");
-      arrow.innerHTML = ICON_ARROW_OUT;
-      a.appendChild(arrow);
-
+      a.appendChild(arrowNode());
       a.appendChild(el("div", "app-tile-photo-name", bird.n));
-
-      slot.innerHTML = "";
-      slot.appendChild(a);
     }
+
+    showIcon();
 
     var cached = readBirdCache();
     if (cached) {
-      paint(cached);
-      return slot;
+      showBird(cached);
+      return a;
     }
 
     fetch(BIRD_TILE_SRC)
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
       .then(function (list) {
         var bird = birdForToday(list);
-        if (!bird) return fallback();
+        if (!bird) return;
         writeBirdCache(bird);
-        paint(bird);
+        showBird(bird);
       })
-      .catch(fallback);
+      .catch(function (e) {
+        console.warn("[bird tile] geen vogel geladen:", e);
+      });
 
-    return slot;
+    return a;
   }
-
   // Events tile — only rendered when the Event Tracker reports unseen events.
   // Returns an empty placeholder immediately and fills it in async, so the
   // rest of the home screen never waits on Supabase.
