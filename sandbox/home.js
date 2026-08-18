@@ -436,8 +436,14 @@
       img.className = "app-tile-photo-img";
       img.src = bird.u;
       img.alt = "";
-      img.loading = "lazy";
+      // Bewust "eager": de tegel staat boven de vouw, en bij lazy stelt de
+      // browser het laden uit zolang het element nog in een losgekoppelde
+      // boom zit — precies wat hier gebeurt, want het homescreen wordt eerst
+      // opgebouwd en pas daarna in de DOM gehangen. Gevolg was een grijs
+      // vierkant bij de eerste keer laden. (2026-08-18)
+      img.loading = "eager";
       img.decoding = "async";
+      img.addEventListener("load", function () { a.classList.add("is-loaded"); });
       img.addEventListener("error", fallback);
       a.appendChild(img);
 

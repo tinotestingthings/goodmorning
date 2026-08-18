@@ -3120,8 +3120,13 @@ main#deckArea {
   overflow: hidden;
   justify-content: flex-end;
   gap: 0;
-  background: var(--border);
+  background: var(--card-bg);
 }
+
+/* Tot de foto binnen is blijft de tegel neutraal; daarna faden we hem in, zodat
+   je geen half geladen plaatje ziet opbouwen. */
+.app-tile-photo .app-tile-photo-img { opacity: 0; transition: opacity 220ms ease; }
+.app-tile-photo.is-loaded .app-tile-photo-img { opacity: 1; }
 
 .app-tile-photo-img {
   position: absolute;
