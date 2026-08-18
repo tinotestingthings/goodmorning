@@ -16,7 +16,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 
 | App | Path | Supabase table | Source of truth | Build |
 |---|---|---|---|---|
-| Kangaroo Gym | `kangaroo/` | `kangaroo_state` | this repo (`bundle.js` prebuilt) | none |
+| Kangaroo Gym | `kangaroo/` | `kangaroo_state` | this repo (`kangaroo-src/` TSX) | `bash kangaroo-src/build.sh` -> `sandbox/kangaroo/bundle.js`, then promote |
 | Vogelspotinus (bird ID trainer) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles only |
 | NoteSprint | `notesprint/` | `notesprint_state` | this repo (`boot.js` loads the app) | none |
 | Ear training / ChordSprint | `ear-training/` | `chordsprint_state` | this repo | none |
