@@ -447,7 +447,9 @@
   var now = new Date();
   var wd = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
   document.getElementById("date-label").textContent = wd[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()];
-  document.getElementById("foot-note").textContent = H.isSandbox ? "sandbox · leest live oefendata" : "";
+  document.getElementById("foot-note").textContent = H.demo
+    ? "demo-modus · nepdata, er wordt niets opgeslagen of gesynct"
+    : (H.isSandbox ? "sandbox · leest live oefendata" : "");
 
   document.getElementById("btn-refresh").addEventListener("click", refresh);
   document.getElementById("btn-settings").addEventListener("click", function () {

@@ -27,6 +27,14 @@ daardoor pas na installatie.
 - De eigen state volgt gewoon de omgeving (`dd:`/`sbx:` via de boot-shim), dus
   sandbox-testen raakt nooit live Trainerinus-historie.
 
+## Lokaal testen zonder login
+
+Op localhost werkt `index.html?demo` zonder Daily Digest-sessie: nep-Supabase
+met vaste voorbeeldrijen, eigen `demo:`-namespace (raakt nooit echte state),
+sync uit. Op de echte site is er geen apart loginscherm: de app ontgrendelt
+met de digest-sessie — log dus eerst in op de Daily Digest van dezelfde
+omgeving (root of /sandbox/) en open Trainerinus daarna.
+
 ## Eenmalige setup: Supabase-tabel
 
 De app draait zonder tabel gewoon lokaal (sync uit, melding in instellingen).

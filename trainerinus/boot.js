@@ -22,7 +22,13 @@
   var PUSH_DEBOUNCE_MS = 1500;
 
   var IS_SANDBOX = location.pathname.indexOf("/sandbox/") !== -1;
-  var NS = IS_SANDBOX ? "sbx:" : "dd:";
+
+  // Demo-modus: ALLEEN op localhost, met ?demo in de URL. Geen login nodig,
+  // nep-Supabase met vaste voorbeeldrijen, en een eigen "demo:"-namespace
+  // zodat echte dd:/sbx:-state nooit wordt gelezen of beschreven. Handig om
+  // lokaal te testen zonder Daily Digest-sessie.
+  var DEMO = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && /[?&]demo\b/.test(location.search);
+  var NS = DEMO ? "demo:" : (IS_SANDBOX ? "sbx:" : "dd:");
 
   var SB = (window.supabase && window.supabase.createClient)
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -147,7 +153,7 @@
     if (ran) return; ran = true;
     // Handles the app uses to talk to Supabase (read-only peeks at the other
     // trainer apps' state tables) without creating a second client.
-    window.__gmTrainer = { sb: SB, userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff };
+    window.__gmTrainer = { sb: SB, userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, demo: DEMO };
     var code = document.getElementById("gm-app-code");
     if (!code) { warn("app code element missing"); return; }
     var s = document.createElement("script");
@@ -173,8 +179,54 @@
     window.addEventListener("beforeunload", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
   }
 
+  // Vaste voorbeeldrijen voor de demo-modus, in de echte state-shapes van de
+  // vier apps. Gevarieerd beeld: vogels + gym groen vandaag, chords wordt bij
+  // de eerste meting groen (marker-mismatch, push van vandaag), notes oefende
+  // gisteren. Plus een voorgezaaid logje zodat streak en weekgrid iets tonen.
+  function demoBoot() {
+    var dk = function (offset) {
+      var d = new Date(); d.setDate(d.getDate() + (offset || 0));
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    };
+    var iso = function (offset) { var d = new Date(); d.setDate(d.getDate() + (offset || 0)); d.setHours(18, 0, 0, 0); return d.toISOString(); };
+    var rows = {
+      vogelspotinus_state: { data: { "dd:vogelspotinus.stats": JSON.stringify({
+        streak: 3, longest: 5, lastPracticeDate: dk(0),
+        today: { date: dk(0), count: 12, newCount: 2 }, dailyGoal: 10 }) }, updated_at: iso(0) },
+      chordsprint_state: { data: { "dd:cpt_stats": '{"score":18,"streak":4,"best":52,"attempts":180,"correct":151}' }, updated_at: iso(0) },
+      notesprint_state: { data: { "dd:noteSprintMistakesV1": '{"e4":2,"a3":1}' }, updated_at: iso(-1) },
+      kangaroo_state: { data: {
+        "dd:kangaroo-workout-history": JSON.stringify([{ id: "d1", workoutId: "w1", workoutName: "Upper A", date: iso(-1), completed: 6, skipped: 1 }]),
+        "dd:kangaroo-cardio": JSON.stringify([{ id: "d2", activity: "Biking", minutes: 45, date: dk(-4) }]),
+        "dd:kangaroo-history": JSON.stringify({ Knees: dk(-1) })
+      }, updated_at: iso(-1) }
+    };
+    // Voorgezaaide eigen state (alleen als die er nog niet is): markers met een
+    // bewust afwijkende hash zodat chords/notes bij de eerste meting een credit
+    // krijgen, en wat groene dagen voor een streak van 2.
+    if (!oGet.call(localStorage, NS + "trainerinus.markers")) {
+      oSet.call(localStorage, NS + "trainerinus.markers", JSON.stringify({
+        chords: { hash: "demo-seed", seenAt: iso(-1) },
+        notes: { hash: "demo-seed", seenAt: iso(-1) }
+      }));
+    }
+    if (!oGet.call(localStorage, NS + "trainerinus.log")) {
+      var log = {};
+      log[dk(-1)] = { chords: 1, notes: 1 };
+      log[dk(-2)] = { chords: 1, notes: 1 };
+      oSet.call(localStorage, NS + "trainerinus.log", JSON.stringify(log));
+    }
+    userId = "demo";
+    syncOff = true;   // ready blijft false: er wordt nooit gepusht
+    SB = { from: function (table) { return { select: function () { return { eq: function () {
+      return Promise.resolve({ data: [rows[table]], error: null });
+    } }; } }; } };
+    runApp();
+  }
+
   function boot() {
     patch();
+    if (DEMO) { demoBoot(); return; }
     if (!SB) { gate("Kan de loginservice niet bereiken", "Controleer je verbinding en laad opnieuw.", true); return; }
     SB.auth.getSession().then(function (res) {
       var s = res && res.data && res.data.session;
