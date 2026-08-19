@@ -197,8 +197,11 @@
   function mountApp() {
     if (mounted) return;
     mounted = true;
+    // 2026-08: route B-herbouw — de app is nu ES-modules in src/ (zoals
+    // vogelspotinus); één module-entry i.p.v. de oude prebuilt bundle.js.
     var s = document.createElement("script");
-    s.src = "bundle.js";
+    s.type = "module";
+    s.src = "src/main.js";
     document.body.appendChild(s);
   }
 

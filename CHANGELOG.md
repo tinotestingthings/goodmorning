@@ -2,6 +2,19 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (6) — WijnWijs route B: herbouw als leesbare broncode (gerichte promote)
+
+WijnWijs is herbouwd van een 428KB prebuilt bundle naar ES-modules in
+wine/src/ (vogelspotinus-patroon; boot.js laadt src/main.js, bundle.js weg).
+Vragenbank (210 vragen) leeft nu als broncode met 11 genormaliseerde topics.
+Alle façade-onderdelen uit de review van 18/8 zijn vervangen door echt gedrag:
+streak/dagdoel/weekgrafiek uit een oefenlogboek, dekking = beantwoord/210,
+beheersing zonder 88%-plafond, échte flashcards/examenstand/zwakke plekken,
+wijnboek koppelt vragen op gewogen trefwoorden. State v3 migreert v2 (xp,
+reviews, wijnboek blijven). Tests: tests/wijnwijs.core.test.mjs (16 groen).
+Gerichte promote van alleen wine/ (andere sessies hadden sandbox-werk in
+flight); geen cache-bump (network-first shell).
+
 ## 2026-08-19 (5) — Trainerinus: oefencoach-dashboard (gerichte promote)
 
 Nieuwe utility-app trainerinus/: per dag groen/grijs voor Vogelspotinus,
