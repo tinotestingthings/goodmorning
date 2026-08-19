@@ -158,14 +158,16 @@
         var d = new Date(); d.setDate(d.getDate() + offsetDays);
         return { month: d.getMonth() + 1, day: d.getDate(), year: withYear ? d.getFullYear() - withYear : null };
       };
-      var p1 = mk(2, 61), p2 = mk(12, 34), p3 = mk(47, null);
+      var p1 = mk(2, 61), p2 = mk(12, 34), p3 = mk(47, null), p4 = mk(25, 13);
       oSet.call(localStorage, NS + "attentinus.people", JSON.stringify([
-        { id: "demo-1", name: "Papa", label: "verjaardag", month: p1.month, day: p1.day, year: p1.year,
+        { id: "demo-1", name: "Papa", cat: "verjaardag", label: null, month: p1.month, day: p1.day, year: p1.year,
           ideas: [{ id: "i1", text: "Boek over de Waddenzee", done: false }] },
-        { id: "demo-2", name: "Emma", label: "verjaardag", month: p2.month, day: p2.day, year: p2.year,
+        { id: "demo-2", name: "Emma", cat: "verjaardag", label: null, month: p2.month, day: p2.day, year: p2.year,
           ideas: [{ id: "i2", text: "Concertkaartjes TivoliVredenburg", done: false },
                   { id: "i3", text: "Wijnproeverij-bon", done: false }] },
-        { id: "demo-3", name: "Lisa & Tom", label: "trouwdag", month: p3.month, day: p3.day, year: null, ideas: [] }
+        { id: "demo-3", name: "Lisa & Tom", cat: "trouwdag", label: null, month: p3.month, day: p3.day, year: null, ideas: [] },
+        { id: "demo-4", name: "Oma", cat: "sterfdag", label: null, month: p4.month, day: p4.day, year: p4.year,
+          ideas: [{ id: "i4", text: "Bloemen voor op het graf", done: false }] }
       ]));
     }
     userId = "demo";

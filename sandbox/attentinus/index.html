@@ -14,7 +14,6 @@
       --muted: #6b7280;
       --line: #e5e7eb;
       --blue: #007aff;
-      --accent: #af52de;
       --soon: #ff9f0a;
       --now: #ff3b30;
       --shadow: 0 10px 26px rgba(0,0,0,0.08);
@@ -59,7 +58,9 @@
     .p-row .days.soon { color: var(--soon); }
     .p-row .days.now { color: #fff; background: var(--now); }
     .p-row .info { flex: 1; min-width: 0; }
-    .p-row .name { font-weight: 650; font-size: 0.95rem; }
+    .p-row .name { font-weight: 650; font-size: 0.95rem; display: flex; align-items: center; gap: 7px; }
+    .cat-ic { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+    .cat-ic svg { width: 100%; height: 100%; display: block; }
     .p-row .detail { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
     .p-row .chev { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
     .empty { font-size: 0.85rem; color: var(--muted); padding: 8px 2px; }
@@ -68,12 +69,20 @@
     .back { border: 0; background: none; color: var(--blue); font-size: 0.95rem; cursor: pointer; padding: 4px 2px 12px; font-weight: 650; }
     .field-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
     .field-row label { font-size: 0.8rem; color: var(--muted); min-width: 64px; }
-    input[type="text"], input[type="number"], select {
+    input[type="text"], input[type="number"], select, textarea {
       padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px;
       background: var(--bg); color: var(--text); font-size: 0.92rem; font-family: inherit;
     }
     input[type="text"] { flex: 1; min-width: 120px; }
     input.small { width: 76px; }
+    .cats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cat-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px;
+      background: var(--bg); color: var(--text); font-size: 0.82rem; font-weight: 650; cursor: pointer;
+    }
+    .cat-chip.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .cat-chip.active .cat-ic { color: #fff; }
     .btn {
       border: 0; border-radius: 12px; padding: 9px 14px; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; background: var(--blue); color: #fff;
@@ -87,6 +96,16 @@
     .idea.done .txt { text-decoration: line-through; color: var(--muted); }
     .idea .del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 2px 6px; }
     .add-row { display: flex; gap: 8px; margin-top: 10px; }
+    .add-row input { flex: 1; }
+
+    /* import/export */
+    .io-open { border: 0; background: none; color: var(--muted); font-size: 0.8rem; cursor: pointer; padding: 2px; text-decoration: underline; }
+    .io textarea { width: 100%; min-height: 130px; resize: vertical; font-size: 0.85rem; line-height: 1.5; }
+    .io .hint { font-size: 0.76rem; color: var(--muted); line-height: 1.55; margin: 6px 0 10px; }
+    .io .hint code { background: var(--bg); border-radius: 6px; padding: 1px 5px; font-size: 0.72rem; }
+    .io-result { font-size: 0.8rem; line-height: 1.55; margin-top: 10px; }
+    .io-result .bad { color: var(--now); }
+    .io-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .foot { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
     .foot pre { text-align: left; font-size: 0.66rem; background: var(--card); border-radius: 10px; padding: 10px; overflow-x: auto; line-height: 1.5; }
   </style>
@@ -100,13 +119,48 @@
   "use strict";
 
   // Attentinus — verjaardagen, jaarlijkse datums en cadeau-ideeën per persoon.
-  // Bewust klein: handmatige invoer (geen adresboek-import), één datalijst
-  // (attentinus.people via de boot-shim, dus dd:/sbx:/demo:-genamespaced en
-  // gesynct naar attentinus_state). De digest-home leest dezelfde lijst
-  // read-only voor de "binnenkort jarig"-rij.
+  // Bewust klein en handmatig. Eén datalijst (attentinus.people via de
+  // boot-shim: dd:/sbx:/demo:-genamespaced, gesynct naar attentinus_state).
+  // De digest-home leest dezelfde lijst read-only.
+  //
+  // Bulk-invoer gaat via "Lijst importeren": plakken in de app zelf, dus de
+  // gegevens blijven tussen jouw browser en jouw Supabase-rij — er komt geen
+  // AI of andere tussenpartij aan te pas.
   var H = window.__gmAttent || {};
-  var SOON_DAYS = 21;    // zelfde venster als de digest-rij
+  var SOON_DAYS = 21;
   var UPCOMING_DAYS = 60;
+
+  // Vaste categorieën met icoon. `anders` heeft een vrij label (p.label).
+  var CATS = [
+    { key: "verjaardag", label: "Verjaardag",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16"/><path d="M5 21v-8h14v8"/><path d="M5 16c1.5 1.2 3-1.2 4.5 0s3-1.2 4.5 0 3-1.2 4.5 0"/><path d="M9 13V9M15 13V9"/><path d="M9 6.5c0-.8.5-1.5 0-2.5m6 5c0-.8.5-1.5 0-2.5"/></svg>' },
+    { key: "trouwdag", label: "Trouwdag",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14" r="5.5"/><circle cx="15" cy="14" r="5.5"/><path d="M12 5.5 10.5 3h3z"/></svg>' },
+    { key: "sterfdag", label: "Sterfdag",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21v-5a3 3 0 0 1 6 0v5"/><path d="M12 12c1.6 0 2.6-1.3 2.6-2.9 0-1.9-1.5-2.4-2.6-4.6-1.1 2.2-2.6 2.7-2.6 4.6C9.4 10.7 10.4 12 12 12z"/><path d="M6 21h12"/></svg>' },
+    { key: "jubileum", label: "Jubileum",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="m12 6.6.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/><path d="m8.5 13.5-2 7 5.5-3 5.5 3-2-7"/></svg>' },
+    { key: "anders", label: "Anders",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><circle cx="12" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>' }
+  ];
+  function catInfo(key) {
+    for (var i = 0; i < CATS.length; i++) if (CATS[i].key === key) return CATS[i];
+    return CATS[CATS.length - 1];
+  }
+
+  // Categorie van een persoon, met migratie voor rijen van vóór de vaste
+  // categorieën (toen was `label` vrije tekst). Zelfde mapping staat in
+  // home.js (attentCat) — gelijk houden.
+  function catOf(p) {
+    if (p.cat) return p.cat;
+    var l = (p.label || "verjaardag").toLowerCase();
+    if (l === "verjaardag" || l === "trouwdag" || l === "sterfdag" || l === "jubileum") return l;
+    return "anders";
+  }
+  function catWord(p) {
+    var c = catOf(p);
+    return c === "anders" ? ((p.label || "datum").toLowerCase()) : c;
+  }
 
   function readPeople() {
     try { var v = JSON.parse(localStorage.getItem("attentinus.people")); return Array.isArray(v) ? v : []; }
@@ -116,41 +170,109 @@
 
   var people = readPeople();
   var view = { mode: "list", personId: null };
+  // io-paneelstate overleeft een re-render, zodat foutregels en de geplakte
+  // tekst niet verdwijnen wanneer de lijst na een import opnieuw tekent.
+  var ioOpen = false, ioText = "", ioResult = [];
 
   // ---- datumhulpjes (lokale tijd) ----
   function today0() { var d = new Date(); d.setHours(12, 0, 0, 0); return d; }
-  // Volgende keer dat maand/dag voorbijkomt (vandaag telt als 0 dagen).
-  // 29 feb valt in een niet-schrikkeljaar terug op 28 feb.
+  function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
   function nextOccur(month, day) {
     var now = today0();
     for (var y = now.getFullYear(); y <= now.getFullYear() + 1; y++) {
       var d = new Date(y, month - 1, Math.min(day, daysInMonth(y, month)), 12);
-      if (d >= now || sameDay(d, now)) {
-        return { date: d, days: Math.round((d - now) / 86400000) };
-      }
+      if (d >= now || sameDay(d, now)) return { date: d, days: Math.round((d - now) / 86400000) };
     }
     return null;
   }
-  function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
   function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
   var MONTHS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  var MONTH_NAMES = {
+    jan: 1, januari: 1, feb: 2, februari: 2, mrt: 3, maart: 3, apr: 4, april: 4, mei: 5,
+    jun: 6, juni: 6, jul: 7, juli: 7, aug: 8, augustus: 8, sep: 9, sept: 9, september: 9,
+    okt: 10, oktober: 10, nov: 11, november: 11, dec: 12, december: 12
+  };
   function fmtDate(p) { return p.day + " " + MONTHS[p.month - 1]; }
-  function ageAt(p, when) { return p.year ? when.getFullYear() - p.year : null; }
+
+  // Wat betekent het jaartal, per categorie: verjaardag -> leeftijd die iemand
+  // wordt, trouwdag -> zoveelste jaar getrouwd, sterfdag -> jaren geleden.
+  function yearText(p, occDate) {
+    if (!p.year) return null;
+    var n = occDate.getFullYear() - p.year;
+    if (n <= 0) return null;
+    var c = catOf(p);
+    if (c === "verjaardag") return "wordt " + n;
+    if (c === "trouwdag") return n + " jaar getrouwd";
+    if (c === "sterfdag") return n + " jaar geleden";
+    return n + " jaar";
+  }
+  function ideaWord(p, n) {
+    var notities = catOf(p) === "sterfdag";
+    if (n === 0) return notities ? "geen notities" : "nog geen idee";
+    if (n === 1) return notities ? "1 notitie" : "1 idee";
+    return n + (notities ? " notities" : " ideeën");
+  }
   function openIdeas(p) { return (p.ideas || []).filter(function (i) { return !i.done; }).length; }
 
   function personDetailLine(p) {
     var nx = nextOccur(p.month, p.day);
-    var bits = [(p.label || "verjaardag") + " " + fmtDate(p)];
-    if (nx) {
-      var age = ageAt(p, nx.date);
-      if (age != null) bits.push("wordt " + age);
-    }
-    var n = openIdeas(p);
-    bits.push(n === 0 ? "nog geen idee" : n === 1 ? "1 idee" : n + " ideeën");
+    var bits = [catWord(p) + " " + fmtDate(p)];
+    if (nx) { var yt = yearText(p, nx.date); if (yt) bits.push(yt); }
+    bits.push(ideaWord(p, openIdeas(p)));
     return bits.join(" · ");
   }
 
   function newId(prefix) { return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6); }
+
+  // ---- import/export -------------------------------------------------------
+  // Eén persoon per regel: "Naam ; datum ; categorie". Datum: "21-8", "21/8",
+  // "21 aug" of "21 augustus", optioneel met jaar. Categorie optioneel
+  // (default verjaardag); onbekende categorie wordt "anders" met dat woord als
+  // label. Alles client-side: er verlaat niets de browser behalve de normale
+  // Supabase-sync van je eigen rij.
+  function parseDate(s) {
+    var t = s.trim().toLowerCase().replace(/\./g, "");
+    var m = t.match(/^(\d{1,2})[-/ ]+([a-z]+|\d{1,2})(?:[-/ ]+(\d{4}))?$/);
+    if (!m) return null;
+    var day = parseInt(m[1], 10);
+    var month = /^\d+$/.test(m[2]) ? parseInt(m[2], 10) : (MONTH_NAMES[m[2]] || 0);
+    var year = m[3] ? parseInt(m[3], 10) : null;
+    if (day < 1 || day > 31 || month < 1 || month > 12) return null;
+    if (year !== null && (year < 1900 || year > 2100)) return null;
+    return { day: day, month: month, year: year };
+  }
+  function parseImport(text) {
+    var ok = [], bad = [];
+    String(text || "").split(/\r?\n/).forEach(function (line, idx) {
+      var raw = line.trim();
+      if (!raw) return;
+      var parts = raw.split(";").map(function (x) { return x.trim(); });
+      var name = parts[0];
+      var date = parts.length > 1 ? parseDate(parts[1]) : null;
+      if (!name || !date) { bad.push({ line: idx + 1, raw: raw, why: !name ? "geen naam" : "datum niet herkend" }); return; }
+      var cat = "verjaardag", label = null;
+      if (parts[2]) {
+        var c = parts[2].toLowerCase();
+        if (c === "verjaardag" || c === "trouwdag" || c === "sterfdag" || c === "jubileum") cat = c;
+        else { cat = "anders"; label = parts[2]; }
+      }
+      ok.push({ id: newId("p"), name: name, cat: cat, label: label, month: date.month, day: date.day, year: date.year, ideas: [] });
+    });
+    return { ok: ok, bad: bad };
+  }
+  function isDuplicate(np) {
+    return people.some(function (p) {
+      return p.name.toLowerCase() === np.name.toLowerCase() && p.month === np.month && p.day === np.day;
+    });
+  }
+  function exportText() {
+    return people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "nl"); })
+      .map(function (p) {
+        var d = p.day + "-" + p.month + (p.year ? "-" + p.year : "");
+        var c = catOf(p) === "anders" ? (p.label || "anders") : catOf(p);
+        return p.name + " ; " + d + " ; " + c;
+      }).join("\n");
+  }
 
   // ---- render ----
   function el(tag, cls, text) {
@@ -158,6 +280,11 @@
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
+  }
+  function catIcon(p) {
+    var s = el("span", "cat-ic");
+    s.innerHTML = catInfo(catOf(p)).icon;
+    return s;
   }
   var root = document.getElementById("app");
 
@@ -179,7 +306,10 @@
       row.appendChild(days);
     }
     var info = el("div", "info");
-    info.appendChild(el("div", "name", p.name));
+    var name = el("div", "name");
+    name.appendChild(catIcon(p));
+    name.appendChild(el("span", null, p.name));
+    info.appendChild(name);
     info.appendChild(el("div", "detail", personDetailLine(p)));
     row.appendChild(info);
     row.appendChild(el("span", "chev", "›"));
@@ -208,16 +338,63 @@
 
     var c2 = el("section", "card");
     c2.appendChild(el("h2", null, "Iedereen"));
-    if (!people.length) c2.appendChild(el("div", "empty", "Nog niemand toegevoegd — begin met “+ persoon”."));
+    if (!people.length) c2.appendChild(el("div", "empty", "Nog niemand toegevoegd — begin met “+ persoon” of importeer een lijst."));
     people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "nl"); })
       .forEach(function (p) { c2.appendChild(personRow(p, false)); });
+    var io = el("button", "io-open", ioOpen ? "importeren/exporteren verbergen" : "Lijst importeren of exporteren…");
+    io.addEventListener("click", function () { ioOpen = !ioOpen; render(); });
+    var ioWrap = el("div", null); ioWrap.style.marginTop = "8px";
+    ioWrap.appendChild(io);
+    c2.appendChild(ioWrap);
     root.appendChild(c2);
+
+    if (ioOpen) root.appendChild(renderIO());
+  }
+
+  function renderIO() {
+    var card = el("section", "card io");
+    card.appendChild(el("h2", null, "Importeren / exporteren"));
+    var hint = el("div", "hint");
+    hint.innerHTML = "Eén persoon per regel: <code>Naam ; 21 aug 1965 ; verjaardag</code><br />" +
+      "Datum mag ook <code>21-8</code> of <code>21/8/1965</code>; jaartal en categorie zijn optioneel " +
+      "(categorie: verjaardag · trouwdag · sterfdag · jubileum, of een eigen woord). " +
+      "Alles blijft in je browser en je eigen sync — hier kijkt niets of niemand mee.";
+    card.appendChild(hint);
+    var ta = document.createElement("textarea");
+    ta.placeholder = "Emma ; 31 aug 1992\nLisa & Tom ; 5 okt ; trouwdag";
+    ta.value = ioText;
+    ta.addEventListener("input", function () { ioText = ta.value; });
+    card.appendChild(ta);
+    var result = el("div", "io-result");
+    ioResult.forEach(function (line) { result.appendChild(el("div", line.bad ? "bad" : null, line.text)); });
+    var btns = el("div", "io-btns");
+    var doImport = el("button", "btn", "Importeer");
+    doImport.addEventListener("click", function () {
+      var r = parseImport(ta.value);
+      var added = 0, dup = 0;
+      r.ok.forEach(function (np) { if (isDuplicate(np)) { dup++; return; } people.push(np); added++; });
+      if (added) writePeople(people);
+      ioResult = [{ text: added + " toegevoegd" + (dup ? ", " + dup + " overgeslagen (stond er al)" : "") }]
+        .concat(r.bad.map(function (b) { return { bad: true, text: "regel " + b.line + " overgeslagen (" + b.why + "): " + b.raw }; }));
+      if (!r.bad.length) { ioText = ""; }
+      render();
+    });
+    var doExport = el("button", "btn ghost", "Exporteer huidige lijst");
+    doExport.addEventListener("click", function () {
+      ioText = exportText();
+      ioResult = [{ text: people.length + " personen in het vak hierboven — kopieer en bewaar waar je wilt." }];
+      render();
+    });
+    btns.appendChild(doImport); btns.appendChild(doExport);
+    card.appendChild(btns);
+    card.appendChild(result);
+    return card;
   }
 
   function renderDetail() {
     var p = people.find(function (x) { return x.id === view.personId; }) || null;
     var isNew = !p;
-    if (isNew) p = { id: newId("p"), name: "", label: "verjaardag", month: today0().getMonth() + 1, day: today0().getDate(), year: null, ideas: [] };
+    if (isNew) p = { id: newId("p"), name: "", cat: "verjaardag", label: null, month: today0().getMonth() + 1, day: today0().getDate(), year: null, ideas: [] };
 
     var back = el("button", "back", "‹ terug");
     back.addEventListener("click", function () { view = { mode: "list", personId: null }; render(); });
@@ -232,11 +409,34 @@
     rowName.appendChild(name);
     card.appendChild(rowName);
 
-    var rowWhat = el("div", "field-row");
-    rowWhat.appendChild(el("label", null, "Wat"));
-    var label = document.createElement("input"); label.type = "text"; label.value = p.label || "verjaardag";
-    rowWhat.appendChild(label);
-    card.appendChild(rowWhat);
+    var chosenCat = catOf(p);
+    var rowCat = el("div", "field-row");
+    rowCat.appendChild(el("label", null, "Wat"));
+    var cats = el("div", "cats");
+    var customLabel = document.createElement("input");
+    customLabel.type = "text"; customLabel.placeholder = "eigen label (bv. examen)";
+    customLabel.value = (chosenCat === "anders" && p.label) ? p.label : "";
+    customLabel.style.display = chosenCat === "anders" ? "" : "none";
+    CATS.forEach(function (c) {
+      var chip = el("button", "cat-chip" + (c.key === chosenCat ? " active" : ""));
+      chip.type = "button";
+      var ic = el("span", "cat-ic"); ic.innerHTML = c.icon;
+      chip.appendChild(ic);
+      chip.appendChild(el("span", null, c.label));
+      chip.addEventListener("click", function () {
+        chosenCat = c.key;
+        Array.prototype.forEach.call(cats.children, function (ch) { ch.classList.remove("active"); });
+        chip.classList.add("active");
+        customLabel.style.display = c.key === "anders" ? "" : "none";
+      });
+      cats.appendChild(chip);
+    });
+    rowCat.appendChild(cats);
+    card.appendChild(rowCat);
+    var rowCustom = el("div", "field-row");
+    rowCustom.appendChild(el("label", null, ""));
+    rowCustom.appendChild(customLabel);
+    card.appendChild(rowCustom);
 
     var rowDate = el("div", "field-row");
     rowDate.appendChild(el("label", null, "Datum"));
@@ -257,7 +457,8 @@
       var nm = name.value.trim();
       if (!nm) { name.focus(); return; }
       p.name = nm;
-      p.label = label.value.trim() || "verjaardag";
+      p.cat = chosenCat;
+      p.label = chosenCat === "anders" ? (customLabel.value.trim() || "anders") : null;
       p.month = Math.max(1, Math.min(12, parseInt(month.value, 10) || 1));
       p.day = Math.max(1, Math.min(31, parseInt(day.value, 10) || 1));
       var y = parseInt(year.value, 10);
@@ -271,9 +472,11 @@
     root.appendChild(card);
 
     if (!isNew) {
+      var notities = catOf(p) === "sterfdag";
       var ideasCard = el("section", "card");
-      ideasCard.appendChild(el("h2", null, "Cadeau-ideeën"));
-      if (!(p.ideas || []).length) ideasCard.appendChild(el("div", "empty", "Nog geen ideeën — hoor je iets? Zet het er meteen in."));
+      ideasCard.appendChild(el("h2", null, notities ? "Notities" : "Cadeau-ideeën"));
+      if (!(p.ideas || []).length) ideasCard.appendChild(el("div", "empty",
+        notities ? "Nog geen notities." : "Nog geen ideeën — hoor je iets? Zet het er meteen in."));
       (p.ideas || []).forEach(function (idea) {
         var row = el("div", "idea" + (idea.done ? " done" : ""));
         var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!idea.done;
@@ -281,7 +484,7 @@
         row.appendChild(cb);
         row.appendChild(el("span", "txt", idea.text));
         var del = el("button", "del", "✕");
-        del.setAttribute("aria-label", "Verwijder idee");
+        del.setAttribute("aria-label", "Verwijder");
         del.addEventListener("click", function () {
           p.ideas = p.ideas.filter(function (i) { return i.id !== idea.id; });
           writePeople(people); render();
@@ -290,7 +493,8 @@
         ideasCard.appendChild(row);
       });
       var addRow = el("div", "add-row");
-      var input = document.createElement("input"); input.type = "text"; input.placeholder = "Nieuw idee…";
+      var input = document.createElement("input"); input.type = "text";
+      input.placeholder = notities ? "Nieuwe notitie…" : "Nieuw idee…";
       var addBtn = el("button", "btn", "+");
       var addIdea = function () {
         var t = input.value.trim();
@@ -305,7 +509,6 @@
       ideasCard.appendChild(addRow);
       root.appendChild(ideasCard);
 
-      // verwijderen: twee tikken, zelfde patroon als NoteSprint-reset
       var danger = el("button", "btn danger", "Verwijder " + p.name);
       var armed = false, timer = null;
       danger.addEventListener("click", function () {

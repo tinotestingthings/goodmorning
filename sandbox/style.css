@@ -3301,6 +3301,20 @@ main#deckArea {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.vault-note.open .vault-note-excerpt {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+.vault-note-more {
+  border: 0;
+  background: none;
+  color: var(--accent, #4a9eff);
+  font-size: 0.78rem;
+  font-weight: 650;
+  padding: 4px 0 0;
+  cursor: pointer;
+}
 .vault-note-path {
   font-size: 0.72rem;
   color: var(--text-dim);

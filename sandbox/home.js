@@ -315,9 +315,13 @@
   // "Most used apps" strip in de hero-rij. Voorlopig hardcoded op NoteSprint
   // en ChordSprint; de lijst staat los zodat hij later uit werkelijk gebruik
   // (of uit de *_state tabellen) gevuld kan worden zonder de opmaak te raken.
+  var ICON_GIFT =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>';
+
+  // 2026-08-19: NoteSprint + ChordSprint vervangen door Attentinus (op verzoek;
+  // de muziektegels komen misschien later terug — entries bewaard in git).
   var MOST_USED = [
-    { label: "NoteSprint", href: "notesprint/", icon: ICON_MUSIC_NOTE },
-    { label: "ChordSprint", href: "ear-training/", icon: ICON_LISTEN }
+    { label: "Attentinus", href: "attentinus/", icon: ICON_GIFT }
   ];
 
   function renderAppTile(opts) {
@@ -690,11 +694,21 @@
   // Attentinus tile — zelfde slot-patroon: alleen zichtbaar als er binnen 21
   // dagen iemand "jarig" is (of een andere jaarlijkse datum uit Attentinus).
   // Leest attentinus.people read-only uit attentinus_state; de app zelf is de
-  // plek waar je beheert en ideeën bijhoudt.
-  var ICON_GIFT =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>';
+  // plek waar je beheert en ideeën bijhoudt. (ICON_GIFT staat bij MOST_USED.)
 
   var ATTENT_SOON_DAYS = 21;   // zelfde venster als in de Attentinus-app
+
+  // Categorie van een persoon, met migratie voor rijen van vóór de vaste
+  // categorieën (toen was `label` vrije tekst). Moet gelijk blijven aan de
+  // migratie in attentinus/index.html.
+  function attentCat(p) {
+    if (p && p.cat) return p.cat;
+    var l = ((p && p.label) || "verjaardag").toLowerCase();
+    if (l === "verjaardag") return "verjaardag";
+    if (l === "trouwdag") return "trouwdag";
+    if (l === "sterfdag") return "sterfdag";
+    return "anders";
+  }
 
   // Volgende keer dat maand/dag voorbijkomt, in dagen vanaf vandaag (0 = vandaag).
   function attentNextDays(month, day) {
@@ -723,13 +737,19 @@
       if (!soon.length) return;               // niets binnen het venster -> stil
 
       var first = soon[0];
-      var label = first.p.label && first.p.label !== "verjaardag" ? first.p.label : null;
-      var title = first.days === 0
-        ? first.p.name + (label ? ": " + label + " vandaag!" : " is vandaag jarig!")
-        : first.p.name + (label ? ": " + label + " over " + first.days + (first.days === 1 ? " dag" : " dagen")
-                                : " is over " + first.days + (first.days === 1 ? " dag" : " dagen") + " jarig");
-      var ideas = (first.p.ideas || []).filter(function (i) { return i && !i.done; }).length;
-      var sub = ideas === 0 ? "Nog geen cadeau-idee" : ideas === 1 ? "1 cadeau-idee klaar" : ideas + " cadeau-ideeën klaar";
+      var cat = attentCat(first.p);
+      var catWord = cat === "anders" ? ((first.p.label || "datum").toLowerCase()) : cat;
+      var overStr = "over " + first.days + (first.days === 1 ? " dag" : " dagen");
+      var title = cat === "verjaardag"
+        ? (first.days === 0 ? first.p.name + " is vandaag jarig!" : first.p.name + " is " + overStr + " jarig")
+        : first.p.name + ": " + catWord + (first.days === 0 ? " vandaag" : " " + overStr);
+      var sub;
+      if (cat === "sterfdag") {
+        sub = first.p.year ? (new Date().getFullYear() - first.p.year) + " jaar geleden" : "Herdenking";
+      } else {
+        var ideas = (first.p.ideas || []).filter(function (i) { return i && !i.done; }).length;
+        sub = ideas === 0 ? "Nog geen cadeau-idee" : ideas === 1 ? "1 cadeau-idee klaar" : ideas + " cadeau-ideeën klaar";
+      }
       if (soon.length > 1) sub += " · ook: " + soon[1].p.name + " (" + soon[1].days + "d)";
 
       var a = document.createElement("a");
@@ -776,6 +796,17 @@
     card.appendChild(el("div", "vault-note-label", "Uit je vault" + when));
     card.appendChild(el("div", "vault-note-title", note.title));
     card.appendChild(el("div", "vault-note-excerpt", note.excerpt));
+    // De excerpt is standaard op 4 regels geklemd; bij langere teksten kan de
+    // kaart open ("lees meer") zodat alle context leesbaar is.
+    if ((note.excerpt || "").length > 180) {
+      var more = el("button", "vault-note-more", "lees meer");
+      more.type = "button";
+      more.addEventListener("click", function () {
+        var open = card.classList.toggle("open");
+        more.textContent = open ? "minder" : "lees meer";
+      });
+      card.appendChild(more);
+    }
     if (note.path) card.appendChild(el("div", "vault-note-path", note.path));
 
     var actions = el("div", "vault-note-actions");
