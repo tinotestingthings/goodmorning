@@ -4,8 +4,17 @@
 //   cd /tmp && npm i jsdom && node <repo>/tests/agendasync.behaviour.mjs <repo>
 //
 // Draai dit na elke wijziging aan agendasync.js.
-import { JSDOM } from "jsdom";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+// Node resolvet "jsdom" vanaf de map van dít bestand, niet vanaf de cwd —
+// vanuit een worktree wordt /tmp/node_modules dus nooit gevonden. Val dan
+// terug op resolutie vanaf de cwd, zodat het recept hierboven overal werkt.
+let JSDOM;
+try { ({ JSDOM } = await import("jsdom")); }
+catch (e) {
+  if (e?.code !== "ERR_MODULE_NOT_FOUND") throw e;
+  ({ JSDOM } = createRequire(process.cwd() + "/")("jsdom"));
+}
 const GM = process.argv[2] || new URL("..", import.meta.url).pathname;
 
 function harness({ pullFails, serverTodos, localTodos }) {
