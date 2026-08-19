@@ -22,6 +22,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Ear training / ChordSprint | `ear-training/` | `chordsprint_state` | this repo | none |
 | WijnWijs (wine) | `wine/` | `wine_state` | this repo (`bundle.js` prebuilt) | none |
 | Event Tracker | `events/` | `eventtracker_state` (personal state only; catalogue is baked in) | `events-src/` in this repo | `bash events-src/build.sh` → `events/bundle.js`; catalogue edited by the **event-catalog-refresh** task |
+| Trainerinus (oefencoach over de trainer-apps) | `trainerinus/` (nog sandbox-only) | `trainerinus_state` (tabel moet nog aangemaakt — SQL in `sandbox/trainerinus/README.md`; app draait zonder tabel lokaal) | this repo | none; leest read-only de state-tabellen van vogelspotinus/chordsprint/notesprint/kangaroo |
 | Ecosystem explainer (video) | `explainer/` | — | this repo | Remotion; not served by the PWA |
 
 ## Not in this repo (on purpose)
