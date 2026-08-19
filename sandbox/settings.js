@@ -23,8 +23,77 @@
     root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
     root.appendChild(buildIcsFeeds());
+    root.appendChild(buildAgendaTools());
     var ver = buildVersion();
     if (ver) root.appendChild(ver);
+  }
+
+  function toast(message) {
+    var t = document.querySelector(".toast");
+    if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.appendChild(t); }
+    t.textContent = message;
+    t.classList.add("show");
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(function () { t.classList.remove("show"); }, 1900);
+  }
+
+  // ---- Agenda tools: share the gym plan ----
+  // Scans the next 14 days of the agenda (to-dos + recurring chores) for
+  // gym-ish items — by category name or item text — and copies a paste-ready
+  // list of days/times, e.g. to plan sessions with friends.
+  var GYM_RE = /(gym|fitness|sportschool|krachttraining|work\s?-?\s?out)/i;
+
+  function gymScheduleText() {
+    var M = window.DayModel;
+    if (!M) return null;
+    var catName = {};
+    (window.Cats ? window.Cats.load() : []).forEach(function (c) { catName[c.id] = c.name || ""; });
+    function isGym(text, catId) { return GYM_RE.test(text || "") || GYM_RE.test(catName[catId] || ""); }
+
+    var todos = M.loadTodos(), chores = M.loadChores();
+    var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var now = new Date();
+    var lines = [];
+    for (var i = 0; i < 14; i++) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+      var ds = M.localDateStr(d);
+      var times = [];
+      todos.forEach(function (t) {
+        if (t.done) return;
+        var onDay = t.dueDate === ds || (t.endDate && t.dueDate && t.dueDate <= ds && ds <= t.endDate);
+        if (!onDay || !isGym(t.text, t.category)) return;
+        times.push(t.startTime ? t.startTime + (t.endTime ? "–" + t.endTime : "") : "");
+      });
+      chores.forEach(function (c) {
+        if (!isGym(c.name, c.category)) return;
+        if (M.choreOccursOn && M.choreOccursOn(c, d)) times.push("");
+      });
+      if (!times.length) continue;
+      var when = times.filter(Boolean).join(", ");
+      lines.push(DOW[(d.getDay() + 6) % 7] + " " + d.getDate() + " " + MON[d.getMonth()] + (when ? " — " + when : ""));
+    }
+    if (!lines.length) return null;
+    return "My gym days (next 14 days):\n" + lines.join("\n");
+  }
+
+  function buildAgendaTools() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Agenda"));
+    sec.appendChild(el("p", "settings-sub", "Copies the gym days and times found in the next 14 days of your agenda — paste it to whoever you train with."));
+    var b = el("button", "btn btn-ghost", "Copy gym schedule (next 14 days)");
+    b.type = "button";
+    b.addEventListener("click", function () {
+      var text = gymScheduleText();
+      if (!text) { toast("No gym items found in the next 14 days"); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          toast("Copied " + (text.split("\n").length - 1) + " gym day(s)");
+        }, function () { toast("Copy failed — clipboard blocked"); });
+      } else toast("Clipboard not available");
+    });
+    sec.appendChild(b);
+    return sec;
   }
 
   // Build stamp, only shown when env.js actually sets one.

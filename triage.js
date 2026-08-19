@@ -130,74 +130,84 @@
     return { btn: btn, textarea: ta };
   }
 
-  // ---- circular action buttons ----
+  // ---- action bar ----
+  // Swiping the card decides keep/dismiss, so the bar below the card carries
+  // the OTHER choices (they used to hide behind a ⋯ menu): defer, note, and
+  // the promotions into a real task/project, plus undo. Icons + tiny labels.
 
-  var ICONS = {
-    dismiss: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>',
-    keep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
-    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
-    more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>'
+  var TRI_ICONS = {
+    later: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    task: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>',
+    project: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2Z"/></svg>',
+    undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a6 6 0 0 1 0 12H8"/><path d="M7 4 3 8l4 4"/></svg>',
+    history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>'
   };
 
-  var DECISION_LABELS = { keep: "KEPT", dismiss: "DISMISSED", task: "→ TASK", project: "→ PROJECT" };
+  var DECISION_LABELS = { keep: "KEPT", dismiss: "NOPE", task: "→ TASK", project: "→ PROJECT" };
   var DECISION_COLORS = { keep: "--keep", dismiss: "--dismiss", task: "--skip", project: "--accent" };
 
-  // Bottom-sheet menu behind the middle button: defer, add note, or promote
-  // the card into a real task/project (those emit task:/project: queue lines
-  // that Claude files to 30 Tasks / 40 Projects instead of 20 Sources).
-  function openCardMenu(item, flash, nc) {
+  function barBtn(kind, label, aria, handler) {
+    var btn = document.createElement("button");
+    btn.className = "tri-act tri-act-" + kind;
+    btn.type = "button";
+    btn.setAttribute("aria-label", aria || label);
+    btn.innerHTML = TRI_ICONS[kind] + '<span class="tri-act-label">' + label + "</span>";
+    btn.addEventListener("click", handler);
+    return btn;
+  }
+
+  // ---- local log of decisions, so a History view exists after hand-off ----
+  // (mirrors capture.js's capture.log; capped, device-local)
+  function logTriage(item, action) {
+    try {
+      var list = JSON.parse(localStorage.getItem(k("triage.log")) || "[]");
+      list.push({ id: item.id, title: item.title || "(untitled)", action: action, at: new Date().toISOString() });
+      if (list.length > 80) list = list.slice(list.length - 80);
+      localStorage.setItem(k("triage.log"), JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  // Bottom sheet listing past decisions, newest first (also shown under
+  // Calendar → History alongside captures and completed to-dos).
+  function openTriageHistory() {
     var backdrop = document.createElement("div");
     backdrop.className = "card-menu-backdrop";
     var menu = document.createElement("div");
     menu.className = "card-menu";
-
     function close() {
       backdrop.classList.remove("show");
       setTimeout(function () { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
     }
-
-    function addItem(label, sub, handler) {
-      var b = document.createElement("button");
-      b.className = "card-menu-item";
-      b.type = "button";
-      b.innerHTML = '<span class="cm-label">' + label + '</span>' +
-        (sub ? '<span class="cm-sub">' + sub + '</span>' : '');
-      b.addEventListener("click", function () { close(); handler(); });
-      menu.appendChild(b);
+    menu.appendChild(el("div", "capture-heading", "Triage history"));
+    var log = [];
+    try { log = JSON.parse(localStorage.getItem(k("triage.log")) || "[]"); } catch (e) {}
+    log = log.slice().sort(function (a, b) { return new Date(b.at) - new Date(a.at); }).slice(0, 40);
+    if (!log.length) {
+      menu.appendChild(el("p", "tri-hist-empty", "No decisions yet — they show up here as you swipe."));
+    } else {
+      var list = el("div", "tri-hist-list");
+      log.forEach(function (e) {
+        var row = el("div", "tri-hist-row");
+        row.appendChild(el("span", "tri-hist-action tri-hist-" + (e.action || "keep"), DECISION_LABELS[e.action] || (e.action || "").toUpperCase()));
+        row.appendChild(el("span", "tri-hist-title", e.title || "(untitled)"));
+        row.appendChild(el("span", "tri-hist-date", (e.at || "").slice(0, 10)));
+        list.appendChild(row);
+      });
+      menu.appendChild(list);
     }
-
-    addItem("Review later", "Keep it undecided — it stays for next time", function () { skip(flash); });
-    addItem("Add note", "Jot context, collected with your decisions", function () {
-      if (nc && nc.textarea) {
-        nc.textarea.classList.remove("hidden");
-        nc.textarea.focus();
-      }
-    });
-    addItem("Make into task", "File to 30 Tasks (a bounded to-do)", function () { decide(item, "task", flash); });
-    addItem("Make into project", "File to 40 Projects (an ongoing effort)", function () { decide(item, "project", flash); });
-
     var cancel = document.createElement("button");
     cancel.className = "card-menu-cancel";
     cancel.type = "button";
-    cancel.textContent = "Cancel";
+    cancel.textContent = "Close";
     cancel.addEventListener("click", close);
     menu.appendChild(cancel);
-
     if (window.Sheet) window.Sheet.swipeClose(menu, close);
     backdrop.appendChild(menu);
     backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
     document.body.appendChild(backdrop);
     requestAnimationFrame ? requestAnimationFrame(function () { backdrop.classList.add("show"); })
                           : backdrop.classList.add("show");
-  }
-
-  function circleBtn(kind, size, label) {
-    var btn = document.createElement("button");
-    btn.className = "btn-circle btn-circle-" + kind + " btn-circle-" + size;
-    btn.innerHTML = ICONS[kind];
-    btn.setAttribute("aria-label", label);
-    btn.setAttribute("type", "button");
-    return btn;
   }
 
   // ---- progress dots (replaces the old "3 of 6" text) ----
@@ -319,37 +329,29 @@
     dismissBadge.textContent = "NOPE";
     card.appendChild(dismissBadge);
 
+    card.classList.add("card-enter");
+    card.addEventListener("animationend", function () { card.classList.remove("card-enter"); });
     cardWrap.appendChild(card);
     deckArea.appendChild(cardWrap);
 
     attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
-    var actionRow = document.createElement("div");
-    actionRow.className = "action-row";
+    // deciding happens by swiping; the bar carries everything else
+    deckArea.appendChild(el("div", "tri-swipe-hint", "← nope · swipe · keep →"));
 
-    var dismissBtn = circleBtn("dismiss", "lg", "No");
-    dismissBtn.addEventListener("click", function () { decide(item, "dismiss", flash); });
-
-    var moreBtn = circleBtn("more", "sm", "More options");
-    moreBtn.addEventListener("click", function () { openCardMenu(item, flash, nc); });
-
-    var keepBtn = circleBtn("keep", "lg", "Yes");
-    keepBtn.addEventListener("click", function () { decide(item, "keep", flash); });
-
-    actionRow.appendChild(dismissBtn);
-    actionRow.appendChild(moreBtn);
-    actionRow.appendChild(keepBtn);
-    deckArea.appendChild(actionRow);
-
-    var undoRow = document.createElement("div");
-    undoRow.className = "undo-row";
-    var undoBtn = document.createElement("button");
-    undoBtn.className = "btn btn-undo";
-    undoBtn.textContent = "Undo last";
+    var bar = document.createElement("div");
+    bar.className = "tri-bar";
+    bar.appendChild(barBtn("later", "Later", "Review later — stays for next time", function () { skip(flash); }));
+    bar.appendChild(barBtn("note", "Note", "Add a note to this card", function () {
+      nc.textarea.classList.toggle("hidden");
+      if (!nc.textarea.classList.contains("hidden")) nc.textarea.focus();
+    }));
+    bar.appendChild(barBtn("task", "Task", "Make into a task (files to 30 Tasks)", function () { decide(item, "task", flash); }));
+    bar.appendChild(barBtn("project", "Project", "Make into a project (files to 40 Projects)", function () { decide(item, "project", flash); }));
+    var undoBtn = barBtn("undo", "Undo", "Undo last decision", undo);
     undoBtn.disabled = !lastAction;
-    undoBtn.addEventListener("click", undo);
-    undoRow.appendChild(undoBtn);
-    deckArea.appendChild(undoRow);
+    bar.appendChild(undoBtn);
+    deckArea.appendChild(bar);
   }
 
   function renderComplete() {
@@ -475,9 +477,12 @@
       card.classList.remove("card-dragging");
       card.classList.add("card-animating");
       (direction > 0 ? keepBadge : dismissBadge).style.opacity = 1;
-      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px,40px) rotate(" +
-        (direction * 28) + "deg)";
-      card.style.opacity = "0.3";
+      card.style.transform = "translate(" + (direction * (window.innerWidth + 120)) + "px,-24px) rotate(" +
+        (direction * 22) + "deg)";
+      card.style.opacity = "0";
+      // the peeking next-card sliver rises to full size while this one leaves
+      var shadow = card.parentNode && card.parentNode.querySelector(".card-stack-shadow");
+      if (shadow) shadow.classList.add("stack-promote");
       setTimeout(function () { decide(item, action, null); }, 230);
     }
 
@@ -544,8 +549,8 @@
     if (!flashEl) return;
     flashEl.textContent = label;
     flashEl.style.background = "var(" + colorVar + ")";
-    flashEl.style.opacity = "0.92";
-    setTimeout(function () { flashEl.style.opacity = "0"; }, 200);
+    flashEl.classList.add("show");
+    setTimeout(function () { flashEl.classList.remove("show"); }, 260);
   }
 
   function decide(item, action, flashEl) {
@@ -565,6 +570,7 @@
     flashDecision(flashEl, DECISION_LABELS[action] || action.toUpperCase(), DECISION_COLORS[action] || "--skip");
     lastAction = { type: "decide", id: item.id, prevPointer: pointer };
     decisions[item.id] = action;
+    logTriage(item, action);
     pointer++;
     saveDecisions();
     savePointer();
@@ -751,6 +757,13 @@
       startBtn.setAttribute("aria-label", "Start triage over");
       startBtn.innerHTML = REDO_ICON;
       startBtn.addEventListener("click", startOver);
+      var histBtn = document.createElement("button");
+      histBtn.className = "hdr-btn";
+      histBtn.type = "button";
+      histBtn.setAttribute("aria-label", "Triage history");
+      histBtn.innerHTML = TRI_ICONS.history;
+      histBtn.addEventListener("click", openTriageHistory);
+      actions.appendChild(histBtn);
       actions.appendChild(refreshBtn);
       actions.appendChild(startBtn);
       header.appendChild(actions);

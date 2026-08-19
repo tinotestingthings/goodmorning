@@ -61,7 +61,6 @@
         seg.querySelectorAll(".capture-seg-btn").forEach(function (x) { x.classList.remove("active"); });
         b.classList.add("active");
         send.textContent = kind === "task" ? "Add task" : kind === "project" ? "Add project" : "Add to inbox";
-        hold.style.display = kind === "note" ? "" : "none";
         whenWrap.style.display = kind === "task" ? "" : "none";
       });
       seg.appendChild(b);
@@ -94,15 +93,6 @@
     whenWrap.appendChild(whenSeg);
     whenWrap.appendChild(whenDate);
     whenWrap.style.display = "none"; // shown only for kind=task
-
-    // Hold = keep it in Supabase to ponder; it won't sync to the vault until
-    // released. Unchecked = syncs on the next bridge run (or "sync my notes").
-    var hold = el("label", "capture-hold");
-    var holdCb = document.createElement("input");
-    holdCb.type = "checkbox";
-    holdCb.className = "capture-hold-cb";
-    hold.appendChild(holdCb);
-    hold.appendChild(el("span", null, "Hold to ponder — don't sync yet"));
 
     var send = el("button", "btn btn-primary capture-send", "Add to inbox");
     send.type = "button";
@@ -139,12 +129,11 @@
       if (!global.SB) { toast("Not connected — try again"); return; }
       send.disabled = true; send.textContent = "Adding…";
       var title = body.split("\n")[0].slice(0, 120);
-      var status = holdCb.checked ? "holding" : "new";
-      global.SB.from("captures").insert({ kind: kind, title: title, body: body, status: status }).then(function (res) {
+      global.SB.from("captures").insert({ kind: kind, title: title, body: body, status: "new" }).then(function (res) {
         send.disabled = false; send.textContent = "Add to inbox";
         if (res && res.error) { toast("Failed: " + res.error.message); return; }
-        logCapture(kind, title, holdCb.checked);
-        toast(holdCb.checked ? "Held to ponder" : "Added to inbox");
+        logCapture(kind, title);
+        toast("Added to inbox");
         close();
       }, function (err) {
         send.disabled = false; send.textContent = "Add to inbox";
@@ -156,30 +145,29 @@
     cancel.type = "button";
     cancel.addEventListener("click", close);
 
+    // Everything captured here (and every completed to-do, chore, decision)
+    // is browsable under Calendar → History.
+    var hist = el("button", "capture-history-link", "See history →");
+    hist.type = "button";
+    hist.addEventListener("click", function () {
+      close();
+      if (global.CalNav) global.CalNav.setView("history");
+      if (global.App && global.App.go) global.App.go("calendar");
+    });
+
     sheet.appendChild(ta);
     sheet.appendChild(seg);
     sheet.appendChild(whenWrap);
-    sheet.appendChild(hold);
     sheet.appendChild(send);
+    sheet.appendChild(hist);
     sheet.appendChild(cancel);
 
-    // If any notes are on hold, offer to release them all for the next sync.
+    // "Hold to ponder" is gone (it was never used): release anything still
+    // parked as status=holding so it syncs to the vault like a normal capture.
+    // Idempotent, and a no-op the moment no held rows remain.
     if (global.SB) {
-      global.SB.from("captures").select("id").eq("status", "holding").then(function (res) {
-        if (!res || res.error || !res.data || !res.data.length) return;
-        var n = res.data.length;
-        var rel = el("button", "capture-release", "Release " + n + " held → sync");
-        rel.type = "button";
-        rel.addEventListener("click", function () {
-          rel.disabled = true; rel.textContent = "Releasing…";
-          global.SB.from("captures").update({ status: "new" }).eq("status", "holding").then(function (r2) {
-            if (r2 && r2.error) { toast("Failed"); rel.disabled = false; rel.textContent = "Release " + n + " held → sync"; return; }
-            toast(n + " released — syncs next run");
-            if (rel.parentNode) rel.parentNode.removeChild(rel);
-          });
-        });
-        sheet.insertBefore(rel, cancel);
-      });
+      global.SB.from("captures").update({ status: "new" }).eq("status", "holding")
+        .then(function () {}, function () {});
     }
     if (global.Sheet) global.Sheet.swipeClose(sheet, close);
     backdrop.appendChild(sheet);

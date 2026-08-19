@@ -831,6 +831,12 @@
     if(!caps.length) wrap.appendChild(el("p","cal-empty","Nothing captured yet."));
     else { var ql=el("div","history-list"); caps.forEach(function(e){ ql.appendChild(histRow((e.title||"(untitled)")+(e.held?" · held":"")+(e.kind?" · "+e.kind:""),e.at)); }); wrap.appendChild(ql); }
 
+    // Triage decisions (kept/dismissed/→task/→project — logged by triage.js)
+    var tri=histLoad(k("triage.log"),[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
+    wrap.appendChild(el("h3","cal-agenda-head","Triage decisions"));
+    if(!tri.length) wrap.appendChild(el("p","cal-empty","No decisions logged yet."));
+    else { var tl=el("div","history-list"); tri.forEach(function(e){ tl.appendChild(histRow((e.title||"(untitled)")+" · "+(e.action||""),e.at)); }); wrap.appendChild(tl); }
+
     return wrap;
   }
 
@@ -1335,17 +1341,36 @@
     // Drag moves the block via translateX (NOT reparenting — reparenting a
     // pointer-captured element drops the capture, which was why a drag froze
     // one day past the origin). Column is picked by clientX; commit on drop.
+    // Shift+drag (desktop) drags out a COPY; dropping on the all-day strip
+    // makes the item untimed (Outlook-style) instead of clamping to 00:00.
     var mode=null, gridTop=0, startMin=0, endMin=0, dur=0, moved=false, sx=0, sy=0, originIdx=0, targetIdx=0, pid=null, grabOff=0;
+    var dupe=false, srcGhost=null, allRowEl=null, overAllDay=false;
     function colUnder(x){ for(var i=0;i<colEls.length;i++){ var r=colEls[i].getBoundingClientRect(); if(x>=r.left&&x<=r.right)return i; } return targetIdx; }
+    // keep a multi-day item's span when its start day moves
+    function shiftSpan(x,nds){ if(x.endDate&&x.dueDate){ var sp=Math.round((parseYmd(x.endDate)-parseYmd(x.dueDate))/86400000); if(!(sp>=0))sp=0; x.endDate=ymd(addDays(parseYmd(nds),sp)); } }
     function begin(e, which){
       mode=which; pid=e.pointerId; moved=false; sx=e.clientX; sy=e.clientY;
+      dupe = which==="move" && !!e.shiftKey;
+      overAllDay=false;
+      allRowEl = which==="move" ? document.querySelector(".cal-week-allday") : null;
       startMin=toMin(t.startTime); endMin=t.endTime?toMin(t.endTime):startMin+60; dur=endMin-startMin;
       gridTop=colEls[0].getBoundingClientRect().top;
       grabOff=(e.clientY-gridTop)/HH*60 - startMin;   // keep the block under the finger where grabbed (no jump)
       originIdx=colEls.indexOf(b.parentNode); targetIdx=originIdx;
       b._ns=startMin; b._ne=endMin;
+      if(dupe){
+        // leave a faded stand-in at the origin so it reads as "copying"; the
+        // drop's layoutColumnBlocks() sweep removes it (it's a .cal-week-ev)
+        srcGhost=b.cloneNode(true); srcGhost.classList.add("cal-ev-dupe-src");
+        b.parentNode.insertBefore(srcGhost,b);
+      }
       try{ b.setPointerCapture(pid); }catch(_){ }
       b.classList.add("dragging"); e.preventDefault(); e.stopPropagation();
+    }
+    function clearDragDecor(){
+      if(srcGhost){ if(srcGhost.parentNode)srcGhost.parentNode.removeChild(srcGhost); srcGhost=null; }
+      if(allRowEl)allRowEl.classList.remove("cal-allday-drop");
+      b.classList.remove("cal-ev-overallday");
     }
     function move(e){
       if(mode==null)return;
@@ -1353,10 +1378,21 @@
       if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4) moved=true;
       var yMin=(e.clientY-gridTop)/HH*60;
       if(mode==="move"){
-        var newStart=snap15(yMin - grabOff); newStart=Math.max(0,Math.min(1440-dur,newStart));
         targetIdx=colUnder(e.clientX);
         var dx=colEls[targetIdx].getBoundingClientRect().left - colEls[originIdx].getBoundingClientRect().left;
         b.style.transform="translateX("+dx+"px)";
+        // hovering the all-day strip: preview the "loses its time" drop
+        if(allRowEl){
+          var ar=allRowEl.getBoundingClientRect();
+          var over = e.clientY <= ar.bottom;
+          if(over!==overAllDay){
+            overAllDay=over;
+            allRowEl.classList.toggle("cal-allday-drop",over);
+            b.classList.toggle("cal-ev-overallday",over);
+          }
+          if(over){ var lblA=b.querySelector(".cal-ev-time"); if(lblA)lblA.textContent="All day"; return; }
+        }
+        var newStart=snap15(yMin - grabOff); newStart=Math.max(0,Math.min(1440-dur,newStart));
         b.style.top=(newStart/60*HH)+"px"; b._ns=newStart; b._ne=newStart+dur;
         var lbl=b.querySelector(".cal-ev-time"); if(lbl)lbl.textContent=minHH(newStart)+"–"+minHH(newStart+dur);
       } else if(mode==="top"){
@@ -1372,12 +1408,38 @@
     function up(e){
       if(e)e.stopPropagation();
       if(mode==null)return; var m=mode; mode=null; b.classList.remove("dragging"); b.style.transform="";
+      var wasDupe=dupe, wasOver=overAllDay; dupe=false; overAllDay=false;
+      clearDragDecor(); allRowEl=null;
       if(m==="move" && !moved){ openItemMenu(t); return; }
+      var nds=ymd(days[targetIdx]);
+      if(m==="move" && wasOver){
+        // Dropped on the all-day strip → untimed item on the target day.
+        var list0=M.loadTodos();
+        if(wasDupe){
+          var cp0={}; for(var k0 in t)cp0[k0]=t[k0];
+          cp0.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+          cp0.done=false; cp0.snoozes=0; shiftSpan(cp0,nds); cp0.dueDate=nds; cp0.startTime=null; cp0.endTime=null;
+          list0.push(cp0);
+        } else {
+          list0.forEach(function(x){ if(x.id!==t.id)return; shiftSpan(x,nds); x.dueDate=nds; x.startTime=null; x.endTime=null; });
+        }
+        M.saveTodos(list0); calInvalidate(); M.toast(wasDupe?"Copy added as all-day":"Now all-day");
+        render();   // the all-day strip lives outside the columns — full redraw
+        return;
+      }
       var list=M.loadTodos();
-      list.forEach(function(x){ if(x.id!==t.id)return;
-        if(m==="move"){ var nds=ymd(days[targetIdx]); if(x.endDate&&x.dueDate){var sp=Math.round((parseYmd(x.endDate)-parseYmd(x.dueDate))/86400000);if(!(sp>=0))sp=0;x.endDate=ymd(addDays(parseYmd(nds),sp));} x.dueDate=nds; }
-        x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
-      });
+      if(m==="move" && wasDupe){
+        var cp={}; for(var kk in t)cp[kk]=t[kk];
+        cp.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+        cp.done=false; cp.snoozes=0; shiftSpan(cp,nds); cp.dueDate=nds;
+        cp.startTime=minHH(b._ns); cp.endTime=minHH(b._ne);
+        list.push(cp); M.toast("Duplicated");
+      } else {
+        list.forEach(function(x){ if(x.id!==t.id)return;
+          if(m==="move"){ shiftSpan(x,nds); x.dueDate=nds; }
+          x.startTime=minHH(b._ns); x.endTime=minHH(b._ne);
+        });
+      }
       M.saveTodos(list); calInvalidate();
       // Re-layout only the affected column(s) instead of the whole calendar.
       layoutColumnBlocks(colEls[originIdx], days[originIdx], HH, days, colEls);
@@ -1388,7 +1450,7 @@
     b.querySelector(".cal-ev-resize-bot").addEventListener("pointerdown",function(e){ e.stopPropagation(); begin(e,"bot"); });
     b.addEventListener("pointermove",move);
     b.addEventListener("pointerup",up);
-    b.addEventListener("pointercancel",function(){ mode=null; b.classList.remove("dragging"); b.style.transform=""; });
+    b.addEventListener("pointercancel",function(){ mode=null; dupe=false; overAllDay=false; clearDragDecor(); allRowEl=null; b.classList.remove("dragging"); b.style.transform=""; });
   }
 
   // Let other tabs (e.g. home tiles) open the calendar on a specific view.

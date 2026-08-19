@@ -2,6 +2,39 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (v2026.08.19-8) — Takenlijst-veegronde: triage-redesign, kalender-drags, weeknummers, backlog, historie
+
+Grote veegronde door Tinus' openstaande-punten-lijst. Triage opnieuw
+vormgegeven: swipen beslist keep/nope, de verouderde X/⋯/✓-cirkels en
+"Undo last" zijn vervangen door één balk met de vroegere ⋯-menukeuzes als
+icoonknoppen (Later · Note · Task · Project · Undo), soepeler animaties
+(spring-terug, stapel-promotie, beslissings-pil i.p.v. kleurvlak), en een
+triage-historie (klokje in de header + "Triage decisions" in Calendar →
+History; log in k("triage.log"), lokaal net als capture.log). De capture-FAB
+verbergt zich op de Triage-tab (stond op Undo). Kalender: shift+slepen
+dupliceert een blok (origineel blijft vervaagd staan), en een blok op de
+all-day-strook droppen maakt de taak Outlook-achtig tijdloos op die dag
+(strook licht op, label "All day") i.p.v. klemmen op 00:00. Weeknummers in
+maandview gefixt: de Wk-cel erfde aspect-ratio 1:1 van .cal-cell en werd
+door de gelijke-rijhoogtes (v-19-1) rijhoogte-BREED, waardoor hij onder de
+maandagkolom schoof — .cal-cell.cal-wk wint nu (het ISO-rekenwerk klopte al).
+Backlog toont nu ook to-do-items (zelfde pool; chip "To-do", badge telt mee)
+en is te herordenen met vasthouden-en-slepen (Items.setOrder bestond al; ▲▼
+blijft). "Hold to ponder" is weg uit quick capture (nooit gebruikt) — nog
+geparkeerde rijen worden stil vrijgegeven; capture-sheet kreeg "See history →".
+Settings → Agenda: "Copy gym schedule (next 14 days)" kopieert gym-dagen/
+-tijden uit agenda-items (tekst/categorie-match) om te delen. Geverifieerd
+als al gefixt: uitstellen schuift endDate mee (overal), geen sync tijdens
+typen (uiBusy-guard v-19-1), offline werkt (network-first + cache-fallback;
+edge: verse boot offline verliest pre-pull-edits, by design). Vault-scan:
+2 app-captures zonder tags + 1 goodmorning→goodmorning-app-drift gefixt,
+seed-tabel "note types & topics" toegevoegd aan de conventies (approved:
+pending). Tests: agendasync.behaviour.mjs 7/7 groen. Geen cache-bump
+(network-first shell). Gerichte promote: promote.sh niet gebruikt omdat
+andere sessies explainer/ en sandbox/notesprint onder handen hebben;
+sandbox/home.js en style.css dragen Attentinus/Opduikinus-werk dat bewust
+niet mee-promoot.
+
 ## 2026-08-19 (v2026.08.19-7) — Radar "Week in review" in de app (feed-contract uitgebreid)
 
 De radar-strip toont nu een "Week in review"-blok wanneer de feed

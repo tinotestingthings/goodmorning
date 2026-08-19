@@ -898,8 +898,83 @@
     return form;
   }
 
+  // Hold (~300ms), then drag vertically to reorder the backlog. A fixed
+  // clone rides under the finger; the original row travels through the list
+  // as the drop slot; on release the DOM order is written via Items.setOrder.
+  // Listeners live on document during the drag (NOT pointer capture — moving
+  // a captured element in the DOM drops the capture, see calendar.js), and a
+  // non-passive touchmove keeps the page from scrolling underneath.
+  function wireBacklogDrag(li, refresh) {
+    var HOLD_MS = 300;
+    var timer = null, dragging = false, lastY = 0, downY = 0, clone = null, offY = 0;
+
+    function begin() {
+      timer = null; dragging = true;
+      var r = li.getBoundingClientRect();
+      offY = lastY - r.top;
+      clone = li.cloneNode(true);
+      clone.classList.add("backlog-drag-clone");
+      clone.style.width = r.width + "px";
+      clone.style.left = r.left + "px";
+      clone.style.top = (lastY - offY) + "px";
+      document.body.appendChild(clone);
+      li.classList.add("backlog-drag-slot");
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+      document.addEventListener("pointercancel", onCancel);
+      if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+    }
+
+    function onMove(e) {
+      lastY = e.clientY;
+      if (e.cancelable) e.preventDefault();
+      if (!clone) return;
+      clone.style.top = (e.clientY - offY) + "px";
+      var wrap = li.parentNode; if (!wrap) return;
+      var sibs = [].slice.call(wrap.children).filter(function (n) { return n !== li && n.classList && n.classList.contains("backlog-item"); });
+      for (var i = 0; i < sibs.length; i++) {
+        var r = sibs[i].getBoundingClientRect();
+        if (e.clientY < r.top + r.height / 2) { if (li.nextSibling !== sibs[i]) wrap.insertBefore(li, sibs[i]); return; }
+      }
+      if (wrap.lastChild !== li) wrap.appendChild(li);
+    }
+
+    function finish(commit) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onCancel);
+      if (!dragging) return;
+      dragging = false;
+      if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
+      clone = null;
+      li.classList.remove("backlog-drag-slot");
+      var wrap = li.parentNode;
+      if (commit && wrap && window.Items) {
+        var ids = [];
+        [].slice.call(wrap.children).forEach(function (n) { if (n.dataset && n.dataset.id) ids.push(n.dataset.id); });
+        window.Items.setOrder(ids);
+      }
+      refresh();
+    }
+    function onUp() { finish(true); }
+    function onCancel() { finish(false); }
+
+    li.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button, input, .backlog-actions")) return;
+      lastY = downY = e.clientY;
+      timer = setTimeout(begin, HOLD_MS);
+    });
+    li.addEventListener("pointermove", function (e) {
+      if (timer && Math.abs(e.clientY - downY) > 8) { clearTimeout(timer); timer = null; }
+    });
+    li.addEventListener("pointerup", function () { if (timer) { clearTimeout(timer); timer = null; } });
+    li.addEventListener("touchmove", function (e) { if (dragging) e.preventDefault(); }, { passive: false });
+  }
+
   function backlogRow(item, idx, count, refresh) {
     var li = el("div", "backlog-item");
+    li.dataset.id = item.id;
+    wireBacklogDrag(li, refresh);
 
     var row = el("div", "backlog-row");
     var ord = el("div", "backlog-ord");
@@ -910,7 +985,8 @@
     ord.appendChild(up); ord.appendChild(dn);
     row.appendChild(ord);
 
-    row.appendChild(el("span", "backlog-type backlog-type-" + item.type, item.type === "project" ? "Project" : "Task"));
+    row.appendChild(el("span", "backlog-type backlog-type-" + item.type,
+      item.state === "todo" ? "To-do" : (item.type === "project" ? "Project" : "Task")));
     row.appendChild(el("span", "backlog-title", item.title));
     var menuBtn = el("button", "backlog-menu-btn", "⋯"); menuBtn.type = "button";
     row.appendChild(menuBtn);
@@ -931,7 +1007,8 @@
     }));
     panel.appendChild(schedWrap);
 
-    panel.appendChild(actBtn("→  Make a task", "", function () { window.Items.update(item.id, { state: "todo", type: "task" }); toast("Moved to Tasks"); refresh(); }));
+    if (item.state !== "todo")
+      panel.appendChild(actBtn("→  Make a task", "", function () { window.Items.update(item.id, { state: "todo", type: "task" }); toast("It's a to-do now (stays here too)"); refresh(); }));
     panel.appendChild(actBtn("◈  Make a project", "", function () { window.Items.update(item.id, { state: "active", type: "project" }); toast("Moved to Projects"); refresh(); }));
     panel.appendChild(actBtn("📝  Save as note", "", function () { backlogCapture("note", item, "Saved as note (files on next sync)", refresh); }));
     panel.appendChild(actBtn(item.type === "project" ? "Switch to task" : "Switch to project", "", function () {

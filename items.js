@@ -50,9 +50,11 @@
   }
 
   // Backlog items, ordered by the manual `order` field (lower = higher up).
+  // "todo" items belong here too: an undated to-do IS a backlog entry (it
+  // already shows under Tasks; the backlog is the same pool, orderable).
   function backlog() {
     return load()
-      .filter(function (x) { return x.state === "backlog"; })
+      .filter(function (x) { return x.state === "backlog" || x.state === "todo"; })
       .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
   }
 
