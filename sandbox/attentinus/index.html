@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="boot.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Attentinus</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --blue: #007aff;
+      --accent: #af52de;
+      --soon: #ff9f0a;
+      --now: #ff3b30;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+      --radius: 20px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --card: #191c22;
+        --text: #e7e9ee;
+        --muted: #9aa0ac;
+        --line: #262b33;
+        --shadow: 0 10px 26px rgba(0,0,0,0.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      padding: max(12px, env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 14px; }
+    header h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.02em; }
+    header button {
+      border: 0; background: var(--card); color: var(--text); box-shadow: var(--shadow);
+      border-radius: 14px; padding: 7px 12px; font-size: 1rem; cursor: pointer; line-height: 1; font-weight: 700;
+    }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 14px; }
+    .card h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 6px; font-weight: 700; }
+
+    .p-row { display: flex; align-items: center; gap: 12px; padding: 11px 2px; border-top: 1px solid var(--line); cursor: pointer; }
+    .p-row:first-of-type { border-top: 0; }
+    .p-row .days {
+      min-width: 52px; text-align: center; font-weight: 800; font-size: 0.8rem;
+      border-radius: 12px; padding: 6px 4px; background: var(--bg); color: var(--muted); flex-shrink: 0;
+    }
+    .p-row .days.soon { color: var(--soon); }
+    .p-row .days.now { color: #fff; background: var(--now); }
+    .p-row .info { flex: 1; min-width: 0; }
+    .p-row .name { font-weight: 650; font-size: 0.95rem; }
+    .p-row .detail { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
+    .p-row .chev { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+    .empty { font-size: 0.85rem; color: var(--muted); padding: 8px 2px; }
+
+    /* detail-view */
+    .back { border: 0; background: none; color: var(--blue); font-size: 0.95rem; cursor: pointer; padding: 4px 2px 12px; font-weight: 650; }
+    .field-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+    .field-row label { font-size: 0.8rem; color: var(--muted); min-width: 64px; }
+    input[type="text"], input[type="number"], select {
+      padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--bg); color: var(--text); font-size: 0.92rem; font-family: inherit;
+    }
+    input[type="text"] { flex: 1; min-width: 120px; }
+    input.small { width: 76px; }
+    .btn {
+      border: 0; border-radius: 12px; padding: 9px 14px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; background: var(--blue); color: #fff;
+    }
+    .btn.ghost { background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+    .btn.danger { background: none; color: var(--now); border: 1px solid var(--line); }
+    .idea { display: flex; align-items: center; gap: 10px; padding: 9px 2px; border-top: 1px solid var(--line); }
+    .idea:first-of-type { border-top: 0; }
+    .idea input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; }
+    .idea .txt { flex: 1; font-size: 0.92rem; }
+    .idea.done .txt { text-decoration: line-through; color: var(--muted); }
+    .idea .del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 2px 6px; }
+    .add-row { display: flex; gap: 8px; margin-top: 10px; }
+    .foot { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .foot pre { text-align: left; font-size: 0.66rem; background: var(--card); border-radius: 10px; padding: 10px; overflow-x: auto; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div class="foot" id="foot-note"></div>
+
+<script type="application/gm-app" id="gm-app-code">
+(function () {
+  "use strict";
+
+  // Attentinus — verjaardagen, jaarlijkse datums en cadeau-ideeën per persoon.
+  // Bewust klein: handmatige invoer (geen adresboek-import), één datalijst
+  // (attentinus.people via de boot-shim, dus dd:/sbx:/demo:-genamespaced en
+  // gesynct naar attentinus_state). De digest-home leest dezelfde lijst
+  // read-only voor de "binnenkort jarig"-rij.
+  var H = window.__gmAttent || {};
+  var SOON_DAYS = 21;    // zelfde venster als de digest-rij
+  var UPCOMING_DAYS = 60;
+
+  function readPeople() {
+    try { var v = JSON.parse(localStorage.getItem("attentinus.people")); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function writePeople(list) { try { localStorage.setItem("attentinus.people", JSON.stringify(list)); } catch (e) {} }
+
+  var people = readPeople();
+  var view = { mode: "list", personId: null };
+
+  // ---- datumhulpjes (lokale tijd) ----
+  function today0() { var d = new Date(); d.setHours(12, 0, 0, 0); return d; }
+  // Volgende keer dat maand/dag voorbijkomt (vandaag telt als 0 dagen).
+  // 29 feb valt in een niet-schrikkeljaar terug op 28 feb.
+  function nextOccur(month, day) {
+    var now = today0();
+    for (var y = now.getFullYear(); y <= now.getFullYear() + 1; y++) {
+      var d = new Date(y, month - 1, Math.min(day, daysInMonth(y, month)), 12);
+      if (d >= now || sameDay(d, now)) {
+        return { date: d, days: Math.round((d - now) / 86400000) };
+      }
+    }
+    return null;
+  }
+  function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
+  function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  var MONTHS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  function fmtDate(p) { return p.day + " " + MONTHS[p.month - 1]; }
+  function ageAt(p, when) { return p.year ? when.getFullYear() - p.year : null; }
+  function openIdeas(p) { return (p.ideas || []).filter(function (i) { return !i.done; }).length; }
+
+  function personDetailLine(p) {
+    var nx = nextOccur(p.month, p.day);
+    var bits = [(p.label || "verjaardag") + " " + fmtDate(p)];
+    if (nx) {
+      var age = ageAt(p, nx.date);
+      if (age != null) bits.push("wordt " + age);
+    }
+    var n = openIdeas(p);
+    bits.push(n === 0 ? "nog geen idee" : n === 1 ? "1 idee" : n + " ideeën");
+    return bits.join(" · ");
+  }
+
+  function newId(prefix) { return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6); }
+
+  // ---- render ----
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  var root = document.getElementById("app");
+
+  function render() {
+    root.innerHTML = "";
+    if (view.mode === "detail") renderDetail();
+    else renderList();
+    renderFoot();
+  }
+
+  function personRow(p, showDays) {
+    var row = el("div", "p-row");
+    var nx = nextOccur(p.month, p.day);
+    if (showDays) {
+      var days = el("span", "days");
+      if (nx && nx.days === 0) { days.textContent = "vandaag"; days.className = "days now"; }
+      else if (nx && nx.days <= SOON_DAYS) { days.textContent = nx.days + (nx.days === 1 ? " dag" : " dgn"); days.className = "days soon"; }
+      else if (nx) { days.textContent = nx.days + " dgn"; }
+      row.appendChild(days);
+    }
+    var info = el("div", "info");
+    info.appendChild(el("div", "name", p.name));
+    info.appendChild(el("div", "detail", personDetailLine(p)));
+    row.appendChild(info);
+    row.appendChild(el("span", "chev", "›"));
+    row.addEventListener("click", function () { view = { mode: "detail", personId: p.id }; render(); });
+    return row;
+  }
+
+  function renderList() {
+    var header = el("header");
+    header.appendChild(el("h1", null, "Attentinus"));
+    var add = el("button", null, "+ persoon");
+    add.addEventListener("click", function () { view = { mode: "detail", personId: null }; render(); });
+    header.appendChild(add);
+    root.appendChild(header);
+
+    var upcoming = people
+      .map(function (p) { return { p: p, nx: nextOccur(p.month, p.day) }; })
+      .filter(function (x) { return x.nx && x.nx.days <= UPCOMING_DAYS; })
+      .sort(function (a, b) { return a.nx.days - b.nx.days; });
+
+    var c1 = el("section", "card");
+    c1.appendChild(el("h2", null, "Binnenkort"));
+    if (!upcoming.length) c1.appendChild(el("div", "empty", "Niets in de komende " + UPCOMING_DAYS + " dagen."));
+    upcoming.forEach(function (x) { c1.appendChild(personRow(x.p, true)); });
+    root.appendChild(c1);
+
+    var c2 = el("section", "card");
+    c2.appendChild(el("h2", null, "Iedereen"));
+    if (!people.length) c2.appendChild(el("div", "empty", "Nog niemand toegevoegd — begin met “+ persoon”."));
+    people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "nl"); })
+      .forEach(function (p) { c2.appendChild(personRow(p, false)); });
+    root.appendChild(c2);
+  }
+
+  function renderDetail() {
+    var p = people.find(function (x) { return x.id === view.personId; }) || null;
+    var isNew = !p;
+    if (isNew) p = { id: newId("p"), name: "", label: "verjaardag", month: today0().getMonth() + 1, day: today0().getDate(), year: null, ideas: [] };
+
+    var back = el("button", "back", "‹ terug");
+    back.addEventListener("click", function () { view = { mode: "list", personId: null }; render(); });
+    root.appendChild(back);
+
+    var card = el("section", "card");
+    card.appendChild(el("h2", null, isNew ? "Nieuw persoon" : p.name));
+
+    var rowName = el("div", "field-row");
+    rowName.appendChild(el("label", null, "Naam"));
+    var name = document.createElement("input"); name.type = "text"; name.value = p.name; name.placeholder = "Naam";
+    rowName.appendChild(name);
+    card.appendChild(rowName);
+
+    var rowWhat = el("div", "field-row");
+    rowWhat.appendChild(el("label", null, "Wat"));
+    var label = document.createElement("input"); label.type = "text"; label.value = p.label || "verjaardag";
+    rowWhat.appendChild(label);
+    card.appendChild(rowWhat);
+
+    var rowDate = el("div", "field-row");
+    rowDate.appendChild(el("label", null, "Datum"));
+    var day = document.createElement("input"); day.type = "number"; day.min = 1; day.max = 31; day.value = p.day; day.className = "small";
+    var month = document.createElement("select");
+    MONTHS.forEach(function (m, i) {
+      var o = document.createElement("option"); o.value = String(i + 1); o.textContent = m;
+      if (i + 1 === p.month) o.selected = true;
+      month.appendChild(o);
+    });
+    var year = document.createElement("input"); year.type = "number"; year.placeholder = "jaar?"; year.className = "small";
+    if (p.year) year.value = p.year;
+    rowDate.appendChild(day); rowDate.appendChild(month); rowDate.appendChild(year);
+    card.appendChild(rowDate);
+
+    var save = el("button", "btn", isNew ? "Toevoegen" : "Opslaan");
+    save.addEventListener("click", function () {
+      var nm = name.value.trim();
+      if (!nm) { name.focus(); return; }
+      p.name = nm;
+      p.label = label.value.trim() || "verjaardag";
+      p.month = Math.max(1, Math.min(12, parseInt(month.value, 10) || 1));
+      p.day = Math.max(1, Math.min(31, parseInt(day.value, 10) || 1));
+      var y = parseInt(year.value, 10);
+      p.year = (y > 1900 && y < 2100) ? y : null;
+      if (isNew) people.push(p);
+      writePeople(people);
+      view = { mode: "detail", personId: p.id };
+      render();
+    });
+    card.appendChild(save);
+    root.appendChild(card);
+
+    if (!isNew) {
+      var ideasCard = el("section", "card");
+      ideasCard.appendChild(el("h2", null, "Cadeau-ideeën"));
+      if (!(p.ideas || []).length) ideasCard.appendChild(el("div", "empty", "Nog geen ideeën — hoor je iets? Zet het er meteen in."));
+      (p.ideas || []).forEach(function (idea) {
+        var row = el("div", "idea" + (idea.done ? " done" : ""));
+        var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!idea.done;
+        cb.addEventListener("change", function () { idea.done = cb.checked; writePeople(people); render(); });
+        row.appendChild(cb);
+        row.appendChild(el("span", "txt", idea.text));
+        var del = el("button", "del", "✕");
+        del.setAttribute("aria-label", "Verwijder idee");
+        del.addEventListener("click", function () {
+          p.ideas = p.ideas.filter(function (i) { return i.id !== idea.id; });
+          writePeople(people); render();
+        });
+        row.appendChild(del);
+        ideasCard.appendChild(row);
+      });
+      var addRow = el("div", "add-row");
+      var input = document.createElement("input"); input.type = "text"; input.placeholder = "Nieuw idee…";
+      var addBtn = el("button", "btn", "+");
+      var addIdea = function () {
+        var t = input.value.trim();
+        if (!t) return;
+        p.ideas = p.ideas || [];
+        p.ideas.push({ id: newId("i"), text: t, done: false, addedAt: new Date().toISOString() });
+        writePeople(people); render();
+      };
+      addBtn.addEventListener("click", addIdea);
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") addIdea(); });
+      addRow.appendChild(input); addRow.appendChild(addBtn);
+      ideasCard.appendChild(addRow);
+      root.appendChild(ideasCard);
+
+      // verwijderen: twee tikken, zelfde patroon als NoteSprint-reset
+      var danger = el("button", "btn danger", "Verwijder " + p.name);
+      var armed = false, timer = null;
+      danger.addEventListener("click", function () {
+        if (!armed) {
+          armed = true; danger.textContent = "Zeker weten? Tik nogmaals";
+          timer = setTimeout(function () { armed = false; danger.textContent = "Verwijder " + p.name; }, 4000);
+          return;
+        }
+        clearTimeout(timer);
+        people = people.filter(function (x) { return x.id !== p.id; });
+        writePeople(people);
+        view = { mode: "list", personId: null };
+        render();
+      });
+      var wrap = el("div", null); wrap.style.textAlign = "center"; wrap.style.marginBottom = "14px";
+      wrap.appendChild(danger);
+      root.appendChild(wrap);
+    }
+  }
+
+  var TABLE_SQL = "create table public.attentinus_state (\n" +
+    "  user_id uuid primary key references auth.users(id) on delete cascade,\n" +
+    "  data jsonb not null default '{}'::jsonb,\n" +
+    "  updated_at timestamptz not null default now()\n" +
+    ");\n" +
+    "alter table public.attentinus_state enable row level security;\n" +
+    "create policy \"own row\" on public.attentinus_state\n" +
+    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);";
+
+  function renderFoot() {
+    var foot = document.getElementById("foot-note");
+    foot.innerHTML = "";
+    if (H.demo) { foot.appendChild(el("div", null, "demo-modus · nepdata, er wordt niets opgeslagen of gesynct")); return; }
+    if (H.syncOff) {
+      foot.appendChild(el("div", null, "⚠️ Sync staat uit: de tabel attentinus_state bestaat nog niet. Alles werkt, maar alleen op dit apparaat. Eénmalig aanmaken in de Supabase SQL-editor:"));
+      foot.appendChild(el("pre", null, TABLE_SQL));
+    } else if (H.isSandbox) {
+      foot.appendChild(el("div", null, "sandbox"));
+    }
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) { people = readPeople(); render(); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

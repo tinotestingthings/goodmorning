@@ -147,5 +147,11 @@
         }
       ]
     }
+  },
+  "vaultNote": {
+    "title": "Leerpunt: eerst het gedrag vastleggen, dan pas refactoren",
+    "excerpt": "Bij de agenda-sync ging het mis omdat ik de guard herschreef zonder eerst een test die het oude gedrag vastlegde. Les: schrijf bij elke risicovolle wijziging eerst de gedragstest, daarna pas de wijziging. Geldt ook buiten code: leg vast wat je nu doet voordat je een gewoonte verandert.",
+    "path": "Mijn Wiki/20 Notes/2026-02-11 leerpunt gedragstests.md",
+    "noteDate": "2026-02-11"
   }
 }

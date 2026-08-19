@@ -3271,3 +3271,40 @@ main#deckArea {
 .trainer-dots { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
 .trainer-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); opacity: 0.35; }
 .trainer-dots i.on { background: #34c759; opacity: 1; }
+
+/* Opduikinus: één oude vault-notitie per dag (data uit feed.json:vaultNote) */
+.vault-note {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 13px 14px;
+  margin-top: 10px;
+}
+.vault-note-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.vault-note-title { font-size: 0.95rem; font-weight: 650; }
+.vault-note-excerpt {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vault-note-path {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
+.vault-note-actions { display: flex; gap: 8px; margin-top: 10px; }

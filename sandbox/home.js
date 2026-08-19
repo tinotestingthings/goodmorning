@@ -687,6 +687,123 @@
     return slot;
   }
 
+  // Attentinus tile — zelfde slot-patroon: alleen zichtbaar als er binnen 21
+  // dagen iemand "jarig" is (of een andere jaarlijkse datum uit Attentinus).
+  // Leest attentinus.people read-only uit attentinus_state; de app zelf is de
+  // plek waar je beheert en ideeën bijhoudt.
+  var ICON_GIFT =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>';
+
+  var ATTENT_SOON_DAYS = 21;   // zelfde venster als in de Attentinus-app
+
+  // Volgende keer dat maand/dag voorbijkomt, in dagen vanaf vandaag (0 = vandaag).
+  function attentNextDays(month, day) {
+    var now = new Date(); now.setHours(12, 0, 0, 0);
+    for (var y = now.getFullYear(); y <= now.getFullYear() + 1; y++) {
+      var dim = new Date(y, month, 0).getDate();
+      var d = new Date(y, month - 1, Math.min(day, dim), 12);
+      var days = Math.round((d - now) / 86400000);
+      if (days >= 0) return days;
+    }
+    return null;
+  }
+
+  function renderAttentTile() {
+    var slot = el("div", "events-tile-slot");
+    fetchAppState("attentinus_state", function (data) {
+      if (!data) return;
+      var people;
+      try { people = JSON.parse(data[eventsPrefix() + "attentinus.people"] || "[]"); } catch (e) { return; }
+      if (!Array.isArray(people) || !people.length) return;
+      var soon = people.map(function (p) {
+        return { p: p, days: (p && p.month && p.day) ? attentNextDays(p.month, p.day) : null };
+      }).filter(function (x) {
+        return x.days !== null && x.days <= ATTENT_SOON_DAYS;
+      }).sort(function (a, b) { return a.days - b.days; });
+      if (!soon.length) return;               // niets binnen het venster -> stil
+
+      var first = soon[0];
+      var label = first.p.label && first.p.label !== "verjaardag" ? first.p.label : null;
+      var title = first.days === 0
+        ? first.p.name + (label ? ": " + label + " vandaag!" : " is vandaag jarig!")
+        : first.p.name + (label ? ": " + label + " over " + first.days + (first.days === 1 ? " dag" : " dagen")
+                                : " is over " + first.days + (first.days === 1 ? " dag" : " dagen") + " jarig");
+      var ideas = (first.p.ideas || []).filter(function (i) { return i && !i.done; }).length;
+      var sub = ideas === 0 ? "Nog geen cadeau-idee" : ideas === 1 ? "1 cadeau-idee klaar" : ideas + " cadeau-ideeën klaar";
+      if (soon.length > 1) sub += " · ook: " + soon[1].p.name + " (" + soon[1].days + "d)";
+
+      var a = document.createElement("a");
+      a.className = "events-tile";
+      a.href = "attentinus/";
+      a.setAttribute("aria-label", "Open Attentinus: " + title);
+      var ic = el("span", "events-tile-icon");
+      ic.innerHTML = ICON_GIFT;
+      a.appendChild(ic);
+      var text = el("div", "events-tile-text");
+      text.appendChild(el("div", "events-tile-title", title));
+      text.appendChild(el("div", "events-tile-sub", sub));
+      a.appendChild(text);
+      var arrow = el("span", "events-tile-arrow");
+      arrow.innerHTML = ICON_ARROW_OUT;
+      a.appendChild(arrow);
+      slot.appendChild(a);
+    });
+    return slot;
+  }
+
+  // Opduikinus — één oude vault-notitie per dag, aangeleverd door de
+  // daily-digest-taak in feed.json als:
+  //   "vaultNote": { "title": "...", "excerpt": "...", "path": "Mijn Wiki/...",
+  //                  "noteDate": "2024-03-12" }
+  // De taak blijft de enige schrijver van feed.json; deze kaart is alleen
+  // weergave + twee acties: er een taak van maken (via de bestaande captures-
+  // route naar de vault-bridge) of wegtikken voor vandaag (lokaal).
+  function vaultNoteSeenKey() { return k("vaultNoteSeen"); }
+
+  function renderVaultNote(json) {
+    var note = json && json.vaultNote;
+    if (!note || !note.title || !note.excerpt) return null;
+    var stamp = todayKey() + "|" + (note.path || note.title);
+    try { if (localStorage.getItem(vaultNoteSeenKey()) === stamp) return null; } catch (e) {}
+    function markSeen() { try { localStorage.setItem(vaultNoteSeenKey(), stamp); } catch (e) {} }
+
+    var card = el("div", "vault-note");
+    var when = "";
+    if (note.noteDate && /^\d{4}-\d{2}/.test(note.noteDate)) {
+      var m = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"][+note.noteDate.slice(5, 7) - 1];
+      when = " · " + (m || "") + " " + note.noteDate.slice(0, 4);
+    }
+    card.appendChild(el("div", "vault-note-label", "Uit je vault" + when));
+    card.appendChild(el("div", "vault-note-title", note.title));
+    card.appendChild(el("div", "vault-note-excerpt", note.excerpt));
+    if (note.path) card.appendChild(el("div", "vault-note-path", note.path));
+
+    var actions = el("div", "vault-note-actions");
+    var act = el("button", "btn btn-primary btn-sm", "Maak er een actie van");
+    act.type = "button";
+    act.addEventListener("click", function () {
+      if (!global.SB) { toast("Not connected — try again"); return; }
+      var body = note.excerpt + "\n\nUit Opduikinus, vault-notitie: " + (note.path || note.title);
+      global.SB.from("captures").insert({ kind: "task", title: ("Vault: " + note.title).slice(0, 120), body: body, status: "new" })
+        .then(function (res) {
+          if (res && res.error) { toast("Failed: " + res.error.message); return; }
+          toast("Actie aangemaakt → inbox");
+          markSeen();
+          if (card.parentNode) card.parentNode.removeChild(card);
+        }, function (err) { toast("Failed: " + ((err && err.message) || "unknown")); });
+    });
+    actions.appendChild(act);
+    var seen = el("button", "btn btn-sm", "Gezien");
+    seen.type = "button";
+    seen.addEventListener("click", function () {
+      markSeen();
+      if (card.parentNode) card.parentNode.removeChild(card);
+    });
+    actions.appendChild(seen);
+    card.appendChild(actions);
+    return card;
+  }
+
   // ---- hero (greeting + loop/done card + mini weather tile) ----
 
   function renderHero(myGeneration) {
@@ -2386,6 +2503,7 @@
     view.appendChild(renderHero(myGeneration));
     view.appendChild(renderEventsTile());
     view.appendChild(renderTrainerTile());
+    view.appendChild(renderAttentTile());
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {
@@ -2394,6 +2512,8 @@
       })
       .then(function (json) {
         if (myGeneration !== renderGeneration) return;
+        var vaultCard = renderVaultNote(json);
+        if (vaultCard) view.appendChild(vaultCard);
         var today = json && json.today;
         if (!today) {
           view.appendChild(el("p", "dash-empty", "No dashboard data in today's feed."));
