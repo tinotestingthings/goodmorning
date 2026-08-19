@@ -2,6 +2,21 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (v2026.08.19-4) — Radar 2.0 + drie nieuwe thema's (Carbon/Slate/Porcelain) + werkende themapreview
+
+Radar 2.0: elk radar-item zonder taak heeft nu een "+ task"-knop in de strip
+(één tik = radar-getagde to-do op vandaag), en de urgentiedrempels (rood/amber,
+voorheen hard 7/30 dagen) zijn instelbaar via Settings → Compliance radar en
+syncen mee (k("radar.cfg") in de sync-KEYS). Dode radarBadge verwijderd. De
+wekelijkse radar-samenvatting in de feed is taak-kant (Cowork), niet app-code.
+Drie nieuwe thema's naast de bestaande zeven: Carbon (vlaggenschip-dark:
+near-black, gelaagde kaarten met subtiele gradient/elevatie, azuur accent),
+Slate ("normal": rustig grafiet tussen licht en donker) en Porcelain (warm-
+neutraal licht met zachte papier-schaduwen). Plus een echte fix: de theme-
+swatches in Settings toonden allemaal het actieve palet (vars stonden alleen op
+:root[data-theme]) — elke swatch previewt nu zijn eigen kleuren. Geen
+cache-bump nodig (network-first shell). Gerichte promote.
+
 ## 2026-08-19 (v2026.08.19-3) — Editor-sheet vraagt bevestiging bij weggooien; dode dagview-code weg
 
 Een tik naast de open to-do/chore-sheet (of een swipe-down) gooide getypte

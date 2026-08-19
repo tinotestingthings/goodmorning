@@ -11,7 +11,7 @@
   // across devices; decisions/handedOff/notes stop the SAME triage deck from
   // reappearing on every other device after it was completed on one.
   var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek"), k("items"),
-              k("theme"), k("decisions"), k("handedOff"), k("notes")];
+              k("theme"), k("decisions"), k("handedOff"), k("notes"), k("radar.cfg")];
   var POLL_MS = 60000; // was 25s; a push fires instantly on save anyway, so the poll can be lazy
   var lastSynced = null;   // JSON string of the state last pushed/pulled
   var remoteStamp = null;

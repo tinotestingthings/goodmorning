@@ -12,7 +12,13 @@
   var KEY = k("theme");
 
   // Each theme is a full palette override applied via <html data-theme="...">.
+  // Order = order in the Settings theme grid. The 2026-08-19 trio (Carbon /
+  // Slate / Porcelain = new dark / normal / light) sits up front; the older
+  // palettes stay available below.
   var THEMES = {
+    carbon:    { label: "Carbon",    bg: "#0a0c10" },
+    slate:     { label: "Slate",     bg: "#222831" },
+    porcelain: { label: "Porcelain", bg: "#f4f3f0" },
     nova:   { label: "Nova",   bg: "#111420" },
     dark:   { label: "Dark",   bg: "#0f1115" },
     light:  { label: "Light",  bg: "#f5f6f8" },

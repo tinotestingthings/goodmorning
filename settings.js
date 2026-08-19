@@ -18,6 +18,7 @@
     root.appendChild(el("p", "settings-sub", "Personalise how the app looks."));
     root.appendChild(buildAppearance());
     root.appendChild(buildCategories());
+    root.appendChild(buildRadarThresholds());
     root.appendChild(buildNotifications());
     root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
@@ -129,6 +130,46 @@
     var add = el("button", "btn btn-ghost", "+ Add category"); add.type = "button";
     add.addEventListener("click", function () { window.Cats.add("New", "#7f8a99"); render(); });
     sec.appendChild(add);
+    return sec;
+  }
+
+  // Compliance-radar urgency thresholds. Mirrors home.js's radarCfg():
+  // deadlines within "red" days paint red and make the strip urgent; within
+  // "amber" days they paint amber. Stored in k("radar.cfg"), rides the sync.
+  function buildRadarThresholds() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Compliance radar"));
+    sec.appendChild(el("p", "settings-sub", "When a deadline counts as urgent. Synced across your devices."));
+    var cfg = { soon: 7, near: 30 };
+    try {
+      var c = JSON.parse(localStorage.getItem(k("radar.cfg"))) || {};
+      if (c.soon >= 1 && c.soon <= 365) cfg.soon = Math.round(c.soon);
+      if (c.near >= 1 && c.near <= 365) cfg.near = Math.round(c.near);
+    } catch (e) {}
+    function save() {
+      if (cfg.near < cfg.soon) cfg.near = cfg.soon;
+      try { localStorage.setItem(k("radar.cfg"), JSON.stringify(cfg)); } catch (e) {}
+      try { if (window.AgendaSync && window.AgendaSync.pushNow) window.AgendaSync.pushNow(); } catch (e) {}
+      render();
+    }
+    function row(label, key) {
+      var r = el("div", "sched-row");
+      r.appendChild(el("span", "sched-at", label));
+      var input = document.createElement("input");
+      input.type = "number"; input.min = "1"; input.max = "365";
+      input.className = "field-input field-input-narrow";
+      input.value = String(cfg[key]);
+      input.addEventListener("change", function () {
+        var v = parseInt(input.value, 10);
+        cfg[key] = (v >= 1 && v <= 365) ? v : cfg[key];
+        save();
+      });
+      r.appendChild(input);
+      r.appendChild(el("span", "sched-at", "days"));
+      return r;
+    }
+    sec.appendChild(row("Red within", "soon"));
+    sec.appendChild(row("Amber within", "near"));
     return sec;
   }
 

@@ -543,6 +543,150 @@
     return slot;
   }
 
+  // Trainerinus tile — same slot pattern as the events tile: only rendered
+  // while at least one trainer app is still grey today, so a fully green day
+  // leaves the home screen quiet. All reads, no writes: the authoritative
+  // status lives in the Trainerinus app itself (sandbox/trainerinus/); this
+  // tile recomputes the same signals read-only and never touches the
+  // trainerinus.* keys (writing them here could be clobbered by that app's
+  // boot seed).
+  var ICON_TARGET =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>';
+
+  // Practice data is deliberately read from the LIVE namespace ("dd:") in both
+  // environments: real practising happens in the live apps, the sandbox copies
+  // are dev playgrounds. Trainerinus' own settings/log follow the environment.
+  var TRAINER_SRC = "dd:";
+  var TRAINER_APPS = [
+    { id: "vogels", short: "Vogels", table: "vogelspotinus_state" },
+    { id: "chords", short: "Chords", table: "chordsprint_state", prefixes: [TRAINER_SRC + "cpt_"] },
+    { id: "notes",  short: "Notes",  table: "notesprint_state",  prefixes: [TRAINER_SRC + "noteSprint", TRAINER_SRC + "noteReader"] },
+    { id: "gym",    short: "Gym",    table: "kangaroo_state" }
+  ];
+
+  function trainerLocal(name, fallback) {
+    try {
+      var v = JSON.parse(localStorage.getItem(eventsPrefix() + "trainerinus." + name));
+      return v == null ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+  function trainerParse(raw, fallback) {
+    if (raw == null) return fallback;
+    try { var v = JSON.parse(raw); return v == null ? fallback : v; } catch (e) { return fallback; }
+  }
+  function trainerDayKey(iso) {
+    if (!iso) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+    var d = new Date(iso);
+    if (isNaN(d)) return null;
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  // Must stay identical to the hash in sandbox/trainerinus/index.html, so the
+  // tile agrees with the app about "state changed since the last marker".
+  function trainerHash(data, prefixes) {
+    var keys = Object.keys(data || {}).filter(function (key) {
+      return prefixes.some(function (p) { return key.indexOf(p) === 0; });
+    }).sort();
+    var h = 5381;
+    keys.forEach(function (key) {
+      var s = key + "=" + String(data[key]);
+      for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    });
+    return keys.length ? String(h) : null;
+  }
+
+  function trainerGreen(app, row, today, log, markers, restDays) {
+    var data = (row && row.data) || {};
+    if (app.id === "vogels") {
+      var st = trainerParse(data[TRAINER_SRC + "vogelspotinus.stats"], null);
+      if (!st) return { known: false, green: false };
+      return { known: true, green: !!(st.today && st.today.date === today && (st.today.count || 0) > 0) };
+    }
+    if (app.id === "gym") {
+      var days = {};
+      trainerParse(data[TRAINER_SRC + "kangaroo-workout-history"], []).forEach(function (s) { var d = trainerDayKey(s && s.date); if (d) days[d] = 1; });
+      trainerParse(data[TRAINER_SRC + "kangaroo-cardio"], []).forEach(function (c) { var d = trainerDayKey(c && c.date); if (d) days[d] = 1; });
+      var mus = trainerParse(data[TRAINER_SRC + "kangaroo-history"], {});
+      Object.keys(mus).forEach(function (m) { var d = trainerDayKey(mus[m]); if (d) days[d] = 1; });
+      var list = Object.keys(days).sort();
+      if (!list.length) return { known: false, green: false };
+      var last = new Date(list[list.length - 1] + "T12:00:00");
+      var now = new Date(today + "T12:00:00");
+      return { known: true, green: Math.round((now - last) / 86400000) <= restDays };
+    }
+    // ChordSprint / NoteSprint: green when the Trainerinus log says so, or when
+    // the state hash moved since the app's last marker AND the row was pushed
+    // today (i.e. there was activity today the app hasn't logged yet).
+    if (log[today] && log[today][app.id]) return { known: true, green: true };
+    var hash = trainerHash(data, app.prefixes);
+    if (hash === null) return { known: false, green: false };
+    var m = markers[app.id];
+    var fresh = !!(m && m.hash !== hash && trainerDayKey(row && row.updated_at) === today);
+    return { known: true, green: fresh };
+  }
+
+  function renderTrainerTile() {
+    var slot = el("div", "events-tile-slot");
+    if (!window.SB) return slot;
+    window.SB.auth.getSession().then(function (res) {
+      var s = res && res.data && res.data.session;
+      if (!s || !s.user) return;
+      Promise.all(TRAINER_APPS.map(function (app) {
+        return window.SB.from(app.table).select("data,updated_at").eq("user_id", s.user.id).then(function (r) {
+          if (r && r.error) return null;
+          return (r && r.data && r.data.length) ? r.data[0] : null;
+        }, function () { return null; });
+      })).then(function (rows) {
+        if (!rows.some(function (r) { return !!r; })) return;   // niets geladen -> stil blijven
+        var settings = trainerLocal("settings", {});
+        var enabledMap = (settings && settings.apps) || {};
+        var restDays = (settings && typeof settings.gymRestDays === "number") ? settings.gymRestDays : 2;
+        var log = trainerLocal("log", {});
+        var markers = trainerLocal("markers", {});
+        var today = todayKey();
+        var enabled = TRAINER_APPS.filter(function (app) { return enabledMap[app.id] !== false; });
+        if (!enabled.length) return;
+        var statuses = enabled.map(function (app, i) {
+          return trainerGreen(app, rows[TRAINER_APPS.indexOf(app)], today, log, markers, restDays);
+        });
+        if (!statuses.some(function (st) { return st.known; })) return;  // nog nooit data -> stil
+        var todo = enabled.filter(function (app, i) { return !statuses[i].green; });
+        if (!todo.length) return;               // alles groen -> tile blijft weg
+
+        var a = document.createElement("a");
+        a.className = "events-tile trainer-tile";
+        a.href = "trainerinus/";
+        a.setAttribute("aria-label", "Open Trainerinus, nog te oefenen: " + todo.map(function (t) { return t.short; }).join(", "));
+
+        var ic = el("span", "events-tile-icon");
+        ic.innerHTML = ICON_TARGET;
+        a.appendChild(ic);
+
+        var text = el("div", "events-tile-text");
+        text.appendChild(el("div", "events-tile-title", "Trainerinus"));
+        text.appendChild(el("div", "events-tile-sub",
+          "Nog te gaan: " + todo.map(function (t) { return t.short; }).join(" · ")));
+        a.appendChild(text);
+
+        var dots = el("span", "trainer-dots");
+        enabled.forEach(function (app, i) {
+          var d = document.createElement("i");
+          if (statuses[i].green) d.className = "on";
+          d.title = app.short;
+          dots.appendChild(d);
+        });
+        a.appendChild(dots);
+
+        var arrow = el("span", "events-tile-arrow");
+        arrow.innerHTML = ICON_ARROW_OUT;
+        a.appendChild(arrow);
+
+        slot.appendChild(a);
+      });
+    }, function () {});
+    return slot;
+  }
+
   // ---- hero (greeting + loop/done card + mini weather tile) ----
 
   function renderHero(myGeneration) {
@@ -985,6 +1129,20 @@
 
   var RADAR_VISIBLE_DEFAULT = 3;
 
+  // Urgency thresholds (days) for radar deadlines: <= soon paints red and
+  // makes the strip urgent, <= near paints amber. Editable in Settings and
+  // synced across devices via the agenda sync (k("radar.cfg") is in KEYS).
+  function radarCfg() {
+    var soon = 7, near = 30;
+    try {
+      var c = JSON.parse(localStorage.getItem(k("radar.cfg"))) || {};
+      if (c.soon >= 1 && c.soon <= 365) soon = Math.round(c.soon);
+      if (c.near >= 1 && c.near <= 365) near = Math.round(c.near);
+    } catch (e) {}
+    if (near < soon) near = soon;
+    return { soon: soon, near: near };
+  }
+
   // ---- radar items (deadlines + flagged items) + tasks made from them ----
   function radarItemsList(radar) {
     var arr = (radar && radar.items && radar.items.length)
@@ -1019,18 +1177,38 @@
   }
   function radarRow(it) {
     var openMap = radarOpenTaskMap();
+    var cfg = radarCfg();
     var days = it.date ? daysUntil(it.date) : null;
     var li = el("div", "dash-item dash-item-tap");
     var row = el("div", "dl-row");
     if (days === null) {
       row.appendChild(el("span", "dl-days dl-item", "•"));
     } else {
-      var badgeClass = days <= 7 ? "dl-soon" : (days <= 30 ? "dl-near" : "dl-far");
+      var badgeClass = days <= cfg.soon ? "dl-soon" : (days <= cfg.near ? "dl-near" : "dl-far");
       row.appendChild(el("span", "dl-days " + badgeClass, days < 0 ? "past" : days + "d"));
     }
     row.appendChild(el("span", "dl-label", it.title));
     if (it.date) row.appendChild(el("span", "dash-date", it.date));
-    if (openMap[it.id]) row.appendChild(el("span", "dl-task-pill", "task"));
+    if (openMap[it.id]) {
+      row.appendChild(el("span", "dl-task-pill", "task"));
+    } else {
+      // One tap puts a radar-tagged to-do on today's calendar — no detail
+      // sheet needed. The tag makes the row show "task" and count as open.
+      var addBtn = el("button", "dl-add", "+ task");
+      addBtn.type = "button";
+      addBtn.setAttribute("aria-label", "Make a task for " + it.title);
+      addBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var list = loadTodos();
+        list.push({ id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+          text: it.title, dueDate: localDateStr(), startTime: null, endTime: null,
+          done: false, snoozes: 0, radarId: it.id, source: "radar" });
+        saveTodos(list);
+        toast("Task added for today");
+        render();
+      });
+      row.appendChild(addBtn);
+    }
     row.appendChild(el("span", "dash-chev", "›"));
     li.appendChild(row);
     li.addEventListener("click", function () {
@@ -1843,19 +2021,6 @@
     return { text: n > 0 ? String(n) : "", cls: "tile-badge-green" };
   }
 
-  function radarBadge(today) {
-    var radar = today.radar;
-    if (!radar) return { text: "", cls: "tile-badge-gray" };
-    var open = radarOpenTasks().length;
-    if (open > 0) return { text: String(open), cls: "tile-badge-red" };
-    var days = radarNearestDays(radar);
-    if (days !== null) {
-      var cls = days <= 7 ? "tile-badge-red" : days <= 30 ? "tile-badge-amber" : "tile-badge-gray";
-      return { text: days + "d", cls: cls };
-    }
-    return { text: "", cls: "tile-badge-gray" };
-  }
-
   function calQuickLink(label, view, iconSvg) {
     var b = el("button", "cal-quick");
     b.type = "button";
@@ -1974,7 +2139,7 @@
     if (!radar) return;
     var openTasks = radarOpenTasks().length;
     var soonDays = radarNearestDays(radar);
-    var urgent = (openTasks > 0) || (soonDays !== null && soonDays <= 7);
+    var urgent = (openTasks > 0) || (soonDays !== null && soonDays <= radarCfg().soon);
 
     // Name the nearest deadline instead of the bare "77d to nearest deadline"
     // — "77d · AI Act" tells you at a glance whether that number matters.
@@ -2220,6 +2385,7 @@
     view.innerHTML = "";
     view.appendChild(renderHero(myGeneration));
     view.appendChild(renderEventsTile());
+    view.appendChild(renderTrainerTile());
 
     fetch("feed.json", { cache: "no-store" })
       .then(function (res) {

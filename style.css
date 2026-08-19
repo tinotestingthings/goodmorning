@@ -2096,7 +2096,7 @@ main#deckArea {
 
 /* ---- themes (explicit data-theme wins over prefers-color-scheme) ---- */
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"], .theme-swatch[data-theme="dark"] {
   --bg: #0f1115; --card-bg: #1c2029; --text: #eef0f3;
   --text-dim: #a5acb8; --border: #333945;
   --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #4a90d9;
@@ -2104,35 +2104,55 @@ main#deckArea {
 /* Nova — the "professional" theme: deep blue-black canvas, indigo accent,
    soft gold highlight; extra depth via the [data-theme="nova"] overrides
    near the end of this file. */
-:root[data-theme="nova"] {
+:root[data-theme="nova"], .theme-swatch[data-theme="nova"] {
   --bg: #111420; --card-bg: #1c2133; --text: #e8eaf2;
   --text-dim: #9aa0b5; --border: #2e3450;
   --keep: #34c07c; --dismiss: #e2606b; --skip: #6d7cff; --accent: #6d7cff;
   --gold: #d8b46a;
 }
-:root[data-theme="light"] {
+:root[data-theme="light"], .theme-swatch[data-theme="light"] {
   --bg: #f5f6f8; --card-bg: #ffffff; --text: #1a1d24;
   --text-dim: #5a6270; --border: #dde1e6;
   --keep: #2fae66; --dismiss: #d9534f; --skip: #2f74d0; --accent: #1a1d24;
 }
-:root[data-theme="orange"] {
+:root[data-theme="orange"], .theme-swatch[data-theme="orange"] {
   --bg: #fff6ee; --card-bg: #ffffff; --text: #3a2415;
   --text-dim: #9c7a60; --border: #f3ddc9;
   --keep: #2fae66; --dismiss: #d9534f; --skip: #e8730c; --accent: #e8730c;
 }
-:root[data-theme="ocean"] {
+:root[data-theme="ocean"], .theme-swatch[data-theme="ocean"] {
   --bg: #0b1622; --card-bg: #132433; --text: #e6eef5;
   --text-dim: #8aa0b3; --border: #223649;
   --keep: #2bb3a3; --dismiss: #e0655f; --skip: #3d9be0; --accent: #7fd4ff;
 }
-:root[data-theme="forest"] {
+:root[data-theme="forest"], .theme-swatch[data-theme="forest"] {
   --bg: #0e1712; --card-bg: #17241c; --text: #e8f0e8;
   --text-dim: #93a894; --border: #26382c;
   --keep: #43b96a; --dismiss: #d9713f; --skip: #5aa06a; --accent: #a6e3b0;
 }
+/* ---- the 2026-08-19 trio: a polished dark / normal / light set ----
+   Carbon    — flagship dark: near-black layered neutrals, azure accent.
+   Slate     — "normal": muted graphite between light and dark, calm default.
+   Porcelain — clean warm-neutral light with soft paper shadows. */
+:root[data-theme="carbon"], .theme-swatch[data-theme="carbon"] {
+  --bg: #0a0c10; --card-bg: #151920; --text: #f2f4f8;
+  --text-dim: #929cab; --border: #262c37;
+  --keep: #34c37c; --dismiss: #ef5d64; --skip: #5b9dff; --accent: #5b9dff;
+}
+:root[data-theme="slate"], .theme-swatch[data-theme="slate"] {
+  --bg: #222831; --card-bg: #2b323d; --text: #e9edf2;
+  --text-dim: #a0aab7; --border: #3a4350;
+  --keep: #43b97c; --dismiss: #e26a60; --skip: #74a5e0; --accent: #74a5e0;
+}
+:root[data-theme="porcelain"], .theme-swatch[data-theme="porcelain"] {
+  --bg: #f4f3f0; --card-bg: #ffffff; --text: #22262e;
+  --text-dim: #626b78; --border: #e2e1db;
+  --keep: #279d5c; --dismiss: #d05252; --skip: #3568c4; --accent: #3568c4;
+}
+
 /* Emoji+ : a bright, playful light palette that also sprinkles emoji onto the
    main labels (see accents below) for a friendlier home screen. */
-:root[data-theme="emoji"] {
+:root[data-theme="emoji"], .theme-swatch[data-theme="emoji"] {
   --bg: #fbf3ff; --card-bg: #ffffff; --text: #2a2140;
   --text-dim: #8a7fa8; --border: #ecdcfb;
   --keep: #2fae66; --dismiss: #f0616f; --skip: #7c5cff; --accent: #ff9f43;
@@ -2465,6 +2485,41 @@ main#deckArea {
   box-shadow: 0 0 0 2px rgba(216,180,106,0.22);
 }
 :root[data-theme="nova"] .tab-btn.active { color: var(--gold); }
+
+/* Carbon depth: soft elevation on the near-black ground + azure focus ring */
+:root[data-theme="carbon"] .card,
+:root[data-theme="carbon"] .tile,
+:root[data-theme="carbon"] .loop-card,
+:root[data-theme="carbon"] .accordion-card,
+:root[data-theme="carbon"] .detail-panel,
+:root[data-theme="carbon"] .card-menu {
+  background: linear-gradient(180deg, #171c24, #12161d);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.045);
+}
+:root[data-theme="carbon"] .detail-input:focus,
+:root[data-theme="carbon"] .capture-textarea:focus,
+:root[data-theme="carbon"] .field-input:focus,
+:root[data-theme="carbon"] .auth-input:focus {
+  outline: none;
+  border-color: var(--skip);
+  box-shadow: 0 0 0 2px rgba(91,157,255,0.25);
+}
+:root[data-theme="carbon"] .tab-btn.active { color: var(--skip); }
+
+/* Slate: flat and calm on purpose — just a hairline top highlight on cards */
+:root[data-theme="slate"] .card,
+:root[data-theme="slate"] .tile,
+:root[data-theme="slate"] .accordion-card {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+/* Porcelain: paper-soft double shadow instead of hard borders */
+:root[data-theme="porcelain"] .card,
+:root[data-theme="porcelain"] .tile,
+:root[data-theme="porcelain"] .accordion-card,
+:root[data-theme="porcelain"] .detail-panel {
+  box-shadow: 0 1px 2px rgba(25,28,34,0.05), 0 4px 14px rgba(25,28,34,0.06);
+}
 
 /* ============================================================
    Outlook-style week time-grid (2026-07-24)
@@ -2901,6 +2956,8 @@ main#deckArea {
 /* Radar items + tasks made from them (added 2026-08-12) */
 .dl-days.dl-item { background: var(--border); color: var(--text-dim); }
 .dl-task-pill { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--keep); border: 1px solid var(--keep); border-radius: 20px; padding: 1px 7px; margin-left: 6px; }
+.dl-add { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--skip); background: none; border: 1px solid var(--skip); border-radius: 20px; padding: 1px 8px; margin-left: 6px; cursor: pointer; flex-shrink: 0; }
+.dl-add:active { background: var(--skip); color: #fff; }
 .detail-radar-task-wrap { margin-top: 4px; }
 .detail-radar-task { font-size: 0.9rem; color: var(--text); padding: 4px 0; }
 
@@ -3209,3 +3266,8 @@ main#deckArea {
 
 .events-tile-arrow { width: 16px; height: 16px; color: var(--text-dim); flex-shrink: 0; }
 .events-tile-arrow svg { width: 100%; height: 100%; display: block; }
+
+/* Trainerinus tile: per-app status dots (green = practised today) */
+.trainer-dots { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.trainer-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); opacity: 0.35; }
+.trainer-dots i.on { background: #34c759; opacity: 1; }
