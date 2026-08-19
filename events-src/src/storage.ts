@@ -81,6 +81,16 @@ export function addRegion(value: string) {
   saveState({ regions: [...current.regions, value] });
 }
 
+export function removePreference(value: string) {
+  const current = loadState();
+  saveState({ preferences: current.preferences.filter((item) => item !== value) });
+}
+
+export function removeRegion(value: string) {
+  const current = loadState();
+  saveState({ regions: current.regions.filter((item) => item !== value) });
+}
+
 // Only writes when the number actually changed — this runs on every render
 // pass of the tracker, and a write would otherwise re-sync to Supabase each
 // time for no reason.

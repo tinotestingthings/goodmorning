@@ -2,7 +2,19 @@
 
 Newest first. One line per deploy to the live root.
 
-## 2026-08-18 (2) — Kangaroo: versimpelde app, body map home, history, knieën
+## 2026-08-19 — Event Intelligence: minimalistisch redesign + regio's zichtbaar
+
+Volledig herontwerp van events/: rustige witte look, strakke SVG-lijniconen
+i.p.v. de unicode-glyphs, lichte zijbalk, nette mobiele bottom-nav (5 tabs) met
+wit "More"-paneel. Regio's die je toevoegt (bv. Amsterdam) zijn nu zichtbaar in
+de topbar en zijbalk en kunnen ook weer verwijderd worden (net als voorkeuren);
+dode Settings-velden (Home city, Notifications, film-alert checkboxes) die
+niets opsloegen zijn weg. Nepdata vervangen door echt: datum in Discover-header
+was hardcoded "12 August", deadline-telling en Timeline-cutoff waren vaste
+datums, Sources-statistieken ("92% coverage") waren verzonnen. Lopende
+meerdaagse events blijven nu in Discover staan (verdwenen eerder zodra ze
+begonnen) en tonen "NOW until …"; Timeline groepeert ze onder "Ongoing".
+Gerichte kopie naar sandbox/events (identiek aan live).
 
 Broncode nu in de repo (kangaroo-src/, bash kangaroo-src/build.sh). Body map is
 de homepage; Quick actions/This week/setup-strip weg; nieuwe History-tab
