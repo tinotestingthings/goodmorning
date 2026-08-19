@@ -16,6 +16,7 @@ export const KEYS = {
   leitner: "vogelspotinus.leitner",
   seededDefaults: "vogelspotinus.seededDefaults",
   stats: "vogelspotinus.stats",
+  browseSort: "vogelspotinus.browseSort",
 };
 
 /**

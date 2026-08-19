@@ -1,6 +1,11 @@
 // ---------------------------------------------------------------------------
-// Home: the two built-in tiles, the "new game" tile, and one tile per saved
-// custom game.
+// Home: de cursuskaart met EEN duidelijke actie ("Start oefensessie"), een
+// rij compacte snelkoppelingen en de opgeslagen eigen spellen.
+//
+// De oude statuskaart (drie cijfers, een Leitner-boxhistogram, zes tegels
+// waarvan drie bijna hetzelfde deden) is bewust weg: hij beschreef de
+// administratie van het systeem in plaats van de voortgang naar het doel --
+// de honderd Griftpark-vogels kennen.
 // ---------------------------------------------------------------------------
 
 import { byId, h, icon } from "../core/dom.js";
@@ -10,8 +15,11 @@ import { registerScreen, showScreen, currentScreenId, refreshScreen } from "../c
 import { allBirds, hasPhoto, photoUrl } from "../core/birds.js";
 import { matchesFilters } from "../core/filters.js";
 import { allGames, deleteGame } from "../core/games.js";
-import { collectionCounts, dueBirds, knownPool, weakPool } from "../core/progress.js";
-import { currentStreak } from "../core/stats.js";
+import { dueBirds } from "../core/progress.js";
+import { nextNewBirds } from "../core/course.js";
+import { NEW_PER_DAY } from "../core/session.js";
+import { currentStreak, newTodayCount } from "../core/stats.js";
+import { courseTrackAndLine } from "../ui/course-progress.js";
 import { openBuilder } from "./builder.js";
 
 const MODE_ICONS = {
@@ -21,13 +29,51 @@ const MODE_ICONS = {
   "quiz-study": "cap",
 };
 
-function tile({ iconName, title, description, onClick, className = "" }) {
+// --- Cursuskaart ------------------------------------------------------------
+
+function courseCard() {
+  const streak = currentStreak();
+  const due = dueBirds().length;
+  const newBudget = Math.max(0, NEW_PER_DAY - newTodayCount());
+  const freshAvailable = Math.min(newBudget, nextNewBirds(newBudget).length);
+
+  // "12 herhalen · 5 nieuw" -- wat de sessieknop je zo dadelijk gaat geven.
+  const parts = [];
+  if (due > 0) parts.push(`${due} ${t("sessionPreviewReview")}`);
+  if (freshAvailable > 0) parts.push(`${freshAvailable} ${t("sessionPreviewNew")}`);
+  const preview = parts.join(" · ");
+  const nothingLeft = parts.length === 0;
+
+  return h(
+    "div",
+    { class: "course-card" },
+    h(
+      "div",
+      { class: "course-head" },
+      h("h2", { class: "course-title" }, t("courseGriftpark")),
+      streak > 0
+        ? h("span", { class: "course-streak" }, `${streak} ${streak === 1 ? t("statStreakOne") : t("statStreak")}`)
+        : null
+    ),
+    ...courseTrackAndLine(),
+    h(
+      "button",
+      { type: "button", class: "primary course-cta", onclick: () => showScreen("session") },
+      icon("target"),
+      h("span", {}, nothingLeft ? t("statAllCaughtUp") : t("startSession")),
+      preview ? h("span", { class: "course-preview" }, preview) : null
+    )
+  );
+}
+
+// --- Snelkoppelingen en eigen spellen ----------------------------------------
+
+function shortcut(iconName, label, onClick) {
   return h(
     "button",
-    { type: "button", class: `tile ${className}`.trim(), onclick: onClick },
-    h("span", { class: "tile-icon" }, icon(iconName)),
-    h("span", { class: "tile-title" }, title),
-    description ? h("span", { class: "tile-desc" }, description) : null
+    { type: "button", class: "shortcut", onclick: onClick },
+    icon(iconName),
+    h("span", {}, label)
   );
 }
 
@@ -99,108 +145,13 @@ function launchGame(game) {
   showScreen(game.gameMode === "browse" ? "browse" : "quiz", context);
 }
 
-
-// ---------------------------------------------------------------------------
-// Statuskaart + oefensessies. Deze hoorden bij de goodmorning-integratie en
-// stonden in een los progress.js dat de module-herbouw niet meenam.
-// ---------------------------------------------------------------------------
-
-function startPool(poolFn, titleKey, gameMode) {
-  const birds = poolFn();
-  if (!birds.length) {
-    flash(t(titleKey === "tileReviewTitle" ? "statAllCaughtUp" : "emptyPoolMsg"));
-    return;
-  }
-  showScreen("quiz", { gameMode, birds, title: t(titleKey) });
-}
-
-let flashTimer = null;
-function flash(msg) {
-  let el = byId("app-toast");
-  if (!el) {
-    el = h("div", { id: "app-toast", class: "app-toast" });
-    document.body.appendChild(el);
-  }
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(flashTimer);
-  flashTimer = setTimeout(() => el.classList.remove("show"), 2200);
-}
-
-function progressCard() {
-  const c = collectionCounts();
-  const streak = currentStreak();
-  const due = dueBirds().length;
-  const maxBox = Math.max(1, ...c.boxes);
-
-  const bars = h("div", { class: "dist-bars" }, ...c.boxes.map((n, i) =>
-    h("span", { class: "dist-bar", title: `box ${i + 1}: ${n}` },
-      h("span", { class: `dist-fill dist-b${i + 1}`, style: { height: `${Math.round((n / maxBox) * 100)}%` } })
-    )
-  ));
-
-  const fig = (num, label, extra) =>
-    h("div", { class: "stat-fig" },
-      h("span", { class: "stat-num" }, String(num)),
-      h("span", { class: "stat-lbl" }, label, extra ?? null));
-
-  const dueRow = due > 0
-    ? h("button", { type: "button", class: "stat-due", onclick: () => startPool(dueBirds, "tileReviewTitle", "quiz-study") },
-        h("span", { class: "stat-due-n" }, String(due)),
-        h("span", {}, ` ${t("statDue")} `),
-        h("span", { class: "stat-review-cta" }, t("statReviewNow")))
-    : h("p", { class: "stat-due stat-due-empty" }, t("statAllCaughtUp"));
-
-  return h("div", { class: "stat-card" },
-    h("div", { class: "stat-figures" },
-      fig(c.learned, `${t("statLearnedOf")} `, h("span", { class: "stat-total" }, `${t("statOf")} ${c.total}`)),
-      fig(c.mastered, t("statMastered")),
-      fig(streak, streak === 1 ? t("statStreakOne") : t("statStreak"))),
-    h("div", { class: "stat-dist", "aria-hidden": "true" }, bars,
-      h("div", { class: "dist-legend" }, h("span", {}, t("distNew")), h("span", {}, t("distMastered")))),
-    dueRow);
-}
-
 function render() {
-  byId("home-progress").replaceChildren(progressCard());
+  byId("home-progress").replaceChildren(courseCard());
 
   byId("home-tiles").replaceChildren(
-    tile({
-      iconName: "list-check",
-      title: t("tileReviewTitle"),
-      description: t("tileReviewDesc"),
-      onClick: () => startPool(dueBirds, "tileReviewTitle", "quiz-study"),
-    }),
-    tile({
-      iconName: "check",
-      title: t("tileMasteryTitle"),
-      description: t("tileMasteryDesc"),
-      onClick: () => startPool(knownPool, "tileMasteryTitle", "quiz-choice"),
-    }),
-    tile({
-      iconName: "target",
-      title: t("tileWeakTitle"),
-      description: t("tileWeakDesc"),
-      onClick: () => startPool(weakPool, "tileWeakTitle", "quiz-choice"),
-    }),
-    tile({
-      iconName: "book",
-      title: t("browseTile"),
-      description: t("browseTileDesc"),
-      onClick: () => showScreen("browse"),
-    }),
-    tile({
-      iconName: "target",
-      title: t("quizTile"),
-      description: t("quizTileDesc"),
-      onClick: () => showScreen("quiz"),
-    }),
-    tile({
-      iconName: "plus",
-      title: t("newCustomGame"),
-      onClick: () => openBuilder(null),
-      className: "tile-new",
-    })
+    shortcut("book", t("browseTile"), () => showScreen("browse")),
+    shortcut("target", t("freePractice"), () => showScreen("quiz")),
+    shortcut("plus", t("newCustomGame"), () => openBuilder(null))
   );
 
   const games = allGames();

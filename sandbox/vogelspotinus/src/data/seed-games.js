@@ -13,30 +13,24 @@
 // ---------------------------------------------------------------------------
 
 import { emptySelection } from "../core/filters.js";
+import { GRIFTPARK_COURSE } from "./course-griftpark.js";
 
-const GRIFTPARK_SPECIES = [
-  "Columba palumbus", "Psittacula krameri", "Corvus monedula", "Pica pica",
-  "Cyanistes caeruleus", "Fulica atra", "Aegithalos caudatus", "Troglodytes troglodytes",
-  "Certhia brachydactyla", "Chroicocephalus ridibundus", "Sylvia atricapilla",
-  "Phylloscopus collybita", "Garrulus glandarius", "Podiceps cristatus", "Turdus merula",
-  "Alcedo atthis", "Dendrocopos major", "Larus argentatus", "Parus major", "Gallinula chloropus",
-  "Erithacus rubecula", "Turdus iliacus", "Coccothraustes coccothraustes", "Anser albifrons",
-  "Anas platyrhynchos", "Streptopelia decaocto", "Turdus philomelos", "Fringilla coelebs",
-  "Strix aluco", "Prunella modularis", "Chloris chloris", "Regulus ignicapilla",
-  "Regulus regulus", "Ardea cinerea", "Phylloscopus inornatus", "Muscicapa striata",
-  "Apus apus", "Carduelis carduelis", "Anser anser", "Turdus viscivorus",
-  "Sitta europaea", "Botaurus stellaris",
-];
-
+// v3: het losse Griftpark-quizspel is vervangen door de cursus + oefensessie
+// op Home (die de Leitner-planning WEL voedt; het oude meerkeuzespel deed dat
+// niet). Wat blijft is een blader-spel over dezelfde honderd soorten, nu in
+// de volgorde en omvang van de cursuslijst i.p.v. de oude 42 uit de maandtop.
 export const SEED = {
-  version: "2",
-  retire: ["griftpark-top20"], // superseded by the full list
+  version: "3",
+  retire: ["griftpark-top20", "griftpark-all"],
   games: [
     {
-      id: "griftpark-all",
-      name: "Griftpark",
-      gameMode: "quiz-choice",
-      filters: { ...emptySelection(), specificBirds: [...GRIFTPARK_SPECIES] },
+      id: "griftpark-browse",
+      name: "Griftpark · 100",
+      gameMode: "browse",
+      filters: {
+        ...emptySelection(),
+        specificBirds: GRIFTPARK_COURSE.species.map(([sci]) => sci),
+      },
     },
   ],
 };

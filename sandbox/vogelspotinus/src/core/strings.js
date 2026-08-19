@@ -13,24 +13,41 @@
 
 export const STRINGS = {
   nl: {
+    // Cursus + oefensessie
+    courseGriftpark: "Griftpark · 100 vogels",
+    startSession: "Start oefensessie",
+    sessionTitle: "Oefenen",
+    sessionPreviewReview: "herhalen",
+    sessionPreviewNew: "nieuw",
+    newBirdBadge: "Nieuwe vogel",
+    introNext: "Ik heb hem bekeken",
+    whichBirdDoYouHear: "Welke vogel hoor je?",
+    whichPhotoIs: "Welke foto is de",
+    heardInGriftpark: "gehoord in het Griftpark",
+    sessionDoneTitle: "Klaar voor vandaag!",
+    sessionScore: "goed beantwoord",
+    sessionNewBirds: "nieuwe vogels geleerd",
+    sessionMissed: "Nog even naar kijken",
+    sessionEmptyTitle: "Alles gedaan voor vandaag",
+    sessionEmptyBody:
+      "Geen herhalingen meer en het dagbudget nieuwe vogels is op. Morgen staan de volgende klaar.",
+    freePractice: "Vrij oefenen",
+    backHome: "Naar home",
+
+    // Bladeren: sorteren
+    sortLabel: "Sorteren",
+    sortCommon: "Meest gezien",
+    sortAZ: "A–Z",
+    sortTaxo: "Familie",
+
     // Statuskaart + oefensessies
-    tileReviewTitle: "Herhalen",
-    tileReviewDesc: "Kaarten die vandaag terugkomen",
-    tileMasteryTitle: "Bekende vogels",
-    tileMasteryDesc: "Oefen vogels die je al kent",
-    tileWeakTitle: "Lastige vogels",
-    tileWeakDesc: "Oefen wat je vaak fout had",
     statLearnedOf: "geleerd",
     statOf: "van",
     statMastered: "beheerst",
+    statInProgress: "onderweg",
     statStreak: "dagen op rij",
     statStreakOne: "dag op rij",
-    statDue: "te herhalen vandaag",
-    statReviewNow: "Nu oefenen",
     statAllCaughtUp: "Niets te herhalen vandaag",
-    emptyPoolMsg: "Nog te weinig geoefend voor deze sessie",
-    distNew: "nieuw",
-    distMastered: "beheerst",
     // Navigation & screens
     home: "Home",
     browse: "Bladeren",
@@ -40,9 +57,6 @@ export const STRINGS = {
 
     // Home tiles
     browseTile: "Bladeren",
-    browseTileDesc: "Doorzoek alle vogels",
-    quizTile: "Quiz",
-    quizTileDesc: "Test jezelf",
     newCustomGame: "Nieuw spel",
 
     // Browse
@@ -81,7 +95,6 @@ export const STRINGS = {
     scoreLabel: "Score",
 
     // Study (Leitner)
-    studyTileDesc: "Officieel overhoren met herhaling",
     knewIt: "Wist ik!",
     didntKnowIt: "Wist ik niet",
     tapToReveal: "Tik om het antwoord te tonen",
@@ -180,24 +193,41 @@ export const STRINGS = {
   },
 
   en: {
+    // Course + practice session
+    courseGriftpark: "Griftpark · 100 birds",
+    startSession: "Start practice session",
+    sessionTitle: "Practice",
+    sessionPreviewReview: "to review",
+    sessionPreviewNew: "new",
+    newBirdBadge: "New bird",
+    introNext: "Got it",
+    whichBirdDoYouHear: "Which bird do you hear?",
+    whichPhotoIs: "Which photo is the",
+    heardInGriftpark: "heard in the Griftpark",
+    sessionDoneTitle: "Done for today!",
+    sessionScore: "answered correctly",
+    sessionNewBirds: "new birds learned",
+    sessionMissed: "Worth another look",
+    sessionEmptyTitle: "All done for today",
+    sessionEmptyBody:
+      "No reviews left and today's budget of new birds is used up. The next ones are ready tomorrow.",
+    freePractice: "Free practice",
+    backHome: "Back to home",
+
+    // Browse: sorting
+    sortLabel: "Sort",
+    sortCommon: "Most seen",
+    sortAZ: "A–Z",
+    sortTaxo: "Family",
+
     // Status card + practice sessions
-    tileReviewTitle: "Review",
-    tileReviewDesc: "Cards that come back today",
-    tileMasteryTitle: "Known birds",
-    tileMasteryDesc: "Practise birds you already know",
-    tileWeakTitle: "Tricky birds",
-    tileWeakDesc: "Drill the ones you keep missing",
     statLearnedOf: "learned",
     statOf: "of",
     statMastered: "mastered",
+    statInProgress: "in progress",
     statStreak: "day streak",
     statStreakOne: "day streak",
-    statDue: "due today",
-    statReviewNow: "Practise now",
     statAllCaughtUp: "Nothing due today",
-    emptyPoolMsg: "Not enough practice yet for this session",
-    distNew: "new",
-    distMastered: "mastered",
     // Navigation & screens
     home: "Home",
     browse: "Browse",
@@ -207,9 +237,6 @@ export const STRINGS = {
 
     // Home tiles
     browseTile: "Browse",
-    browseTileDesc: "Search all birds",
-    quizTile: "Quiz",
-    quizTileDesc: "Test yourself",
     newCustomGame: "New game",
 
     // Browse
@@ -248,7 +275,6 @@ export const STRINGS = {
     scoreLabel: "Score",
 
     // Study (Leitner)
-    studyTileDesc: "Official spaced-repetition drilling",
     knewIt: "Knew it!",
     didntKnowIt: "Didn't know it",
     tapToReveal: "Tap to reveal the answer",

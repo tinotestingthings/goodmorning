@@ -1,14 +1,21 @@
 // ---------------------------------------------------------------------------
 // Quiz mode: multiple choice.
 //
-// Distractors are drawn from the same filtered pool as the target, so a
-// "black, very common, small birds" game only ever offers other black, very
-// common, small birds as wrong answers.
+// Distractors are drawn from the same filtered pool as the target and ranked
+// by similarity (family, size, colour), so the wrong answers are the species
+// you would actually confuse in the field -- random distractors made every
+// question a giveaway.
+//
+// Every answer feeds the Leitner state: playing a multiple-choice game IS
+// practice, so it counts as practice. Before, only "Overhoren" recorded
+// anything and a whole game session advanced your progress by zero.
 // ---------------------------------------------------------------------------
 
 import { h, shuffle } from "../../core/dom.js";
 import { t } from "../../core/i18n.js";
 import { primaryName } from "../../core/birds.js";
+import { pickDistractors } from "../../core/distractors.js";
+import { recordAnswer } from "../../core/leitner.js";
 import { emptyPoolCard, fillAnswer, questionCard, setResult } from "../../ui/quiz-card.js";
 
 const OPTION_COUNT = 4;
@@ -31,7 +38,7 @@ export const choiceMode = {
       return;
     }
 
-    const distractors = shuffle(api.pool().filter((b) => b !== bird)).slice(0, OPTION_COUNT - 1);
+    const distractors = pickDistractors(bird, api.pool(), OPTION_COUNT - 1, primaryName);
     const options = shuffle([bird, ...distractors]);
 
     const grid = h("div", { class: "choice-grid" });
@@ -66,6 +73,7 @@ export const choiceMode = {
         setResult(result, correct);
         fillAnswer(answer, bird);
         api.recordScore(correct);
+        recordAnswer(bird, correct);
         nextButton.focus();
       });
       buttons.set(option, button);

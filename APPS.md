@@ -17,7 +17,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | App | Path | Supabase table | Source of truth | Build |
 |---|---|---|---|---|
 | Kangaroo Gym | `kangaroo/` | `kangaroo_state` | this repo (`kangaroo-src/` TSX) | `bash kangaroo-src/build.sh` -> `sandbox/kangaroo/bundle.js`, then promote |
-| Vogelspotinus (bird ID trainer) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles only |
+| Vogelspotinus (bird ID trainer) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles; `tools/fetch-bird-photos.mjs` for the extra quiz photos (`data/bird-photos.json`, iNaturalist CC). Leerdoel: Griftpark-100-cursus (`src/data/course-griftpark.js`, uit luistervink.nl) |
 | NoteSprint | `notesprint/` | `notesprint_state` | this repo (`boot.js` loads the app) | none |
 | Ear training / ChordSprint | `ear-training/` | `chordsprint_state` | this repo | none |
 | WijnWijs (wine) | `wine/` | `wine_state` | this repo (`bundle.js` prebuilt) | none |

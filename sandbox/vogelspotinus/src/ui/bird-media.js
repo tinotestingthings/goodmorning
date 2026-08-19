@@ -6,6 +6,7 @@
 import { h, icon } from "../core/dom.js";
 import { t } from "../core/i18n.js";
 import { photoUrl, primaryName } from "../core/birds.js";
+import { hasMultiplePhotos, photoAttribution, quizPhotoUrl } from "../core/photos.js";
 import { toggleSound } from "../core/sound.js";
 import { openLightbox } from "./lightbox.js";
 
@@ -31,20 +32,43 @@ export const PLACEHOLDER_IMG =
  * @param {"cover"|"contain"} [options.fit]
  * @param {boolean} [options.zoomable] attach click/Enter to open the lightbox
  * @param {string}  [options.alt]      pass "" for quiz photos, where the name is the answer
+ * @param {boolean} [options.vary]     quiz photos: rotate through the photo
+ *   variants (data/bird-photos.json) and, when a soort maar een foto heeft,
+ *   de uitsnede licht varieren -- allebei tegen het onthouden van de foto in
+ *   plaats van de vogel.
  */
-export function birdPhoto(bird, { fit = "cover", zoomable = true, alt } = {}) {
-  const src = photoUrl(bird) ?? PLACEHOLDER_IMG;
+export function birdPhoto(bird, { fit = "cover", zoomable = true, alt, vary = false } = {}) {
+  const src = (vary ? quizPhotoUrl(bird) : photoUrl(bird)) ?? PLACEHOLDER_IMG;
   const altText = alt ?? primaryName(bird) ?? t("a11yBirdPhoto");
+  const attribution = vary ? photoAttribution(bird, src) : null;
 
-  const img = h("img", { src, alt: altText, loading: "lazy", decoding: "async" });
+  const img = h("img", {
+    src,
+    alt: altText,
+    loading: "lazy",
+    decoding: "async",
+    title: attribution || undefined,
+  });
   const frame = h("div", { class: `photo photo-${fit}` }, img);
 
-  if (zoomable && photoUrl(bird)) {
+  if (vary && fit === "cover" && !hasMultiplePhotos(bird) && src !== PLACEHOLDER_IMG) {
+    // Een soort, een foto: dan tenminste niet elke keer exact dezelfde pixels.
+    const zoom = 1.15 + Math.random() * 0.3;
+    img.style.transform = `scale(${zoom.toFixed(2)})`;
+    img.style.objectPosition = `${Math.round(20 + Math.random() * 60)}% ${Math.round(
+      20 + Math.random() * 60
+    )}%`;
+  }
+
+  if (zoomable && src !== PLACEHOLDER_IMG) {
     frame.classList.add("photo-zoomable");
     frame.tabIndex = 0;
     frame.setAttribute("role", "button");
     frame.setAttribute("aria-label", t("a11yViewPhotoFullscreen"));
-    const open = () => openLightbox(photoUrl(bird, { full: true }), altText);
+    // Bij een variant tonen we die variant ook in de lightbox; de Wikipedia-
+    // basisfoto behoudt zijn hogere-resolutie "full" versie.
+    const full = vary && src !== photoUrl(bird) ? src : photoUrl(bird, { full: true }) ?? src;
+    const open = () => openLightbox(full, attribution ? `${altText} — ${attribution}` : altText);
     frame.addEventListener("click", open);
     frame.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
