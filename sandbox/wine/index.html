@@ -9,7 +9,8 @@
 <body>
 <div id="root"></div>
 <!-- Supabase Auth: gate the app on a valid Daily Digest session, then sync the
-     wine progress to the per-user wine_state row. boot.js injects bundle.js. -->
+     wine progress to the per-user wine_state row. boot.js injects src/main.js
+     (ES-modules; herbouwd aug 2026, route B). -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="boot.js"></script>
 </body>
