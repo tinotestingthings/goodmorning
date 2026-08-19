@@ -2,6 +2,19 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (5) — Trainerinus: oefencoach-dashboard (gerichte promote)
+
+Nieuwe utility-app trainerinus/: per dag groen/grijs voor Vogelspotinus,
+ChordSprint, NoteSprint en Kangaroo, gezamenlijke alles-groen-streak en
+weekgrid. Vogels/gym exact uit hun state-tabellen, chords/notes via
+state-hash + updated_at-heuristiek (historie bouwt vanaf nu op). Home toont
+een rij zolang er vandaag nog iets grijs is; launcher-tegel in practice.js.
+Sync-tabel trainerinus_state moet nog aangemaakt (SQL in trainerinus/README.md);
+tot die tijd draait de app lokaal. Gerichte promote van alleen trainerinus/ +
+practice.js (promote.sh niet gebruikt: andere sessie had sandbox/notesprint
+onder handen); de home-tegel-code zat al in v2026.08.19-4. Geen cache-bump
+(network-first shell).
+
 ## 2026-08-19 (v2026.08.19-4) — Radar 2.0 + drie nieuwe thema's (Carbon/Slate/Porcelain) + werkende themapreview
 
 Radar 2.0: elk radar-item zonder taak heeft nu een "+ task"-knop in de strip

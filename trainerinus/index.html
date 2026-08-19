@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="boot.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Trainerinus</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --blue: #007aff;
+      --green: #34c759;
+      --grey-dot: #d1d5db;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+      --radius: 20px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --card: #191c22;
+        --text: #e7e9ee;
+        --muted: #9aa0ac;
+        --line: #262b33;
+        --grey-dot: #3a404a;
+        --shadow: 0 10px 26px rgba(0,0,0,0.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      padding: max(12px, env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    header { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 4px 14px; }
+    header h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.02em; }
+    header .date { font-size: 0.82rem; color: var(--muted); }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 14px; }
+    .card h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 10px; font-weight: 700; }
+
+    .app-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
+    .app-row:first-of-type { border-top: 0; }
+    .app-row .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--grey-dot); flex-shrink: 0; }
+    .app-row.green .dot { background: var(--green); }
+    .app-row .info { flex: 1; min-width: 0; }
+    .app-row .name { font-weight: 650; font-size: 0.95rem; }
+    .app-row .detail { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
+    .app-row .chev { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+
+    .streak-card { display: flex; align-items: center; gap: 16px; }
+    .streak-num { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .streak-label { font-size: 0.85rem; color: var(--muted); line-height: 1.35; }
+
+    .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .week .col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .week .day-label { font-size: 0.68rem; color: var(--muted); }
+    .week .col.today .day-label { color: var(--text); font-weight: 700; }
+    .week .mini { width: 9px; height: 9px; border-radius: 50%; background: var(--grey-dot); }
+    .week .mini.on { background: var(--green); }
+    .week .mini.unknown { opacity: 0.35; }
+
+    .toolbar { display: flex; gap: 8px; }
+    .toolbar button {
+      border: 0; background: var(--card); color: var(--text); box-shadow: var(--shadow);
+      border-radius: 14px; padding: 7px 10px; font-size: 0.95rem; cursor: pointer; line-height: 1;
+    }
+    .settings { display: none; }
+    .settings.open { display: block; }
+    .settings label.toggle { display: flex; align-items: center; gap: 10px; padding: 8px 2px; font-size: 0.92rem; }
+    .settings .rest { display: flex; align-items: center; gap: 10px; padding: 8px 2px; font-size: 0.92rem; }
+    .settings input[type="number"] { width: 56px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 0.92rem; }
+    .settings .note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; line-height: 1.45; }
+    .settings pre { font-size: 0.68rem; background: var(--bg); border-radius: 10px; padding: 10px; overflow-x: auto; line-height: 1.5; }
+    .foot { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+    .empty { font-size: 0.85rem; color: var(--muted); padding: 6px 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trainerinus</h1>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="date" id="date-label"></span>
+      <div class="toolbar">
+        <button id="btn-refresh" title="Ververs" aria-label="Ververs">&#8635;</button>
+        <button id="btn-settings" title="Instellingen" aria-label="Instellingen">&#9881;&#65039;</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="card settings" id="settings-card">
+    <h2>Instellingen</h2>
+    <div id="settings-toggles"></div>
+    <div class="rest">
+      <span>Gym telt als groen tot</span>
+      <input type="number" id="rest-days" min="0" max="7" />
+      <span>dagen na de laatste training</span>
+    </div>
+    <div class="note" id="sync-note"></div>
+  </section>
+
+  <section class="card">
+    <h2>Vandaag</h2>
+    <div id="today-list"><div class="empty">Laden…</div></div>
+  </section>
+
+  <section class="card streak-card">
+    <div class="streak-num" id="streak-num">–</div>
+    <div class="streak-label" id="streak-label">alles-groen-dagen op rij<br /><span id="streak-hint"></span></div>
+  </section>
+
+  <section class="card">
+    <h2>Deze week</h2>
+    <div class="week" id="week-grid"></div>
+  </section>
+
+  <div class="foot" id="foot-note"></div>
+
+<script type="application/gm-app" id="gm-app-code">
+(function () {
+  "use strict";
+
+  // Trainerinus — read-only oefencoach over de andere trainer-apps heen.
+  //
+  // Leest per app de per-user rij uit diens eigen Supabase-tabel (zelfde
+  // auth-sessie; RLS geeft alleen je eigen rij) en leidt daaruit af of er
+  // vandaag geoefend is. Schrijft NOOIT naar de tabellen van andere apps —
+  // alleen naar zijn eigen trainerinus.*-keys (geschiedenis + instellingen).
+  //
+  // Bronnamespace is bewust altijd "dd:" (live): echt oefenen gebeurt in de
+  // live apps; de sandbox-kopieën zijn dev-speeltuinen. De EIGEN state van
+  // Trainerinus volgt wél gewoon de omgeving (dd:/sbx: via de boot-shim),
+  // dus sandbox-testen kan nooit live Trainerinus-data raken.
+  var H = window.__gmTrainer || {};
+  var SB = H.sb, USER = H.userId;
+  var SRC = "dd:";
+  var LOG_DAYS = 120;
+
+  var APPS = [
+    { id: "vogels", label: "Vogelspotinus", table: "vogelspotinus_state", href: "../vogelspotinus/index.html" },
+    { id: "chords", label: "ChordSprint",   table: "chordsprint_state",   href: "../ear-training/index.html", prefixes: [SRC + "cpt_"] },
+    { id: "notes",  label: "NoteSprint",    table: "notesprint_state",    href: "../notesprint/index.html",   prefixes: [SRC + "noteSprint", SRC + "noteReader"] },
+    { id: "gym",    label: "Kangaroo Gym",  table: "kangaroo_state",      href: "../kangaroo/index.html" }
+  ];
+
+  // ---- eigen state (via de boot-shim: dd:/sbx:-genamespaced + gesynct) ----
+  function readJSON(key, fallback) {
+    try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+    catch (e) { return fallback; }
+  }
+  function writeJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+
+  var settings = Object.assign(
+    { apps: { vogels: true, chords: true, notes: true, gym: true }, gymRestDays: 2 },
+    readJSON("trainerinus.settings", {})
+  );
+  var log = readJSON("trainerinus.log", {});         // "YYYY-MM-DD" -> {vogels:1,...}
+  var markers = readJSON("trainerinus.markers", {}); // heuristiek-apps: laatst geziene hash
+
+  // ---- datumhulpjes (alles in lokale tijd) ----
+  function dayKey(d) {
+    var dt = d || new Date();
+    return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+  }
+  function keyToDate(key) { var p = key.split("-"); return new Date(+p[0], +p[1] - 1, +p[2], 12); }
+  function shiftDay(key, days) { var d = keyToDate(key); d.setDate(d.getDate() + days); return dayKey(d); }
+  function dayDiff(a, b) { return Math.round((keyToDate(b) - keyToDate(a)) / 86400000); } // b - a in dagen
+  function isoToDayKey(iso) {
+    if (!iso) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;      // al een lokale dagsleutel
+    var d = new Date(iso);
+    return isNaN(d) ? null : dayKey(d);
+  }
+  function relative(key) {
+    if (!key) return "nooit";
+    var n = dayDiff(key, dayKey());
+    if (n <= 0) return "vandaag";
+    if (n === 1) return "gisteren";
+    if (n < 7) return n + " dagen geleden";
+    return "op " + key;
+  }
+
+  function creditLog(day, appId) {
+    if (!day) return;
+    if (dayDiff(day, dayKey()) > LOG_DAYS) return;
+    if (!log[day]) log[day] = {};
+    log[day][appId] = 1;
+  }
+  function pruneLog() {
+    var today = dayKey();
+    Object.keys(log).forEach(function (d) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || dayDiff(d, today) > LOG_DAYS) delete log[d];
+    });
+  }
+
+  function parseRaw(raw, fallback) {
+    if (raw == null) return fallback;
+    try { var v = JSON.parse(raw); return v == null ? fallback : v; } catch (e) { return fallback; }
+  }
+
+  // djb2 over gesorteerde key=val-paren: verandert de state van een app, dan
+  // verandert de hash — dat is ons "er is geoefend/gebruikt"-signaal voor de
+  // apps die zelf geen datum bijhouden (ChordSprint, NoteSprint).
+  function hashKeys(data, prefixes) {
+    var keys = Object.keys(data || {}).filter(function (k) {
+      return prefixes.some(function (p) { return k.indexOf(p) === 0; });
+    }).sort();
+    var h = 5381;
+    keys.forEach(function (k) {
+      var s = k + "=" + String(data[k]);
+      for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    });
+    return keys.length ? String(h) : null; // null = nog helemaal geen data
+  }
+
+  // ---- per-app status uit een tabelrij ----
+  function statusVogels(row) {
+    var s = parseRaw(row && row.data && row.data[SRC + "vogelspotinus.stats"], null);
+    if (!s) return { known: false, green: false, detail: "nog geen oefendata" };
+    var today = dayKey();
+    var count = (s.today && s.today.date === today) ? (s.today.count || 0) : 0;
+    var goal = s.dailyGoal || 10;
+    var last = s.lastPracticeDate || null;
+    var streak = (last === today || last === shiftDay(today, -1)) ? (s.streak || 0) : 0;
+    // Backfill: de eigen streak van Vogelspotinus vertelt precies welke
+    // voorafgaande dagen groen waren — neem die over in de historie.
+    if (streak > 0 && last) for (var i = 0; i < streak; i++) creditLog(shiftDay(last, -i), "vogels");
+    var detail = count > 0
+      ? count + (count === 1 ? " kaart" : " kaarten") + " vandaag" + (count >= goal ? " · doel gehaald" : " · doel " + goal)
+      : (streak > 0 ? "streak " + streak + " — vandaag nog niets" : "laatst geoefend: " + relative(last));
+    return { known: true, green: count > 0, detail: detail };
+  }
+
+  function statusGym(row) {
+    var data = (row && row.data) || {};
+    var days = {};
+    parseRaw(data[SRC + "kangaroo-workout-history"], []).forEach(function (s) { var d = isoToDayKey(s && s.date); if (d) days[d] = 1; });
+    parseRaw(data[SRC + "kangaroo-cardio"], []).forEach(function (e) { var d = isoToDayKey(e && e.date); if (d) days[d] = 1; });
+    var muscles = parseRaw(data[SRC + "kangaroo-history"], {});
+    Object.keys(muscles).forEach(function (m) { var d = isoToDayKey(muscles[m]); if (d) days[d] = 1; });
+    var list = Object.keys(days).sort();
+    if (!list.length) return { known: false, green: false, detail: "nog geen trainingen gelogd", gymDays: [] };
+    list.forEach(function (d) { creditLog(d, "gym"); });
+    var today = dayKey();
+    var last = list[list.length - 1];
+    var since = dayDiff(last, today);
+    var weekCount = list.filter(function (d) { return dayDiff(d, today) < 7; }).length;
+    var green = since <= settings.gymRestDays;
+    var detail = "laatste training " + relative(last) + (weekCount ? " · " + weekCount + "× deze week" : "");
+    if (green && since > 0) detail += " · rustdag";
+    return { known: true, green: green, detail: detail, gymDays: list };
+  }
+
+  function statusHeuristic(app, row) {
+    var data = (row && row.data) || {};
+    var hash = hashKeys(data, app.prefixes);
+    if (hash === null) return { known: false, green: false, detail: "nog geen oefendata" };
+    var m = markers[app.id];
+    if (m && m.hash !== hash) {
+      // State veranderd sinds de vorige meting: de dag van de laatste push
+      // (updated_at van de rij) is de dag waarop er geoefend is.
+      creditLog(isoToDayKey(row && row.updated_at) || dayKey(), app.id);
+    }
+    markers[app.id] = { hash: hash, seenAt: new Date().toISOString() };
+    var today = dayKey();
+    if (log[today] && log[today][app.id]) return { known: true, green: true, detail: "geoefend vandaag" };
+    var lastSeen = Object.keys(log).filter(function (d) { return log[d][app.id]; }).sort().pop();
+    return {
+      known: true, green: false,
+      detail: lastSeen ? "laatst geoefend: " + relative(lastSeen) : "nog geen meting — historie bouwt vanaf nu op"
+    };
+  }
+
+  // ---- gecombineerde streak + weekgrid ----
+  function enabledApps() { return APPS.filter(function (a) { return settings.apps[a.id] !== false; }); }
+
+  function greenOn(day, appId, gymDays) {
+    if (appId === "gym") {
+      for (var i = 0; i <= settings.gymRestDays; i++) {
+        if (gymDays.indexOf(shiftDay(day, -i)) !== -1) return true;
+      }
+      return false;
+    }
+    return !!(log[day] && log[day][appId]);
+  }
+
+  function combinedStreak(gymDays) {
+    var apps = enabledApps();
+    if (!apps.length) return 0;
+    var day = dayKey();
+    var allGreen = function (d) { return apps.every(function (a) { return greenOn(d, a.id, gymDays); }); };
+    if (!allGreen(day)) day = shiftDay(day, -1); // vandaag telt pas mee als hij al groen is
+    var n = 0;
+    while (allGreen(day) && n < LOG_DAYS) { n++; day = shiftDay(day, -1); }
+    return n;
+  }
+
+  // ---- render ----
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function renderToday(statuses) {
+    var box = document.getElementById("today-list");
+    box.innerHTML = "";
+    var apps = enabledApps();
+    if (!apps.length) { box.appendChild(el("div", "empty", "Alle apps staan uit — zet er een aan bij instellingen.")); return; }
+    apps.forEach(function (app) {
+      var st = statuses[app.id] || { green: false, detail: "?" };
+      var a = document.createElement("a");
+      a.className = "app-row" + (st.green ? " green" : "");
+      a.href = app.href;
+      a.appendChild(el("span", "dot"));
+      var info = el("div", "info");
+      info.appendChild(el("div", "name", app.label));
+      info.appendChild(el("div", "detail", st.detail));
+      a.appendChild(info);
+      a.appendChild(el("span", "chev", "›"));
+      box.appendChild(a);
+    });
+  }
+
+  function renderStreak(statuses) {
+    var gymDays = (statuses.gym && statuses.gym.gymDays) || [];
+    var n = combinedStreak(gymDays);
+    document.getElementById("streak-num").textContent = String(n);
+    var anyUnknown = enabledApps().some(function (a) { return statuses[a.id] && !statuses[a.id].known; });
+    document.getElementById("streak-hint").textContent =
+      n === 0 ? (anyUnknown ? "historie bouwt zich vanaf nu op" : "maak vandaag alles groen om te starten") : "";
+  }
+
+  function renderWeek(statuses) {
+    var grid = document.getElementById("week-grid");
+    grid.innerHTML = "";
+    var gymDays = (statuses.gym && statuses.gym.gymDays) || [];
+    var apps = enabledApps();
+    var names = ["zo", "ma", "di", "wo", "do", "vr", "za"];
+    var today = dayKey();
+    for (var i = 6; i >= 0; i--) {
+      var day = shiftDay(today, -i);
+      var col = el("div", "col" + (day === today ? " today" : ""));
+      col.appendChild(el("div", "day-label", names[keyToDate(day).getDay()]));
+      apps.forEach(function (app) {
+        var on = greenOn(day, app.id, gymDays);
+        var known = statuses[app.id] && statuses[app.id].known;
+        var dot = el("span", "mini" + (on ? " on" : "") + (!on && !known ? " unknown" : ""));
+        dot.title = app.label;
+        col.appendChild(dot);
+      });
+      grid.appendChild(col);
+    }
+  }
+
+  var TABLE_SQL = "create table public.trainerinus_state (\n" +
+    "  user_id uuid primary key references auth.users(id) on delete cascade,\n" +
+    "  data jsonb not null default '{}'::jsonb,\n" +
+    "  updated_at timestamptz not null default now()\n" +
+    ");\n" +
+    "alter table public.trainerinus_state enable row level security;\n" +
+    "create policy \"own row\" on public.trainerinus_state\n" +
+    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);";
+
+  function renderSettings() {
+    var box = document.getElementById("settings-toggles");
+    box.innerHTML = "";
+    APPS.forEach(function (app) {
+      var lab = el("label", "toggle");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = settings.apps[app.id] !== false;
+      cb.addEventListener("change", function () {
+        settings.apps[app.id] = cb.checked;
+        writeJSON("trainerinus.settings", settings);
+        refresh();
+      });
+      lab.appendChild(cb);
+      lab.appendChild(el("span", null, app.label + " telt mee"));
+      box.appendChild(lab);
+    });
+    var rest = document.getElementById("rest-days");
+    rest.value = settings.gymRestDays;
+    rest.addEventListener("change", function () {
+      var v = Math.max(0, Math.min(7, parseInt(rest.value, 10) || 0));
+      settings.gymRestDays = v; rest.value = v;
+      writeJSON("trainerinus.settings", settings);
+      refresh();
+    });
+    var note = document.getElementById("sync-note");
+    if (H.syncOff) {
+      note.innerHTML = "";
+      note.appendChild(el("div", null, "⚠️ Sync staat uit: de tabel trainerinus_state bestaat nog niet. Alles werkt, maar alleen op dit apparaat. Eénmalig aanmaken in de Supabase SQL-editor:"));
+      var pre = el("pre", null, TABLE_SQL);
+      note.appendChild(pre);
+    } else {
+      note.textContent = "Leest oefendata van de live apps (schrijft er nooit naar). Eigen historie synct via trainerinus_state.";
+    }
+  }
+
+  // ---- data laden ----
+  function fetchRow(table) {
+    return SB.from(table).select("data,updated_at").eq("user_id", USER).then(function (res) {
+      if (res && res.error) return { error: res.error };
+      return (res && res.data && res.data.length) ? res.data[0] : {};
+    }, function (err) { return { error: err }; });
+  }
+
+  var busy = false;
+  function refresh() {
+    if (!SB || !USER) return;
+    if (busy) return;
+    busy = true;
+    Promise.all(APPS.map(function (a) { return fetchRow(a.table); })).then(function (rows) {
+      var statuses = {};
+      APPS.forEach(function (app, i) {
+        var row = rows[i];
+        if (row && row.error) {
+          statuses[app.id] = { known: false, green: false, detail: "kon niet laden", gymDays: [] };
+          return;
+        }
+        if (app.id === "vogels") statuses.vogels = statusVogels(row);
+        else if (app.id === "gym") statuses.gym = statusGym(row);
+        else statuses[app.id] = statusHeuristic(app, row);
+      });
+      pruneLog();
+      writeJSON("trainerinus.log", log);
+      writeJSON("trainerinus.markers", markers);
+      renderToday(statuses);
+      renderStreak(statuses);
+      renderWeek(statuses);
+      busy = false;
+    }, function () { busy = false; });
+  }
+
+  // ---- init ----
+  var months = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  var now = new Date();
+  var wd = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+  document.getElementById("date-label").textContent = wd[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()];
+  document.getElementById("foot-note").textContent = H.isSandbox ? "sandbox · leest live oefendata" : "";
+
+  document.getElementById("btn-refresh").addEventListener("click", refresh);
+  document.getElementById("btn-settings").addEventListener("click", function () {
+    document.getElementById("settings-card").classList.toggle("open");
+  });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
+
+  renderSettings();
+  refresh();
+})();
+</script>
+</body>
+</html>
