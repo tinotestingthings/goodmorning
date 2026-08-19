@@ -7,7 +7,11 @@
   // boot/focus, and pushes the instant its local copy changes (home.js's
   // saveTodos/saveChores call pushNow) with a 25s safety poll behind it.
 
-  var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek"), k("items")];
+  // todos/chores/items are the agenda itself; theme makes Appearance survive
+  // across devices; decisions/handedOff/notes stop the SAME triage deck from
+  // reappearing on every other device after it was completed on one.
+  var KEYS = [k("todos"), k("todos.history"), k("chores"), k("workweek"), k("items"),
+              k("theme"), k("decisions"), k("handedOff"), k("notes")];
   var POLL_MS = 60000; // was 25s; a push fires instantly on save anyway, so the poll can be lazy
   var lastSynced = null;   // JSON string of the state last pushed/pulled
   var remoteStamp = null;
@@ -27,6 +31,7 @@
   function applySnapshot(json) {
     var o;
     try { o = JSON.parse(json); } catch (e) { return; }
+    var before = snapshot();
     KEYS.forEach(function (k) {
       if (o && Object.prototype.hasOwnProperty.call(o, k)) {
         if (o[k] === null) {
@@ -41,6 +46,13 @@
         else localStorage.setItem(k, JSON.stringify(o[k]));
       }
     });
+    // Only re-render when the pull actually changed something. Our own push
+    // bumps the server's updated_at, so before this check every 60s poll
+    // re-applied an identical snapshot and re-rendered the whole view —
+    // wiping any half-typed input ("the app refreshes while I'm typing").
+    if (snapshot() === before) return;
+    try { if (global.Theme && global.Theme.apply) global.Theme.apply(); } catch (e) {}
+    try { document.dispatchEvent(new Event("dd-agenda-applied")); } catch (e) {}
     if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
   }
 
@@ -142,6 +154,19 @@
   function ready() { return started && !!userId; }
   function status() { try { return localStorage.getItem(k("agendasync.status")); } catch (e) { return null; } }
 
+  // True while the user is mid-interaction: typing in any field, or with an
+  // editor/menu/sheet open. A background pull would re-render the view and
+  // throw away whatever was being typed, so the poll waits it out (pushing
+  // local changes stays fine — that never touches the DOM).
+  function uiBusy() {
+    try {
+      var ae = document.activeElement;
+      if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable)) return true;
+      if (document.querySelector(".inline-form, .capture-sheet, .item-menu-overlay, .cal-editor-overlay, .detail-overlay, .card-menu-backdrop")) return true;
+    } catch (e) {}
+    return false;
+  }
+
   function tick() {
     if (busy || !global.SB || !userId) return;
     if (!primed) {
@@ -155,7 +180,7 @@
     }
     var cur = snapshot();
     if (lastSynced !== null && cur !== lastSynced) push(cur);
-    else pull();
+    else if (!uiBusy()) pull();
   }
 
   // Idempotent init — runs whether the session was already present at load

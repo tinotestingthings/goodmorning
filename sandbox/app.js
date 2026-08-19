@@ -41,7 +41,10 @@
       // immediately (with transition) so the UI doesn't wait a tick.
     }
     if (document.startViewTransition) {
-      document.startViewTransition(doApply);
+      // A quick double navigation aborts the first transition; that's fine —
+      // swallow the rejection so it doesn't spam the console.
+      var vt = document.startViewTransition(doApply);
+      if (vt && vt.finished && vt.finished.catch) vt.finished.catch(function () {});
     } else {
       doApply();
     }
@@ -66,7 +69,8 @@
     var route = parseRoute();
     if (route === current) return;
     if (document.startViewTransition) {
-      document.startViewTransition(function () { applyRoute(route); });
+      var vt = document.startViewTransition(function () { applyRoute(route); });
+      if (vt && vt.finished && vt.finished.catch) vt.finished.catch(function () {});
     } else {
       applyRoute(route);
     }
@@ -113,7 +117,19 @@
   if ("serviceWorker" in navigator) {
     var swReloaded = false;
     navigator.serviceWorker.addEventListener("controllerchange", function () {
-      if (swReloaded) return; swReloaded = true; global.location.reload();
+      if (swReloaded) return; swReloaded = true;
+      // A new shell wants to take over, but never yank the app away while the
+      // user is typing or has a sheet open — wait for an idle moment.
+      var tryReload = function () {
+        var ae = document.activeElement;
+        var typing = ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable);
+        if (typing || document.querySelector(".inline-form, .capture-sheet, .item-menu-overlay, .cal-editor-overlay, .detail-overlay, .card-menu-backdrop")) {
+          setTimeout(tryReload, 3000);
+          return;
+        }
+        global.location.reload();
+      };
+      tryReload();
     });
     global.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js").then(function (reg) {

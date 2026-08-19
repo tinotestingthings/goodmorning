@@ -650,6 +650,17 @@
 
   function applyFeed(newFeed) {
     feed = newFeed;
+    // Prune decisions/hand-offs for ids no longer in the feed — every day
+    // brings fresh ids, so without this the (now synced) maps grow forever.
+    var live = {};
+    ((newFeed && newFeed.daily) || []).forEach(function (it) { live[it.id] = true; });
+    [ [decisions, saveDecisions], [handedOff, saveHandedOff] ].forEach(function (pair) {
+      var changed = false;
+      Object.keys(pair[0]).forEach(function (id) {
+        if (!live[id]) { delete pair[0][id]; changed = true; }
+      });
+      if (changed) pair[1]();  // only touch keys that really had stale entries
+    });
     computeItems();
     pointer = firstUndecidedIndex(0);
     savePointer();
@@ -747,5 +758,17 @@
   }
 
   init();
+
+  // Triage state (decisions/handedOff) now rides the agenda sync. When a pull
+  // lands a new snapshot — e.g. the deck was completed on another device —
+  // reload our in-memory copies so the same cards don't come back here.
+  document.addEventListener("dd-agenda-applied", function () {
+    loadState();
+    computeItems();
+    pointer = firstUndecidedIndex(0);
+    updateBadge();
+    var v = document.getElementById("view-triage");
+    if (v && !v.hidden) render();
+  });
 
 })();

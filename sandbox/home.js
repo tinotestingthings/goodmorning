@@ -1976,6 +1976,16 @@
     var soonDays = radarNearestDays(radar);
     var urgent = (openTasks > 0) || (soonDays !== null && soonDays <= 7);
 
+    // Name the nearest deadline instead of the bare "77d to nearest deadline"
+    // — "77d · AI Act" tells you at a glance whether that number matters.
+    var nearest = null;
+    radarItemsList(radar).some(function (it) {
+      if (!it.date) return false;
+      var d = daysUntil(it.date);
+      if (d >= 0) { nearest = { title: it.title, days: d }; return true; }
+      return false;
+    });
+
     var strip = el("div", "radar-strip" + (urgent ? " radar-strip-urgent" : ""));
     var head = el("button", "radar-strip-head");
     head.type = "button";
@@ -1984,7 +1994,7 @@
     head.appendChild(el("span", "radar-strip-label", "Compliance radar"));
     var parts = [];
     if (openTasks > 0) parts.push(openTasks + " open task" + (openTasks === 1 ? "" : "s"));
-    if (soonDays !== null) parts.push(soonDays + "d to nearest deadline");
+    if (nearest) parts.push(nearest.days + "d · " + (nearest.title.length > 30 ? nearest.title.slice(0, 29) + "…" : nearest.title));
     var status = parts.length ? parts.join(" · ") : "nothing urgent";
     head.appendChild(el("span", "radar-strip-status", status));
     var chev = el("span", "radar-strip-chev", "›");

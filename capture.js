@@ -62,9 +62,38 @@
         b.classList.add("active");
         send.textContent = kind === "task" ? "Add task" : kind === "project" ? "Add project" : "Add to inbox";
         hold.style.display = kind === "note" ? "" : "none";
+        whenWrap.style.display = kind === "task" ? "" : "none";
       });
       seg.appendChild(b);
     });
+
+    // "When" for tasks: Today (default) / Tomorrow / a picked date land the task
+    // straight on the calendar as a to-do; "No date" keeps the old behaviour
+    // (it goes to the Tasks list only). This is the fix for "the + button
+    // can't create to-dos" — before, every task went to the undated list.
+    var when = "today";
+    var whenWrap = el("div", "capture-when");
+    whenWrap.appendChild(el("div", "capture-when-label", "When?"));
+    var whenSeg = el("div", "capture-seg");
+    var whenDate = document.createElement("input");
+    whenDate.type = "date"; whenDate.className = "field-input capture-when-date";
+    whenDate.style.display = "none";
+    function localYmd(d) { var p = function (n) { return n < 10 ? "0" + n : "" + n; }; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); }
+    [["today", "Today"], ["tomorrow", "Tomorrow"], ["pick", "Date…"], ["none", "No date"]].forEach(function (pair) {
+      var b = el("button", "capture-seg-btn" + (pair[0] === when ? " active" : ""), pair[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        when = pair[0];
+        whenSeg.querySelectorAll(".capture-seg-btn").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+        whenDate.style.display = when === "pick" ? "" : "none";
+        if (when === "pick" && !whenDate.value) whenDate.value = localYmd(new Date());
+      });
+      whenSeg.appendChild(b);
+    });
+    whenWrap.appendChild(whenSeg);
+    whenWrap.appendChild(whenDate);
+    whenWrap.style.display = "none"; // shown only for kind=task
 
     // Hold = keep it in Supabase to ponder; it won't sync to the vault until
     // released. Unchecked = syncs on the next bridge run (or "sync my notes").
@@ -81,9 +110,26 @@
       var body = (ta.value || "").trim();
       if (!body) { toast("Type something first"); return; }
       if (kind === "task" || kind === "project") {
-        if (!global.Items || !global.Items.add) { toast("App not ready — try again"); return; }
         var _t = body.split("\n")[0].slice(0, 120);
-        global.Items.add({ type: kind, state: kind === "project" ? "idea" : "todo", title: _t, note: body.slice(_t.length).trim() });
+        var _note = body.slice(_t.length).trim();
+        // Dated task -> a real calendar to-do (same store the calendar edits).
+        if (kind === "task" && when !== "none" && global.DayModel) {
+          var due = when === "tomorrow" ? localYmd(new Date(Date.now() + 86400000))
+                  : when === "pick" ? (whenDate.value || localYmd(new Date()))
+                  : localYmd(new Date());
+          var list = global.DayModel.loadTodos();
+          list.push({ id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+            text: _t, dueDate: due, startTime: null, endTime: null,
+            done: false, snoozes: 0, note: _note || null });
+          global.DayModel.saveTodos(list);
+          logCapture("todo", _t, false);
+          toast("To-do added · " + due);
+          close();
+          if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
+          return;
+        }
+        if (!global.Items || !global.Items.add) { toast("App not ready — try again"); return; }
+        global.Items.add({ type: kind, state: kind === "project" ? "idea" : "todo", title: _t, note: _note });
         logCapture(kind, _t, false);
         toast(kind === "project" ? "Project added" : "Task added");
         close();
@@ -112,6 +158,7 @@
 
     sheet.appendChild(ta);
     sheet.appendChild(seg);
+    sheet.appendChild(whenWrap);
     sheet.appendChild(hold);
     sheet.appendChild(send);
     sheet.appendChild(cancel);

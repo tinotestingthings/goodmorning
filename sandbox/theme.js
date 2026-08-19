@@ -89,7 +89,12 @@
       return Object.keys(THEMES).map(function (id) { return { id: id, label: THEMES[id].label }; });
     },
     get: load,
-    save: function (s) { save(s); apply(); },
+    save: function (s) {
+      save(s); apply();
+      // Appearance rides the agenda sync (KEYS includes the theme), so a pick
+      // on one device shows up on the others instead of looking "not saved".
+      try { if (global.AgendaSync && global.AgendaSync.pushNow) global.AgendaSync.pushNow(); } catch (e) {}
+    },
     apply: apply,
     activeTheme: function () { return activeTheme(load()); }
   };

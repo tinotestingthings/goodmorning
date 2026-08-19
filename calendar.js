@@ -102,15 +102,23 @@
     root.innerHTML="";
     root.classList.remove("cal-fill");           // timeline views fill the height; others scroll
     root.appendChild(buildCalHeader());          // single row: ☰ · range · view button
-    if(searchOpen){ root.appendChild(buildSearch()); return; }
-    if(viewMode==="agenda"){ root.appendChild(buildAgenda()); return; }
-    if(viewMode==="myday"){ root.appendChild(buildMyDay()); return; }
-    if(viewMode==="done"){ root.appendChild(buildDone()); return; }
-    if(viewMode==="history"){ root.appendChild(buildHistory()); return; }
-    if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.classList.add("cal-fill"); root.appendChild(buildWeekTimeline(daysForView())); return; }
-    if(schedMode) root.appendChild(buildSchedBar());
-    root.appendChild(buildGrid());
-    root.appendChild(buildDayPanel());
+    if(searchOpen){ root.appendChild(buildSearch()); }
+    else if(viewMode==="agenda"){ root.appendChild(buildAgenda()); }
+    else if(viewMode==="myday"){ root.appendChild(buildMyDay()); }
+    else if(viewMode==="done"){ root.appendChild(buildDone()); }
+    else if(viewMode==="history"){ root.appendChild(buildHistory()); }
+    else if(viewMode==="day"||viewMode==="week"||viewMode==="workweek"||viewMode==="3day"){ root.classList.add("cal-fill"); root.appendChild(buildWeekTimeline(daysForView())); }
+    else {
+      if(schedMode) root.appendChild(buildSchedBar());
+      root.appendChild(buildGrid());
+      root.appendChild(buildDayPanel());
+    }
+    // The to-do/chore editor is a bottom sheet over WHATEVER view is showing.
+    // It used to be inline in the month day-panel only, so "Edit details" from
+    // Agenda / My Day / Done / History (or straight from the home screen) set
+    // addMode but nothing ever displayed it — edits silently went nowhere.
+    if(addMode==="todo" && todoEditor) root.appendChild(editorOverlay(todoEditor));
+    else if(addMode==="chore" && choreEditor) root.appendChild(editorOverlay(choreEditor));
   }
 
   function headerTitle(){
@@ -691,6 +699,7 @@
   }
   function buildAgenda(){
     var wrap=el("div","cal-agenda");
+    wrap.appendChild(buildAddArea(todayStr(),"+ Add task"));
     var overdue=overdueTodos();
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue"));
       var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
@@ -720,9 +729,7 @@
     wrap.appendChild(el("h3","cal-agenda-head","Today"));
     if(!ch.length&&!td.length&&!evs.length) wrap.appendChild(el("p","cal-empty","Nothing scheduled for today."));
     else { var list=el("div","cal-item-list"); ch.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,todayStr())); }); td.forEach(function(t){ list.appendChild(todoItem(t,false,true)); }); evs.forEach(function(ev){ list.appendChild(icsItem(ev)); }); wrap.appendChild(list); }
-    var addWrap=el("div","cal-add"); var b=el("button","btn btn-primary cal-add-btn","+ Add task today"); b.type="button";
-    b.addEventListener("click",function(){ selectedDate=todayStr(); addMode="pick"; viewMode="month"; saveViewMode("month"); render(); });
-    addWrap.appendChild(b); wrap.appendChild(addWrap);
+    wrap.appendChild(buildAddArea(todayStr(),"+ Add task today"));
     return wrap;
   }
 
@@ -828,17 +835,17 @@
   }
 
   // ---- add / edit ----
-  function buildAddArea(){
+  function buildAddArea(defaultDate,label){
     var wrap=el("div","cal-add");
-    if(!addMode){ var b=el("button","btn btn-primary cal-add-btn","+ Add task on this day"); b.type="button"; b.addEventListener("click",function(){ addMode="pick"; render(); }); wrap.appendChild(b); return wrap; }
+    if(!addMode){ var b=el("button","btn btn-primary cal-add-btn",label||"+ Add task on this day"); b.type="button"; b.addEventListener("click",function(){ if(defaultDate)selectedDate=defaultDate; addMode="pick"; render(); }); wrap.appendChild(b); return wrap; }
     if(addMode==="pick"){ var q=el("div","cal-pick"); q.appendChild(el("div","cal-pick-label","What kind of task?"));
       var a=el("button","btn btn-ghost","One-off to-do"); a.type="button"; a.addEventListener("click",function(){ openTodoEditor(null); });
       var r=el("button","btn btn-ghost","Recurring chore"); r.type="button"; r.addEventListener("click",function(){ openChoreEditor(null); });
       var c=el("button","cal-link","Cancel"); c.type="button"; c.addEventListener("click",function(){ addMode=null; render(); });
       q.appendChild(a); q.appendChild(r); q.appendChild(c); wrap.appendChild(q); return wrap;
     }
-    if(addMode==="todo"){ wrap.appendChild(todoEditor); return wrap; }
-    if(addMode==="chore"){ wrap.appendChild(choreEditor); return wrap; }
+    // addMode "todo"/"chore": the editor itself renders as a bottom sheet
+    // (editorOverlay, appended by render()) so it's visible in every view.
     return wrap;
   }
   var todoEditor=null, choreEditor=null;
@@ -1152,11 +1159,7 @@
     // drag-to-create + two-finger pinch-zoom live on the body
     wireCreate(scroll, body, days, colEls, HH);
     wirePinch(scroll, body, HH);
-    // The inline to-do/chore editor isn't part of the timeline layout, so when
-    // one is open (e.g. right after a drag-create) show it as a bottom sheet
-    // over the grid — otherwise openTodoEditor set it but nothing displayed it.
-    if(addMode==="todo" && todoEditor) wrap.appendChild(editorOverlay(todoEditor));
-    else if(addMode==="chore" && choreEditor) wrap.appendChild(editorOverlay(choreEditor));
+    // (The to-do/chore editor bottom sheet is appended centrally by render().)
     return wrap;
   }
 

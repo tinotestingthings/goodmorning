@@ -2,7 +2,25 @@
 
 Newest first. One line per deploy to the live root.
 
-## 2026-08-19 — Event Intelligence: minimalistisch redesign + regio's zichtbaar
+## 2026-08-19 (v2026.08.19-1) — Kalender-bugfixes: to-do's overal aanmaken/bewerken, geen refresh tijdens typen
+
+De to-do/chore-editor is nu een bottom-sheet die in élke kalenderweergave
+verschijnt — voorheen zette "Edit details" vanuit Agenda / My Day / Done /
+History (en vanaf home) alleen een vlag en verscheen er niets. Agenda en My Day
+hebben een eigen "+ Add task"-knop (My Day sprong eerst naar maandview).
+De druppel/+ kan nu échte to-do's maken: soort "Task" heeft een When?-rij
+(Today standaard / Tomorrow / datum / geen datum = oude backlog-gedrag).
+Sync ververst de UI niet meer tijdens het typen: geen pull zolang een veld
+focus heeft of een sheet openstaat, geen re-render als de gepulde snapshot
+identiek is (eigen push-echo), en de SW-update-reload wacht tot je klaar bent.
+Appearance (thema) en triage-status (decisions/handedOff/notes) syncen nu mee
+in agenda_state — thema "wordt niet opgeslagen" was cross-device, en het
+triagedeck kwam op elk ander apparaat opnieuw langs; stale ids worden gesnoeid.
+Maandview-cellen zijn weer allemaal even hoog (grid-auto-rows: 1fr), home heeft
+één 12px-ritme (quicklinks/tiles/radar), en de compliance-radar noemt nu de
+dichtstbijzijnde deadline bij naam ("73d · ISO 27701 …"). Cache v65→v66.
+Gerichte promote (promote.sh niet gebruikt: andere sessies hebben
+sandbox/vogelspotinus en sandbox/notesprint onder handen).
 
 Volledig herontwerp van events/: rustige witte look, strakke SVG-lijniconen
 i.p.v. de unicode-glyphs, lichte zijbalk, nette mobiele bottom-nav (5 tabs) met

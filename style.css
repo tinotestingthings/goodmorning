@@ -574,7 +574,7 @@ main#deckArea {
 .dash-subprog { font-size: 0.72rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 8px; padding: 1px 6px; }
 
 /* ---- de-emphasized compliance radar strip ---- */
-.radar-strip { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.radar-strip { margin-top: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
 .radar-strip-urgent { border-color: var(--dismiss); }
 .radar-strip-head {
   width: 100%; appearance: none; background: transparent; border: none; cursor: pointer;
@@ -695,6 +695,10 @@ main#deckArea {
 }
 .capture-seg-btn.active { border-color: var(--accent, var(--skip)); color: var(--text); font-weight: 600; }
 .capture-send { width: 100%; padding: 13px; }
+.capture-when { display: flex; flex-direction: column; gap: 6px; }
+.capture-when-label { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); padding: 0 2px; }
+.capture-when-date { width: 100%; }
+
 .capture-hold { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-dim); padding: 2px 4px; cursor: pointer; }
 .capture-hold-cb { width: 18px; height: 18px; }
 .capture-release {
@@ -1967,6 +1971,9 @@ main#deckArea {
 .cal-grid {
   display: grid;
   grid-template-columns: 26px repeat(7, 1fr);
+  /* every row the same height (the tallest cell sets it) — cells used to
+     grow individually with their chips, giving lopsided month rows */
+  grid-auto-rows: 1fr;
   gap: 3px;
 }
 .cal-grid-week .cal-cell { aspect-ratio: auto; min-height: 60px; }
@@ -2014,7 +2021,7 @@ main#deckArea {
 
 /* Month cells that carry all-day items grow to fit tappable chips (the grid
    scrolls, so the square aspect is relaxed only in month view). */
-.cal-cell-month { aspect-ratio: auto; min-height: 64px; justify-content: flex-start; align-items: stretch; padding: 4px 4px 5px; gap: 2px; }
+.cal-cell-month { aspect-ratio: auto; min-height: 64px; justify-content: flex-start; align-items: stretch; padding: 4px 4px 5px; gap: 2px; overflow: hidden; }
 .cal-cell-month .cal-cell-num { align-self: flex-start; padding-left: 3px; }
 .cal-cell-month .cal-dots { align-self: flex-start; padding-left: 3px; }
 .cal-cell-chips { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: auto; }
@@ -2338,8 +2345,10 @@ main#deckArea {
 .rem-chip-x { appearance: none; border: none; background: none; color: inherit; font-size: 0.95rem; cursor: pointer; padding: 0 2px; }
 
 /* ---- home surfaced "Today" items ---- */
-.home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 4px 2px 8px; font-weight: 700; }
-.home-today-list { margin-bottom: 14px; }
+/* Heads + lists live in .tile-rows (flex gap 12px); zero margins keep the
+   whole Today column on the same 12px beat as the tiles. */
+.home-today-head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 0 2px -4px; font-weight: 700; }
+.home-today-list { margin-bottom: 0; }
 .home-overdue-head { color: var(--dismiss); }
 .home-today-list + .home-today-head { margin-top: 4px; }
 .cal-swipeable { touch-action: pan-y; }
@@ -2536,7 +2545,9 @@ main#deckArea {
 .cal-week-scroll { touch-action: pan-y; }
 
 /* home: calendar quick-links (My Day / Week) */
-.cal-quicklinks { display: flex; gap: 10px; margin: 2px 0 12px; }
+/* Sits inside .dashboard-area (flex gap 12px) — no extra margins, so the
+   quicklinks / tile rows / radar strip all share one 12px rhythm. */
+.cal-quicklinks { display: flex; gap: 12px; margin: 0; }
 .cal-quick {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
   padding: 12px; border-radius: 12px; border: 1px solid var(--border);
