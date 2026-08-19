@@ -2,6 +2,16 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (v2026.08.19-3) — Editor-sheet vraagt bevestiging bij weggooien; dode dagview-code weg
+
+Een tik naast de open to-do/chore-sheet (of een swipe-down) gooide getypte
+invoer stilletjes weg; met onopgeslagen wijzigingen komt er nu eerst "Discard
+unsaved changes?" (de Cancel-knop blijft direct — dat is een bewuste actie).
+Verder buildDayHeader/buildDayTimeline verwijderd: dood sinds de Day-view via
+het Outlook-weekgrid loopt, plus de bijbehorende verweesde CSS. Geen
+cache-bump nodig (shell is network-first). Gerichte promote van calendar.js +
+style.css.
+
 ## 2026-08-19 (v2026.08.19-2) — Vogelspotinus: Griftpark-100-cursus + oefensessies met een einde
 
 Het leersysteem is herbouwd rond het doel "leer de 100 vaakst gehoorde

@@ -2314,13 +2314,7 @@ main#deckArea {
 .im-yes { background: var(--keep); border-color: var(--keep); color: #fff; }
 .im-no { background: none; color: var(--text-dim); }
 
-/* ---- day timeline / timed events ---- */
-.cal-dayview { padding-bottom: 24px; }
-.cal-allday { border: 1px solid var(--border); border-radius: 12px; padding: 8px; margin-bottom: 12px; }
-.cal-allday-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin-bottom: 6px; }
-.cal-hours { position: relative; border-top: 1px solid var(--border); }
-.cal-hour { position: absolute; left: 0; right: 0; height: 50px; border-bottom: 1px solid var(--border); }
-.cal-hour-label { position: absolute; left: 2px; top: 2px; font-size: 0.68rem; color: var(--text-dim); }
+/* ---- timed events (blocks on the week/day time-grid) ---- */
 .cal-ev {
   position: absolute; left: 54px; right: 6px; background: var(--skip); color: #fff;
   border-left: 4px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 4px 8px;

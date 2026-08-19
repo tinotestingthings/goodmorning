@@ -860,6 +860,8 @@
   var TZS=["Local","UTC","Europe/Amsterdam","Europe/London","America/New_York","America/Los_Angeles","Asia/Tokyo","Australia/Sydney"];
   function openTodoEditor(existing,prefillTime,prefillEnd,prefillEndDate){
     addMode="todo"; var box=el("div","inline-form");
+    box.addEventListener("input",function(){ box._dirty=true; });
+    box.addEventListener("change",function(){ box._dirty=true; });
     var text=field("What needs doing?",existing?existing.text:""); box.appendChild(text);
     var dRow=el("div","inline-form-row"); dRow.appendChild(el("span","inline-form-label","Day"));
     var date=document.createElement("input"); date.type="date"; date.className="field-input"; date.value=existing&&existing.dueDate?existing.dueDate:selectedDate; dRow.appendChild(date); box.appendChild(dRow);
@@ -934,6 +936,8 @@
   }
   function openChoreEditor(existing){
     addMode="chore"; var box=el("div","inline-form");
+    box.addEventListener("input",function(){ box._dirty=true; });
+    box.addEventListener("change",function(){ box._dirty=true; });
     var name=field("Chore name",existing?existing.name:""); box.appendChild(name);
     // recurrence type
     var typeRow=el("div","inline-form-row"); typeRow.appendChild(el("span","inline-form-label","Repeat"));
@@ -1001,44 +1005,10 @@
     M.saveChores(list); selectedDate=newDs; M.toast("This occurrence moved to "+niceDay(newDs)); render();
   }
 
-  // ---- day view (hourly timeline) ----
+  // (The old single-day hourly timeline lived here; the "day" view routes to
+  // buildWeekTimeline with one column since the Outlook-style grid landed, so
+  // it was dead code and has been removed.)
   function toMin(hhmm){ var p=(hhmm||"0:0").split(":"); return (+p[0])*60+(+p[1]); }
-  function buildDayHeader(){
-    var box=el("div","cal-headbox"); var head=el("div","cal-head");
-    var prev=el("button","cal-nav","‹"); prev.type="button"; prev.addEventListener("click",function(){ shift(-1); });
-    var title=el("div","cal-title", selectedDate===todayStr()?"Today · "+niceDay(selectedDate):niceDay(selectedDate));
-    var next=el("button","cal-nav","›"); next.type="button"; next.addEventListener("click",function(){ shift(1); });
-    head.appendChild(prev); head.appendChild(title); head.appendChild(next); box.appendChild(head); return box;
-  }
-  function buildDayTimeline(){
-    var wrap=el("div","cal-dayview");
-    var chores=choresOn(selectedDate), todos=todosOn(selectedDate), events=icsOn(selectedDate);
-    var allTodos=todos.filter(function(t){ return !t.startTime; });
-    var timed=todos.filter(function(t){ return t.startTime; }).sort(function(a,b){ return a.startTime<b.startTime?-1:1; });
-    var allEv=events.filter(function(e){ return e.allDay; }), timedEv=events.filter(function(e){ return !e.allDay&&e.startTime; });
-    if(chores.length||allTodos.length||allEv.length){
-      var strip=el("div","cal-allday"); strip.appendChild(el("div","cal-allday-label","All day"));
-      var l=el("div","cal-item-list");
-      chores.forEach(function(r){ l.appendChild(choreItem(r.chore,r.state,selectedDate)); });
-      allTodos.forEach(function(t){ l.appendChild(todoItem(t,false)); });
-      allEv.forEach(function(e){ l.appendChild(icsItem(e)); });
-      strip.appendChild(l); wrap.appendChild(strip);
-    }
-    var HH=loadHH(); var grid=el("div","cal-hours"); grid.style.height=(24*HH)+"px";
-    for(var h=0;h<24;h++){ var hr=el("div","cal-hour"); hr.style.top=(h*HH)+"px"; hr.appendChild(el("span","cal-hour-label",(h<10?"0":"")+h+":00"));
-      (function(hour){ hr.addEventListener("click",function(e){ if(e.target.closest(".cal-ev"))return; openTodoEditor(null,(hour<10?"0":"")+hour+":00"); }); })(h);
-      grid.appendChild(hr);
-    }
-    timed.forEach(function(t){ var m=toMin(t.startTime); var dur=t.endTime?Math.max(15,toMin(t.endTime)-m):60;
-      var b=el("div","cal-ev"); b.style.top=(m/60*HH)+"px"; b.style.height=Math.max(24,dur/60*HH)+"px"; if(t.category)b.style.borderLeftColor=window.Cats.color(t.category);
-      b.appendChild(el("div","cal-ev-time",t.startTime+(t.endTime?"–"+t.endTime:""))); b.appendChild(el("div","cal-ev-title",t.text));
-      b.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); grid.appendChild(b);
-    });
-    timedEv.forEach(function(e){ var m=toMin(e.startTime); var b=el("div","cal-ev cal-ev-ics"); b.style.top=(m/60*HH)+"px"; b.style.height="30px"; b.appendChild(el("div","cal-ev-time",e.startTime)); b.appendChild(el("div","cal-ev-title",e.title)); grid.appendChild(b); });
-    wrap.appendChild(grid);
-    wrap.appendChild(buildAddArea());
-    return wrap;
-  }
 
   // ============================================================
   // Outlook-style week time-grid: 7 (or 5 / 3) day columns over a
@@ -1167,9 +1137,16 @@
     var ov=el("div","cal-editor-overlay");
     var sheet=el("div","cal-editor-sheet");
     sheet.appendChild(inner);
-    if(window.Sheet)window.Sheet.swipeClose(sheet,function(){ addMode=null; render(); });
+    // An accidental tap next to the sheet (or a swipe-down) must not silently
+    // eat typed input: with unsaved edits in the form, ask first. The Cancel
+    // button inside the form stays immediate — that's a deliberate action.
+    function requestClose(){
+      if(inner._dirty && !window.confirm("Discard unsaved changes?")) return;
+      addMode=null; render();
+    }
+    if(window.Sheet)window.Sheet.swipeClose(sheet,requestClose);
     ov.appendChild(sheet);
-    ov.addEventListener("click",function(e){ if(e.target===ov){ addMode=null; render(); } });
+    ov.addEventListener("click",function(e){ if(e.target===ov) requestClose(); });
     return ov;
   }
 
