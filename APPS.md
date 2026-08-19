@@ -20,7 +20,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Vogelspotinus (bird ID trainer) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles; `tools/fetch-bird-photos.mjs` for the extra quiz photos (`data/bird-photos.json`, iNaturalist CC). Leerdoel: Griftpark-100-cursus (`src/data/course-griftpark.js`, uit luistervink.nl) |
 | NoteSprint | `notesprint/` | `notesprint_state` | this repo (`boot.js` loads the app) | none |
 | Ear training / ChordSprint | `ear-training/` | `chordsprint_state` | this repo | none |
-| WijnWijs (wine) | `wine/` | `wine_state` | this repo (`bundle.js` prebuilt) | none |
+| WijnWijs (wine) | `wine/` | `wine_state` | this repo (`src/` ES modules) | none; tests: `node tests/wijnwijs.core.test.mjs` |
 | Event Tracker | `events/` | `eventtracker_state` (personal state only; catalogue is baked in) | `events-src/` in this repo | `bash events-src/build.sh` → `events/bundle.js`; catalogue edited by the **event-catalog-refresh** task |
 | Trainerinus (oefencoach over de trainer-apps) | `trainerinus/` | `trainerinus_state` (tabel moet nog aangemaakt — SQL in `trainerinus/README.md`; app draait zonder tabel lokaal) | this repo | none; leest read-only de state-tabellen van vogelspotinus/chordsprint/notesprint/kangaroo |
 | Attentinus (verjaardagen + cadeau-ideeën) | `attentinus/` (nog sandbox-only) | `attentinus_state` (tabel moet nog aangemaakt — SQL in `sandbox/attentinus/README.md`; app draait zonder tabel lokaal) | this repo | none; digest-home toont een rij bij een datum binnen 21 dagen |
