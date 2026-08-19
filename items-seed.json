@@ -152,7 +152,7 @@
   "id": "2026-08-13-learn-more-about-git-and-github",
   "type": "task",
   "title": "Learn more about Git and Github",
-  "note": "",
+  "note": null,
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -162,7 +162,7 @@
   "id": "2026-08-17-learning-tool-maken-voor-mezelf-voor-coden-git-etc",
   "type": "task",
   "title": "Learning tool maken voor mezelf voor coden. Git etc",
-  "note": "",
+  "note": null,
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -182,9 +182,19 @@
   "id": "2026-08-17-unbroken-kijken-over-jappenkampen",
   "type": "task",
   "title": "Unbroken kijken over jappenkampen",
-  "note": "",
+  "note": null,
   "subtasks": [],
   "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-19-wc-kitten",
+  "type": "task",
+  "title": "WC kitten",
+  "note": null,
+  "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -374,6 +384,14 @@
    {
     "text": "**Vogelspotinus voortgangsfeatures** — statuskaart (geleerd/beheerst/streak/box-verdeling + \"te herhalen vandaag\"-tegel), drie oefenspellen (Herhalen / Goed gehad / Lastige vogels), de gewone quiz telt nu mee voor de SRS, per-vogel badges in Bladeren, en het Bladeren-infoblok + Wikipedia/Xeno-canto icon-links op de quiz/study-reveal. Gebouwd in sandbox en gepromoot naar live 2026-08-11. Details + open follow-ups in [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]].",
     "done": true
+   },
+   {
+    "text": "**Vogel van de dag als tegel op het homescreen** — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand `vogelspotinus/data/bird-tiles.json` (561 vogels, 107 kB) dat `tools/build-bird-tiles.mjs` uit `birds.json` (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
+    "done": true
+   },
+   {
+    "text": "**Homescreen app-tile labels fit on one line** — \"ChordSprint\" was too wide for the 92px \"most used\" tile and broke mid-word onto a second line. Fixed 2026-08-18 (commit 35bbe3b, live + sandbox): the label now takes the full tile width, and `fitTileLabel()` in `home.js` steps the font size down after layout until it fits (floor 0.6rem, falls back to wrapping below that). Adaptive rather than a hardcoded size, so future app names fit too.",
+    "done": true
    }
   ],
   "state": "active",
@@ -434,7 +452,7 @@
   "id": "2026-08-12-visit-every-park-in-utrecht",
   "type": "project",
   "title": "Visit every park in Utrecht.",
-  "note": "",
+  "note": null,
   "subtasks": [],
   "state": "idea",
   "source": "vault",
@@ -454,7 +472,27 @@
   "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
   "type": "project",
   "title": "Een AI app waarmee je mallen voor kleding kan maken.",
-  "note": "",
+  "note": null,
+  "subtasks": [],
+  "state": "active",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-18-ecosystem-explainer-remotion-script",
+  "type": "project",
+  "title": "Ecosystem explainer — script & storyboard (Remotion)",
+  "note": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Korte explainer-video voor in een presentatie, over hoe kennis het systeem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.",
+  "subtasks": [],
+  "state": "active",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-19-vof-opzeggen",
+  "type": "project",
+  "title": "VOF opzeggen",
+  "note": "<!-- app-subtasks:start -->",
   "subtasks": [],
   "state": "active",
   "source": "vault",
