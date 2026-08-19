@@ -11,8 +11,9 @@ import { byId, debounce, h } from "../core/dom.js";
 import { matchCountText, t } from "../core/i18n.js";
 import { EVENTS, on } from "../core/events.js";
 import { registerScreen, gameContext, currentScreenId, refreshScreen } from "../core/nav.js";
-import { allBirds, searchBirds } from "../core/birds.js";
+import { allBirds, primaryName, searchBirds } from "../core/birds.js";
 import { emptySelection, filterBirds } from "../core/filters.js";
+import { KEYS, read, write } from "../core/storage.js";
 import { openSheet, sheetBody } from "../ui/sheet.js";
 import { renderFilterBar } from "../ui/filter-bar.js";
 import { birdCard, setCardFavorite } from "../ui/bird-card.js";
@@ -20,6 +21,20 @@ import { openBirdDetail } from "../ui/detail-sheet.js";
 
 const FIRST_CHUNK = 48;
 const NEXT_CHUNK = 24;
+
+// Standaard gesorteerd op hoe vaak een soort echt wordt gezien (GBIF-
+// waarnemingen). De dataset zelf staat in taxonomische volgorde, en daarin
+// beginnen de Anseriformes -- dus opende Bladeren altijd met een muur van
+// exotische ganzen in plaats van merel, roodborst en koolmees.
+const SORTS = {
+  common: (a, b) => (b.gbifOccurrenceCount ?? 0) - (a.gbifOccurrenceCount ?? 0),
+  az: (a, b) => primaryName(a).localeCompare(primaryName(b)),
+  taxo: null, // datasetvolgorde
+};
+
+let sortMode = Object.hasOwn(SORTS, read(KEYS.browseSort, "common"))
+  ? read(KEYS.browseSort, "common")
+  : "common";
 
 const selection = emptySelection();
 /** @type {Map<string, HTMLElement>} scientific name -> card element */
@@ -42,7 +57,9 @@ function currentPool() {
 
 function computeMatches() {
   const pool = isGameContext() ? currentPool() : filterBirds(currentPool(), selection);
-  return searchBirds(pool, byId("browse-search").value);
+  const found = searchBirds(pool, byId("browse-search").value);
+  const compare = SORTS[sortMode];
+  return compare ? [...found].sort(compare) : found;
 }
 
 function cardFor(bird) {
@@ -74,6 +91,38 @@ function renderGrid() {
   appendChunk(FIRST_CHUNK);
 }
 
+function sortSwitch() {
+  const options = [
+    ["common", t("sortCommon")],
+    ["az", t("sortAZ")],
+    ["taxo", t("sortTaxo")],
+  ];
+  const group = h("div", { class: "segmented", role: "group", "aria-label": t("sortLabel") });
+  for (const [value, label] of options) {
+    group.append(
+      h(
+        "button",
+        {
+          type: "button",
+          class: value === sortMode ? "active" : "",
+          "aria-pressed": String(value === sortMode),
+          onclick: () => {
+            sortMode = value;
+            write(KEYS.browseSort, value);
+            for (const btn of group.children) {
+              btn.classList.toggle("active", btn.textContent === label);
+              btn.setAttribute("aria-pressed", String(btn.textContent === label));
+            }
+            renderGrid();
+          },
+        },
+        label
+      )
+    );
+  }
+  return group;
+}
+
 function openOptions() {
   openSheet({
     label: t("options"),
@@ -81,7 +130,15 @@ function openOptions() {
       sheetCountEl = h("p", { class: "count-line" }, matchCountText(matches.length));
       const bar = h("div");
       renderFilterBar(bar, selection, renderGrid);
-      dialog.append(sheetBody(h("h2", {}, t("options")), sheetCountEl, bar));
+      dialog.append(
+        sheetBody(
+          h("h2", {}, t("options")),
+          h("p", { class: "field-legend" }, t("sortLabel")),
+          sortSwitch(),
+          sheetCountEl,
+          bar
+        )
+      );
     },
     onClose() {
       sheetCountEl = null;

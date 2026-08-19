@@ -22,8 +22,9 @@ import { nameLine } from "./bird-names.js";
  */
 export function questionCard(bird, controls, footer) {
   // alt is deliberately empty: the photo IS the question, so describing it
-  // would hand over the answer to anyone using a screen reader.
-  const photo = birdPhoto(bird, { fit: "cover", alt: "" });
+  // would hand over the answer to anyone using a screen reader. `vary` draait
+  // door de fotovarianten heen zodat je de vogel leert, niet de foto.
+  const photo = birdPhoto(bird, { fit: "cover", alt: "", vary: true });
   photo.setAttribute("aria-label", t("a11yQuizPhoto"));
 
   const sound = soundButton(bird);

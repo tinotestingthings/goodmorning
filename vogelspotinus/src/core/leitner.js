@@ -66,19 +66,20 @@ export function recordAnswer(bird, knewIt) {
 }
 
 /**
- * The next bird to drill: prefer cards that are actually due, lowest box and
- * longest overdue first, then pick randomly within a small window so a session
- * doesn't replay in a fixed order. Falls back to the whole pool when nothing
- * is due, so the screen is never empty while cards exist.
+ * The next bird to drill: the most-due card, lowest box and longest overdue
+ * first, picked randomly within a small window so a session doesn't replay in
+ * a fixed order. Returns null when nothing is due -- the old fallback ("just
+ * deal the whole pool again") meant a review session literally never ended:
+ * after the last due card it started re-dealing cards you had just answered.
  */
 export function pickNext(pool) {
-  if (pool.length === 0) return null;
   const now = Date.now();
-  const scored = pool.map((bird) => ({ bird, entry: entryFor(bird) }));
-  const due = scored.filter((x) => x.entry.dueAt <= now);
-  const candidates = due.length ? due : scored;
-  candidates.sort((a, b) => a.entry.box - b.entry.box || a.entry.dueAt - b.entry.dueAt);
-  const window = candidates.slice(0, Math.min(PICK_WINDOW, candidates.length));
+  const due = pool
+    .map((bird) => ({ bird, entry: entryFor(bird) }))
+    .filter((x) => x.entry.dueAt <= now);
+  if (due.length === 0) return null;
+  due.sort((a, b) => a.entry.box - b.entry.box || a.entry.dueAt - b.entry.dueAt);
+  const window = due.slice(0, Math.min(PICK_WINDOW, due.length));
   return shuffle(window)[0].bird;
 }
 

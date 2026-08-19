@@ -2,6 +2,18 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (v2026.08.19-2) — Vogelspotinus: Griftpark-100-cursus + oefensessies met een einde
+
+Het leersysteem is herbouwd rond het doel "leer de 100 vaakst gehoorde
+Griftpark-vogels" (luistervink.nl). Home toont nu één cursuskaart met één knop;
+een sessie = max 20 herhalingen + 5 nieuwe vogels in cursusvolgorde, eindigt
+met een samenvatting, en fouten komen binnen de sessie terug. Meerkeuze en
+typen voeden nu ook de Leitner-planning (telden voorheen niet mee), afleiders
+zijn gelijkende soorten, en 398 extra iNaturalist-foto's + geluid->naam en
+naam->foto-vragen voorkomen dat je de foto leert in plaats van de vogel.
+Bladeren sorteert standaard op echte waarnemingsaantallen. Gerichte promote:
+alleen vogelspotinus/ (andere sessies hadden sandbox-werk in flight).
+
 ## 2026-08-19 (v2026.08.19-1) — Kalender-bugfixes: to-do's overal aanmaken/bewerken, geen refresh tijdens typen
 
 De to-do/chore-editor is nu een bottom-sheet die in élke kalenderweergave

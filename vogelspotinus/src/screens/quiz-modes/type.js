@@ -1,10 +1,15 @@
 // ---------------------------------------------------------------------------
 // Quiz mode: type the answer.
+//
+// Answers feed the Leitner state: typing the name is the strongest form of
+// recall, so it would be absurd if juist deze modus niet meetelde. "Toon
+// antwoord" telt als fout -- je had de naam niet paraat.
 // ---------------------------------------------------------------------------
 
 import { h } from "../../core/dom.js";
 import { t } from "../../core/i18n.js";
 import { matchesGuess } from "../../core/birds.js";
+import { recordAnswer } from "../../core/leitner.js";
 import { emptyPoolCard, fillAnswer, questionCard, setResult } from "../../ui/quiz-card.js";
 
 export const typeMode = {
@@ -64,6 +69,9 @@ export const typeMode = {
       setResult(result, correct);
       fillAnswer(answer, bird);
       if (correct !== null) api.recordScore(correct);
+      // "Reveal" (null) is een eerlijke misser voor de planning: de naam kwam
+      // niet uit je geheugen, dus de kaart hoort snel terug te komen.
+      recordAnswer(bird, correct === true);
       next.focus();
     };
 

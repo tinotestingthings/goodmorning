@@ -131,9 +131,18 @@
           </h1>
         </header>
         <div id="home-progress"></div>
-        <div class="tile-grid" id="home-tiles"></div>
+        <div class="shortcut-row" id="home-tiles"></div>
         <h2 class="section-heading" id="custom-games-heading" data-i18n="yourGames" hidden></h2>
         <div class="tile-grid" id="custom-game-tiles"></div>
+      </section>
+
+      <!-- OEFENSESSIE (geen nav-knop; gestart vanaf de cursuskaart op Home) -->
+      <section id="screen-session" class="screen" hidden>
+        <header class="top quiz-header">
+          <h1 tabindex="-1" data-i18n="sessionTitle"></h1>
+          <p class="quiz-status" id="session-status" role="status" aria-live="polite"></p>
+        </header>
+        <div id="session-body"></div>
       </section>
 
       <!-- BROWSE -->

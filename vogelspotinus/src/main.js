@@ -20,12 +20,14 @@ import { populateFamilyValues } from "./core/filters.js";
 import { loadFavorites } from "./core/favorites.js";
 import { applySeed, loadGames } from "./core/games.js";
 import { loadLeitnerState } from "./core/leitner.js";
+import { loadExtraPhotos } from "./core/photos.js";
 import { initNav, refreshScreen, showScreen } from "./core/nav.js";
 import { SEED } from "./data/seed-games.js";
 import { PLACEHOLDER_IMG } from "./ui/bird-media.js";
 import { registerHomeScreen } from "./screens/home.js";
 import { registerBrowseScreen } from "./screens/browse.js";
 import { registerQuizScreen } from "./screens/quiz.js";
+import { registerSessionScreen } from "./screens/session.js";
 import { registerBuilderScreen } from "./screens/builder.js";
 import { registerSettingsScreen } from "./screens/settings.js";
 
@@ -93,6 +95,9 @@ async function loadData() {
   applySeed(SEED);
   hideBootState();
   showScreen("home");
+  // Verrijking, geen dependency: de extra quizfoto's mogen na de eerste
+  // render binnenkomen (en mogen falen -- dan blijft de ene basisfoto).
+  loadExtraPhotos();
 }
 
 function boot() {
@@ -112,6 +117,7 @@ function boot() {
   registerHomeScreen();
   registerBrowseScreen();
   registerQuizScreen();
+  registerSessionScreen();
   registerBuilderScreen();
   registerSettingsScreen();
 
