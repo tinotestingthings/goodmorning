@@ -2,6 +2,21 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (9) — Attentinus live + Opduikinus-kaart (gerichte promote)
+
+Nieuwe utility-app attentinus/: verjaardagen en andere jaarlijkse datums met
+vaste categorieën + iconen (verjaardag/trouwdag/sterfdag/jubileum/anders),
+jaartal-semantiek per categorie (wordt N / N jaar getrouwd / N jaar geleden),
+cadeau-ideeën per persoon en client-side plak-import/-export (persoonslijst
+gaat nooit langs een AI). Home: vaste kleine Attentinus-herotegel vervangt de
+NoteSprint/ChordSprint-tegels; conditionele rij zodra iemand binnen 21 dagen
+valt; launcher-tegel in practice.js. Opduikinus: home rendert een uitklapbare
+vault-notitie-kaart zodra feed.json een vaultNote-veld heeft (taak-kant volgt;
+zonder veld geen kaart). Tabel attentinus_state nog aanmaken (SQL in
+attentinus/README.md). Gerichte promote van attentinus/ + home.js +
+practice.js + style.css (andere sessies hadden sandbox-werk in flight);
+geen cache-bump (network-first shell).
+
 ## 2026-08-19 (v2026.08.19-8) — Takenlijst-veegronde: triage-redesign, kalender-drags, weeknummers, backlog, historie
 
 Grote veegronde door Tinus' openstaande-punten-lijst. Triage opnieuw

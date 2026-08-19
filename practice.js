@@ -21,7 +21,9 @@
     events:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m12 12 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 18l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg>',
     trainerinus:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>'
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    attentinus:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>'
   };
 
   var APPS = [
@@ -31,7 +33,8 @@
     { key: "kangaroo", label: "Kangaroo", url: "kangaroo/index.html" },
     { key: "wine", label: "WijnWijs", url: "wine/index.html" },
     { key: "vogelspotinus", label: "Vogelspotinus", url: "vogelspotinus/index.html" },
-    { key: "events", label: "Events", url: "events/index.html" }
+    { key: "events", label: "Events", url: "events/index.html" },
+    { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
