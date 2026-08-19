@@ -588,6 +588,9 @@ main#deckArea {
 .radar-strip-chev { margin-left: auto; color: var(--text-dim); transition: transform 0.15s ease; }
 .radar-strip-open .radar-strip-chev { transform: rotate(90deg); }
 .radar-strip-body { padding: 0 13px 12px; }
+.radar-weekly { margin: 8px 0 10px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; gap: 4px; }
+.radar-weekly-head { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.radar-weekly-line { font-size: 0.85rem; line-height: 1.45; color: var(--text); }
 
 /* ---- item detail sheet ---- */
 .detail-overlay {

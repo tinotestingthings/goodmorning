@@ -2,6 +2,19 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-19 (v2026.08.19-7) — Radar "Week in review" in de app (feed-contract uitgebreid)
+
+De radar-strip toont nu een "Week in review"-blok wanneer de feed
+`today.radar.weekly = { date, lines[] }` bevat: max 5 korte regels uit de
+wekelijkse meta-review, automatisch verborgen zodra de samenvatting ouder is
+dan 10 dagen (een stilgevallen taak laat dus niets stafs hangen). Contract
+vastgelegd in de vault-spec (40 Projects/2026-07-15-daily-digest-app-
+instructions-and-build-prompt.md); de daily-digest-taakprompt moet het veld
+nog gaan schrijven — snippet daarvoor ligt bij Tinus. Sandbox-feed heeft
+voorbeelddata. Chirurgische promote van alleen het weekly-blok in home.js
+(sandbox/home.js bevat Attentinus-werk van een andere sessie dat bewust
+niet mee is gepromoot). Geen cache-bump (network-first shell).
+
 ## 2026-08-19 (6) — WijnWijs route B: herbouw als leesbare broncode (gerichte promote)
 
 WijnWijs is herbouwd van een 428KB prebuilt bundle naar ES-modules in

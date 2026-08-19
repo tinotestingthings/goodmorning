@@ -1231,6 +1231,20 @@
       (openCount ? " · " + openCount + " open task" + (openCount === 1 ? "" : "s") : "");
     container.appendChild(meta);
 
+    // Weekly digest of the radar meta-review, written into the feed by the
+    // daily-digest task (today.radar.weekly = { date, lines[] }). Purely
+    // read-only; hidden when absent or when the summary is over 10 days old
+    // (a stalled task shouldn't leave a stale "week in review" hanging).
+    var wk = radar.weekly;
+    if (wk && Array.isArray(wk.lines) && wk.lines.length && wk.date && daysUntil(wk.date) >= -10) {
+      var wkBox = el("div", "radar-weekly");
+      wkBox.appendChild(el("div", "radar-weekly-head", "Week in review · " + wk.date));
+      wk.lines.slice(0, 5).forEach(function (ln) {
+        wkBox.appendChild(el("div", "radar-weekly-line", String(ln)));
+      });
+      container.appendChild(wkBox);
+    }
+
     var items = radarItemsList(radar);
     if (!items.length) { container.appendChild(el("p", "dash-empty", "No radar items.")); return; }
     var primary = items.slice(0, RADAR_VISIBLE_DEFAULT);
