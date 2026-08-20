@@ -336,8 +336,11 @@
 
     attachSwipe(card, item, summary, keepBadge, dismissBadge);
 
-    // deciding happens by swiping; the bar carries everything else
-    deckArea.appendChild(el("div", "tri-swipe-hint", "← nope · swipe · keep →"));
+    // deciding happens by swiping; the bar carries everything else.
+    // .tri-keys only shows on a precise pointer (laptop) — see style.css.
+    var hint = el("div", "tri-swipe-hint", "← nope · swipe · keep →");
+    hint.appendChild(el("span", "tri-keys", "   ·   L later · T task · P project · U undo"));
+    deckArea.appendChild(hint);
 
     var bar = document.createElement("div");
     bar.className = "tri-bar";
@@ -509,6 +512,9 @@
           // horizontal wins -> take over as a swipe
           swiping = true;
           card.classList.add("card-dragging");
+          // a mouse drag across text starts a selection before we get here;
+          // drop it or the card travels with the article highlighted blue
+          try { var sel = window.getSelection(); if (sel && !sel.isCollapsed) sel.removeAllRanges(); } catch (err2) {}
           try { card.setPointerCapture(e.pointerId); } catch (err) {}
         } else {
           // vertical wins -> hands off; the browser is scrolling natively
@@ -558,17 +564,19 @@
     // "Make into task" also drops a schedulable to-do onto the calendar (dated
     // today) so it can be scheduled immediately — alongside the vault task the
     // bridge files from this decision.
+    var madeTodoId = null;
     if (action === "task" && window.DayModel) {
       try {
         var d = new Date(), p = function (n) { return n < 10 ? "0" + n : "" + n; };
         var ymd = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
         var list = window.DayModel.loadTodos();
-        list.push({ id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7), text: item.title || "(task)", dueDate: ymd, startTime: null, endTime: null, done: false, snoozes: 0 });
+        madeTodoId = "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+        list.push({ id: madeTodoId, text: item.title || "(task)", dueDate: ymd, startTime: null, endTime: null, done: false, snoozes: 0 });
         window.DayModel.saveTodos(list);
       } catch (e) {}
     }
     flashDecision(flashEl, DECISION_LABELS[action] || action.toUpperCase(), DECISION_COLORS[action] || "--skip");
-    lastAction = { type: "decide", id: item.id, prevPointer: pointer };
+    lastAction = { type: "decide", id: item.id, prevPointer: pointer, todoId: madeTodoId };
     decisions[item.id] = action;
     logTriage(item, action);
     pointer++;
@@ -585,12 +593,35 @@
     setTimeout(render, 160);
   }
 
+  // drop log entries so History never shows a decision that was taken back;
+  // ids = {itemId: true} — removes the LAST entry per id (undo) or all (redo)
+  function unlogTriage(ids, all) {
+    try {
+      var list = JSON.parse(localStorage.getItem(k("triage.log")) || "[]");
+      if (all) list = list.filter(function (e) { return !ids[e.id]; });
+      else {
+        for (var id in ids) {
+          for (var i = list.length - 1; i >= 0; i--) { if (list[i].id === id) { list.splice(i, 1); break; } }
+        }
+      }
+      localStorage.setItem(k("triage.log"), JSON.stringify(list));
+    } catch (e) {}
+  }
+
   function undo() {
     if (!lastAction) return;
     pointer = lastAction.prevPointer;
     if (lastAction.type === "decide") {
       delete decisions[lastAction.id];
       saveDecisions();
+      var ids = {}; ids[lastAction.id] = true;
+      unlogTriage(ids, false);
+      // an undone "task" decision also takes back the to-do it created
+      if (lastAction.todoId && window.DayModel) {
+        try {
+          window.DayModel.saveTodos(window.DayModel.loadTodos().filter(function (t) { return t.id !== lastAction.todoId; }));
+        } catch (e) {}
+      }
     }
     savePointer();
     lastAction = null;
@@ -716,8 +747,10 @@
       ? confirm("Start the triage over? This clears your keep/dismiss choices on the current cards.")
       : true;
     if (!ok) return;
-    items.forEach(function (it) { delete decisions[it.id]; });
+    var redoIds = {};
+    items.forEach(function (it) { delete decisions[it.id]; redoIds[it.id] = true; });
     saveDecisions();
+    unlogTriage(redoIds, true);   // redone cards get a clean history too
     pointer = 0;
     savePointer();
     lastAction = null;
@@ -769,6 +802,31 @@
       header.appendChild(actions);
     }
   }
+
+  // ---- keyboard (laptop / iPad with a keyboard) ----
+  // The deck is swipe-first, which a mouse can just about do and a keyboard
+  // cannot do at all — so on a laptop the whole deck was unreachable without
+  // click-dragging each card. These keys mirror the swipe and the action bar
+  // exactly, so a full round never needs the pointer.
+  var KEY_DECISIONS = { arrowleft: "dismiss", arrowright: "keep", t: "task", p: "project" };
+  document.addEventListener("keydown", function (e) {
+    var view = document.getElementById("view-triage");
+    if (!view || view.hidden) return;                 // only while triaging
+    if (e.metaKey || e.ctrlKey || e.altKey) return;   // leave shortcuts alone
+    var ae = document.activeElement;
+    if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.isContentEditable)) return;
+    if (document.querySelector(".card-menu-backdrop")) return;   // a sheet is open
+    var key = (e.key || "").toLowerCase();
+    if (key === "u") { e.preventDefault(); undo(); return; }
+    var item = items[pointer];
+    if (!item) return;                                 // finished deck
+    var flash = document.querySelector(".decision-flash");
+    if (key === "l") { e.preventDefault(); skip(flash); return; }
+    var action = KEY_DECISIONS[key];
+    if (!action) return;
+    e.preventDefault();
+    decide(item, action, flash);
+  });
 
   init();
 

@@ -2,6 +2,50 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-20 (v2026.08.20-1) — Cross-device: iPhone-notch, iOS-zoom, tablet/laptop-layout, toetsenbord in triage
+
+Ronde om de app op telefoon, tablet én laptop echt goed te laten werken.
+Drie echte bugs op iPhone/iPad: (1) `viewport-fit=cover` + een translucent
+statusbalk lieten de pagina op y=0 beginnen, dús ónder de notch — in de
+geïnstalleerde PWA stonden de begroeting en de terug-knoppen achter klok en
+batterij; de shell krijgt nu `env(safe-area-inset-top/left/right)` in één
+keer op `body` (border-box houdt de 100svh-hoogte exact, links/rechts voor
+landschap). (2) Invoervelden stonden op 0.9rem/0.85rem; Safari zoomt de hele
+pagina in zodra een veld onder 16px focus krijgt en zoomt nooit terug — alle
+velden nu 1rem, gelijk aan de capture-textarea. (3) Android: grijze tap-flits
+weg (`-webkit-tap-highlight-color`) en `overscroll-behavior` dicht, zodat
+doortrekken bovenaan een lijst niet langer de hele PWA herlaadt.
+
+Tablet/laptop-layout herzien: de shell was per schermmaat op één breedte
+gezet, waardoor élk oppervlak meerekte — een to-do-regel én een nieuwsartikel
+liepen tot ~1200px, gemeten 142 tekens per regel. Nu neemt de shell het
+scherm (de week-grid van de kalender is de enige view die de breedte echt
+verdient: 181px-kolommen) terwijl leesoppervlakken een eigen kolom houden:
+home/settings/utilities 760px, de triage-deck 640px (72 tekens per regel) en
+een gecentreerde tabbalk-cluster. Telefoons zijn onaangeroerd — onder 768px
+is het hele blok inert.
+
+Triage op laptop: het dek was swipe-only, dus met een toetsenbord onbereikbaar
+en met een muis selecteerde slepen de artikeltekst. Nu ← nope / → keep /
+L later / T task / P project / U undo (hint verschijnt alleen bij een precieze
+aanwijzer), `cursor: grab`, en de selectie wordt gewist zodra een swipe begint.
+
+Bevat ook de tien punten uit de /code-review van gisteren die nog niet live
+stonden: uitstellen van herhaaltaken werkt nu in álle gevallen (gemiste
+occurrence i.p.v. vandaag; legacy-chores zonder startDate volgen nu ook hun
+exceptions; chore-rijen hebben dezelfde swipe als to-do's), gym-schema pakt
+legacy-chores mee, backlog-drag negeert een tweede vinger en ruimt zijn
+hold-timer op bij pointercancel, triage-undo wist zijn historie-regel én de
+aangemaakte to-do, de all-day-dropzone stopt 40px boven de strook,
+todo-kopieerlogica zit in één `todoCopyAt()`, en de held-captures-migratie
+draait nog één keer per apparaat i.p.v. bij elke capture.
+
+Getest op 360/390 (Android/iPhone), 768 (iPad) en 1440 (laptop): geen
+horizontale overflow, safe-area gesimuleerd op 47px (tabbalk blijft exact op
+de onderrand), toetsenbordronde end-to-end doorlopen. Tests 7/7 groen. Geen
+cache-bump (network-first shell). Gerichte promote: andere sessies hebben
+explainer/, sandbox/notesprint en sandbox/wine onder handen.
+
 ## 2026-08-19 (9) — Attentinus live + Opduikinus-kaart (gerichte promote)
 
 Nieuwe utility-app attentinus/: verjaardagen en andere jaarlijkse datums met

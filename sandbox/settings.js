@@ -67,7 +67,14 @@
       });
       chores.forEach(function (c) {
         if (!isGym(c.name, c.category)) return;
-        if (M.choreOccursOn && M.choreOccursOn(c, d)) times.push("");
+        // pattern chores answer choreOccursOn; legacy interval chores (no
+        // startDate) always return false there — use their rolling next due
+        if (c.startDate || c.pattern === "weekdays" || c.pattern === "monthly-nth") {
+          if (M.choreOccursOn && M.choreOccursOn(c, d)) times.push("");
+        } else if (M.choreProgress) {
+          var nd = M.choreProgress(c).nextDue;
+          if (nd && M.localDateStr(nd) === ds) times.push("");
+        }
       });
       if (!times.length) continue;
       var when = times.filter(Boolean).join(", ");

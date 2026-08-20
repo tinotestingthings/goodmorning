@@ -58,10 +58,13 @@
     if(chore.startDate || chore.pattern==="weekdays" || chore.pattern==="monthly-nth"){
       return M.choreOccursOn(chore,d) ? "due" : null;
     }
-    // legacy interval chore (no startDate): show only its rolling next due
+    // legacy interval chore (no startDate): show only its rolling next due —
+    // following the exception chain so "postpone this day" moves it here too
     var anchor = chore.lastDone ? M.nudgeToWeekday(M.addInterval(new Date(chore.lastDone),chore.every,chore.unit),chore.weekday) : new Date();
-    anchor=parseYmd(ymd(anchor));
-    return ymd(anchor)===ds ? "due" : null;
+    var anchorDs=ymd(parseYmd(ymd(anchor)));
+    var ex=chore.exceptions||null, hops=0;
+    while(ex && Object.prototype.hasOwnProperty.call(ex,anchorDs) && ex[anchorDs] && hops++<30) anchorDs=ex[anchorDs];
+    return anchorDs===ds ? "due" : null;
   }
 
   function choresOn(ds){
@@ -990,11 +993,24 @@
   }
 
   // ---- duplicate ----
-  function duplicateTodo(t){
-    var list=M.loadTodos();
+  // One copy shape for every duplicate path (menu ⧉, shift+drag, all-day
+  // drop): fresh id, done/snoozes reset, and — when it lands on another day —
+  // the multi-day span shifted along with it.
+  function todoCopyAt(t,nds,st,et){
     var copy={}; for(var k in t)copy[k]=t[k];
     copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
-    copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0;
+    copy.done=false; copy.snoozes=0;
+    if(nds){
+      if(copy.endDate&&copy.dueDate){ var sp=Math.round((parseYmd(copy.endDate)-parseYmd(copy.dueDate))/86400000); if(!(sp>=0))sp=0; copy.endDate=ymd(addDays(parseYmd(nds),sp)); }
+      copy.dueDate=nds;
+    }
+    copy.startTime=st; copy.endTime=et;
+    return copy;
+  }
+  function duplicateTodo(t){
+    var list=M.loadTodos();
+    var copy=todoCopyAt(t,null,t.startTime||null,t.endTime||null);
+    copy.text=(t.text||"")+" (copy)";
     list.push(copy); M.saveTodos(list); M.toast("Duplicated"); render();
   }
   function duplicateChore(chore){
@@ -1005,7 +1021,10 @@
     list.push(copy); M.saveChores(list); M.toast("Duplicated"); render();
   }
   function postponeChoreOccurrence(chore,occDate,days){
-    var newDs=ymd(addDays(parseYmd(occDate),days));
+    // a MISSED (past) occurrence counts from today: "+1 day" = tomorrow,
+    // never another day that's already gone
+    var base=occDate<todayStr()?todayStr():occDate;
+    var newDs=ymd(addDays(parseYmd(base),days));
     var list=M.loadChores();
     list.forEach(function(c){ if(c.id===chore.id){ c.exceptions=c.exceptions||{}; c.exceptions[occDate]=newDs; } });
     M.saveChores(list); selectedDate=newDs; M.toast("This occurrence moved to "+niceDay(newDs)); render();
@@ -1384,7 +1403,9 @@
         // hovering the all-day strip: preview the "loses its time" drop
         if(allRowEl){
           var ar=allRowEl.getBoundingClientRect();
-          var over = e.clientY <= ar.bottom;
+          // over the strip itself, with a little grace above it — NOT the
+          // whole header/title area, so an overshoot far up doesn't convert
+          var over = e.clientY <= ar.bottom && e.clientY >= ar.top - 40;
           if(over!==overAllDay){
             overAllDay=over;
             allRowEl.classList.toggle("cal-allday-drop",over);
@@ -1416,10 +1437,7 @@
         // Dropped on the all-day strip → untimed item on the target day.
         var list0=M.loadTodos();
         if(wasDupe){
-          var cp0={}; for(var k0 in t)cp0[k0]=t[k0];
-          cp0.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
-          cp0.done=false; cp0.snoozes=0; shiftSpan(cp0,nds); cp0.dueDate=nds; cp0.startTime=null; cp0.endTime=null;
-          list0.push(cp0);
+          list0.push(todoCopyAt(t,nds,null,null));
         } else {
           list0.forEach(function(x){ if(x.id!==t.id)return; shiftSpan(x,nds); x.dueDate=nds; x.startTime=null; x.endTime=null; });
         }
@@ -1429,11 +1447,7 @@
       }
       var list=M.loadTodos();
       if(m==="move" && wasDupe){
-        var cp={}; for(var kk in t)cp[kk]=t[kk];
-        cp.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
-        cp.done=false; cp.snoozes=0; shiftSpan(cp,nds); cp.dueDate=nds;
-        cp.startTime=minHH(b._ns); cp.endTime=minHH(b._ne);
-        list.push(cp); M.toast("Duplicated");
+        list.push(todoCopyAt(t,nds,minHH(b._ns),minHH(b._ne))); M.toast("Duplicated");
       } else {
         list.forEach(function(x){ if(x.id!==t.id)return;
           if(m==="move"){ shiftSpan(x,nds); x.dueDate=nds; }

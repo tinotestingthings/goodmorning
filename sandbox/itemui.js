@@ -28,7 +28,9 @@
   function snoozeTodo(id,days,opts){ var list=M().loadTodos(); list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } }); M().saveTodos(list); M().toast(days===7?"Pushed to next week":"Pushed to tomorrow"); opts.refresh(); }
   function duplicateTodo(t,opts){ var list=M().loadTodos(); var copy={}; for(var k in t)copy[k]=t[k]; copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0; list.push(copy); M().saveTodos(list); M().toast("Duplicated"); opts.refresh(); }
   function duplicateChore(chore,opts){ var list=M().loadChores(); var copy={}; for(var k in chore)copy[k]=chore[k]; copy.id="chore-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.name=(chore.name||"")+" (copy)"; copy.lastDone=null; copy.log=[]; copy.exceptions={}; list.push(copy); M().saveChores(list); M().toast("Duplicated"); opts.refresh(); }
-  function postponeChoreOccurrence(chore,occDate,days,opts){ var newDs=ymd(addDays(parseYmd(occDate),days)); var list=M().loadChores(); list.forEach(function(c){ if(c.id===chore.id){ c.exceptions=c.exceptions||{}; c.exceptions[occDate]=newDs; } }); M().saveChores(list); M().toast("This occurrence moved to "+niceDay(newDs)); opts.refresh(); }
+  // Postponing a MISSED (past) occurrence counts from today — "+1 day" must
+  // land tomorrow, not on another day that's already gone.
+  function postponeChoreOccurrence(chore,occDate,days,opts){ var base=occDate<todayStr()?todayStr():occDate; var newDs=ymd(addDays(parseYmd(base),days)); var list=M().loadChores(); list.forEach(function(c){ if(c.id===chore.id){ c.exceptions=c.exceptions||{}; c.exceptions[occDate]=newDs; } }); M().saveChores(list); M().toast("This occurrence moved to "+niceDay(newDs)); opts.refresh(); }
 
   function attachHold(row,onHold){
     var timer=null,sx=0,sy=0;
@@ -37,7 +39,9 @@
     row.addEventListener("pointermove",function(e){ if(timer && (Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>10)) clr(); });
     row.addEventListener("pointerup",clr); row.addEventListener("pointercancel",clr);
   }
-  function attachSwipe(row,t,opts){
+  // right = onRight (complete), left = onLeft (postpone) — shared by to-do
+  // AND chore rows so the same gesture works on both.
+  function attachSwipe(row,onRight,onLeft){
     var x0=0,y0=0,drag=false,axis=null;
     row.style.touchAction="pan-y";
     row.addEventListener("pointerdown",function(e){ if(e.target.closest("button,a,.cal-drag-handle"))return; x0=e.clientX;y0=e.clientY;drag=true;axis=null; row.style.transition=""; });
@@ -45,7 +49,7 @@
       if(!axis){ if(Math.abs(dx)<8&&Math.abs(dy)<8)return; axis=Math.abs(dx)>Math.abs(dy)?"x":"y"; if(axis==="x"){ try{row.setPointerCapture(e.pointerId);}catch(_){} } else { drag=false; return; } }
       if(axis==="x"){ if(e.cancelable)e.preventDefault(); row.style.transform="translateX("+dx+"px)"; row.style.background=dx>0?"rgba(47,174,102,0.14)":"rgba(217,164,65,0.14)"; }
     });
-    function end(e){ if(!drag)return; drag=false; row.style.transition="transform .2s ease"; row.style.transform=""; row.style.background=""; if(axis!=="x")return; var dx=e.clientX-x0; if(Math.abs(dx)>90){ if(dx>0) completeTodo(t,row,opts); else snoozeTodo(t.id,1,opts); } }
+    function end(e){ if(!drag)return; drag=false; row.style.transition="transform .2s ease"; row.style.transform=""; row.style.background=""; if(axis!=="x")return; var dx=e.clientX-x0; if(Math.abs(dx)>90){ if(dx>0) onRight(); else onLeft(); } }
     row.addEventListener("pointerup",end);
     row.addEventListener("pointercancel",function(){ drag=false; row.style.transform=""; row.style.background=""; });
   }
@@ -70,7 +74,7 @@
     if(opts.handle)row.appendChild(opts.handle);
     row.appendChild(bigEditBtn(function(){ openTodoMenu(t,opts); }));
     attachHold(row,function(){ openTodoMenu(t,opts); });
-    if(opts.swipe && !t.done) attachSwipe(row,t,opts);
+    if(opts.swipe && !t.done) attachSwipe(row,function(){ completeTodo(t,row,opts); },function(){ snoozeTodo(t.id,1,opts); });
     return row;
   }
 
@@ -79,7 +83,9 @@
     var row=el("div","cal-item");
     var cb=catBar(chore.category); if(cb)row.appendChild(cb);
     var doneToday=state==="done";
-    var chk=check(doneToday,function(){ if(occDate!==todayStr()){ M().toast("Tick chores off on the day you do them (today)."); return; } var list=M().loadChores(); list.forEach(function(c){ if(c.id===chore.id)M().setChoreDoneToday(c,!doneToday); }); M().saveChores(list); if(!doneToday)party(chk); opts.refresh(); });
+    // Only FUTURE days refuse the tick — a missed (past) occurrence row may be
+    // ticked and counts as done today, same as it always did from the home list.
+    var chk=check(doneToday,function(){ if(occDate>todayStr()){ M().toast("Tick chores off on the day you do them (today)."); return; } var list=M().loadChores(); list.forEach(function(c){ if(c.id===chore.id)M().setChoreDoneToday(c,!doneToday); }); M().saveChores(list); if(!doneToday)party(chk); opts.refresh(); });
     row.appendChild(chk);
     var body=el("div","cal-item-body");
     var tw=el("div","cal-item-titlewrap"); tw.appendChild(el("span","cal-item-title"+(doneToday?" cal-item-done":""),chore.name)); if(chore.url)tw.appendChild(linkChip(chore.url)); body.appendChild(tw);
@@ -89,6 +95,9 @@
     row.appendChild(body);
     row.appendChild(bigEditBtn(function(){ openChoreMenu(chore,occDate,opts); }));
     attachHold(row,function(){ openChoreMenu(chore,occDate,opts); });
+    // same gesture as to-dos: swipe right = tick (via the checkbox, so the
+    // future-day guard applies), swipe left = postpone this occurrence 1 day
+    if(opts.swipe && !doneToday) attachSwipe(row,function(){ chk.click(); },function(){ postponeChoreOccurrence(chore,occDate,1,opts); });
     return row;
   }
 

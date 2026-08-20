@@ -1054,7 +1054,7 @@
   // non-passive touchmove keeps the page from scrolling underneath.
   function wireBacklogDrag(li, refresh) {
     var HOLD_MS = 300;
-    var timer = null, dragging = false, lastY = 0, downY = 0, clone = null, offY = 0;
+    var timer = null, dragging = false, lastY = 0, downY = 0, clone = null, offY = 0, pid = null;
 
     function begin() {
       timer = null; dragging = true;
@@ -1074,6 +1074,7 @@
     }
 
     function onMove(e) {
+      if (e.pointerId !== pid) return;   // ignore a second finger
       lastY = e.clientY;
       if (e.cancelable) e.preventDefault();
       if (!clone) return;
@@ -1104,11 +1105,12 @@
       }
       refresh();
     }
-    function onUp() { finish(true); }
-    function onCancel() { finish(false); }
+    function onUp(e) { if (e.pointerId !== pid) return; finish(true); }
+    function onCancel(e) { if (e.pointerId !== pid) return; finish(false); }
 
     li.addEventListener("pointerdown", function (e) {
       if (e.target.closest("button, input, .backlog-actions")) return;
+      pid = e.pointerId;
       lastY = downY = e.clientY;
       timer = setTimeout(begin, HOLD_MS);
     });
@@ -1116,6 +1118,10 @@
       if (timer && Math.abs(e.clientY - downY) > 8) { clearTimeout(timer); timer = null; }
     });
     li.addEventListener("pointerup", function () { if (timer) { clearTimeout(timer); timer = null; } });
+    // the browser taking the gesture (scroll) fires pointercancel, often
+    // without any >8px pointermove being delivered first — kill the hold
+    // timer too or begin() still fires for a touch that already ended
+    li.addEventListener("pointercancel", function () { if (timer) { clearTimeout(timer); timer = null; } });
     li.addEventListener("touchmove", function (e) { if (dragging) e.preventDefault(); }, { passive: false });
   }
 
@@ -1618,7 +1624,9 @@
     return {
       doneToday: doneToday, neverDone: neverDone, lastDone: chore.lastDone,
       nextDue: nextDue, daysUntilNext: daysUntilNext, dueSoon: dueSoon,
-      dueToday: dueToday, overdue: overdue, notStarted: notStarted, expired: expired
+      dueToday: dueToday, overdue: overdue, notStarted: notStarted, expired: expired,
+      // the missed occurrence driving `overdue` — postpone acts on THIS day
+      prevDue: prev ? localDateStr(prev) : null
     };
   }
 
@@ -1653,6 +1661,14 @@
       // first occurrence is the start date (or "due today" if start is null/past)
       nextDue = notStarted ? new Date(start + "T00:00:00") : null;
     }
+    // Honour "postpone this day" for legacy chores too: follow the exception
+    // chain from the rolling due date, exactly like choreOccursOn does for
+    // pattern chores. Without this a postponed legacy chore never moved.
+    if (nextDue && chore.exceptions) {
+      var exm = chore.exceptions, xds = localDateStr(nextDue), hops = 0;
+      while (Object.prototype.hasOwnProperty.call(exm, xds) && exm[xds] && hops++ < 30) xds = exm[xds];
+      nextDue = new Date(xds + "T00:00:00");
+    }
     var daysUntilNext = null;
     if (nextDue) {
       daysUntilNext = Math.round(
@@ -1665,7 +1681,9 @@
     return {
       doneToday: doneToday, neverDone: neverDone,
       lastDone: chore.lastDone, nextDue: nextDue, daysUntilNext: daysUntilNext,
-      dueSoon: dueSoon, notStarted: notStarted, expired: expired
+      dueSoon: dueSoon, notStarted: notStarted, expired: expired,
+      // an overdue legacy chore's missed day IS its (past) rolling due date
+      prevDue: (daysUntilNext !== null && daysUntilNext < 0) ? localDateStr(nextDue) : null
     };
   }
 
@@ -2193,14 +2211,16 @@
     if (!window.ItemUI || !window.DayModel) return;
     var today = localDateStr();
 
-    // Overdue first — most pressing. Ticking an overdue chore marks it done
-    // today (occDate = today), same as everywhere else.
+    // Overdue first — most pressing. The row carries the MISSED occurrence
+    // (progress.prevDue) so "Postpone this day" moves that occurrence instead
+    // of writing an exception on today; ticking still marks it done today
+    // (the itemui tick guard only refuses FUTURE days).
     var oChores = overdueChores();
     var oTodos = overdueTodos();
     if (oChores.length || oTodos.length) {
       container.appendChild(el("div", "home-today-head home-overdue-head", "Overdue"));
       var oList = el("div", "cal-item-list home-today-list");
-      oChores.forEach(function (x) { oList.appendChild(window.ItemUI.choreRow(x.chore, "due", today, homeItemOpts())); });
+      oChores.forEach(function (x) { oList.appendChild(window.ItemUI.choreRow(x.chore, "due", x.progress.prevDue || today, homeItemOpts())); });
       oTodos.forEach(function (t) { oList.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
       container.appendChild(oList);
     }

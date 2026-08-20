@@ -164,10 +164,17 @@
 
     // "Hold to ponder" is gone (it was never used): release anything still
     // parked as status=holding so it syncs to the vault like a normal capture.
-    // Idempotent, and a no-op the moment no held rows remain.
-    if (global.SB) {
+    // Runs once per device (flag set only on success) — delete this block in
+    // a future release once every device has run it.
+    var relKey = k("captures.releasedHeld");
+    var relDone = false;
+    try { relDone = !!localStorage.getItem(relKey); } catch (e) {}
+    if (global.SB && !relDone) {
       global.SB.from("captures").update({ status: "new" }).eq("status", "holding")
-        .then(function () {}, function () {});
+        .then(function (res) {
+          if (res && res.error) return;   // failed — try again next open
+          try { localStorage.setItem(relKey, "1"); } catch (e) {}
+        }, function () {});
     }
     if (global.Sheet) global.Sheet.swipeClose(sheet, close);
     backdrop.appendChild(sheet);
