@@ -37,7 +37,8 @@
     : null;
 
   var userId = null, lastPushed = null, pushTimer = null, ready = false, ran = false;
-  var syncOff = false;   // true when trainerinus_state is missing: run local-only
+  var syncOff = false;      // true when trainerinus_state is unusable: run local-only
+  var syncReason = null;    // "missing" (table absent) | "grant" (no privileges)
 
   var proto = (window.Storage && window.Storage.prototype) || Object.getPrototypeOf(localStorage);
   var oGet = proto.getItem, oSet = proto.setItem, oRem = proto.removeItem;
@@ -90,11 +91,16 @@
 
   function warn() { try { console.warn.apply(console, ["[" + APP_LABEL + "]"].concat([].slice.call(arguments))); } catch (e) {} }
 
-  // PostgREST reports a missing table as "Could not find the table ... in the
-  // schema cache" (code PGRST205) or a plain relation-does-not-exist error.
-  function missingTable(err) {
+  // PostgREST meldt een onbruikbare tabel op twee manieren: hij bestaat niet
+  // (PGRST205 / relation does not exist), of de rol mist rechten (42501
+  // "permission denied" — wat je krijgt na een kale `create table` zonder
+  // GRANT). Beide zijn eenmalige setup-problemen, geen transiënte storing:
+  // de app draait dan lokaal door met sync uit (en dus zonder ooit te pushen).
+  function tableProblem(err) {
     var m = ((err && err.message) || "") + " " + ((err && err.code) || "");
-    return /could not find the table|does not exist|schema cache|PGRST205/i.test(m);
+    if (/permission denied|42501/i.test(m)) return "grant";
+    if (/could not find the table|does not exist|schema cache|PGRST205/i.test(m)) return "missing";
+    return null;
   }
 
   function pushNow() {
@@ -122,7 +128,8 @@
     if (!SB || !userId) { cb && cb(); return; }
     SB.from(TABLE).select("data").eq("user_id", userId).then(function (res) {
       if (res && res.error) {
-        if (missingTable(res.error)) { syncOff = true; warn("table missing — running local-only"); cb && cb(true); return; }
+        var prob = tableProblem(res.error);
+        if (prob) { syncOff = true; syncReason = prob; warn("tabel onbruikbaar (" + prob + ") — lokaal draaien:", res.error.message); cb && cb(true); return; }
         warn("pull", res.error.message); cb && cb(false); return;
       }
       var row = res && res.data && res.data.length ? res.data[0] : null;
@@ -153,7 +160,7 @@
     if (ran) return; ran = true;
     // Handles the app uses to talk to Supabase (read-only peeks at the other
     // trainer apps' state tables) without creating a second client.
-    window.__gmTrainer = { sb: SB, userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, demo: DEMO };
+    window.__gmTrainer = { sb: SB, userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, syncReason: syncReason, demo: DEMO };
     var code = document.getElementById("gm-app-code");
     if (!code) { warn("app code element missing"); return; }
     var s = document.createElement("script");

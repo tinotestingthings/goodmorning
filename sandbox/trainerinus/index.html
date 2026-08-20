@@ -362,14 +362,17 @@
     }
   }
 
-  var TABLE_SQL = "create table public.trainerinus_state (\n" +
+  var CREATE_SQL = "create table public.trainerinus_state (\n" +
     "  user_id uuid primary key references auth.users(id) on delete cascade,\n" +
     "  data jsonb not null default '{}'::jsonb,\n" +
     "  updated_at timestamptz not null default now()\n" +
     ");\n" +
     "alter table public.trainerinus_state enable row level security;\n" +
     "create policy \"own row\" on public.trainerinus_state\n" +
-    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);";
+    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);\n" +
+    "grant select, insert, update on public.trainerinus_state to authenticated;";
+  // Een kale `create table` laat `authenticated` zonder rechten achter (42501).
+  var GRANT_SQL = "grant select, insert, update on public.trainerinus_state to authenticated;";
 
   function renderSettings() {
     var box = document.getElementById("settings-toggles");
@@ -399,9 +402,12 @@
     var note = document.getElementById("sync-note");
     if (H.syncOff) {
       note.innerHTML = "";
-      note.appendChild(el("div", null, "⚠️ Sync staat uit: de tabel trainerinus_state bestaat nog niet. Alles werkt, maar alleen op dit apparaat. Eénmalig aanmaken in de Supabase SQL-editor:"));
-      var pre = el("pre", null, TABLE_SQL);
-      note.appendChild(pre);
+      var grant = H.syncReason === "grant";
+      note.appendChild(el("div", null, "⚠️ Sync staat uit: " + (grant
+        ? "de tabel trainerinus_state bestaat, maar de app mag er niet bij."
+        : "de tabel trainerinus_state bestaat nog niet.") +
+        " Alles werkt, maar de historie blijft op dit apparaat. Eénmalig draaien in de Supabase SQL-editor:"));
+      note.appendChild(el("pre", null, grant ? GRANT_SQL : CREATE_SQL));
     } else {
       note.textContent = "Leest oefendata van de live apps (schrijft er nooit naar). Eigen historie synct via trainerinus_state.";
     }

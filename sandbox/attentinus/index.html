@@ -529,22 +529,30 @@
     }
   }
 
-  var TABLE_SQL = "create table public.attentinus_state (\n" +
+  var CREATE_SQL = "create table public.attentinus_state (\n" +
     "  user_id uuid primary key references auth.users(id) on delete cascade,\n" +
     "  data jsonb not null default '{}'::jsonb,\n" +
     "  updated_at timestamptz not null default now()\n" +
     ");\n" +
     "alter table public.attentinus_state enable row level security;\n" +
     "create policy \"own row\" on public.attentinus_state\n" +
-    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);";
+    "  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);\n" +
+    "grant select, insert, update on public.attentinus_state to authenticated;";
+  // Een kale `create table` laat de rol `authenticated` zonder rechten achter;
+  // PostgREST antwoordt dan 42501 en de app draait lokaal door. Dit zet het recht.
+  var GRANT_SQL = "grant select, insert, update on public.attentinus_state to authenticated;";
 
   function renderFoot() {
     var foot = document.getElementById("foot-note");
     foot.innerHTML = "";
     if (H.demo) { foot.appendChild(el("div", null, "demo-modus · nepdata, er wordt niets opgeslagen of gesynct")); return; }
     if (H.syncOff) {
-      foot.appendChild(el("div", null, "⚠️ Sync staat uit: de tabel attentinus_state bestaat nog niet. Alles werkt, maar alleen op dit apparaat. Eénmalig aanmaken in de Supabase SQL-editor:"));
-      foot.appendChild(el("pre", null, TABLE_SQL));
+      var grant = H.syncReason === "grant";
+      foot.appendChild(el("div", null, "⚠️ Sync staat uit: " + (grant
+        ? "de tabel attentinus_state bestaat, maar de app mag er niet bij."
+        : "de tabel attentinus_state bestaat nog niet.") +
+        " Alles werkt, maar alleen op dit apparaat — voer hier nog niets in dat je niet kwijt wilt (of exporteer je lijst). Eénmalig draaien in de Supabase SQL-editor:"));
+      foot.appendChild(el("pre", null, grant ? GRANT_SQL : CREATE_SQL));
     } else if (H.isSandbox) {
       foot.appendChild(el("div", null, "sandbox"));
     }

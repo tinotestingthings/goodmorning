@@ -39,7 +39,12 @@ create table public.attentinus_state (
 alter table public.attentinus_state enable row level security;
 create policy "own row" on public.attentinus_state
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+grant select, insert, update on public.attentinus_state to authenticated;
 ```
+
+De laatste regel is niet optioneel: zonder GRANT bestaat de tabel wel, maar
+krijgt de app 42501 ("permission denied") en draait hij lokaal door met sync
+uit. De app toont in dat geval zelf de juiste regel.
 
 ## State (in `attentinus_state.data`, keys via de boot-shim)
 

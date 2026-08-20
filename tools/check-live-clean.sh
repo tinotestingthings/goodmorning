@@ -8,7 +8,10 @@ set -uo pipefail
 fail=0
 
 # 1) No quoted "dd.<key>" / "sbx.<key>" literals anywhere except env.js.
-hits=$(grep -rnE "[\"'](dd|sbx)\.[A-Za-z]" --include=*.js . | grep -v "/env.js:" | grep -v "^\./env.js:" || true)
+#    node_modules wordt overgeslagen: dat is geen broncode van ons, en sinds
+#    explainer/ zijn Remotion-deps lokaal heeft (6k+ bestanden) liep de guard
+#    daar minutenlang op vast — in CI én vóór elke promote.
+hits=$(grep -rnE "[\"'](dd|sbx)\.[A-Za-z]" --include=*.js --exclude-dir=node_modules . | grep -v "/env.js:" | grep -v "^\./env.js:" || true)
 if [ -n "$hits" ]; then
   echo "✗ Hardcoded namespace key literal(s) found — use k(\"name\") instead:"
   echo "$hits"
