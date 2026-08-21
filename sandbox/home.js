@@ -837,15 +837,45 @@
 
   // ---- hero (greeting + loop/done card + mini weather tile) ----
 
+  // Luisterinus-tile in de hero-rij — alléén als er een podcast klaarstaat
+  // (Opduikinus-principe: geen data = geen tile). Badge = aantal klaar. Wordt
+  // async aan de rij toegevoegd, zodat de home nooit op Supabase wacht.
+  // Na inloggen vanuit de overlay staat Today al op het scherm en rendert niets
+  // opnieuw; dan alsnog de tile toevoegen. SIGNED_IN komt ook bij tab-focus,
+  // vandaar de "staat er al"-check in appendPodcastTile.
+  var lastHeroRow = null;
+  if (window.SB) window.SB.auth.onAuthStateChange(function (event, session) {
+    if (event === "SIGNED_IN" && session && lastHeroRow) appendPodcastTile(lastHeroRow);
+  });
+
+  function appendPodcastTile(heroRow) {
+    if (!window.SB) return;
+    var since = new Date(Date.now() - 14 * 86400000).toISOString();
+    window.SB.from("podcast_queue").select("id", { count: "exact", head: true })
+      .eq("status", "ready").gte("requested_at", since).then(function (res) {
+      var n = res.error ? 0 : (res.count || 0);
+      // niets klaar, rij al vervangen (isConnected i.p.v. myGeneration: de rij
+      // weet zelf of hij nog leeft), of tile staat er al -> niets doen
+      if (!n || !heroRow.isConnected || heroRow.querySelector(".podcast-tile")) return;
+      var a = renderAppTile({ label: n === 1 ? "1 podcast" : n + " podcasts", href: "luisterinus/", icon: ICON_LISTEN });
+      a.classList.add("podcast-tile");
+      a.setAttribute("aria-label", "Open Luisterinus, " + n + " podcast" + (n === 1 ? "" : "s") + " klaar");
+      a.appendChild(el("span", "tile-badge tile-badge-red", String(n)));
+      heroRow.appendChild(a);
+    });
+  }
+
   function renderHero(myGeneration) {
     var wrap = el("div", "home-hero");
     wrap.appendChild(renderHeader());
 
     var heroRow = el("div", "hero-row");
+    lastHeroRow = heroRow;
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
     MOST_USED.forEach(function (app) { heroRow.appendChild(renderAppTile(app)); });
     heroRow.appendChild(renderBirdTile());
+    appendPodcastTile(heroRow);
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");

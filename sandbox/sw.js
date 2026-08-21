@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v68";
+var CACHE_NAME = "dd-sandbox-shell-v69";
 var CACHE_PREFIX = "dd-sandbox-shell-";
 
 var SHELL_FILES = [

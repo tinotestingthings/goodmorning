@@ -130,6 +130,104 @@
     return { btn: btn, textarea: ta };
   }
 
+  // ---- Luisterinus: podcastknop + speler op de kaart ----
+  // Eén knop promoveert dit ene item tot een NotebookLM Audio Overview.
+  // Opduikinus-principe: alle status-UI komt uit Supabase `podcast_queue`;
+  // geen record (of tabel/verbinding weg) -> alleen de knop, verder niets.
+  // De wachtrij wordt buiten de app om afgewerkt (Luisterinus fase 2/3); de
+  // mp3 staat in de privébucket `digest-audio` en speelt via een signed URL.
+  // feed.json wordt hier nooit gelezen of geschreven behalve zoals nu al.
+  // Schrijfregels: de app maakt alleen nieuwe rijen aan (ignoreDuplicates) of
+  // zet `failed` terug op `requested` — een `ready`-rij kan ze nooit
+  // overschrijven, ook niet vanaf een verouderde kaart.
+  var podcastRows = {};    // id -> {status, audio_path} uit de laatste geslaagde select
+  var podcastLoadSeq = 0;  // alleen de nieuwste select mag de map vervangen
+
+  function loadPodcastRows() {
+    if (!window.SB || !feed || !Array.isArray(feed.daily)) return;
+    var ids = feed.daily.map(function (it) { return it.id; }).filter(Boolean);
+    if (!ids.length) return;
+    var seq = ++podcastLoadSeq;
+    window.SB.from("podcast_queue").select("id,status,audio_path").in("id", ids).then(function (res) {
+      if (seq !== podcastLoadSeq || res.error || !Array.isArray(res.data)) return;
+      var fresh = {};
+      res.data.forEach(function (r) { fresh[r.id] = r; });
+      // Een knopdruk die deze select nog niet gezien heeft, niet terugdraaien.
+      Object.keys(podcastRows).forEach(function (id) {
+        if (!fresh[id] && podcastRows[id].status === "requested") fresh[id] = podcastRows[id];
+      });
+      podcastRows = fresh;
+      refreshPodcastRow();
+    });
+  }
+
+  // Vervangt alleen de podcastregel van de huidige kaart — nooit een volledige
+  // render() vanuit een async callback (die trekt een swipe of open notitie
+  // onder de vingers weg). Een spelende speler laten we met rust.
+  function refreshPodcastRow() {
+    var old = deckArea.querySelector(".podcast-row");
+    var cur = items[pointer];
+    if (!old || !cur || old.querySelector("audio")) return;
+    var fresh = podcastControl(cur);
+    if (fresh) old.parentNode.replaceChild(fresh, old);
+  }
+
+  // Knop in card-link-stijl: uit tijdens de async stap, weer aan bij mislukken.
+  function podBtn(label, onClick) {
+    var btn = el("button", "card-link podcast-btn", label);
+    btn.type = "button";
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      onClick(function fail(msg) { toast(msg); btn.disabled = false; });
+    });
+    return btn;
+  }
+
+  function podcastControl(item) {
+    if (!window.SB) return null;
+    var row = podcastRows[item.id];
+    if (!row && !item.url) return null;
+    var wrap = el("div", "podcast-row");
+
+    if (!row || row.status === "failed") {
+      wrap.appendChild(podBtn(row ? "Podcast mislukt — probeer opnieuw" : "♫ Maak er een podcast van", function (fail) {
+        var now = new Date().toISOString();
+        var q = row
+          ? window.SB.from("podcast_queue").update({ status: "requested", requested_at: now })
+              .eq("id", item.id).eq("status", "failed")
+          : window.SB.from("podcast_queue").upsert(
+              { id: item.id, item_url: item.url, title: item.title || "", status: "requested", requested_at: now },
+              { onConflict: "id", ignoreDuplicates: true });
+        q.then(function (res) {
+          if (res.error) { fail("Wachtrij niet bereikbaar"); return; }
+          podcastRows[item.id] = { id: item.id, status: "requested", audio_path: null };
+          refreshPodcastRow();
+          toast("In de wachtrij gezet");
+          loadPodcastRows(); // bestond de rij al (verouderde kaart)? dan verschijnt nu de echte status
+        });
+      }));
+    } else if (row.status === "ready" && row.audio_path) {
+      wrap.appendChild(podBtn("▶ Speel de podcast af", function (fail) {
+        window.SB.storage.from("digest-audio").createSignedUrl(row.audio_path, 3600).then(function (res) {
+          var url = res && res.data && res.data.signedUrl;
+          if (!url) { fail("Audio niet bereikbaar"); return; }
+          var audio = document.createElement("audio");
+          audio.controls = true;
+          audio.className = "podcast-player";
+          audio.src = url;
+          wrap.textContent = "";
+          wrap.appendChild(audio);
+          var p = audio.play();
+          if (p && p.catch) p.catch(function () {}); // autoplay geblokkeerd is geen fout: controls staan er
+        });
+      }));
+    } else {
+      // requested, of een status die deze app(versie) niet kent: rustig wachten
+      wrap.appendChild(el("span", "podcast-status", "Podcast in de maak…"));
+    }
+    return wrap;
+  }
+
   // ---- action bar ----
   // Swiping the card decides keep/dismiss, so the bar below the card carries
   // the OTHER choices (they used to hide behind a ⋯ menu): defer, note, and
@@ -228,6 +326,8 @@
   // ---- rendering ----
 
   function render() {
+    // Een losgekoppeld <audio> speelt in de meeste browsers gewoon door — eerst stoppen.
+    deckArea.querySelectorAll("audio").forEach(function (a) { a.pause(); });
     deckArea.innerHTML = "";
     updateBadge();
 
@@ -315,6 +415,8 @@
     // inline pencil, keeping the card face clean.
     var nc = noteControl("triage", item.id, "Note on this card — collected with your decisions.");
     card.appendChild(linkRow);
+    var pod = podcastControl(item);
+    if (pod) card.appendChild(pod);
     card.appendChild(nc.textarea);
 
     var flash = document.createElement("div");
@@ -493,7 +595,7 @@
 
     card.addEventListener("pointerdown", function (e) {
       if (e.pointerType === "mouse" && e.button !== 0) return;
-      if (e.target.closest("a, button, textarea")) return;
+      if (e.target.closest("a, button, textarea, audio")) return;
       startX = e.clientX;
       startY = e.clientY;
       lastX = e.clientX;
@@ -729,6 +831,7 @@
     savePointer();
     lastAction = null;
     setFeedStatus(items.length + (items.length === 1 ? " card" : " cards"));
+    loadPodcastRows();
     render();
   }
 
@@ -840,7 +943,7 @@
     if (!view || view.hidden) return;                 // only while triaging
     if (e.metaKey || e.ctrlKey || e.altKey) return;   // leave shortcuts alone
     var ae = document.activeElement;
-    if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.isContentEditable)) return;
+    if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "AUDIO" || ae.isContentEditable)) return;
     if (document.querySelector(".card-menu-backdrop")) return;   // a sheet is open
     var key = (e.key || "").toLowerCase();
     if (key === "u") { e.preventDefault(); undo(); return; }
@@ -856,6 +959,10 @@
 
   init();
 
+  // Na inloggen (of sessieherstel) de wachtrij alsnog ophalen: de select bij
+  // de eerste feed-load draaide nog zonder sessie en zag dus niets.
+  if (window.SB) window.SB.auth.onAuthStateChange(function (event, session) { if (session) loadPodcastRows(); });
+
   // Calendar -> History undoes decisions through this, never by writing
   // k("decisions") itself. See forgetDecision above.
   window.TriageCtl = { forgetDecision: forgetDecision };
@@ -866,6 +973,7 @@
   document.addEventListener("dd-agenda-applied", function () {
     loadState();
     computeItems();
+    loadPodcastRows();
     pointer = firstUndecidedIndex(0);
     updateBadge();
     var v = document.getElementById("view-triage");

@@ -10,7 +10,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 
 | App | Path | Storage / Supabase | Fed by | Notes |
 |---|---|---|---|---|
-| Daily Digest (goodmorning) | `/` and `/sandbox/` | localStorage via `k()`, Supabase `agenda_state`, `captures`, `actions` | `feed.json` written by the **daily-digest** scheduled task (Cowork, Mac) | PWA, no build step. Tests: `tests/agendasync.behaviour.mjs`. Version tag shown from `DD_ENV.version` |
+| Daily Digest (goodmorning) | `/` and `/sandbox/` | localStorage via `k()`, Supabase `agenda_state`, `captures`, `actions`, `podcast_queue` + Storage-bucket `digest-audio` (privé; Luisterinus, zie `docs/luisterinus.md`) | `feed.json` written by the **daily-digest** scheduled task (Cowork, Mac) | PWA, no build step. Tests: `tests/agendasync.behaviour.mjs`. Version tag shown from `DD_ENV.version` |
 
 ## Utility apps (each: `index.html` + `boot.js`, state synced to its own Supabase table)
 
@@ -24,6 +24,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Event Tracker | `events/` | `eventtracker_state` (personal state only; catalogue is baked in) | `events-src/` in this repo | `bash events-src/build.sh` → `events/bundle.js`; catalogue edited by the **event-catalog-refresh** task |
 | Trainerinus (oefencoach over de trainer-apps) | `trainerinus/` | `trainerinus_state` (tabel moet nog aangemaakt — SQL in `trainerinus/README.md`; app draait zonder tabel lokaal) | this repo | none; leest read-only de state-tabellen van vogelspotinus/chordsprint/notesprint/kangaroo |
 | Attentinus (verjaardagen + cadeau-ideeën) | `attentinus/` | `attentinus_state` (tabel moet nog aangemaakt — SQL in `attentinus/README.md`; app draait zonder tabel lokaal) | this repo | none; digest-home: vaste herotegel + rij bij een datum binnen 21 dagen; import/export client-side |
+| Luisterinus (digest-podcasts) | `luisterinus/` | leest `podcast_queue` + bucket `digest-audio` (geen eigen state-tabel) | this repo | none; Utilities-tegel met wachtrij-badge (practice.js), Today-tile als er een podcast klaarstaat (home.js), knop op de digest-kaart (triage.js). Spec: `docs/luisterinus.md` |
 | Ecosystem explainer (video) | `explainer/` | — | this repo | Remotion; not served by the PWA |
 
 ## Not in this repo (on purpose)
