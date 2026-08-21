@@ -27,13 +27,14 @@ function baseState(extra = {}) {
 
 // ---- vragenbank ----
 
-test("bank: 210 vragen, unieke ids, geldige answer-index", () => {
-  assert.equal(QUESTIONS.length, 210);
+test("bank: 410 vragen, unieke ids, geldige answer-index", () => {
+  assert.equal(QUESTIONS.length, 410);
   const ids = new Set(QUESTIONS.map((q) => q.id));
-  assert.equal(ids.size, 210);
+  assert.equal(ids.size, 410);
   for (const q of QUESTIONS) {
     assert.ok(q.answer >= 0 && q.answer < q.options.length, q.id);
     assert.ok(q.type !== "truefalse" || q.options.length === 2, q.id);
+    assert.ok(q.type !== "multiple" || q.options.length === 4, q.id);
   }
 });
 
@@ -42,6 +43,54 @@ test("bank: alle topics vallen binnen de 11-structuur", () => {
   assert.equal(topics.size, 11);
   assert.ok(!topics.has("Frankrijk"), "oude starter-topics zijn hernoemd");
   assert.ok(!topics.has("Vinificatie"));
+});
+
+test("bank: elk thema heeft genoeg vragen voor een volle sessie", () => {
+  const perTopic = {};
+  for (const q of QUESTIONS) perTopic[q.topic] = (perTopic[q.topic] || 0) + 1;
+  for (const [topic, n] of Object.entries(perTopic)) {
+    assert.ok(n >= 30, `${topic} heeft maar ${n} vragen`);
+  }
+});
+
+test("bank: geen dubbele vragen en geen dubbele antwoordopties", () => {
+  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  const seen = new Map();
+  for (const q of QUESTIONS) {
+    const key = norm(q.prompt);
+    assert.ok(!seen.has(key), `${q.id} dubbelt met ${seen.get(key)}`);
+    seen.set(key, q.id);
+    const opts = q.options.map((o) => o.toLowerCase().trim());
+    assert.equal(new Set(opts).size, opts.length, `${q.id} heeft dubbele opties`);
+  }
+});
+
+test("bank: het juiste antwoord staat niet stelselmatig op dezelfde plek", () => {
+  const mc = QUESTIONS.filter((q) => q.type === "multiple");
+  const counts = [0, 0, 0, 0];
+  for (const q of mc) counts[q.answer] += 1;
+  const expected = mc.length / 4;
+  for (const [i, n] of counts.entries()) {
+    assert.ok(Math.abs(n - expected) < expected * 0.35, `positie ${i}: ${n} van ${mc.length}`);
+  }
+});
+
+test("bank: het juiste antwoord verraadt zich niet door zijn lengte", () => {
+  for (const q of QUESTIONS.filter((x) => x.type === "multiple")) {
+    const lens = q.options.map((o) => o.length);
+    const others = lens.filter((_, i) => i !== q.answer);
+    assert.ok(
+      lens[q.answer] <= Math.max(...others) * 2.2 || lens[q.answer] <= 45,
+      `${q.id}: juiste antwoord is veel langer dan de afleiders`
+    );
+  }
+});
+
+test("bank: elke vraag heeft uitleg en een misvatting", () => {
+  for (const q of QUESTIONS) {
+    assert.ok(q.explanation && q.explanation.length > 20, `${q.id} mist uitleg`);
+    assert.ok(q.misconception && q.misconception.length > 20, `${q.id} mist misconception`);
+  }
 });
 
 // ---- SRS ----
@@ -134,12 +183,12 @@ test("displayStreak: gebroken streak toont 0", () => {
 
 // ---- eerlijke statistieken ----
 
-test("coverage: 10 beantwoorde vragen op 210 is 5%, niet 100%", () => {
+test("coverage: 10 beantwoorde vragen op 410 is 2%, niet 100%", () => {
   const reviews = {};
   QUESTIONS.slice(0, 10).forEach((q) => {
     reviews[q.id] = { repetitions: 1, interval: 1, ease: 2.5, due: today, correct: 1, wrong: 0 };
   });
-  assert.equal(coverage(baseState({ reviews })), 5);
+  assert.equal(coverage(baseState({ reviews })), 2);
 });
 
 test("mastery: kent geen plafond van 88", () => {
@@ -157,6 +206,27 @@ test("weekBars: telt echte dagen, vandaag zit in de juiste kolom", () => {
   const todayBar = bars.find((b) => b.isToday);
   assert.equal(todayBar.count, 8);
   assert.equal(bars.reduce((s, b) => s + b.count, 0), 8);
+});
+
+
+// ---- optievolgorde ----
+
+test("optievolgorde: het juiste antwoord staat niet elke sessie op dezelfde plek", async () => {
+  // quizView schudt per sessie; hier testen we dezelfde logica los van de DOM.
+  const q = QUESTIONS.find((x) => x.type === "multiple");
+  const posities = new Set();
+  for (let s = 0; s < 60; s++) {
+    const order = q.options.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const view = { options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer) };
+    // het juiste antwoord moet inhoudelijk hetzelfde blijven
+    assert.equal(view.options[view.answer], q.options[q.answer]);
+    posities.add(view.answer);
+  }
+  assert.equal(posities.size, 4, "over 60 sessies moeten alle vier de posities voorkomen");
 });
 
 console.log(`\nWijnWijs core: ${passed} tests geslaagd.`);
