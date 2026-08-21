@@ -1703,6 +1703,27 @@
     chore.lastDone = chore.log.length > 0 ? chore.log[chore.log.length - 1] : null;
   }
 
+  // Removes ONE completion, whatever day it was on (History → undo).
+  // `lastDone` is recomputed as the newest remaining stamp instead of the last
+  // array slot, so taking back an older entry can't leave `lastDone` pointing
+  // at a completion that is no longer the most recent one.
+  function removeChoreLogEntry(choreId, iso) {
+    var list = loadChores();
+    var hit = false;
+    list.forEach(function (c) {
+      if (c.id !== choreId) return;
+      var log = c.log || [];
+      var next = log.filter(function (x) { return x !== iso; });
+      if (next.length === log.length) return;
+      hit = true;
+      c.log = next;
+      var sorted = next.slice().sort();
+      c.lastDone = sorted.length ? sorted[sorted.length - 1] : null;
+    });
+    if (hit) saveChores(list);
+    return hit;
+  }
+
   function freqLabel(chore) {
     var pat = chore.pattern || "interval";
     var s;
@@ -2024,9 +2045,24 @@
   function saveTodoHistory(list) {
     try { localStorage.setItem(TODO_HISTORY_KEY, JSON.stringify(list)); } catch (e) {}
   }
-  function logTodoHistory(text) {
+  // `id` ties the entry back to the to-do it came from, so History can
+  // un-complete exactly that one. Entries written before this existed carry
+  // no id — History then falls back to matching on text, and hides the undo
+  // button when nothing matches any more.
+  function logTodoHistory(text, id) {
     var list = loadTodoHistory();
-    list.push({ text: text, date: new Date().toISOString() });
+    list.push({ text: text, date: new Date().toISOString(), id: id || null });
+    saveTodoHistory(list);
+  }
+  // Drops one entry again (History → undo). Matches on the exact timestamp,
+  // which is unique per completion, so completing the same to-do again later
+  // keeps its own separate line in the log.
+  function unlogTodoHistory(entry) {
+    if (!entry) return;
+    var list = loadTodoHistory();
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (list[i].date === entry.date && list[i].text === entry.text) { list.splice(i, 1); break; }
+    }
     saveTodoHistory(list);
   }
   function todoHistoryEntries() {
@@ -2075,7 +2111,7 @@
       if (fresh) {
         fresh.done = !fresh.done;
         nowDone = fresh.done;
-        if (fresh.done) logTodoHistory(fresh.text);
+        if (fresh.done) logTodoHistory(fresh.text, fresh.id);
       }
       saveTodos(list);
       if (nowDone && window.FX) { window.FX.celebrate(checkBtn); window.FX.ding(); }
@@ -2711,8 +2747,10 @@
     loadTodos: loadTodos,
     saveTodos: saveTodos,
     logTodoHistory: logTodoHistory,
+    unlogTodoHistory: unlogTodoHistory,
     loadChores: loadChores,
     saveChores: saveChores,
+    removeChoreLogEntry: removeChoreLogEntry,
     choreProgress: choreProgress,
     choreNextDue: choreNextDue,
     choreOccursOn: choreOccursOn,

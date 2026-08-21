@@ -159,10 +159,12 @@
 
   // ---- local log of decisions, so a History view exists after hand-off ----
   // (mirrors capture.js's capture.log; capped, device-local)
-  function logTriage(item, action) {
+  // `todoId` records the calendar to-do a "task" decision dropped, so undoing
+  // the decision later — here or from Calendar → History — takes that back too.
+  function logTriage(item, action, todoId) {
     try {
       var list = JSON.parse(localStorage.getItem(k("triage.log")) || "[]");
-      list.push({ id: item.id, title: item.title || "(untitled)", action: action, at: new Date().toISOString() });
+      list.push({ id: item.id, title: item.title || "(untitled)", action: action, at: new Date().toISOString(), todoId: todoId || null });
       if (list.length > 80) list = list.slice(list.length - 80);
       localStorage.setItem(k("triage.log"), JSON.stringify(list));
     } catch (e) {}
@@ -578,7 +580,7 @@
     flashDecision(flashEl, DECISION_LABELS[action] || action.toUpperCase(), DECISION_COLORS[action] || "--skip");
     lastAction = { type: "decide", id: item.id, prevPointer: pointer, todoId: madeTodoId };
     decisions[item.id] = action;
-    logTriage(item, action);
+    logTriage(item, action, madeTodoId);
     pointer++;
     saveDecisions();
     savePointer();
@@ -626,6 +628,30 @@
     savePointer();
     lastAction = null;
     render();
+  }
+
+  // Undo one decision from OUTSIDE this module (Calendar -> History). It has
+  // to go through here: `decisions` is held in memory and only re-read in
+  // init() and on dd-agenda-applied, so a direct localStorage write elsewhere
+  // is silently overwritten by the next saveDecisions() — and, because this
+  // state rides the agenda sync, pushed to the other devices as well.
+  function forgetDecision(id, todoId) {
+    if (!id) return false;
+    var had = Object.prototype.hasOwnProperty.call(decisions, id);
+    delete decisions[id];
+    saveDecisions();
+    if (todoId && window.DayModel) {
+      try {
+        window.DayModel.saveTodos(window.DayModel.loadTodos().filter(function (t) { return t.id !== todoId; }));
+      } catch (e) {}
+    }
+    computeItems();
+    pointer = firstUndecidedIndex(0);
+    savePointer();
+    updateBadge();
+    var v = document.getElementById("view-triage");
+    if (v && !v.hidden) render();
+    return had;
   }
 
   function reviewSkipped() {
@@ -829,6 +855,10 @@
   });
 
   init();
+
+  // Calendar -> History undoes decisions through this, never by writing
+  // k("decisions") itself. See forgetDecision above.
+  window.TriageCtl = { forgetDecision: forgetDecision };
 
   // Triage state (decisions/handedOff) now rides the agenda sync. When a pull
   // lands a new snapshot — e.g. the deck was completed on another device —

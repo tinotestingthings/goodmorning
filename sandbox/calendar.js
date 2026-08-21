@@ -502,7 +502,7 @@
 
   function completeTodoToggle(t,anchor){
     var list=M.loadTodos(); var nowDone=false;
-    list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M.logTodoHistory(x.text); } });
+    list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M.logTodoHistory(x.text,x.id); } });
     M.saveTodos(list); if(nowDone)party(anchor); render();
   }
   function linkChip(url){ var a=document.createElement("a"); a.className="cal-link-chip"; a.href=url; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="🔗"; a.addEventListener("click",function(e){ e.stopPropagation(); }); return a; }
@@ -597,7 +597,7 @@
     M.saveTodos(list); M.toast(days===7?"Pushed to next week":"Pushed to tomorrow"); render();
   }
   function toggleTodoDone(t,done){
-    var list=M.loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M.logTodoHistory(x.text); } }); M.saveTodos(list);
+    var list=M.loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M.logTodoHistory(x.text,x.id); } }); M.saveTodos(list);
     if(done)party(document.body); render();
   }
 
@@ -776,7 +776,144 @@
   // (restorable), completed to-dos + chores, and quick captures. Reads the
   // various local logs directly so it survives cache of the feed.
   function histLoad(k,def){ try{ var v=JSON.parse(localStorage.getItem(k)); return v==null?def:v; }catch(e){ return def; } }
-  function histRow(name,date){ var r=el("div","history-row"); r.appendChild(el("span","history-row-name",name)); r.appendChild(el("span","history-row-date",(date||"").slice(0,10))); return r; }
+  // NB: histLoad's parameter shadows the global k() namespace helper — don't
+  // call k() inside it, and don't name a parameter `k` in the helpers below.
+  function histSave(key,val){ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){} }
+  function histToast(msg){ if(M.toast)M.toast(msg); }
+  // Removes exactly ONE matching entry, never every entry that looks alike —
+  // two logs written in the same millisecond must not take each other down.
+  function dropOne(key,match){
+    var list=histLoad(key,[]);
+    for(var i=list.length-1;i>=0;i--){ if(match(list[i])){ list.splice(i,1); break; } }
+    histSave(key,list);
+  }
+  // `undoFn` is optional: a section passes one only when the entry can really
+  // still be taken back, so the button never promises an undo that would
+  // silently do nothing.
+  function histRow(name,date,undoFn){
+    var r=el("div","history-row");
+    r.appendChild(el("span","history-row-name",name));
+    r.appendChild(el("span","history-row-date",(date||"").slice(0,10)));
+    if(undoFn){ var b=el("button","cal-restore cal-undo","Undo"); b.type="button"; b.addEventListener("click",undoFn); r.appendChild(b); }
+    return r;
+  }
+
+  // ---- History → undo, one resolver per log --------------------------------
+  // Each returns a click handler when the entry is still reversible, or null
+  // when it isn't (target deleted, or logged before ids were recorded).
+
+  // Completed to-do: prefer the id stored with the completion. Entries from
+  // before that carry no id and fall back to the newest still-completed to-do
+  // with the same text; an entry that HAS an id but no longer matches anything
+  // means the to-do was deleted, so there is nothing to put back.
+  function doneTodoFor(e){
+    var todos=M.loadTodos();
+    if(e.id) return todos.filter(function(t){ return t.id===e.id&&t.done; })[0]||null;
+    var byText=todos.filter(function(t){ return t.done&&t.text===e.text; });
+    return byText.length?byText[byText.length-1]:null;
+  }
+  function undoTodoDone(e){
+    var target=doneTodoFor(e);
+    if(!target) return null;
+    return function(){
+      var list=M.loadTodos();
+      list.forEach(function(t){ if(t.id===target.id)t.done=false; });
+      M.saveTodos(list);
+      if(M.unlogTodoHistory)M.unlogTodoHistory(e);
+      histToast("Back on your list");
+      render();
+    };
+  }
+
+  // Chore completion: the row IS the log entry, so it's always reversible —
+  // any day, not just today.
+  function undoChoreDone(e){
+    if(!M.removeChoreLogEntry) return null;
+    return function(){
+      if(M.removeChoreLogEntry(e.id,e.date)) histToast("Chore completion undone");
+      render();
+    };
+  }
+
+  // Quick capture: undo depends on what the capture created.
+  //   todo           -> a calendar to-do, deleted again
+  //   task / project -> an Items row, deleted again
+  //   note           -> a Supabase `captures` row, flipped to "cancelled" so
+  //                     the bridge stops draining it into the vault. Nothing is
+  //                     deleted server-side. That row is matched on title
+  //                     (the insert deliberately doesn't read an id back), so
+  //                     it's offered for today's captures only.
+  // The Restore buttons higher up in History put something back; these undos
+  // delete what the capture or decision created, and the log reaches weeks
+  // back — so they ask first, like the chore delete button does.
+  function confirmDestructive(what,title){
+    return window.confirm("Undo this? The "+what+" \""+(title||"(untitled)")+"\" is deleted. This can't be undone.");
+  }
+  // How many note captures share this title? Only entries that could still be
+  // sitting in the inbox count: anything from an earlier day was either drained
+  // into the vault or is out of undo range anyway.
+  function sameTitleNotes(e){
+    return histLoad(k("capture.log"),[]).filter(function(x){
+      return x.kind==="note"&&x.title===e.title&&x.at&&M.localDateStr(new Date(x.at))===todayStr();
+    }).length;
+  }
+  function unlogCapture(e){
+    dropOne(k("capture.log"),function(x){ return x.at===e.at&&x.title===e.title&&x.kind===e.kind; });
+  }
+  function undoCapture(e){
+    if(e.kind==="todo"){
+      if(!e.ref||!M.loadTodos().some(function(t){ return t.id===e.ref; })) return null;
+      return function(){
+        if(!confirmDestructive("to-do",e.title)) return;
+        M.saveTodos(M.loadTodos().filter(function(t){ return t.id!==e.ref; }));
+        unlogCapture(e); histToast("To-do removed"); render();
+      };
+    }
+    if(e.kind==="task"||e.kind==="project"){
+      if(!e.ref||!window.Items||!window.Items.remove) return null;
+      if(!window.Items.all().some(function(x){ return x.id===e.ref; })) return null;
+      return function(){
+        if(!confirmDestructive(e.kind==="project"?"project":"task",e.title)) return;
+        window.Items.remove(e.ref);
+        unlogCapture(e); histToast((e.kind==="project"?"Project":"Task")+" removed"); render();
+      };
+    }
+    if(e.kind==="note"){
+      if(!window.SB||!e.at||M.localDateStr(new Date(e.at))!==todayStr()) return null;
+      // The row is matched on title, and an UPDATE without a limit hits every
+      // match — so a second note with the same first line would be cancelled
+      // along with this one. Rather than take that risk, no undo is offered
+      // when the title isn't unique among the notes still in the inbox.
+      if(sameTitleNotes(e)>1) return null;
+      return function(){
+        function failed(){ histToast("Couldn't reach the inbox — try again"); }
+        window.SB.from("captures").update({status:"cancelled"})
+          .eq("kind","note").eq("title",e.title).eq("status","new")
+          .then(function(res){
+            if(res&&res.error){ failed(); return; }
+            unlogCapture(e); histToast("Pulled back from the inbox"); render();
+          },failed);
+      };
+    }
+    return null;
+  }
+
+  // Triage decision: mirrors triage.js's own undo — drop the decision, drop
+  // the log entry, and take back the calendar to-do a "task" decision created.
+  // `handedOff` is left alone on purpose, exactly as that undo does.
+  function undoTriage(e){
+    if(!window.TriageCtl||!window.TriageCtl.forgetDecision) return null;
+    return function(){
+      if(e.todoId&&M.loadTodos().some(function(t){ return t.id===e.todoId; })
+         &&!confirmDestructive("to-do",e.title)) return;
+      // triage.js owns `decisions` in memory; writing that key from here would
+      // be overwritten again by its next saveDecisions().
+      window.TriageCtl.forgetDecision(e.id,e.todoId);
+      dropOne(k("triage.log"),function(x){ return x.at===e.at&&x.id===e.id; });
+      histToast("Decision taken back");
+      render();
+    };
+  }
   function buildHistory(){
     var wrap=el("div","cal-agenda");
     wrap.appendChild(el("h2","cal-day-title","History"));
@@ -819,26 +956,26 @@
     var th=histLoad(k("todos.history"),[]).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Completed to-dos"));
     if(!th.length) wrap.appendChild(el("p","cal-empty","Nothing completed yet."));
-    else { var hl=el("div","history-list"); th.forEach(function(e){ hl.appendChild(histRow(e.text,e.date)); }); wrap.appendChild(hl); }
+    else { var hl=el("div","history-list"); th.forEach(function(e){ hl.appendChild(histRow(e.text,e.date,undoTodoDone(e))); }); wrap.appendChild(hl); }
 
     // Chore completions
-    var ce=[]; M.loadChores().forEach(function(c){ (c.log||[]).forEach(function(iso){ ce.push({name:c.name,date:iso}); }); });
+    var ce=[]; M.loadChores().forEach(function(c){ (c.log||[]).forEach(function(iso){ ce.push({id:c.id,name:c.name,date:iso}); }); });
     ce.sort(function(a,b){ return new Date(b.date)-new Date(a.date); }); ce=ce.slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Chore completions"));
     if(!ce.length) wrap.appendChild(el("p","cal-empty","No chores done yet."));
-    else { var cl=el("div","history-list"); ce.forEach(function(e){ cl.appendChild(histRow(e.name,e.date)); }); wrap.appendChild(cl); }
+    else { var cl=el("div","history-list"); ce.forEach(function(e){ cl.appendChild(histRow(e.name,e.date,undoChoreDone(e))); }); wrap.appendChild(cl); }
 
     // Quick captures
     var caps=histLoad(k("capture.log"),[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Quick captures"));
     if(!caps.length) wrap.appendChild(el("p","cal-empty","Nothing captured yet."));
-    else { var ql=el("div","history-list"); caps.forEach(function(e){ ql.appendChild(histRow((e.title||"(untitled)")+(e.held?" · held":"")+(e.kind?" · "+e.kind:""),e.at)); }); wrap.appendChild(ql); }
+    else { var ql=el("div","history-list"); caps.forEach(function(e){ ql.appendChild(histRow((e.title||"(untitled)")+(e.held?" · held":"")+(e.kind?" · "+e.kind:""),e.at,undoCapture(e))); }); wrap.appendChild(ql); }
 
     // Triage decisions (kept/dismissed/→task/→project — logged by triage.js)
     var tri=histLoad(k("triage.log"),[]).slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); }).slice(0,40);
     wrap.appendChild(el("h3","cal-agenda-head","Triage decisions"));
     if(!tri.length) wrap.appendChild(el("p","cal-empty","No decisions logged yet."));
-    else { var tl=el("div","history-list"); tri.forEach(function(e){ tl.appendChild(histRow((e.title||"(untitled)")+" · "+(e.action||""),e.at)); }); wrap.appendChild(tl); }
+    else { var tl=el("div","history-list"); tri.forEach(function(e){ tl.appendChild(histRow((e.title||"(untitled)")+" · "+(e.action||""),e.at,undoTriage(e))); }); wrap.appendChild(tl); }
 
     return wrap;
   }
