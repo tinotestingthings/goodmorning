@@ -51,6 +51,9 @@ async function boot({ serverRow = null, seedLocal = {}, pushFails = false,
   for (const [k, v] of Object.entries(seedLocal)) window.localStorage.setItem(k, v);
 
   const calls = { upserts: [], selects: 0 };
+  // Zoals echt: na een geslaagde upsert geeft de server ónze stempel terug,
+  // maar in Postgres-notatie ("+00:00" i.p.v. "Z").
+  let stamp = serverStamp;
   window.supabase = {
     createClient: () => ({
       from: () => {
@@ -61,11 +64,15 @@ async function boot({ serverRow = null, seedLocal = {}, pushFails = false,
             if (selectErrorFrom && calls.selects >= selectErrorFrom) {
               return Promise.resolve({ error: { message: "JWT expired" } });
             }
-            return Promise.resolve({ data: serverRow ? [{ data: serverRow, updated_at: serverStamp }] : [] });
+            return Promise.resolve({ data: serverRow ? [{ data: serverRow, updated_at: stamp }] : [] });
           } }),
           upsert: row => {
             calls.upserts.push(row);
-            return pushFails ? Promise.resolve({ error: { message: "network" } }) : Promise.resolve({ error: null });
+            if (!pushFails) stamp = String(row.updated_at).replace(/Z$/, "+00:00");
+            // .upsert(...).select() geeft de rij terug zoals de server hem opslaat.
+            return { select: () => Promise.resolve(pushFails
+              ? { error: { message: "network" } }
+              : { data: [{ updated_at: stamp }], error: null }) };
           }
         };
       },
@@ -207,6 +214,37 @@ console.log("attentinus/boot.js — sync-gedrag\n");
   await tick(1700);
   check("de server wordt niet overschreven", a.calls.upserts.length, 0);
   check("het conflict is zichtbaar voor de app", a.window.__gmAttent.conflict(), true);
+  // Uitweg: 'deze lijst' neemt de geziene serverstempel over en pusht meteen.
+  a.window.__gmAttent.keepMine();
+  await tick();
+  check("'deze lijst' pusht de lokale lijst alsnog", lastPushed(a.calls), "[]");
+  check("conflict weg, niets meer open", [a.window.__gmAttent.conflict(), a.raw(DIRTY)], [false, null]);
+}
+
+// ------------------------------------------ twee wijzigingen op een rij ----
+{
+  console.log("\ntwee wijzigingen in één sessie: de eigen stempel is geen conflict");
+  const a = await boot({ serverRow: { [KEY]: J(ANNA) }, serverStamp: "2026-08-21T09:00:00+00:00" });
+  a.write(ANNA_BOB);
+  await tick(1700);
+  check("eerste wijziging gepusht", a.calls.upserts.length, 1);
+  a.write(ANNA);
+  await tick(1700);
+  check("tweede wijziging ook gepusht", a.calls.upserts.length, 2);
+  check("geen conflict", a.window.__gmAttent.conflict(), false);
+  check("niets meer open", a.raw(DIRTY), null);
+  check("bewaarde stempel is de serverstring", a.raw(STAMP)?.endsWith("+00:00"), true);
+}
+
+// ------------------------------------------ toevoegen en meteen weer weg -----
+{
+  console.log("\nwijziging die zichzelf opheft laat niets openstaan");
+  const a = await boot({ serverRow: { [KEY]: J(ANNA) } });
+  a.write(ANNA_BOB);
+  a.write(ANNA);
+  await tick(1700);
+  check("niets gepusht", a.calls.upserts.length, 0);
+  check("en niets open", a.raw(DIRTY), null);
 }
 
 console.log(`\n${failures ? `${failures} FAIL` : "alles ok"}`);

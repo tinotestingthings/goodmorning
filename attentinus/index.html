@@ -550,7 +550,14 @@
     // naar de achtergrond voordat de push wegkwam). Blijft dit staan, dan loopt
     // dit apparaat uit de pas — beter zichtbaar dan stil.
     if (H.conflict && H.conflict()) {
-      foot.appendChild(el("div", null, "⚠️ Op dit apparaat én ergens anders is iets gewijzigd sinds de laatste sync. Om niets te wissen is de sync gepauzeerd — controleer je lijst hier en op je andere apparaat."));
+      foot.appendChild(el("div", null, "⚠️ Op dit apparaat én ergens anders is iets gewijzigd sinds de laatste sync. Om niets te wissen is de sync gepauzeerd. Kies welke lijst blijft:"));
+      // Guards: een verse index.html kan nog even met een gecachte oude boot.js draaien.
+      var row = el("div", "io-btns");
+      var mine = el("button", "btn ghost", "Deze lijst (dit apparaat)");
+      mine.onclick = function () { if (H.keepMine) H.keepMine(); };
+      var theirs = el("button", "btn ghost", "De andere lijst");
+      theirs.onclick = function () { if (H.takeServer && confirm("Wat je hier sinds de laatste sync hebt gewijzigd gaat dan verloren. Doorgaan?")) H.takeServer(); };
+      row.appendChild(mine); row.appendChild(theirs); foot.appendChild(row);
     } else if (H.pending && H.pending()) {
       foot.appendChild(el("div", null, "⏳ Nog niet gesynct — je wijziging staat veilig op dit apparaat en gaat vanzelf mee zodra er verbinding is."));
     }

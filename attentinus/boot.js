@@ -59,6 +59,17 @@
   // state eroverheen duwen.
   var STAMP_KEY = NS + "__attentinus_seen";
   function storedStamp() { try { return oGet.call(localStorage, STAMP_KEY) || ""; } catch (e) { return ""; } }
+  // De updated_at die de laatste select teruggaf; keepMine neemt die over.
+  var srvSeen = "";
+  // Eén plek voor de conflictvraag (push én pull): staat hier iets open terwijl
+  // de server al verder is dan de stempel die wij voor het laatst zagen?
+  // Stempels zijn altijd de letterlijke serverstring (zie de upsert), dus een
+  // gewone vergelijking volstaat.
+  function serverMoved(row) {
+    srvSeen = (row && row.updated_at) || "";
+    var seen = storedStamp();
+    return !!(dirty && seen && srvSeen && srvSeen !== seen);
+  }
   function setStamp(v) { try { if (v) oSet.call(localStorage, STAMP_KEY, String(v)); else oRem.call(localStorage, STAMP_KEY); } catch (e) {} }
   function storedDirty() { try { return oGet.call(localStorage, DIRTY_KEY) === "1"; } catch (e) { return false; } }
   function setDirty(v) {
@@ -136,14 +147,20 @@
     if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
     var mine = snapshot();
     var cur = JSON.stringify(mine);
-    if (cur === lastPushed) return;
+    // Lokaal is al wat de server heeft (bv. toevoegen en meteen weer weghalen):
+    // dan staat er ook niets meer open.
+    if (cur === lastPushed) { if (dirty) setDirty(false); return; }
     pushing = true;
     SB.from(TABLE).select("data, updated_at").eq("user_id", userId).then(function (rd) {
+      // Terwijl deze select liep kan pull() een conflict hebben gezien of de
+      // gebruiker 'de andere lijst' hebben gekozen: dan niets meer wegsturen.
+      if (conflict) { pushing = false; return; }
       // supabase-js *resolvet* met {error} bij een gewone HTTP-fout — dit is
       // dus de normale faalroute, niet de zeldzame. Zonder retryLater() blijft
       // de wijziging hier hangen zonder dat er ooit nog iets probeert.
       if (rd && rd.error) { pushing = false; warn("push read", rd.error.message); retryLater(); return; }
-      var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
+      var row = rd && rd.data && rd.data.length ? rd.data[0] : null;
+      var merged = (row && row.data) ? row.data : {};
       // VANGNET: nooit een lege lokale state over echte serverdata heen laten gaan.
       var _srvHas = Object.keys(merged).some(function (key) { return isPhysical(key) && !blankVal(merged[key]); });
       var _locHas = Object.keys(mine).some(function (key) { return !blankVal(mine[key]); });
@@ -156,8 +173,7 @@
       if (_srvHas && !_locHas && !storedDirty()) { pushing = false; warn("refusing to push empty local state over existing server data"); return; }
       // De server is opgeschoten sinds onze laatste geslaagde sync terwijl wij
       // nog iets open hebben staan: allebei gewijzigd. Niets overschrijven.
-      var srvStamp = (rd && rd.data && rd.data.length && rd.data[0].updated_at) || "";
-      if (dirty && storedStamp() && srvStamp && srvStamp !== storedStamp()) {
+      if (serverMoved(row)) {
         pushing = false; conflict = true;
         warn("conflict: server is nieuwer dan onze laatste sync — niet pushen");
         try { if (window.__gmAttent && window.__gmAttent.onchange) window.__gmAttent.onchange(); } catch (e) {}
@@ -166,12 +182,16 @@
       Object.keys(merged).forEach(function (key) { if (isPhysical(key)) delete merged[key]; });
       Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
       var stamp = new Date().toISOString();
-      SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: stamp }, { onConflict: "user_id" })
+      // .select(): de stempel bewaren zoals de SERVER hem teruggeeft
+      // ("...+00:00"), niet onze eigen toISOString() ("...Z"). Zelfde moment,
+      // andere string — en de volgende select moet er letterlijk aan gelijk
+      // zijn, anders meldt elke tweede wijziging een nep-conflict.
+      SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: stamp }, { onConflict: "user_id" }).select("updated_at")
         .then(function (res) {
                 pushing = false;
                 if (res && res.error) { warn("push", res.error.message); retryLater(); return; }
                 lastPushed = cur;
-                setStamp(stamp);
+                setStamp((res && res.data && res.data[0] && res.data[0].updated_at) || "");
                 // Alleen schoonmelden als er ondertussen niets nieuws bij kwam.
                 retryWait = RETRY_MS;
                 if (JSON.stringify(snapshot()) === cur) setDirty(false); else schedulePush();
@@ -208,13 +228,12 @@
       // tabblad afknipte), dan is lokaal leidend en duwen we die alsnog omhoog.
       // We leiden hier niets af uit "leeg" — we handelen op een aantoonbare,
       // eerder vastgelegde schrijfactie van de gebruiker.
-      var srvStamp = (row && row.updated_at) || "";
       // Allebei veranderd sinds onze laatste geslaagde sync: lokaal houden,
       // server met rust laten, en het zeggen. Anders zou een telefoon met een
       // oude openstaande wijziging een week aan invoer op de laptop wissen.
-      conflict = !!(dirty && storedStamp() && srvStamp && srvStamp !== storedStamp());
+      conflict = serverMoved(row);
       if (row && row.data && !dirty && (lastPushed === null || cur === lastPushed)) {
-        seed(row.data); lastPushed = JSON.stringify(snapshot()); setStamp(srvStamp);
+        seed(row.data); lastPushed = JSON.stringify(snapshot()); setStamp(srvSeen);
       }
       try { if (window.__gmAttent && window.__gmAttent.onchange) window.__gmAttent.onchange(); } catch (e) {}
       if (dirty && !conflict) schedulePush();
@@ -243,6 +262,17 @@
     if (ran) return; ran = true;
     window.__gmAttent = { userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, syncReason: syncReason, demo: DEMO,
                           pending: function () { return dirty; }, conflict: function () { return conflict; },
+                          // Uitweg uit een echt conflict — anders zit een apparaat voorgoed vast.
+                          // keepMine: de serverversie die we zagen geldt als gezien, dus de push gaat
+                          // door; verandert de server daarna wéér, dan botst het gewoon opnieuw.
+                          keepMine: function () { conflict = false; setStamp(srvSeen); lastPushed = null; setDirty(true); flush(); },
+                          // takeServer: lokaal weggooien, na de herstart seedt de boot-pull de server.
+                          // conflict blijft aan zodat de unload-flush niets meer wegstuurt.
+                          takeServer: function () {
+                            conflict = true;
+                            Object.keys(snapshot()).forEach(function (key) { oRem.call(localStorage, key); });
+                            setDirty(false); location.reload();
+                          },
                           onchange: null };
     var code = document.getElementById("gm-app-code");
     if (!code) { warn("app code element missing"); return; }
