@@ -64,8 +64,8 @@ function modeView(ctx) {
     },
     {
       glyph: "★", cls: "rose", title: "Examenstand",
-      sub: "10 vragen achter elkaar, uitleg pas onderweg",
-      start: () => startSession(ctx, { title: "Examenstand", size: 10 })
+      sub: "10 vragen, 3 opties (A/B/C) zoals op het echte examen",
+      start: () => startSession(ctx, { title: "Examenstand", mode: "exam", size: 10 })
     },
     {
       glyph: "↗", cls: "blue", title: "Zwakke plekken",
@@ -131,12 +131,19 @@ function currentQuestion() {
 // De volgorde van de antwoorden staat vast in de vragenbank. Zou de app die
 // één op één tonen, dan hoort bij een vraag altijd dezelfde letter en kun je
 // met spaced repetition de plék onthouden in plaats van de stof. Daarom krijgt
-// elke vraag per sessie een eigen, geschudde volgorde — zoals op een echt
-// examen. Waar/niet-waar blijft staan: daar is "Waar" altijd de eerste keuze.
+// elke vraag per sessie een eigen, geschudde volgorde. In de examenstand tonen
+// we bovendien maar drie opties (de juiste plus twee afleiders): het echte
+// SDEN 2-examen is meerkeuze met A/B/C. Waar/niet-waar blijft staan: daar is
+// "Waar" altijd de eerste keuze.
 function viewFor(q) {
   if (q.type === "truefalse") return { options: q.options, answer: q.answer };
   if (!session.views[q.id]) {
-    const order = q.options.map((_, i) => i);
+    let order = q.options.map((_, i) => i);
+    if (session.mode === "exam" && order.length === 4) {
+      const distractors = order.filter((i) => i !== q.answer);
+      distractors.splice(Math.floor(Math.random() * distractors.length), 1);
+      order = [q.answer, ...distractors];
+    }
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [order[i], order[j]] = [order[j], order[i]];
@@ -275,10 +282,15 @@ function resultView(ctx) {
   const n = session.ids.length;
   const good = session.correctCount;
   const xpGained = good * 12 + (n - good) * 3;
+  // Het echte SDEN 2-examen: 50 vragen, geslaagd bij 30 goed (60%).
+  const exam = session.mode === "exam";
+  const passed = good / n >= 0.6;
   const el = h("section", { class: "page practice-page" },
     h("section", { class: "quiz-result" },
-      h("div", { class: "result-medal" }, "★"),
-      h("span", { class: "card-kicker dark" }, "Sessie afgerond"),
+      h("div", { class: "result-medal" }, exam ? (passed ? "✓" : "×") : "★"),
+      h("span", { class: "card-kicker dark" }, exam
+        ? (passed ? "Geslaagd — op het echte examen is 60% de grens" : "Gezakt — op het echte examen is 60% de grens")
+        : "Sessie afgerond"),
       h("h1", null, `${good} van ${n} goed`),
       h("p", null, "Je antwoorden zijn verwerkt in je persoonlijke herhaalplanning."),
       h("div", { class: "result-stats" },

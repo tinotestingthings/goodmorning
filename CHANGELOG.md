@@ -2,6 +2,22 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (2e) — WijnWijs: lesstof De Proefacademie verwerkt, examenstand nu examenecht (gerichte promote)
+
+Tinus leverde de cursuspresentaties (les 1-5), het officiele SDEN 2-
+oefenexamen 2019 en de proeflijst 2026 aan. Belangrijkste vondst: het echte
+examen is meerkeuze met DRIE opties (A/B/C), 50 vragen, geslaagd bij 60%.
+De examenstand toont daarom nu 3 opties en zegt geslaagd/gezakt op die
+grens; gewone oefenmodi houden 4 opties (strenger dan het examen).
+
+Bank 410 -> 476: nieuwe module questions-sden2-les.js met 66 vragen
+rechtstreeks uit de lesstof (eigen formulering; het examenboekje kent een
+publicatieverbod), getagd per lesavond en toetsterm. Drie bestaande vragen
+gecorrigeerd na lesvergelijk (mousserend 7-9 graden, wijnstokcyclus in
+lesterminologie, drie rosemethoden). Lesmateriaal zelf staat lokaal in
+_sden2-lesmateriaal/ (gitignored). Tests naar 23, alles groen. Gerichte
+promote van alleen wine/ + .gitignore; geen cache-bump (network-first).
+
 ## 2026-08-21 (v2026.08.21-4) — ChordSprint: het Sound Lab werkt nu echt (sliders + hammer-klik, incl. code-review-fixes). Events: Amsterdam-regio erbij en missende festivals toegevoegd (o.a. het Bockbierfestival)
 
 ## 2026-08-21 — Event Tracker: maansverduistering van 28 augustus, het Fortenfestival en de Louis Hartlooper Prijs erbij
