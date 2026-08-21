@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (v2026.08.21-4) — ChordSprint: het Sound Lab werkt nu echt (sliders + hammer-klik, incl. code-review-fixes). Events: Amsterdam-regio erbij en missende festivals toegevoegd (o.a. het Bockbierfestival)
+
+
 ## 2026-08-21 (v2026.08.21-3) — Calendar → History: alles wat je logde kun je met één knop terugdraaien. NoteSprint blijft werken zonder internet en synct je oefenwerk zodra je weer online bent
 
 
