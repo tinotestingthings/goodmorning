@@ -4,6 +4,19 @@ Newest first. One line per deploy to the live root.
 
 ## 2026-08-21 (v2026.08.21-4) — ChordSprint: het Sound Lab werkt nu echt (sliders + hammer-klik, incl. code-review-fixes). Events: Amsterdam-regio erbij en missende festivals toegevoegd (o.a. het Bockbierfestival)
 
+## 2026-08-21 — Event Tracker: maansverduistering van 28 augustus, het Fortenfestival en de Louis Hartlooper Prijs erbij
+
+Wekelijkse catalogusronde. Drie nieuwe events, alle drie tegen de officiële bron
+geverifieerd. De gedeeltelijke maansverduistering van 28 augustus (umbra vanaf
+ca. 04:33, maximum rond 06:12 CEST, 93% van de maan in de schaduw, maan gaat
+onder vóór het einde) — vlak na de zonsverduistering van 12 augustus en
+ditmaal zonder filters te bekijken. Het Fortenfestival 5 t/m 13 september, waarin
+de forten en bunkers van de UNESCO Hollandse Waterlinies opengaan en dat afsluit
+tijdens het 40e Open Monumentenweekend. En de uitreiking van de Louis Hartlooper
+Prijs op zaterdag 26 september in LHC, gratis maar op reservering, midden in de
+NFF-week die al in de catalogus stond. Dune: Part Three staat nog steeds op
+18 december 2026 — niets veranderd, dus niets aangeraakt. Kinepolis Utrecht was
+opnieuw niet uitleesbaar en blijft op "Warning" met nul records. Cache v67->v68.
 
 ## 2026-08-21 (v2026.08.21-3) — Calendar → History: alles wat je logde kun je met één knop terugdraaien. NoteSprint blijft werken zonder internet en synct je oefenwerk zodra je weer online bent
 

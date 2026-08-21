@@ -35,6 +35,7 @@ const sourceUrls: Record<string, string> = {
   museumnacht: "https://museumnacht.amsterdam/",
   lightfestival: "https://amsterdamlightfestival.com/",
   festivalinfo: "https://www.festivalinfo.nl/",
+  hollandsewaterlinies: "https://www.hollandsewaterlinies.nl/nl/dit-kun-je-doen/activiteiten/fortenfestival",
 };
 const src = (id: string, name: string, firstSeenAt: string, url = sourceUrls[id]) => ({ id, name, firstSeenAt, url });
 
@@ -165,6 +166,22 @@ const core: EventRecord[] = [
     primaryCategory: "Music", tags: ["music", "festival", "free", "tradition"], priceLabel: "Free", isFree: true, relevance: 68, rarity: 66, preparation: 10, urgency: 45,
     whyRelevant: "A Utrecht tradition: choirs singing smartlappen through the city-centre pubs \u2014 zero planning, just walk in.", whyNow: "The 34th edition is confirmed for 13\u201315 November 2026.", recommendedAction: "Wander through the binnenstad that weekend", state: "unseen", discoveredAt: "2026-08-21", accent: "coral",
     sources: [src("smartlappen", "Utrechts Smartlappenfestival \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "lunar-eclipse-2026-08-28", title: "Partial Lunar Eclipse at dawn \u2014 visible from Utrecht", shortDescription: "A deep partial lunar eclipse (magnitude 0.93) in the early morning of 28 August; from the Netherlands almost the whole run is visible low in the west before the Moon sets.",
+    startAt: "2026-08-28T04:33:00+02:00", endAt: "2026-08-28T06:13:00+02:00", venueName: "Western horizon before sunrise", city: "Utrecht", region: "Utrecht", country: "Netherlands", latitude: 52.0907, longitude: 5.1214, distanceKm: 0,
+    primaryCategory: "Astronomy", tags: ["astronomy", "eclipse", "rare", "free", "dawn"], priceLabel: "Free", isFree: true, relevance: 88, rarity: 84, preparation: 28, urgency: 95,
+    whyRelevant: "The second eclipse visible from Utrecht in a fortnight \u2014 and unlike the solar one, a lunar eclipse needs no filters, just a clear view low to the west.", whyNow: "The umbral phase starts around 04:33 and greatest eclipse is at about 06:12 CEST, with 93% of the Moon in Earth's shadow; the Moon sets around that moment from the Netherlands, so the ending is cut off.", recommendedAction: "Check the local timings and find a spot with a clear western horizon", state: "unseen", discoveredAt: "2026-08-21", accent: "violet",
+    sources: [src("timeanddate-lunar-2026", "Time and Date \u2014 28 August 2026 lunar eclipse in the Netherlands", "2026-08-21", "https://www.timeanddate.com/eclipse/in/netherlands?iso=20260828"), src("natgeo-nl-2026", "National Geographic NL \u2014 sky events of 2026", "2026-08-21", "https://www.nationalgeographic.nl/natuur-leefomgeving/a69698625/spectaculairste-hemelverschijnselen-2026")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "fortenfestival-2026", title: "Fortenfestival 2026 \u2014 Hollandse Waterlinies", shortDescription: "Nine days in which forts, fortified towns and bunkers of the UNESCO World Heritage Hollandse Waterlinies open their doors \u2014 tours, music, theatre, boat trips and art on sites that are normally shut.",
+    startAt: "2026-09-05T00:00:00+02:00", endAt: "2026-09-13T23:59:00+02:00", venueName: "Forts and fortified towns across the Hollandse Waterlinies", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 8,
+    primaryCategory: "Culture", tags: ["culture", "heritage", "unusual-access", "unesco", "forts", "outdoors"], priceLabel: "Varies per fort; much of it free during the closing Open Monumentenweekend", isFree: false, relevance: 86, rarity: 87, preparation: 45, urgency: 80,
+    whyRelevant: "The province of Utrecht sits in the middle of the waterline \u2014 33 forts, 71 water works and hundreds of shelters \u2014 and this is the one stretch of the year when the normally closed ones let people in.", whyNow: "The 2026 edition runs 5 through 13 September and closes during the 40th Open Monumentenweekend on 12\u201313 September, when many forts are free to enter; each location publishes its own programme and some need reservations.", recommendedAction: "Browse the per-fort programme and check which sites need booking", state: "unseen", discoveredAt: "2026-08-21", accent: "forest",
+    sources: [src("hollandsewaterlinies", "Hollandse Waterlinies \u2014 official Fortenfestival page", "2026-08-21", "https://www.hollandsewaterlinies.nl/nl/dit-kun-je-doen/activiteiten/fortenfestival"), src("ontdek", "Ontdek Utrecht \u2014 Fortenfestival", "2026-08-21", "https://www.ontdek-utrecht.nl/event/49908/fortenfestival")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
   }
 ];
 
