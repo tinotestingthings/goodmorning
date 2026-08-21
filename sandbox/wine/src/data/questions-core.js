@@ -300,16 +300,16 @@ export const QUESTIONS_CORE = [
       "SDEN 2"
     ],
     "type": "multiple",
-    "prompt": "Welke volgorde van ontwikkelingsfasen van de wijnstok is juist?",
+    "prompt": "Welke volgorde uit de jaarlijkse cyclus van de wijnstok is juist?",
     "options": [
-      "Bloei, uitbotten, kleuromslag, vruchtzetting",
-      "Vruchtzetting, bloei, uitbotten, rijping",
-      "Uitbotten, bloei, vruchtzetting, kleuromslag",
-      "Kleuromslag, uitbotten, bloei, vruchtzetting"
+      "Bloei, knoppen, oogst, kleuromslag",
+      "Kleuromslag, bloei, bladvorming, rust",
+      "Knoppen, bloei, kleuromslag, rijping en oogst",
+      "Rust, kleuromslag, knoppen, bloei"
     ],
     "answer": 2,
-    "explanation": "Na het uitbotten volgt de bloei, daarna de vruchtzetting en later de kleuromslag aan het begin van de rijping.",
-    "misconception": "Vruchtzetting kan pas na de bloei plaatsvinden; kleuromslag komt weer later in het groeiseizoen.",
+    "explanation": "De lescyclus loopt: knoppen, bladvorming, bloei, groei en kleuromslag, rijping en oogst, en ten slotte winterrust.",
+    "misconception": "Na de bloei ontwikkelen bevruchte bloemen zich tot kleine druiven; de kleuromslag markeert daarna het begin van de rijping, waarna de stok in winterrust gaat.",
     "tags": [
       "sden-2a.2",
       "jaarcyclus",
@@ -540,7 +540,7 @@ export const QUESTIONS_CORE = [
     ],
     "answer": 0,
     "explanation": "Bij de meest gebruikte methode geven blauwe schillen tijdens een kort schilcontact een beperkte hoeveelheid kleur af.",
-    "misconception": "Rosé wordt meestal niet gemaakt door afgewerkte rode en witte wijn te mengen; kort schilcontact is gebruikelijker.",
+    "misconception": "De les noemt drie manieren voor ros\u00e9: direct persen, bloeden (kort schilcontact aftappen) of mengen van rode en witte wijn, zoals bij ros\u00e9 Champagne.",
     "tags": [
       "sden-3a.2",
       "rose",

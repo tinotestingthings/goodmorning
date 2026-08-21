@@ -1837,9 +1837,9 @@ export const QUESTIONS_EXTRA = [
   {
     id: "q-sden2-353",
     prompt: "Welke serveertemperatuur past het beste bij mousserende wijn?",
-    options: ["Ongeveer 16 tot 18 graden", "Ongeveer 6 tot 8 graden", "Kamertemperatuur", "Ongeveer 12 tot 14 graden"],
+    options: ["Ongeveer 16 tot 18 graden", "Ongeveer 7 tot 9 graden", "Kamertemperatuur", "Ongeveer 12 tot 15 graden"],
     answer: 1,
-    explanation: "Goed gekoeld blijft de mousse fijner en langer bruisen en komt de frisheid het beste tot zijn recht.",
+    explanation: "Volgens de lestabel serveer je mousserende wijn op 7 tot 9 graden: recht uit de koelkast. Goed gekoeld blijft de mousse fijn en fris.",
     misconception: "Te warm geschonken schuimt mousserende wijn sterk over en verliest hij zijn verfijning.",
     topic: "Proeven en behandelen van wijn",
     level: ["SDEN 2"],

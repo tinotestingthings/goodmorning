@@ -27,10 +27,10 @@ function baseState(extra = {}) {
 
 // ---- vragenbank ----
 
-test("bank: 410 vragen, unieke ids, geldige answer-index", () => {
-  assert.equal(QUESTIONS.length, 410);
+test("bank: 476 vragen, unieke ids, geldige answer-index", () => {
+  assert.equal(QUESTIONS.length, 476);
   const ids = new Set(QUESTIONS.map((q) => q.id));
-  assert.equal(ids.size, 410);
+  assert.equal(ids.size, 476);
   for (const q of QUESTIONS) {
     assert.ok(q.answer >= 0 && q.answer < q.options.length, q.id);
     assert.ok(q.type !== "truefalse" || q.options.length === 2, q.id);
@@ -90,6 +90,15 @@ test("bank: elke vraag heeft uitleg en een misvatting", () => {
   for (const q of QUESTIONS) {
     assert.ok(q.explanation && q.explanation.length > 20, `${q.id} mist uitleg`);
     assert.ok(q.misconception && q.misconception.length > 20, `${q.id} mist misconception`);
+  }
+});
+
+test("bank: elke lesstof-vraag draagt een les-tag en een toetsterm", () => {
+  const les = QUESTIONS.filter((q) => Number(String(q.id).replace("q-sden2-", "")) >= 401);
+  assert.ok(les.length >= 60, "lesstof-module ontbreekt");
+  for (const q of les) {
+    assert.ok((q.tags || []).some((t) => /^les-[1-5]$/.test(t)), `${q.id} mist les-tag`);
+    assert.ok((q.tags || []).some((t) => /^sden-/.test(t)), `${q.id} mist toetsterm`);
   }
 });
 
@@ -183,7 +192,7 @@ test("displayStreak: gebroken streak toont 0", () => {
 
 // ---- eerlijke statistieken ----
 
-test("coverage: 10 beantwoorde vragen op 410 is 2%, niet 100%", () => {
+test("coverage: 10 beantwoorde vragen op 476 is 2%, niet 100%", () => {
   const reviews = {};
   QUESTIONS.slice(0, 10).forEach((q) => {
     reviews[q.id] = { repetitions: 1, interval: 1, ease: 2.5, due: today, correct: 1, wrong: 0 };
