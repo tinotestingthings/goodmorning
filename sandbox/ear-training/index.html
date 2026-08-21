@@ -133,11 +133,11 @@
             </div></div>
           </div>
           <div class="split" style="margin-top:10px"><button class="btn" id="previewSoundBtn">▶ Preview progression</button><button class="btn ghost" id="resetSoundBtn">Reset sound to Default</button></div>
-          <p class="small">Default is the warm-deep sound without the hammer/hitting noise.</p>
+          <p class="small">Default is the warm-deep sound; the hammer/hitting noise only plays if you switch it on in the Sound lab.</p>
         </div>
         <div class="settingsSection">
           <div class="label">Sound lab</div>
-          <p class="small">Fine-tune the instrument. Each slider is a percentage of the normal value; "Set neutral" puts every slider back to 100%.</p>
+          <p class="small">Fine-tune the instrument. Each slider is a percentage of the normal value; "Set neutral" puts every slider back to 100% and switches the hammer off.</p>
           <div id="soundLab"></div>
         </div>
       </div>
@@ -437,6 +437,17 @@ let inKeyLevelMenuOpen=false;
 let phraseOverrides=loadPhraseOverrides();
 if(!['chords','tones'].includes(playbackMode)) playbackMode='chords';
 const defaultSoundTweak={volume:100,brightness:100,attack:100,decay:100,body:100,sparkle:100,hammer:100,width:100,hammerOn:false};
+const SOUND_TWEAK_ROWS=[
+ ['volume','Volume','Overall loudness',50,150,'%'],
+ ['brightness','Brightness','Filter and hammer brightness',50,180,'%'],
+ ['attack','Attack','Lower = sharper hit, higher = softer start',40,220,'%'],
+ ['decay','Decay / length','How long chords ring out',50,180,'%'],
+ ['body','Body','Fundamental / low warmth',40,180,'%'],
+ ['sparkle','Sparkle','Upper harmonics',20,200,'%'],
+ ['hammer','Hammer hit','Percussive piano click',0,220,'%'],
+ ['width','Width / detune','Stereo-ish chorus/detune amount',0,220,'%']
+];
+const SOUND_TWEAK_RANGE=Object.fromEntries(SOUND_TWEAK_ROWS.map(([k,name,desc,min,max])=>[k,[min,max]]));
 let soundTweak=loadSoundTweak();
 let stats=JSON.parse(localStorage.getItem('cpt_stats')||'{"score":0,"streak":0,"best":0,"attempts":0,"correct":0}');
 let targetStats=loadTargetStats();
@@ -726,22 +737,12 @@ function renderHomeModes(){
     box.appendChild(list);
   }
 }
-function loadSoundTweak(){try{const saved=JSON.parse(localStorage.getItem('cpt_soundTweak')||'null');return {...defaultSoundTweak,...(saved||{})}}catch(e){return {...defaultSoundTweak}}}
+// Junk or out-of-range values in localStorage are repaired here, at the single entry point,
+// so storage, sliders and audio always agree; a NaN reaching an AudioParam throws.
+function loadSoundTweak(){try{const saved=JSON.parse(localStorage.getItem('cpt_soundTweak')||'null');const t={...defaultSoundTweak,...(saved||{})};for(const k in SOUND_TWEAK_RANGE){const[min,max]=SOUND_TWEAK_RANGE[k];t[k]=(typeof t[k]==='number'&&isFinite(t[k]))?Math.min(max,Math.max(min,t[k])):100}t.hammerOn=t.hammerOn===true;return t}catch(e){return {...defaultSoundTweak}}}
 function saveSoundTweak(){localStorage.setItem('cpt_soundTweak',JSON.stringify(soundTweak))}
-const SOUND_TWEAK_ROWS=[
- ['volume','Volume','Overall loudness',50,150,'%'],
- ['brightness','Brightness','Filter and hammer brightness',50,180,'%'],
- ['attack','Attack','Lower = sharper hit, higher = softer start',40,220,'%'],
- ['decay','Decay / length','How long chords ring out',50,180,'%'],
- ['body','Body','Fundamental / low warmth',40,180,'%'],
- ['sparkle','Sparkle','Upper harmonics',20,200,'%'],
- ['hammer','Hammer hit','Percussive piano click',0,220,'%'],
- ['width','Width / detune','Stereo-ish chorus/detune amount',0,220,'%']
-];
-const SOUND_TWEAK_RANGE=Object.fromEntries(SOUND_TWEAK_ROWS.map(([k,name,desc,min,max])=>[k,[min,max]]));
 // Sliders are percentages of the normal value; tw() is the multiplier the audio graph uses.
-// Clamped to the slider range and guarded against junk in localStorage: a NaN here throws on AudioParam.
-function tw(n){const v=soundTweak[n];if(typeof v!=='number'||!isFinite(v))return 1;const r=SOUND_TWEAK_RANGE[n];return (r?Math.min(r[1],Math.max(r[0],v)):v)/100}
+function tw(n){const v=soundTweak[n];return (typeof v==='number'&&isFinite(v))?v/100:1}
 function renderSoundLab(){const lab=$('soundLab');if(!lab)return;const rows=SOUND_TWEAK_ROWS;lab.innerHTML=rows.map(([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`).join('')+`<div class="soundToggle"><button class="btn ${soundTweak.hammerOn?'active':''}" id="hammerToggleBtn">${soundTweak.hammerOn?'✓ ':''}Hammer on</button><button class="btn" id="neutralSoundBtn">Set neutral</button></div>`;document.querySelectorAll('[data-soundtweak]').forEach(inp=>inp.oninput=()=>{soundTweak[inp.dataset.soundtweak]=+inp.value;saveSoundTweak();$('soundVal_'+inp.dataset.soundtweak).textContent=inp.value+'%'});$('hammerToggleBtn').onclick=()=>{soundTweak.hammerOn=!soundTweak.hammerOn;saveSoundTweak();renderSoundLab();playRoot()};$('neutralSoundBtn').onclick=()=>{soundTweak={...defaultSoundTweak};saveSoundTweak();renderSoundLab();playRoot()}}
 function renderSettings(){
   document.querySelectorAll('[data-practice-type]').forEach(b=>b.classList.toggle('active',b.dataset.practiceType===practiceType));
@@ -1063,16 +1064,17 @@ function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||wind
 function stopAudio(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[]}
 function connectThroughFilter(node,filterFreq=null){if(filterFreq){const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=filterFreq;f.Q.value=.45;node.connect(f);f.connect(highPass);return f}node.connect(highPass);return node}
 function pianoVoice(freq,start,dur,gain,detune,harmonic,type='triangle',attack=.004,decay=.08,sustain=.08,filterFreq=null){const g=audioCtx.createGain(),o=audioCtx.createOscillator();const harmonicBoost=harmonic<=1?tw('body'):tw('sparkle');gain*=tw('volume')*harmonicBoost;dur*=tw('decay');attack*=tw('attack');decay*=tw('attack');detune*=tw('width');if(filterFreq)filterFreq*=tw('brightness');o.type=type;o.frequency.value=freq*harmonic;o.detune.value=detune;g.gain.setValueAtTime(.00001,start);g.gain.exponentialRampToValueAtTime(Math.max(gain,.00002),start+attack);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain,.00002),start+decay);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain*.42,.00002),start+Math.min(dur*.55,dur-.04));g.gain.exponentialRampToValueAtTime(.00001,start+dur);o.connect(g);connectThroughFilter(g,filterFreq);o.start(start);o.stop(start+dur+.08);activeAudioNodes.push(o)}
-// Level of the hammer click at 100%, measured against the note it sits under: the .012 this
-// used to default to was ~24x below the tone, i.e. inaudible once it was wired back up.
-const HAMMER_GAIN=.08;
-function hammerClick(start,gain=HAMMER_GAIN,frequency=3600,dur=.018){if(!soundTweak.hammerOn)return;gain*=tw('hammer')*tw('volume');frequency*=tw('brightness');const buffer=audioCtx.createBuffer(1,Math.floor(audioCtx.sampleRate*dur),audioCtx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.8);const src=audioCtx.createBufferSource(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=frequency;f.Q.value=1.4;g.gain.value=gain;src.buffer=buffer;src.connect(f);f.connect(g);g.connect(highPass);src.start(start);activeAudioNodes.push(src)}
+// Hammer level ≈0.8x the gain of the note it sits under: the .012 this used to default to
+// was ~24x below the tone, i.e. inaudible once it was wired back up.
+const HAMMER_TO_TONE=.8;
+let hammerNoiseBuf=null; // fixed dur x fixed ctx sample rate → bit-identical every call, build once
+function hammerClick(start,gain,frequency=3600,dur=.018){if(!soundTweak.hammerOn)return;gain*=tw('hammer')*tw('volume');frequency*=tw('brightness');if(!hammerNoiseBuf){hammerNoiseBuf=audioCtx.createBuffer(1,Math.floor(audioCtx.sampleRate*dur),audioCtx.sampleRate);const data=hammerNoiseBuf.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.8)}const src=audioCtx.createBufferSource(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=frequency;f.Q.value=1.4;g.gain.value=gain;src.buffer=hammerNoiseBuf;src.connect(f);f.connect(g);g.connect(highPass);src.start(start);activeAudioNodes.push(src)}
 function synthVoice(freq,start,dur,gain,type='sine',detune=0,attack=.01,decay=.12,sustain=.12,filterFreq=null){pianoVoice(freq,start,dur,gain,detune,1,type,attack,decay,sustain,filterFreq)}
 function pianoTone(freq,start,dur,gain=.1,retry){
   const p=validSounds.includes(soundProfile)?soundProfile:'default';
-  if(!retry)hammerClick(start,HAMMER_GAIN*(gain/.1));
+  if(!retry)hammerClick(start,gain*HAMMER_TO_TONE);
 
-  // Default: previous Warm Deep profile, but without the hammer/noise hit.
+  // Default: previous Warm Deep profile.
   if(p==='default'){
     pianoVoice(freq,start,dur*1.16,gain*.82,-4,1,'triangle',.009,.14,.155,4300);
     pianoVoice(freq,start+.002,dur*.95,gain*.105,-6,.5,'sine',.011,.18,.12,3600);
