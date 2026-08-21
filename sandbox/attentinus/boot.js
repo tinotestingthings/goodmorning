@@ -35,6 +35,8 @@
   var syncOff = false;      // true zolang de tabel onbruikbaar is: lokaal draaien
   var syncReason = null;    // "missing" (tabel bestaat niet) | "grant" (geen rechten)
   var dirty = false;        // er staat een bewuste lokale wijziging open die de server nog niet heeft
+  var pushing = false;      // er loopt een push: niet nog een keer beginnen
+  var conflict = false;     // lokaal én de server zijn allebei veranderd sinds de laatste sync
   var RETRY_MS = 8000;      // mislukte push opnieuw proberen i.p.v. stilletjes verliezen
   var RETRY_MAX_MS = 300000;// ...maar met oplopende pauze: een blijvende fout mag geen 8s-lus worden
   var retryWait = RETRY_MS;
@@ -51,6 +53,13 @@
   // wegswipet en gooit de request weg. De vlag staat buiten het gesyncte
   // key-bereik (geen isPhysical-match) en gaat dus zelf nooit mee de server op.
   var DIRTY_KEY = NS + "__attentinus_pending";
+  // De updated_at die we voor het laatst van de server zagen of er zelf op
+  // schreven. Zonder dit weet een apparaat met een openstaande wijziging niet
+  // of de server intussen is opgeschoten, en zou het blind zijn eigen (oude)
+  // state eroverheen duwen.
+  var STAMP_KEY = NS + "__attentinus_seen";
+  function storedStamp() { try { return oGet.call(localStorage, STAMP_KEY) || ""; } catch (e) { return ""; } }
+  function setStamp(v) { try { if (v) oSet.call(localStorage, STAMP_KEY, String(v)); else oRem.call(localStorage, STAMP_KEY); } catch (e) {} }
   function storedDirty() { try { return oGet.call(localStorage, DIRTY_KEY) === "1"; } catch (e) { return false; } }
   function setDirty(v) {
     dirty = !!v;
@@ -118,12 +127,22 @@
 
   function pushNow() {
     if (!SB || !userId || !ready || syncOff) return;
+    // Achtergrond en sluiten vuren allebei flush(); zonder deze guard gaan er
+    // per app-switch twee complete select+upsert-rondes de deur uit, en kan
+    // een oudere upsert ná een nieuwere landen.
+    if (pushing) return;
+    // Allebei veranderd: niet stilzwijgend een van beide kanten wissen.
+    if (conflict) return;
     if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
     var mine = snapshot();
     var cur = JSON.stringify(mine);
     if (cur === lastPushed) return;
-    SB.from(TABLE).select("data").eq("user_id", userId).then(function (rd) {
-      if (rd && rd.error) { warn("push read", rd.error.message); return; }
+    pushing = true;
+    SB.from(TABLE).select("data, updated_at").eq("user_id", userId).then(function (rd) {
+      // supabase-js *resolvet* met {error} bij een gewone HTTP-fout — dit is
+      // dus de normale faalroute, niet de zeldzame. Zonder retryLater() blijft
+      // de wijziging hier hangen zonder dat er ooit nog iets probeert.
+      if (rd && rd.error) { pushing = false; warn("push read", rd.error.message); retryLater(); return; }
       var merged = (rd && rd.data && rd.data.length && rd.data[0].data) ? rd.data[0].data : {};
       // VANGNET: nooit een lege lokale state over echte serverdata heen laten gaan.
       var _srvHas = Object.keys(merged).some(function (key) { return isPhysical(key) && !blankVal(merged[key]); });
@@ -134,21 +153,36 @@
       // Bewust storedDirty() en niet de variabele: wordt localStorage onder een
       // openstaand tabblad weggegooid (Safari-opruiming), dan verdwijnt de vlag
       // mee en valt het vangnet vanzelf weer dicht.
-      if (_srvHas && !_locHas && !storedDirty()) { warn("refusing to push empty local state over existing server data"); return; }
+      if (_srvHas && !_locHas && !storedDirty()) { pushing = false; warn("refusing to push empty local state over existing server data"); return; }
+      // De server is opgeschoten sinds onze laatste geslaagde sync terwijl wij
+      // nog iets open hebben staan: allebei gewijzigd. Niets overschrijven.
+      var srvStamp = (rd && rd.data && rd.data.length && rd.data[0].updated_at) || "";
+      if (dirty && storedStamp() && srvStamp && srvStamp !== storedStamp()) {
+        pushing = false; conflict = true;
+        warn("conflict: server is nieuwer dan onze laatste sync — niet pushen");
+        try { if (window.__gmAttent && window.__gmAttent.onchange) window.__gmAttent.onchange(); } catch (e) {}
+        return;
+      }
       Object.keys(merged).forEach(function (key) { if (isPhysical(key)) delete merged[key]; });
       Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
-      SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
+      var stamp = new Date().toISOString();
+      SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: stamp }, { onConflict: "user_id" })
         .then(function (res) {
+                pushing = false;
                 if (res && res.error) { warn("push", res.error.message); retryLater(); return; }
                 lastPushed = cur;
+                setStamp(stamp);
                 // Alleen schoonmelden als er ondertussen niets nieuws bij kwam.
                 retryWait = RETRY_MS;
                 if (JSON.stringify(snapshot()) === cur) setDirty(false); else schedulePush();
               },
-              function (err) { warn("push", (err && err.message) || err); retryLater(); });
-    }, function (err) { warn("push read", (err && err.message) || err); retryLater(); });
+              function (err) { pushing = false; warn("push", (err && err.message) || err); retryLater(); });
+    }, function (err) { pushing = false; warn("push read", (err && err.message) || err); retryLater(); });
   }
-  function schedulePush() { if (!ready) return; setDirty(true); if (pushTimer) clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, PUSH_DEBOUNCE_MS); }
+  // Een verse gebruikersactie of een terugkeer naar de voorgrond zet de
+  // backoff-ladder terug: die hoort opeenvolgende mislukkingen te volgen, niet
+  // hoe vaak je de app wegswipet.
+  function schedulePush() { if (!ready) return; setDirty(true); retryWait = RETRY_MS; if (pushTimer) clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, PUSH_DEBOUNCE_MS); }
   function retryLater() {
     if (!ready) return;
     if (pushTimer) clearTimeout(pushTimer);
@@ -161,7 +195,7 @@
 
   function pull(cb) {
     if (!SB || !userId) { cb && cb(); return; }
-    SB.from(TABLE).select("data").eq("user_id", userId).then(function (res) {
+    SB.from(TABLE).select("data, updated_at").eq("user_id", userId).then(function (res) {
       if (res && res.error) {
         var prob = tableProblem(res.error);
         if (prob) { syncOff = true; syncReason = prob; warn("tabel onbruikbaar (" + prob + ") — lokaal draaien:", res.error.message); cb && cb(true); return; }
@@ -174,8 +208,16 @@
       // tabblad afknipte), dan is lokaal leidend en duwen we die alsnog omhoog.
       // We leiden hier niets af uit "leeg" — we handelen op een aantoonbare,
       // eerder vastgelegde schrijfactie van de gebruiker.
-      if (row && row.data && !dirty && (lastPushed === null || cur === lastPushed)) { seed(row.data); lastPushed = JSON.stringify(snapshot()); }
-      if (dirty) schedulePush();
+      var srvStamp = (row && row.updated_at) || "";
+      // Allebei veranderd sinds onze laatste geslaagde sync: lokaal houden,
+      // server met rust laten, en het zeggen. Anders zou een telefoon met een
+      // oude openstaande wijziging een week aan invoer op de laptop wissen.
+      conflict = !!(dirty && storedStamp() && srvStamp && srvStamp !== storedStamp());
+      if (row && row.data && !dirty && (lastPushed === null || cur === lastPushed)) {
+        seed(row.data); lastPushed = JSON.stringify(snapshot()); setStamp(srvStamp);
+      }
+      try { if (window.__gmAttent && window.__gmAttent.onchange) window.__gmAttent.onchange(); } catch (e) {}
+      if (dirty && !conflict) schedulePush();
       cb && cb(true);
     }, function (err) { warn("pull", (err && err.message) || err); cb && cb(false); });
   }
@@ -200,7 +242,8 @@
   function runApp() {
     if (ran) return; ran = true;
     window.__gmAttent = { userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, syncReason: syncReason, demo: DEMO,
-                          pending: function () { return dirty; }, onchange: null };
+                          pending: function () { return dirty; }, conflict: function () { return conflict; },
+                          onchange: null };
     var code = document.getElementById("gm-app-code");
     if (!code) { warn("app code element missing"); return; }
     var s = document.createElement("script");

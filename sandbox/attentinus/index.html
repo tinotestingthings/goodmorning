@@ -549,7 +549,9 @@
     // Een wijziging die de server nog niet heeft (offline, of de telefoon ging
     // naar de achtergrond voordat de push wegkwam). Blijft dit staan, dan loopt
     // dit apparaat uit de pas — beter zichtbaar dan stil.
-    if (H.pending && H.pending()) {
+    if (H.conflict && H.conflict()) {
+      foot.appendChild(el("div", null, "⚠️ Op dit apparaat én ergens anders is iets gewijzigd sinds de laatste sync. Om niets te wissen is de sync gepauzeerd — controleer je lijst hier en op je andere apparaat."));
+    } else if (H.pending && H.pending()) {
       foot.appendChild(el("div", null, "⏳ Nog niet gesynct — je wijziging staat veilig op dit apparaat en gaat vanzelf mee zodra er verbinding is."));
     }
     if (H.syncOff) {

@@ -26,6 +26,7 @@ const BOOT = readFileSync(GM + "/sandbox/attentinus/boot.js", "utf8");
 
 const KEY = "dd:attentinus.people";
 const DIRTY = "dd:__attentinus_pending";
+const STAMP = "dd:__attentinus_seen";
 const ANNA = [{ id: "p1", name: "Anna", month: 3, day: 4, ideas: [] }];
 const ANNA_BOB = ANNA.concat([{ id: "p2", name: "Bob", month: 9, day: 1, ideas: [] }]);
 const J = v => JSON.stringify(v);
@@ -40,7 +41,8 @@ function check(name, got, want) {
 const tick = (ms = 40) => new Promise(r => setTimeout(r, ms));
 
 // Eén scenario = een verse document + een gescript Supabase-stub.
-async function boot({ serverRow = null, seedLocal = {}, pushFails = false }) {
+async function boot({ serverRow = null, seedLocal = {}, pushFails = false,
+                     serverStamp = null, selectErrorFrom = 0 }) {
   const dom = new JSDOM(
     `<!doctype html><html><body><script type="application/gm-app" id="gm-app-code">window.APP_RAN=true;</script></body></html>`,
     { url: "https://example.test/attentinus/index.html", runScripts: "dangerously" }
@@ -52,9 +54,15 @@ async function boot({ serverRow = null, seedLocal = {}, pushFails = false }) {
   window.supabase = {
     createClient: () => ({
       from: () => {
-        calls.selects++;
         return {
-          select: () => ({ eq: () => Promise.resolve({ data: serverRow ? [{ data: serverRow }] : [] }) }),
+          select: () => ({ eq: () => {
+            calls.selects++;
+            // supabase-js *resolvet* met {error} bij een gewone HTTP-fout.
+            if (selectErrorFrom && calls.selects >= selectErrorFrom) {
+              return Promise.resolve({ error: { message: "JWT expired" } });
+            }
+            return Promise.resolve({ data: serverRow ? [{ data: serverRow, updated_at: serverStamp }] : [] });
+          } }),
           upsert: row => {
             calls.upserts.push(row);
             return pushFails ? Promise.resolve({ error: { message: "network" } }) : Promise.resolve({ error: null });
@@ -86,7 +94,14 @@ async function boot({ serverRow = null, seedLocal = {}, pushFails = false }) {
     window.document.dispatchEvent(new window.Event("visibilitychange"));
     await tick();
   };
-  return { window, calls, write, read, raw, background, foreground };
+  // Wegswipen en sluiten vuren vlak na elkaar in dezelfde turn.
+  const hardClose = async () => {
+    Object.defineProperty(window.document, "hidden", { value: true, configurable: true });
+    window.document.dispatchEvent(new window.Event("visibilitychange"));
+    window.dispatchEvent(new window.Event("pagehide"));
+    await tick();
+  };
+  return { window, calls, write, read, raw, background, foreground, hardClose };
 }
 
 const lastPushed = calls => {
@@ -156,6 +171,42 @@ console.log("attentinus/boot.js — sync-gedrag\n");
   await c.foreground();
   check("pull op de voorgrond draait niets terug", c.read(), J(ANNA));
   check("schone voorgrond-pull pusht niet", c.calls.upserts.length, 0);
+}
+
+// ------------------------------------------ mislukte pre-push select -------
+{
+  console.log("\neen select die met {error} resolvet plant alsnog een retry");
+  // selectErrorFrom 2: de boot-pull slaagt, de select vóór de push faalt.
+  const a = await boot({ serverRow: { [KEY]: J(ANNA_BOB) }, selectErrorFrom: 2 });
+  a.write(ANNA);
+  await a.background();
+  check("er is niets gepusht", a.calls.upserts.length, 0);
+  check("de wijziging blijft openstaan", a.raw(DIRTY), "1");
+  await tick(9000);
+  check("er is opnieuw geprobeerd", a.calls.selects >= 3, true);
+}
+
+// ------------------------------------------------- dubbele flush ------------
+{
+  console.log("\nwegswipen + sluiten levert één push op, geen twee");
+  const a = await boot({ serverRow: { [KEY]: J(ANNA_BOB) } });
+  a.write(ANNA);
+  await a.hardClose();
+  check("precies één upsert", a.calls.upserts.length, 1);
+}
+
+// ------------------------------------------------- allebei gewijzigd --------
+{
+  console.log("\nlokaal én server gewijzigd: geen van beide wordt gewist");
+  const a = await boot({
+    serverRow: { [KEY]: J(ANNA_BOB) },
+    serverStamp: "2026-08-21T10:00:00.000Z",
+    seedLocal: { [KEY]: "[]", [DIRTY]: "1", [STAMP]: "2026-08-14T09:00:00.000Z" }
+  });
+  check("lokaal blijft staan", a.read(), "[]");
+  await tick(1700);
+  check("de server wordt niet overschreven", a.calls.upserts.length, 0);
+  check("het conflict is zichtbaar voor de app", a.window.__gmAttent.conflict(), true);
 }
 
 console.log(`\n${failures ? `${failures} FAIL` : "alles ok"}`);
