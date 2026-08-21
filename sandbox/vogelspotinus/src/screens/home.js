@@ -1,25 +1,28 @@
 // ---------------------------------------------------------------------------
-// Home: de cursuskaart met EEN duidelijke actie ("Start oefensessie"), een
-// rij compacte snelkoppelingen en de opgeslagen eigen spellen.
+// Home, in de "Inkt"-richting: de vogel van vandaag opent het scherm, daaronder
+// één getal, één zin en één knop.
 //
-// De oude statuskaart (drie cijfers, een Leitner-boxhistogram, zes tegels
-// waarvan drie bijna hetzelfde deden) is bewust weg: hij beschreef de
-// administratie van het systeem in plaats van de voortgang naar het doel --
-// de honderd Griftpark-vogels kennen.
+// De volgorde is bewust: je ziet eerst een vogel (waarom je de app opent), dan
+// pas je administratie. De oude statuskaart deed het omgekeerd -- drie cijfers,
+// een Leitner-boxhistogram en zes tegels waarvan er drie hetzelfde deden.
+//
+// Alles wat kan wachten -- bladeren, vrij oefenen, eigen spellen -- staat als
+// tekstregel onderaan, niet als tegel.
 // ---------------------------------------------------------------------------
 
 import { byId, h, icon } from "../core/dom.js";
 import { t } from "../core/i18n.js";
 import { EVENTS, on } from "../core/events.js";
 import { registerScreen, showScreen, currentScreenId, refreshScreen } from "../core/nav.js";
-import { allBirds, hasPhoto, photoUrl } from "../core/birds.js";
+import { allBirds, bilingual, hasPhoto, photoUrl, primaryName } from "../core/birds.js";
 import { matchesFilters } from "../core/filters.js";
 import { allGames, deleteGame } from "../core/games.js";
-import { dueBirds } from "../core/progress.js";
-import { nextNewBirds } from "../core/course.js";
-import { NEW_PER_DAY } from "../core/session.js";
-import { currentStreak, newTodayCount } from "../core/stats.js";
-import { courseTrackAndLine } from "../ui/course-progress.js";
+import { courseDetections, courseProgress } from "../core/course.js";
+import { birdOfTheDay } from "../core/daily.js";
+import { photoAttribution } from "../core/photos.js";
+import { plannedSessionSize } from "../core/session.js";
+import { currentStreak } from "../core/stats.js";
+import { openBirdDetail } from "../ui/detail-sheet.js";
 import { openBuilder } from "./builder.js";
 
 const MODE_ICONS = {
@@ -29,52 +32,123 @@ const MODE_ICONS = {
   "quiz-study": "cap",
 };
 
-// --- Cursuskaart ------------------------------------------------------------
+// --- Vogel van vandaag ------------------------------------------------------
 
-function courseCard() {
-  const streak = currentStreak();
-  const due = dueBirds().length;
-  const newBudget = Math.max(0, NEW_PER_DAY - newTodayCount());
-  const freshAvailable = Math.min(newBudget, nextNewBirds(newBudget).length);
+function dailyBirdBlock() {
+  const bird = birdOfTheDay();
+  if (!bird) return null;
 
-  // "12 herhalen · 5 nieuw" -- wat de sessieknop je zo dadelijk gaat geven.
-  const parts = [];
-  if (due > 0) parts.push(`${due} ${t("sessionPreviewReview")}`);
-  if (freshAvailable > 0) parts.push(`${freshAvailable} ${t("sessionPreviewNew")}`);
-  const preview = parts.join(" · ");
-  const nothingLeft = parts.length === 0;
+  const heard = courseDetections(bird);
+  const fact = bilingual(bird, "fact");
+  const photo = photoUrl(bird);
+  const credit = photo ? photoAttribution(bird, photo) : null;
+
+  const hero = h(
+    "button",
+    {
+      type: "button",
+      class: "daily-hero",
+      style: photo ? { backgroundImage: `url('${photo}')` } : {},
+      "aria-label": `${t("birdOfTheDay")}: ${primaryName(bird)}`,
+      onclick: () => openBirdDetail(bird),
+    },
+    h("span", { class: "daily-badge" }, t("birdOfTheDay"))
+  );
 
   return h(
-    "div",
-    { class: "course-card" },
+    "section",
+    { class: "daily" },
+    hero,
     h(
       "div",
-      { class: "course-head" },
-      h("h2", { class: "course-title" }, t("courseGriftpark")),
-      streak > 0
-        ? h("span", { class: "course-streak" }, `${streak} ${streak === 1 ? t("statStreakOne") : t("statStreak")}`)
-        : null
-    ),
-    ...courseTrackAndLine(),
-    h(
-      "button",
-      { type: "button", class: "primary course-cta", onclick: () => showScreen("session") },
-      icon("target"),
-      h("span", {}, nothingLeft ? t("statAllCaughtUp") : t("startSession")),
-      preview ? h("span", { class: "course-preview" }, preview) : null
+      { class: "daily-text" },
+      h(
+        "h2",
+        { class: "daily-name" },
+        primaryName(bird),
+        h("span", { class: "daily-latin", lang: "la" }, bird.scientificName)
+      ),
+      h(
+        "p",
+        { class: "daily-fact" },
+        heard ? `${heard.toLocaleString(t("localeTag"))}× ${t("heardInGriftpark")}. ` : null,
+        fact
+      ),
+      // De iNaturalist-foto's staan onder een CC-licentie die naamsvermelding
+      // eist. Als tooltip alleen is dat op een telefoon onzichtbaar, dus hier
+      // staat hij gewoon in beeld.
+      credit ? h("p", { class: "daily-credit" }, credit) : null
     )
   );
 }
 
-// --- Snelkoppelingen en eigen spellen ----------------------------------------
+// --- Voortgang + de ene knop ------------------------------------------------
 
-function shortcut(iconName, label, onClick) {
-  return h(
-    "button",
-    { type: "button", class: "shortcut", onclick: onClick },
-    icon(iconName),
-    h("span", {}, label)
+function progressBlock() {
+  const c = courseProgress();
+  const streak = currentStreak();
+  const inProgress = c.started - c.learned;
+  const rest = c.total - c.started;
+  const planned = plannedSessionSize();
+
+  const bar = h(
+    "div",
+    { class: "ink-bar", "aria-hidden": "true" },
+    h("span", { class: "ink-seg ink-seg-mastered", style: { flexGrow: String(c.mastered) } }),
+    h("span", { class: "ink-seg ink-seg-learned", style: { flexGrow: String(c.learned - c.mastered) } }),
+    h("span", { class: "ink-seg ink-seg-started", style: { flexGrow: String(inProgress) } }),
+    h("span", { class: "ink-seg ink-seg-rest", style: { flexGrow: String(rest) } })
   );
+
+  // Alles op één regel onder het getal. Een aparte streak-kolom ernaast paste
+  // niet op 375px: het label brak dan over twee regels.
+  const detail = [
+    c.mastered > 0 ? `${c.mastered} ${t("statMastered")}` : null,
+    inProgress > 0 ? `${inProgress} ${t("statInProgress")}` : null,
+    streak > 0 ? `${streak} ${streak === 1 ? t("statStreakOne") : t("statStreak")}` : null,
+  ].filter(Boolean);
+
+  // De knop belooft precies wat de sessie straks deelt -- session.js rekent dat
+  // uit, zodat home en sessie niet uit elkaar kunnen lopen.
+  const cta = h(
+    "button",
+    { type: "button", class: "primary ink-cta", onclick: () => showScreen("session") },
+    planned.total > 0 ? t("startSession") : t("statAllCaughtUp")
+  );
+
+  return h(
+    "section",
+    { class: "ink-progress" },
+    h(
+      "div",
+      { class: "ink-figure" },
+      h("span", { class: "ink-num" }, String(c.learned)),
+      h(
+        "span",
+        { class: "ink-figure-text" },
+        h("span", { class: "ink-of" }, `${t("statOf")} ${c.total} ${t("statLearnedOf")}`),
+        detail.length ? h("span", { class: "ink-detail" }, detail.join(" · ")) : null
+      )
+    ),
+    bar,
+    h("p", { class: "ink-plan" }, plannedLine(planned)),
+    cta
+  );
+}
+
+/** "9 kaarten vandaag — 4 herhalingen en 5 nieuwe vogels." */
+function plannedLine({ reviews, fresh, total }) {
+  if (total === 0) return t("sessionEmptyBody");
+  const parts = [];
+  if (reviews > 0) parts.push(`${reviews} ${t("plannedReviews")}`);
+  if (fresh > 0) parts.push(`${fresh} ${t("plannedNew")}`);
+  return `${total} ${t("plannedCards")} — ${parts.join(` ${t("and")} `)}.`;
+}
+
+// --- Snelkoppelingen en eigen spellen ---------------------------------------
+
+function quietLink(labelKey, onClick) {
+  return h("button", { type: "button", class: "quiet-link", onclick: onClick }, t(labelKey));
 }
 
 /**
@@ -146,12 +220,13 @@ function launchGame(game) {
 }
 
 function render() {
-  byId("home-progress").replaceChildren(courseCard());
+  byId("home-daily").replaceChildren(dailyBirdBlock() ?? "");
+  byId("home-progress").replaceChildren(progressBlock());
 
   byId("home-tiles").replaceChildren(
-    shortcut("book", t("browseTile"), () => showScreen("browse")),
-    shortcut("target", t("freePractice"), () => showScreen("quiz")),
-    shortcut("plus", t("newCustomGame"), () => openBuilder(null))
+    quietLink("browseTile", () => showScreen("browse")),
+    quietLink("freePractice", () => showScreen("quiz")),
+    quietLink("newCustomGame", () => openBuilder(null))
   );
 
   const games = allGames();
