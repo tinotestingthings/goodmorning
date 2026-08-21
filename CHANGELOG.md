@@ -2,6 +2,25 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (v2026.08.21-1) — Vogelspotinus: 12 soorten toonden de verkeerde vogel (nu naam-geverifieerd), en de "Inkt"-look met vogel van vandaag
+
+De iNaturalist-fetcher pakte blind het eerste fuzzy zoekresultaat, dat op
+waarnemingsaantal rankt en Amerikaans gedomineerd is: "Pica pica" leverde een
+downy woodpecker, "Spinus spinus" en "Carduelis carduelis" allebei een American
+goldfinch, "Corvus corone" een bonte kraai. Twaalf van de honderd cursussoorten
+leerden je zo de verkeerde vogel aan, juist bij de paren die de meerkeuzevraag
+naast elkaar zet. Nu wordt op naam geverifieerd, en komen de foto's uit
+research-grade waarnemingen met annotatie "volwassen" in plaats van uit de
+taxonpagina (die met opzet nestjongen en afwijkende exemplaren bevat — bij
+Ekster stond een volledig witte vogel). Ook: de havik had geen Wikipedia-foto
+en viel daardoor overal buiten, waardoor de cursus op 99 van de 100 vastliep.
+
+Nieuwe look "Inkt": groene inkt op papier, geen zwart. Home opent met de vogel
+van vandaag (rouleert door de 100 soorten, met het aantal keren dat hij in het
+Griftpark gehoord is), daaronder één getal, één zin en één knop. De knop belooft
+nu wat de sessie echt deelt, en het oefenscherm heeft weer een titel en een
+sluitkruis.
+
 ## 2026-08-21 — WijnWijs: 200 nieuwe SDEN 2-vragen, geschudde antwoorden, rustiger Vandaag (gerichte promote)
 
 Vragenbank van 210 naar 410. De 200 nieuwe vragen vullen de dun bezette

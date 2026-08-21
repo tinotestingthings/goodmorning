@@ -12,6 +12,15 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="icons/icon-192.png" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <!-- Instrument Sans + JetBrains Mono dragen de "Inkt"-look. Beide hebben een
+         fallback met vergelijkbare metrics, zodat het scherm offline (of voordat
+         de fonts binnen zijn) niet verspringt. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
     <link rel="stylesheet" href="style.css" />
     <link rel="preload" href="data/birds.json" as="fetch" crossorigin="anonymous" />
   </head>
@@ -130,15 +139,23 @@
             Vogelspotinus
           </h1>
         </header>
+        <div id="home-daily"></div>
         <div id="home-progress"></div>
-        <div class="shortcut-row" id="home-tiles"></div>
+        <div class="quiet-row" id="home-tiles"></div>
         <h2 class="section-heading" id="custom-games-heading" data-i18n="yourGames" hidden></h2>
         <div class="tile-grid" id="custom-game-tiles"></div>
       </section>
 
       <!-- OEFENSESSIE (geen nav-knop; gestart vanaf de cursuskaart op Home) -->
       <section id="screen-session" class="screen" hidden>
-        <header class="top quiz-header">
+        <!-- Eigen header, niet de quiz-header: die verbergt zijn h1 onder 26rem
+             omdat de bottom-nav dan zegt waar je bent. Voor dit scherm klopt dat
+             niet -- het heeft geen nav-knop, dus zonder titel en sluitkruis sta
+             je op een naamloos scherm zonder zichtbare uitgang. -->
+        <header class="top session-header">
+          <button type="button" id="session-close" class="icon-btn" data-i18n-label="closeSession">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-close" /></svg>
+          </button>
           <h1 tabindex="-1" data-i18n="sessionTitle"></h1>
           <p class="quiz-status" id="session-status" role="status" aria-live="polite"></p>
         </header>

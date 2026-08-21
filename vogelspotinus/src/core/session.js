@@ -71,6 +71,18 @@ export function distractorsFor(bird, count = OPTION_COUNT - 1) {
 }
 
 /**
+ * Waaruit de VOLGENDE sessie zal bestaan, zonder er een te bouwen. Home leest
+ * hierop, zodat de knop niet iets anders belooft dan de sessie deelt: die
+ * beloofde eerst het ongelimiteerde aantal vervallen kaarten, terwijl de
+ * sessie er REVIEW_CAP van neemt.
+ */
+export function plannedSessionSize() {
+  const reviews = Math.min(dueBirds().length, REVIEW_CAP);
+  const fresh = nextNewBirds(Math.max(0, NEW_PER_DAY - newTodayCount())).length;
+  return { reviews, fresh, total: reviews + fresh };
+}
+
+/**
  * Bouw en beheer een sessie. De items muteren onderweg (herkansingen worden
  * ingevoegd), dus de voortgangsbalk rekent met een levend totaal.
  */

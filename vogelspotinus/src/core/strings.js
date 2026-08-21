@@ -13,10 +13,19 @@
 
 export const STRINGS = {
   nl: {
+    // Vogel van vandaag + dagplan
+    birdOfTheDay: "Vogel van vandaag",
+    plannedCards: "kaarten vandaag",
+    plannedReviews: "herhalingen",
+    plannedNew: "nieuwe vogels",
+    and: "en",
+    localeTag: "nl-NL",
+
     // Cursus + oefensessie
     courseGriftpark: "Griftpark · 100 vogels",
     startSession: "Start oefensessie",
     sessionTitle: "Oefenen",
+    closeSession: "Sessie sluiten",
     sessionPreviewReview: "herhalen",
     sessionPreviewNew: "nieuw",
     newBirdBadge: "Nieuwe vogel",
@@ -193,10 +202,19 @@ export const STRINGS = {
   },
 
   en: {
+    // Bird of the day + today's plan
+    birdOfTheDay: "Bird of the day",
+    plannedCards: "cards today",
+    plannedReviews: "reviews",
+    plannedNew: "new birds",
+    and: "and",
+    localeTag: "en-GB",
+
     // Course + practice session
     courseGriftpark: "Griftpark · 100 birds",
     startSession: "Start practice session",
     sessionTitle: "Practice",
+    closeSession: "Close session",
     sessionPreviewReview: "to review",
     sessionPreviewNew: "new",
     newBirdBadge: "New bird",

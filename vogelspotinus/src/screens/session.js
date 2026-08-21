@@ -303,6 +303,9 @@ function renderEmpty() {
 
 export function registerSessionScreen() {
   registerScreen("session", {
+    mount() {
+      byId("session-close").addEventListener("click", () => showScreen("home"));
+    },
     render() {
       // Elke binnenkomst op het scherm is een nieuwe sessie; een sessie
       // halverwege verlaten gooit alleen de rest van de wachtrij weg, nooit

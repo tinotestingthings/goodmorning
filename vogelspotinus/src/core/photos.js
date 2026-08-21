@@ -7,7 +7,7 @@
 // er niet is, valt alles terug op de ene Wikipedia-foto uit birds.json.
 // ---------------------------------------------------------------------------
 
-import { photoUrl } from "./birds.js";
+import { allBirds, photoUrl } from "./birds.js";
 
 const DATA_URL = "data/bird-photos.json";
 
@@ -22,9 +22,30 @@ export async function loadExtraPhotos() {
     const res = await fetch(DATA_URL);
     if (!res.ok) return;
     const data = await res.json();
-    if (data && typeof data === "object") extra = data;
+    if (data && typeof data === "object") {
+      extra = data;
+      backfillMissingBasePhotos();
+    }
   } catch {
     // Offline of bestand ontbreekt: prima, de app werkt met de basisfoto's.
+  }
+}
+
+/**
+ * Vogels zonder Wikipedia-foto krijgen er alsnog een uit deze set.
+ *
+ * hasPhoto() in birds.js kijkt alleen naar imageUrl/imageThumbUrl, en dat is de
+ * poort voor ALLES: quizpools, herhalingen en nextNewBirds(). Een cursussoort
+ * zonder Wikipedia-foto viel daardoor overal buiten -- de havik (Accipiter
+ * gentilis) kon nooit geleerd worden, terwijl de teller wel tot 100 telde, dus
+ * de cursus was niet uit te krijgen. Hier één veld vullen lost dat overal op,
+ * zonder dat birds.js dit bestand hoeft te kennen (dat zou een import-cyclus zijn).
+ */
+function backfillMissingBasePhotos() {
+  for (const bird of allBirds()) {
+    if (bird.imageUrl || bird.imageThumbUrl) continue;
+    const first = extra[bird.scientificName]?.[0]?.u;
+    if (first) bird.imageThumbUrl = first;
   }
 }
 
