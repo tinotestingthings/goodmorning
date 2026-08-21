@@ -73,12 +73,21 @@
     }
     return o;
   }
+  // Geeft terug OF er echt iets veranderd is, zodat de app alleen dan opnieuw
+  // uit localStorage hoeft te lezen.
   function seed(remote) {
-    if (!remote || typeof remote !== "object") return;
+    if (!remote || typeof remote !== "object") return false;
+    var changed = false;
     Object.keys(remote).forEach(function (key) {
       if (!isPhysical(key)) return;
-      try { if (remote[key] == null) oRem.call(localStorage, key); else oSet.call(localStorage, key, String(remote[key])); } catch (e) {}
+      try {
+        var next = remote[key] == null ? null : String(remote[key]);
+        if (oGet.call(localStorage, key) === next) return;
+        if (next === null) oRem.call(localStorage, key); else oSet.call(localStorage, key, next);
+        changed = true;
+      } catch (e) {}
     });
+    return changed;
   }
 
   function blankVal(v) {
@@ -120,7 +129,19 @@
       if (res && res.error) { warn("pull", res.error.message); cb && cb(false); return; }
       var row = res && res.data && res.data.length ? res.data[0] : null;
       var cur = JSON.stringify(snapshot());
-      if (row && row.data && (lastPushed === null || cur === lastPushed)) { seed(row.data); lastPushed = JSON.stringify(snapshot()); }
+      if (row && row.data && (lastPushed === null || cur === lastPushed)) {
+        var changed = seed(row.data);
+        lastPushed = JSON.stringify(snapshot());
+        // De app leest zijn state EEN keer bij het opstarten in een module-variabele.
+        // Een pull die daarna binnenkomt (visibilitychange) veranderde alleen
+        // localStorage, waarna het eerstvolgende antwoord de oude versie uit het
+        // geheugen er weer overheen schreef -- en die vervolgens pushte. Zo
+        // verdwenen antwoorden die op een ander apparaat waren gegeven. Nu
+        // vertellen we de app dat hij opnieuw moet inlezen.
+        if (changed && ran) {
+          try { window.dispatchEvent(new CustomEvent("vogelspotinus:state-pulled")); } catch (e) {}
+        }
+      }
       cb && cb(true);
     }, function (err) { warn("pull", (err && err.message) || err); cb && cb(false); });
   }

@@ -21,7 +21,7 @@ import { loadFavorites } from "./core/favorites.js";
 import { applySeed, loadGames } from "./core/games.js";
 import { loadLeitnerState } from "./core/leitner.js";
 import { loadExtraPhotos } from "./core/photos.js";
-import { initNav, refreshScreen, showScreen } from "./core/nav.js";
+import { currentScreenId, initNav, refreshScreen, showScreen } from "./core/nav.js";
 import { SEED } from "./data/seed-games.js";
 import { PLACEHOLDER_IMG } from "./ui/bird-media.js";
 import { registerHomeScreen } from "./screens/home.js";
@@ -124,6 +124,19 @@ function boot() {
   on(EVENTS.languageChanged, () => {
     applyStaticTranslations();
     refreshScreen();
+  });
+
+  // boot.js haalt bij terugkeer naar het tabblad de state van de server op en
+  // schrijft die rechtstreeks naar localStorage. Onze modules houden hun kopie
+  // in het geheugen, dus zonder dit opnieuw inlezen zou het eerstvolgende
+  // antwoord de oude kopie eroverheen schrijven en pushen -- weg antwoorden van
+  // je andere apparaat. Een lopende oefensessie laten we met rust: die
+  // opnieuw renderen zou de wachtrij weggooien.
+  window.addEventListener("vogelspotinus:state-pulled", () => {
+    loadFavorites();
+    loadGames();
+    loadLeitnerState();
+    if (currentScreenId() !== "session") refreshScreen();
   });
 
   registerServiceWorker();

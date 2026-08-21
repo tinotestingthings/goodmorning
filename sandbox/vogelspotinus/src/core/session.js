@@ -77,9 +77,77 @@ export function distractorsFor(bird, count = OPTION_COUNT - 1) {
  * sessie er REVIEW_CAP van neemt.
  */
 export function plannedSessionSize() {
-  const reviews = Math.min(dueBirds().length, REVIEW_CAP);
+  const reviews = reviewQueue().length;
   const fresh = nextNewBirds(Math.max(0, NEW_PER_DAY - newTodayCount())).length;
   return { reviews, fresh, total: reviews + fresh };
+}
+
+/**
+ * De herhalingen voor één sessie, afgekapt op REVIEW_CAP.
+ *
+ * Cursusvogels krijgen de plekken eerst. Vrij oefenen schrijft namelijk ook
+ * Leitner-rijen voor vogels BUITEN de cursus (dat is de bedoeling: wat je bent
+ * gaan leren blijft terugkomen), maar zonder voorrang vulde één avond vrij
+ * oefenen de Griftpark-sessie met exoten -- 462 van de 561 oefenbare vogels
+ * zitten niet in de cursus. De rest schuift aan zolang er plek over is.
+ */
+function reviewQueue() {
+  const due = dueBirds();
+  const mine = shuffle(due.filter(inCourse));
+  const rest = shuffle(due.filter((b) => !inCourse(b)));
+  return [...mine, ...rest].slice(0, REVIEW_CAP);
+}
+
+/**
+ * Zet herhalingen en nieuwe vogels in één rij, met echte ruimte tussen de
+ * introkaart van een vogel en zijn eerste vraag.
+ *
+ * De vorige versie rekende de posities vooruit met splice + Math.min, en die
+ * clamp liet de tussenruimte naar NUL zakken zodra er weinig te herhalen was --
+ * precies op dag één. Je kreeg de vraag dan direct na de introkaart, met de
+ * foto nog op je netvlies, en beantwoordde vijf nieuwe vogels "goed" zonder ze
+ * te kennen. Nu houden we de wachtenden bij en laten we een vraag pas los als
+ * er genoeg tussen zit; is er niets meer om mee te vullen, dan schuiven de
+ * intro's van de andere nieuwe vogels ertussen.
+ */
+function buildQueue(reviews, fresh) {
+  const items = [];
+  const waiting = [];
+  let r = 0;
+  let f = 0;
+
+  const release = () => {
+    while (waiting.length && items.length - waiting[0].at > INTRO_TEST_GAP) {
+      items.push({ kind: "test", bird: waiting.shift().bird, counts: true, firstTest: true });
+    }
+  };
+
+  while (r < reviews.length || f < fresh.length) {
+    release();
+    // Nieuwe vogels gelijkmatig over de sessie uitsmeren in plaats van vooraan
+    // te proppen: pak er een zodra dit aandeel achterloopt op de voortgang.
+    const takeFresh =
+      f < fresh.length &&
+      (r >= reviews.length || f * (reviews.length + fresh.length) <= items.length * fresh.length);
+    if (takeFresh) {
+      items.push({ kind: "intro", bird: fresh[f], counts: false, firstTest: false });
+      waiting.push({ bird: fresh[f], at: items.length - 1 });
+      f += 1;
+    } else {
+      items.push({ kind: "test", bird: reviews[r], counts: true, firstTest: false });
+      r += 1;
+    }
+  }
+
+  // Staart: wat nog wacht komt eruit, elke ronde eentje, zodat er altijd
+  // minstens één andere kaart tussen een introkaart en zijn vraag zit.
+  while (waiting.length) {
+    release();
+    if (waiting.length) {
+      items.push({ kind: "test", bird: waiting.shift().bird, counts: true, firstTest: true });
+    }
+  }
+  return items;
 }
 
 /**
@@ -87,29 +155,14 @@ export function plannedSessionSize() {
  * ingevoegd), dus de voortgangsbalk rekent met een levend totaal.
  */
 export function createSession() {
-  const reviews = shuffle(dueBirds().slice()).slice(0, REVIEW_CAP);
   const budget = Math.max(0, NEW_PER_DAY - newTodayCount());
-  const fresh = nextNewBirds(budget);
-
-  /** @type {Array<{kind: "intro"|"test", bird: object, counts: boolean, firstTest: boolean}>} */
-  const items = reviews.map((bird) => ({ kind: "test", bird, counts: true, firstTest: false }));
-
-  // Nieuwe vogels verspreid tussen de herhalingen: intro, even wat anders,
-  // dan de eerste vraag. Zo landt de naam voordat hij wordt overhoord, maar
-  // niet met de foto nog op het netvlies.
-  fresh.forEach((bird, i) => {
-    const introAt = Math.min(items.length, i * (INTRO_TEST_GAP + 2));
-    items.splice(introAt, 0, { kind: "intro", bird, counts: false, firstTest: false });
-    const testAt = Math.min(items.length, introAt + 1 + INTRO_TEST_GAP);
-    items.splice(testAt, 0, { kind: "test", bird, counts: true, firstTest: true });
-  });
+  const items = buildQueue(reviewQueue(), nextNewBirds(budget));
 
   let index = 0;
   const outcome = {
     answered: 0,
     correct: 0,
     newIntroduced: 0,
-    reviewsDone: 0,
     /** Vogels die deze sessie fout gingen, voor de samenvatting. */
     missed: new Set(),
   };
@@ -131,13 +184,20 @@ export function createSession() {
     shapeFor(item) {
       return questionShape(item.bird, { firstTest: item.firstTest });
     },
-    /** Introkaart gezien: telt mee voor het dagbudget nieuwe vogels.
-     *  Idempotent per item -- een re-render (bv. taalwissel) telt niet dubbel. */
+    /**
+     * Introkaart gezien. Dit kost GEEN dagbudget: dat gebeurt pas bij het
+     * eerste antwoord (zie answer()).
+     *
+     * Het budget hing hier eerst aan, en dat pakte verkeerd uit: de kaart
+     * verschijnt zodra het scherm rendert, dus een sessie openen en weglopen
+     * schreef een nieuwe vogel af zonder dat je iets leerde. De vogel bleef
+     * ongestart, werd volgende sessie opnieuw aangeboden en opnieuw
+     * afgeschreven -- vijf keer openen en je dag was op met nul geleerde
+     * vogels. Nu blijft dit puur een weergave-signaal voor de samenvatting.
+     */
     introShown(item) {
       if (item.kind !== "intro" || item.introCounted) return;
       item.introCounted = true;
-      bumpNewToday();
-      outcome.newIntroduced += 1;
     },
     /**
      * Antwoord op het huidige testitem. Alleen het eerste (tellende) antwoord
@@ -146,10 +206,15 @@ export function createSession() {
      */
     answer(item, correct) {
       if (item.counts) {
+        // Het dagbudget gaat eraf op het moment dat een nieuwe vogel echt in
+        // de planning terechtkomt -- recordAnswer schrijft dan zijn eerste rij.
+        if (item.firstTest) {
+          bumpNewToday();
+          outcome.newIntroduced += 1;
+        }
         recordAnswer(item.bird, correct);
         outcome.answered += 1;
         if (correct) outcome.correct += 1;
-        if (!item.firstTest) outcome.reviewsDone += 1;
       }
       if (!correct) {
         outcome.missed.add(item.bird);
