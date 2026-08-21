@@ -1,0 +1,533 @@
+<mxfile host="app.diagrams.net" agent="claude" version="24.7.7">
+  <diagram id="ov" name="Ecosysteem — overzicht">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ov-title" value="goodmorning — ecosysteem" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=18;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="500" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-repo" value="Git-repo &lt;b&gt;goodmorning&lt;/b&gt;&lt;br&gt;branch &lt;b&gt;main&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-pages" value="GitHub Pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="330" y="80" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-live" value="&lt;b&gt;Live&lt;/b&gt; — site-root /&lt;br&gt;namespace &lt;b&gt;dd.&lt;/b&gt; (env.js beslist op runtime, nooit hardcoded)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="590" y="50" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-sbx" value="&lt;b&gt;Sandbox&lt;/b&gt; — /sandbox/&lt;br&gt;namespace &lt;b&gt;sbx.&lt;/b&gt; — staging, zelfde code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="590" y="170" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-e1" value="deploy vanaf main" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-repo" target="ov-pages"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-e2" value="serveert" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-pages" target="ov-live"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-e3" value="serveert" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-pages" target="ov-sbx"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-e4" value="tools/promote.sh (guards + copy + tag + push) — enige weg naar live" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;strokeColor=#d79b00;fontColor=#d79b00" edge="1" parent="1" source="ov-sbx" target="ov-live"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-apps" value="Apps — identieke code in live en sandbox" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="310" width="880" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-dd" value="&lt;b&gt;Daily Digest&lt;/b&gt; (hoofd-app)&lt;br&gt;PWA, geen bundler — root-.js-bestanden" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="60" y="350" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u1" value="Kangaroo Gym&lt;br&gt;kangaroo/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="340" y="350" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u2" value="Vogelspotinus&lt;br&gt;vogelspotinus/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="530" y="350" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u3" value="NoteSprint&lt;br&gt;notesprint/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="720" y="350" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u4" value="ChordSprint&lt;br&gt;ear-training/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="340" y="430" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u5" value="WijnWijs&lt;br&gt;wine/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="530" y="430" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u6" value="Event Tracker&lt;br&gt;events/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="720" y="430" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u7" value="Trainerinus&lt;br&gt;trainerinus/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="340" y="510" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-u8" value="Attentinus&lt;br&gt;attentinus/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="530" y="510" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-uxpat" value="elke utility-app: index.html + boot.js (auth-gate + sync) + eigen Supabase-tabel" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="595" width="600" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-sb" value="&lt;b&gt;Supabase&lt;/b&gt; — Auth + RLS (publishable key is publiek; toegang via RLS)&lt;br&gt;&lt;br&gt;agenda_state · captures · actions&lt;br&gt;kangaroo_state · vogelspotinus_state&lt;br&gt;notesprint_state · chordsprint_state&lt;br&gt;wine_state · eventtracker_state&lt;br&gt;trainerinus_state* · attentinus_state*&lt;br&gt;&lt;i&gt;* tabel nog aan te maken (SQL in README van de app)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;align=left;spacing=8" vertex="1" parent="1">
+          <mxGeometry x="980" y="310" width="360" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-e5" value="state-sync per app, eigen tabel" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-apps" target="ov-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-t1" value="&lt;b&gt;daily-digest&lt;/b&gt; — scheduled task (Cowork, Mac)&lt;br&gt;schrijft alléén feed.json (GitHub PAT + service_role uit Keychain)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-t2" value="&lt;b&gt;event-catalog-refresh&lt;/b&gt; — scheduled task&lt;br&gt;schrijft alléén events-src/src/*.ts (catalogus)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="420" y="700" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-e6" value="push naar main" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-t1" target="ov-repo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-e7" value="push naar main" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ov-t2" target="ov-repo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ov-expl" value="explainer/ — Remotion-video over het ecosysteem&lt;br&gt;in de repo, maar niet geserveerd door Pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="800" y="700" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ov-wiki" value="Mijn Wiki (iCloud, buiten de repo)&lt;br&gt;specs, agenda-backups, automations — nooit app-code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="1140" y="700" width="200" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="dd" name="Daily Digest (hoofd-app)">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1400" pageHeight="950" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dd-title" value="Daily Digest — hoofd-app (PWA, geen bundler; index.html laadt elk root-.js in volgorde)" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=18;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;laadt de lagen hieronder van boven naar beneden" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-sw" value="&lt;b&gt;sw.js&lt;/b&gt; — service worker&lt;br&gt;network-first shell (PWA); cache-bump max 1× per sessie" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="380" y="70" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-l1" value="1 · Fundament" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="900" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-env" value="env.js — DD_ENV, namespace dd./sbx., k()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="230" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-theme" value="theme.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="310" y="200" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-fx" value="fx.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="510" y="200" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-sheet" value="sheet.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="200" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-l2" value="2 · Data en auth" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="900" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="60" y="310" width="230" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-sbjs" value="supabase.js — SB-client (publishable key)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="310" y="310" width="280" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-auth" value="auth.js — login-gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="610" y="310" width="280" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-l3" value="3 · Kern" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="390" width="900" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-loop" value="loop.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-items" value="items.js + itemdetail.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="260" y="420" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-app" value="app.js — hash-router: parseRoute / applyRoute / navigate / boot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="420" width="390" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-l4" value="4 · Views en features (app.js routeert hiernaartoe)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="900" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-home" value="home.js — digest (~120 KB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-cal" value="calendar.js — agenda (~95 KB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="530" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-triage" value="triage.js — swipe-triage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="500" y="530" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-capture" value="capture.js — invoer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="720" y="530" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-settings" value="settings.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="60" y="590" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-practice" value="practice.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="280" y="590" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-workweek" value="workweek.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="500" y="590" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-reminders" value="reminders.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="720" y="590" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-cats" value="categories.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="60" y="650" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-ics" value="ics.js — ICS-import" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="280" y="650" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-itemui" value="itemui.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="500" y="650" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-push" value="push.js — notificaties" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="720" y="650" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-l5" value="5 · Sync (laadt als laatste)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;fontStyle=1;align=left;spacingLeft=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="740" width="900" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-sync" value="agendasync.js — pull is leidend: alleen een gelukte server-pull maakt lokale state autoritair" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="60" y="770" width="560" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-eL1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="dd-index" target="dd-l1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-eL2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="dd-l1" target="dd-l2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-eL3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="dd-l2" target="dd-l3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-eL4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="dd-l3" target="dd-l4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-eL5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="dd-l4" target="dd-l5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;alle keys via k():&lt;br&gt;dd.* (live) / sbx.* (sandbox)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="1000" y="170" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-sb" value="&lt;b&gt;Supabase&lt;/b&gt; (Auth + RLS)&lt;br&gt;agenda_state · captures · actions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="1000" y="300" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-feed" value="&lt;b&gt;feed.json&lt;/b&gt; — dagelijkse digest-data&lt;br&gt;(live data; nooit met de hand bewerken)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="1000" y="430" width="340" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-task" value="&lt;b&gt;daily-digest&lt;/b&gt; — scheduled task (Cowork, Mac)&lt;br&gt;schrijft feed.json, pusht naar main (GitHub PAT); agenda-backup + capture-bridge via service_role" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="1000" y="550" width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-tests" value="&lt;b&gt;tests/agendasync.behaviour.mjs&lt;/b&gt; (jsdom)&lt;br&gt;verplicht groen vóór elke push die agendasync / home / calendar / capture raakt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="1000" y="690" width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="dd-e1" value="state via k()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-l4" target="dd-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-e2" value="sessie" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-auth" target="dd-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-e3" value="agenda_state: pull → merge → push" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-sync" target="dd-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-e4" value="captures / actions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-capture" target="dd-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-e5" value="fetch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-home" target="dd-feed"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="dd-e6" value="schrijft" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="dd-task" target="dd-feed"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="kg" name="Kangaroo Gym">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kg-title" value="Kangaroo Gym — workout-tracker (kangaroo/) — enige utility-app met React + build-stap" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;laadt supabase-js (CDN), dan boot.js, dan bundle.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull tabel → seed localStorage → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-app" value="&lt;b&gt;bundle.js&lt;/b&gt;&lt;br&gt;gebouwde React-app: workouts, herstel-status, anatomie-canvas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="700" y="70" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* (live) / sbx:* (sandbox)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-sb" value="&lt;b&gt;Supabase — kangaroo_state&lt;/b&gt;&lt;br&gt;1 rij per gebruiker; Auth + RLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="700" y="290" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="kg-index" target="kg-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-index" target="kg-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e3" value="2. daarna" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-boot" target="kg-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-boot" target="kg-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e5" value="pull bij start / push bij wijziging" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-boot" target="kg-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-app" target="kg-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-src" value="&lt;b&gt;kangaroo-src/&lt;/b&gt; (source of truth)&lt;br&gt;main.tsx + workout-app.tsx (React/TSX)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="40" y="450" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-build" value="bash kangaroo-src/build.sh&lt;br&gt;→ sandbox/kangaroo/bundle.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="390" y="450" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-prom" value="tools/promote.sh&lt;br&gt;→ kangaroo/bundle.js (live)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="720" y="450" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kg-e7" value="build" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-src" target="kg-build"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e8" value="promote" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="kg-build" target="kg-prom"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg-e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1" edge="1" parent="1" source="kg-prom" target="kg-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="vs" name="Vogelspotinus">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vs-title" value="Vogelspotinus — vogelherkenning-trainer (vogelspotinus/) — ES-modules, geen build voor de app zelf" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="950" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;laadt supabase-js (CDN), boot.js, dan src/main.js (module)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull tabel → seed localStorage → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-app" value="&lt;b&gt;src/main.js&lt;/b&gt; — entry, ES-modules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="700" y="70" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="320" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-sb" value="&lt;b&gt;Supabase — vogelspotinus_state&lt;/b&gt;&lt;br&gt;Auth + RLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="700" y="290" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="vs-index" target="vs-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-index" target="vs-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e3" value="2. daarna" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-boot" target="vs-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-boot" target="vs-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e5" value="pull / push" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-boot" target="vs-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-app" target="vs-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-mods" value="&lt;b&gt;src/&lt;/b&gt; — modules&lt;br&gt;core/: leitner, progress, storage, sound, course, photos, filters, i18n, nav, stats …&lt;br&gt;ui/: bird-card, quiz-card, detail-sheet, filter-bar, lightbox …&lt;br&gt;screens/: home, quiz (+ quiz-modes/), browse, session, builder, settings&lt;br&gt;data/: course-griftpark.js (Griftpark-100-cursus), seed-games.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacing=8;verticalAlign=top" vertex="1" parent="1">
+          <mxGeometry x="330" y="440" width="650" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-data" value="&lt;b&gt;data/&lt;/b&gt;&lt;br&gt;birds.json · bird-tiles.json · bird-photos.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-tools" value="&lt;b&gt;tools/&lt;/b&gt; (build-stap alleen voor data)&lt;br&gt;build-bird-tiles.mjs&lt;br&gt;fetch-bird-photos.mjs (iNaturalist, CC)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="40" y="580" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-e7" value="genereert" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-tools" target="vs-data"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e8" value="fetch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-mods" target="vs-data"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="vs-e9" value="importeert" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="vs-app" target="vs-mods"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ns" name="NoteSprint">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ns-title" value="NoteSprint — notenlees-trainer (notesprint/) — single-file app, geen build" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;bevat de hele app inline als script-tag type application/gm-app; boot.js voert die pas uit ná de gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: prefixen noteSprint/noteReader → dd:* / sbx:*&lt;br&gt;3. pull notesprint_state → seed localStorage → run gm-app-script; push = debounced merge (1,5 s)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-app" value="&lt;b&gt;app-code (inline)&lt;/b&gt;&lt;br&gt;zelfstandige single-file app; persist naar localStorage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="70" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="300" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-sb" value="&lt;b&gt;Supabase — notesprint_state&lt;/b&gt;&lt;br&gt;Auth + RLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="710" y="300" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ns-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="ns-index" target="ns-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ns-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ns-index" target="ns-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ns-e3" value="2. start ná pull" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ns-boot" target="ns-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ns-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ns-boot" target="ns-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ns-e5" value="pull / push (merge)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ns-boot" target="ns-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ns-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ns-app" target="ns-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="cs" name="ChordSprint (ear-training)">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cs-title" value="ChordSprint — gehoortraining (ear-training/) — single-file app, geen build" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;app-code inline (gm-app-script); boot.js voert die pas uit ná de gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull chordsprint_state → seed localStorage → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-app" value="&lt;b&gt;app-code (inline)&lt;/b&gt;&lt;br&gt;akkoord-quiz; persist naar localStorage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="70" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-sb" value="&lt;b&gt;Supabase — chordsprint_state&lt;/b&gt;&lt;br&gt;Auth + RLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="710" y="290" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cs-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="cs-index" target="cs-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cs-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="cs-index" target="cs-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cs-e3" value="2. start ná pull" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="cs-boot" target="cs-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cs-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="cs-boot" target="cs-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cs-e5" value="pull / push (merge)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="cs-boot" target="cs-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cs-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="cs-app" target="cs-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ww" name="WijnWijs">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="650" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ww-title" value="WijnWijs — wijn-app (wine/) — ES-modules, geen build" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;laadt supabase-js (CDN), boot.js, dan src/main.js (module)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull wine_state → seed localStorage → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-app" value="&lt;b&gt;src/main.js + src/ui.js&lt;/b&gt;&lt;br&gt;ES-modules: kernlogica + UI gescheiden" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="70" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-sb" value="&lt;b&gt;Supabase — wine_state&lt;/b&gt;&lt;br&gt;Auth + RLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="710" y="290" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-tests" value="tests/wijnwijs.core.test.mjs — kernlogica-tests (node)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="710" y="420" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ww-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="ww-index" target="ww-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ww-index" target="ww-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e3" value="2. daarna" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ww-boot" target="ww-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ww-boot" target="ww-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e5" value="pull / push (merge)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ww-boot" target="ww-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ww-app" target="ww-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ww-e7" value="test op" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="ww-tests" target="ww-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ev" name="Event Tracker">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ev-title" value="Event Tracker — evenementen-app (events/) — gebouwd uit events-src/; catalogus zit in de bundle" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="950" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;laadt supabase-js (CDN), boot.js, dan bundle.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull tabel → seed localStorage → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-app" value="&lt;b&gt;bundle.js&lt;/b&gt;&lt;br&gt;app + &lt;b&gt;ingebakken catalogus&lt;/b&gt; (events, Utrecht-regio)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="700" y="70" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="320" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-sb" value="&lt;b&gt;Supabase — eventtracker_state&lt;/b&gt;&lt;br&gt;alleen persoonlijke state (favorieten, gezien); catalogus staat NIET in de database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="700" y="290" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="ev-index" target="ev-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-index" target="ev-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e3" value="2. daarna" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-boot" target="ev-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-boot" target="ev-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e5" value="pull / push (merge)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-boot" target="ev-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e6" value="logische keys, via de shim" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-app" target="ev-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-task" value="&lt;b&gt;event-catalog-refresh&lt;/b&gt; — scheduled task&lt;br&gt;ververst de catalogus in events-src/src/*.ts (nooit app-code)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-src" value="&lt;b&gt;events-src/&lt;/b&gt; (source of truth)&lt;br&gt;TypeScript-bron + catalogusdata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="390" y="470" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-build" value="bash events-src/build.sh&lt;br&gt;→ events/bundle.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00" vertex="1" parent="1">
+          <mxGeometry x="720" y="470" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ev-e7" value="schrijft" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-task" target="ev-src"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e8" value="build" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="ev-src" target="ev-build"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ev-e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1" edge="1" parent="1" source="ev-build" target="ev-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tr" name="Trainerinus">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tr-title" value="Trainerinus — oefencoach over de trainer-apps (trainerinus/) — leest de state van 4 andere apps" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="950" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;app-code inline (gm-app-script); boot.js voert die pas uit ná de gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull eigen tabel → seed → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-app" value="&lt;b&gt;app-code (inline)&lt;/b&gt;&lt;br&gt;coach: kiest wat je vandaag oefent, o.b.v. voortgang in de trainer-apps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="70" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-sb" value="&lt;b&gt;Supabase — trainerinus_state&lt;/b&gt;&lt;br&gt;⚠ tabel nog aan te maken (SQL in trainerinus/README.md); app draait lokaal zonder tabel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="710" y="290" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-others" value="&lt;b&gt;State-tabellen van de trainer-apps (read-only)&lt;/b&gt;&lt;br&gt;vogelspotinus_state · chordsprint_state · notesprint_state · kangaroo_state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="330" y="470" width="650" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="tr-index" target="tr-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="tr-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="tr-index" target="tr-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="tr-e3" value="2. start ná pull" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="tr-boot" target="tr-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="tr-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="tr-boot" target="tr-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="tr-e5" value="pull / push (eigen state)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="tr-boot" target="tr-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="tr-e6" value="leest voortgang (alleen lezen, nooit schrijven)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="tr-app" target="tr-others"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="at" name="Attentinus">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="at-title" value="Attentinus — verjaardagen + cadeau-ideeën (attentinus/) — met integratie in de digest-home" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="950" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="at-index" value="&lt;b&gt;index.html&lt;/b&gt;&lt;br&gt;app-code inline (gm-app-script); boot.js voert die pas uit ná de gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="at-cdn" value="supabase-js v2 (CDN, extern)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="at-boot" value="&lt;b&gt;boot.js&lt;/b&gt; — auth-gate + sync&lt;br&gt;1. gate op Daily Digest-sessie&lt;br&gt;2. Storage-shim: keys → dd:* / sbx:*&lt;br&gt;3. pull attentinus_state → seed → start app; push = debounced merge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacing=6" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="at-app" value="&lt;b&gt;app-code (inline)&lt;/b&gt;&lt;br&gt;verjaardagen, cadeau-ideeën; import/export client-side (JSON)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="710" y="70" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="at-ls" value="&lt;b&gt;localStorage&lt;/b&gt;&lt;br&gt;fysieke keys dd:* / sbx:*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="330" y="290" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="at-sb" value="&lt;b&gt;Supabase — attentinus_state&lt;/b&gt;&lt;br&gt;⚠ tabel nog aan te maken (SQL in attentinus/README.md); app draait lokaal zonder tabel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="710" y="290" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="at-home" value="&lt;b&gt;Digest-home-integratie (home.js van de hoofd-app)&lt;/b&gt;&lt;br&gt;vaste Attentinus-herotegel + extra rij zodra een datum binnen 21 dagen valt; Opduikinus-kaart uitklapbaar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="330" y="470" width="650" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="at-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1" edge="1" parent="1" source="at-index" target="at-cdn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="at-e2" value="1. eerst" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="at-index" target="at-boot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="at-e3" value="2. start ná pull" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="at-boot" target="at-app"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="at-e4" value="shim + seed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="at-boot" target="at-ls"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="at-e5" value="pull / push (merge)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10" edge="1" parent="1" source="at-boot" target="at-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="at-e6" value="leest dezelfde state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="at-home" target="at-sb"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

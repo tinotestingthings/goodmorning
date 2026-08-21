@@ -17,3 +17,4 @@ node_modules/
 
 # fuse/iCloud sync litter
 .fuse_hidden*
+graphify-out/

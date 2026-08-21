@@ -1,5 +1,9 @@
 # Ecosystem explainer (Remotion)
 
+> Dit project bevat inmiddels **twee** composities:
+> `EcosystemExplainer` (52 s, hieronder beschreven) en `WorkflowExplainer`
+> (~93 s, de bredere presentatievideo — zie het kopje onderaan).
+
 Korte explainer-video (52 s, 1920×1080, 30 fps) over hoe kennis het goodmorning-
 ecosysteem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.
 Bedoeld om te draaien tijdens een presentatie, terwijl Tinus erover praat — de
@@ -92,3 +96,21 @@ losse audio gebruik je `<Audio src={staticFile("...")} />` uit `remotion`.
   staan komen echt uit de feed van 2026-08-18.
 - **Ondertitels erbij** (als de video zelfstandig moet staan): de vijf regels
   staan in het script-document; die horen dan als extra `<Caption>` onderin.
+
+## WorkflowExplainer (de tweede compositie)
+
+~93 s, 1920×1080, 30 fps — het hele verhaal voor de presentatie van aug 2026,
+wederom zonder gesproken tekst in beeld (Tinus praat er live overheen).
+Bron in `src/workflow/`; timing in `src/workflow/beats.ts`.
+
+| Beat | Frames | Wat er gebeurt |
+|---|---|---|
+| 0 `W0Title` | 0–120 | Titelkaart |
+| 1 `W1SecondBrain` | 120–540 | Vault-mappen, notitie met vast format (samenvatting + labels), "context voor AI" |
+| 2 `W2Scraper` | 540–900 | Bronnen stromen Claude in; kaarten met relevantiescore eruit |
+| 3 `W3Apps` | 900–1200 | De zes utility apps als tegels |
+| 4 `W4Calendar` | 1200–1500 | Agenda: taken, projecten, klusjes; één klusje wordt afgevinkt |
+| 5 `W5Webapp` | 1500–1740 | Alles convergeert naar één browserkaart "goodmorning" |
+| 6 `W6Architecture` | 1740–2800 | Diagram Claude·Vault·GitHub·Supabase·Webapp bouwt op (±14 s stil te bekijken), daarna de Nieuws-flow (groen) en tot slot Compliance (blauw) + Events in Utrecht (amber) tegelijk — zelfde loop, dus geen aparte "slides" |
+
+Renderen: `npm run build:workflow` → `out/workflow-explainer.mp4`.

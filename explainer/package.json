@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion render EcosystemExplainer out/ecosystem-explainer.mp4 --codec=h264",
+    "build:workflow": "remotion render WorkflowExplainer out/workflow-explainer.mp4 --codec=h264",
     "build:gif": "remotion render EcosystemExplainer out/ecosystem-explainer.gif --codec=gif --every-nth-frame=2",
     "still": "remotion still EcosystemExplainer out/frame.png",
     "typecheck": "tsc --noEmit"
