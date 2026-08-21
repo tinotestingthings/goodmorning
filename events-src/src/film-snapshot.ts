@@ -1,9 +1,9 @@
 import type { EventRecord } from "./types";
 
 export const filmSnapshotMeta = {
-  scrapedAt: "2026-08-16T12:10:00+02:00",
+  scrapedAt: "2026-08-21T11:40:00+02:00",
   sources: {
-    hartlooper: { status: "Healthy", records: 5 },
+    hartlooper: { status: "Healthy", records: 6 },
     springhaver: { status: "Healthy", records: 2 },
     slachtstraat: { status: "Healthy", records: 2 },
     "kinepolis-utrecht": { status: "Warning", records: 0 },
@@ -62,5 +62,12 @@ export const scrapedFilmEvents: EventRecord[] = [
     primaryCategory: "Film", tags: ["film", "documentary", "q-and-a", "one-night", "rare"], priceLabel: "See programme", isFree: false, relevance: 78, rarity: 88, preparation: 40, urgency: 66,
     whyRelevant: "Another one-night documentary event at LHC with the director in the room.", whyNow: "The official LHC programme lists this Q&A special for Monday 31 August, about two weeks out.", recommendedAction: "Check the official screening time and tickets", state: "unseen", discoveredAt: "2026-08-16", accent: "coral",
     sources: [source("hartlooper", "Louis Hartlooper Complex — official programme", "https://hartlooper.nl/films/fragments-of-belonging/", "2026-08-16")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-16"
+  },
+  {
+    id: "louis-hartlooper-prijs-2026", title: "Uitreiking Louis Hartlooper Prijs 2026", shortDescription: "The annual award for the best Dutch film publication is handed out in LHC during the Nederlands Film Festival \u2014 free to attend, but only with a reserved ticket.",
+    startAt: "2026-09-26T00:00:00+02:00", venueName: "Louis Hartlooper Complex", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.4,
+    primaryCategory: "Film", tags: ["film", "award", "one-night", "free", "rare", "writing"], priceLabel: "Free (reservation required)", isFree: true, relevance: 81, rarity: 90, preparation: 35, urgency: 70,
+    whyRelevant: "A one-evening ceremony about writing on film rather than film itself \u2014 six shortlisted publications, an independent jury drawn from the Dutch film guilds, and a lecture by last year's winner. Free, but ticketed.", whyNow: "The official LHC page confirms Saturday 26 September, inside the Nederlands Film Festival week; free tickets have to be reserved in advance and the room is small.", recommendedAction: "Reserve a free ticket before the ceremony fills up", state: "unseen", discoveredAt: "2026-08-21", accent: "plum",
+    sources: [source("hartlooper", "Louis Hartlooper Complex \u2014 official Louis Hartlooper Prijs page", "https://hartlooper.nl/over-lhc/louis-hartlooper-prijs/", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
   }
 ];
