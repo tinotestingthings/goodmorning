@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (v2026.08.21-5) — Luisterinus fase 1: podcastknop op de digest-kaart (wachtrij in Supabase), Luisterinus-app met speler, Utilities-tegel met wachtrij-badge en Today-tile als er een podcast klaarstaat. Setup-SQL + fase 0-checklist in docs/luisterinus.md
+
+
 ## 2026-08-21 (2e) — WijnWijs: lesstof De Proefacademie verwerkt, examenstand nu examenecht (gerichte promote)
 
 Tinus leverde de cursuspresentaties (les 1-5), het officiele SDEN 2-

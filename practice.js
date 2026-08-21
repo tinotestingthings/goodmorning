@@ -22,6 +22,8 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m12 12 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 18l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg>',
     trainerinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    luisterinus:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>',
     attentinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>'
   };
@@ -34,7 +36,8 @@
     { key: "wine", label: "WijnWijs", url: "wine/index.html" },
     { key: "vogelspotinus", label: "Vogelspotinus", url: "vogelspotinus/index.html" },
     { key: "events", label: "Events", url: "events/index.html" },
-    { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" }
+    { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" },
+    { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
@@ -71,6 +74,7 @@
     frameWrap.hidden = true;
     launcher.hidden = false;
     frameTitle.textContent = "";
+    refreshPodcastBadge();
   }
 
   function openApp(app) {
@@ -103,6 +107,23 @@
     });
   }
 
+  // Luisterinus-badge: aantal podcasts in de wachtrij (in de maak + klaar),
+  // als een iOS-notificatiebolletje. Geen sessie/tabel -> geen badge.
+  function refreshPodcastBadge() {
+    var card = grid.querySelector('[data-app="luisterinus"]');
+    if (!card || !window.SB) return;
+    var since = new Date(Date.now() - 14 * 86400000).toISOString();
+    window.SB.from("podcast_queue").select("id", { count: "exact", head: true })
+      .in("status", ["requested", "ready"]).gte("requested_at", since).then(function (res) {
+      if (res.error) return;               // netwerk/tabel weg: bestaande badge laten staan
+      var n = res.count || 0;
+      var b = card.querySelector(".tile-badge");
+      if (!n) { if (b) b.remove(); return; }
+      if (!b) { b = document.createElement("span"); b.className = "tile-badge tile-badge-red"; card.appendChild(b); }
+      b.textContent = String(n);
+    });
+  }
+
   function buildGrid() {
     APPS.forEach(function (app) {
       var card = document.createElement("button");
@@ -124,6 +145,9 @@
       card.addEventListener("click", function () { openApp(app); });
       grid.appendChild(card);
     });
+    // INITIAL_SESSION dekt de boot, SIGNED_IN de login, SIGNED_OUT haalt de badge
+    // weg (anonieme select ziet niets). Daarnaast ververst showGrid bij elk bezoek.
+    if (window.SB) window.SB.auth.onAuthStateChange(function () { refreshPodcastBadge(); });
   }
 
   function init() {
