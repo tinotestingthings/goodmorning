@@ -34,12 +34,31 @@
   var userId = null, lastPushed = null, pushTimer = null, ready = false, ran = false;
   var syncOff = false;      // true zolang de tabel onbruikbaar is: lokaal draaien
   var syncReason = null;    // "missing" (tabel bestaat niet) | "grant" (geen rechten)
+  var dirty = false;        // er staat een bewuste lokale wijziging open die de server nog niet heeft
+  var RETRY_MS = 8000;      // mislukte push opnieuw proberen i.p.v. stilletjes verliezen
+  var RETRY_MAX_MS = 300000;// ...maar met oplopende pauze: een blijvende fout mag geen 8s-lus worden
+  var retryWait = RETRY_MS;
 
   var proto = (window.Storage && window.Storage.prototype) || Object.getPrototypeOf(localStorage);
   var oGet = proto.getItem, oSet = proto.setItem, oRem = proto.removeItem;
 
   function isLogical(key) { return typeof key === "string" && PREFIXES.some(function (p) { return key.indexOf(p) === 0; }); }
   function isPhysical(key) { return typeof key === "string" && PREFIXES.some(function (p) { return key.indexOf(NS + p) === 0; }); }
+
+  // "Dirty" = de gebruiker heeft iets gewijzigd dat de server aantoonbaar nog
+  // niet heeft. Dat overleeft een herstart in localStorage, want juist op de
+  // telefoon haalt de push het vaak niet: iOS bevriest het tabblad zodra je
+  // wegswipet en gooit de request weg. De vlag staat buiten het gesyncte
+  // key-bereik (geen isPhysical-match) en gaat dus zelf nooit mee de server op.
+  var DIRTY_KEY = NS + "__attentinus_pending";
+  function storedDirty() { try { return oGet.call(localStorage, DIRTY_KEY) === "1"; } catch (e) { return false; } }
+  function setDirty(v) {
+    dirty = !!v;
+    try { if (dirty) oSet.call(localStorage, DIRTY_KEY, "1"); else oRem.call(localStorage, DIRTY_KEY); } catch (e) {}
+    // De app mag laten zien dat er nog iets openstaat.
+    try { if (window.__gmAttent && window.__gmAttent.onchange) window.__gmAttent.onchange(); } catch (e) {}
+  }
+  dirty = storedDirty();
 
   function patch() {
     if (proto.__gmSyncPatched) return;
@@ -99,6 +118,7 @@
 
   function pushNow() {
     if (!SB || !userId || !ready || syncOff) return;
+    if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
     var mine = snapshot();
     var cur = JSON.stringify(mine);
     if (cur === lastPushed) return;
@@ -108,15 +128,36 @@
       // VANGNET: nooit een lege lokale state over echte serverdata heen laten gaan.
       var _srvHas = Object.keys(merged).some(function (key) { return isPhysical(key) && !blankVal(merged[key]); });
       var _locHas = Object.keys(mine).some(function (key) { return !blankVal(mine[key]); });
-      if (_srvHas && !_locHas) { warn("refusing to push empty local state over existing server data"); return; }
+      // Blijft: nooit een lege lokale state over echte serverdata heen duwen.
+      // Maar leeg-na-een-bewuste-verwijdering is geen ongeluk — die MOET erdoor,
+      // anders komt de laatst verwijderde persoon bij elke pull weer terug.
+      // Bewust storedDirty() en niet de variabele: wordt localStorage onder een
+      // openstaand tabblad weggegooid (Safari-opruiming), dan verdwijnt de vlag
+      // mee en valt het vangnet vanzelf weer dicht.
+      if (_srvHas && !_locHas && !storedDirty()) { warn("refusing to push empty local state over existing server data"); return; }
       Object.keys(merged).forEach(function (key) { if (isPhysical(key)) delete merged[key]; });
       Object.keys(mine).forEach(function (key) { merged[key] = mine[key]; });
       SB.from(TABLE).upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
-        .then(function (res) { if (res && res.error) { warn("push", res.error.message); return; } lastPushed = cur; },
-              function (err) { warn("push", (err && err.message) || err); });
-    }, function (err) { warn("push read", (err && err.message) || err); });
+        .then(function (res) {
+                if (res && res.error) { warn("push", res.error.message); retryLater(); return; }
+                lastPushed = cur;
+                // Alleen schoonmelden als er ondertussen niets nieuws bij kwam.
+                retryWait = RETRY_MS;
+                if (JSON.stringify(snapshot()) === cur) setDirty(false); else schedulePush();
+              },
+              function (err) { warn("push", (err && err.message) || err); retryLater(); });
+    }, function (err) { warn("push read", (err && err.message) || err); retryLater(); });
   }
-  function schedulePush() { if (!ready) return; if (pushTimer) clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, PUSH_DEBOUNCE_MS); }
+  function schedulePush() { if (!ready) return; setDirty(true); if (pushTimer) clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, PUSH_DEBOUNCE_MS); }
+  function retryLater() {
+    if (!ready) return;
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushNow, retryWait);
+    retryWait = Math.min(retryWait * 2, RETRY_MAX_MS);   // 8s, 16s, 32s ... max 5 min
+  }
+  // Meteen wegschrijven i.p.v. de debounce afwachten: gebruikt op het moment
+  // dat de pagina naar de achtergrond gaat of sluit.
+  function flush() { if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; } pushNow(); }
 
   function pull(cb) {
     if (!SB || !userId) { cb && cb(); return; }
@@ -128,7 +169,13 @@
       }
       var row = res && res.data && res.data.length ? res.data[0] : null;
       var cur = JSON.stringify(snapshot());
-      if (row && row.data && (lastPushed === null || cur === lastPushed)) { seed(row.data); lastPushed = JSON.stringify(snapshot()); }
+      // !dirty is de kern van de telefoonfix: staat er nog een lokale wijziging
+      // open (bv. een verwijdering die niet meer weggekomen is voordat iOS het
+      // tabblad afknipte), dan is lokaal leidend en duwen we die alsnog omhoog.
+      // We leiden hier niets af uit "leeg" — we handelen op een aantoonbare,
+      // eerder vastgelegde schrijfactie van de gebruiker.
+      if (row && row.data && !dirty && (lastPushed === null || cur === lastPushed)) { seed(row.data); lastPushed = JSON.stringify(snapshot()); }
+      if (dirty) schedulePush();
       cb && cb(true);
     }, function (err) { warn("pull", (err && err.message) || err); cb && cb(false); });
   }
@@ -152,7 +199,8 @@
 
   function runApp() {
     if (ran) return; ran = true;
-    window.__gmAttent = { userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, syncReason: syncReason, demo: DEMO };
+    window.__gmAttent = { userId: userId, ns: NS, isSandbox: IS_SANDBOX, syncOff: syncOff, syncReason: syncReason, demo: DEMO,
+                          pending: function () { return dirty; }, onchange: null };
     var code = document.getElementById("gm-app-code");
     if (!code) { warn("app code element missing"); return; }
     var s = document.createElement("script");
@@ -195,11 +243,20 @@
       // Nooit de app draaien op een mislukte pull (ontbrekende tabel is de ene
       // getolereerde uitzondering; pull() meldt die als ok met syncOff aan).
       if (!ok) { gate("Kon je gegevens niet laden", "Je bent online maar de sync gaf geen antwoord. Laad opnieuw — er is niets veranderd.", true); return; }
-      lastPushed = JSON.stringify(snapshot()); ready = !syncOff; runApp();
+      // Bij een openstaande wijziging is lokaal NIET wat de server heeft:
+      // lastPushed op null laten, anders slaat pushNow de inhaalslag over.
+      if (!dirty) lastPushed = JSON.stringify(snapshot());
+      ready = !syncOff; runApp();
+      if (dirty) schedulePush();
     });
-    document.addEventListener("visibilitychange", function () { if (!document.hidden) pull(); });
-    window.addEventListener("pagehide", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
-    window.addEventListener("beforeunload", function () { if (pushTimer) { clearTimeout(pushTimer); pushNow(); } });
+    // Op de telefoon zijn pagehide/beforeunload onbetrouwbaar: wegswipen of het
+    // scherm vergrendelen levert vaak alleen een visibilitychange op, waarna
+    // iOS het tabblad bevriest en later weggooit. Dit is dus het enige moment
+    // waarop een net gedane verwijdering nog weg kan.
+    document.addEventListener("visibilitychange", function () { if (document.hidden) flush(); else pull(); });
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("online", function () { retryWait = RETRY_MS; if (dirty) flush(); });
   }
 
   function boot() {
