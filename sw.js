@@ -1,7 +1,8 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v66";
+var CACHE_NAME = "dd-sandbox-shell-v67";
+var CACHE_PREFIX = "dd-sandbox-shell-";
 
 var SHELL_FILES = [
   "./",
@@ -48,8 +49,11 @@ self.addEventListener("install", function (event) {
 self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches.keys().then(function (names) {
+      // Alleen onze eigen shell-caches opruimen. Een blinde "alles wat niet
+      // CACHE_NAME heet" wist ook de caches van de utility-apps eronder
+      // (notesprint/sw.js), waardoor hun offline-modus stilletjes stukging.
       return Promise.all(
-        names.filter(function (n) { return n !== CACHE_NAME; })
+        names.filter(function (n) { return n.indexOf(CACHE_PREFIX) === 0 && n !== CACHE_NAME; })
              .map(function (n) { return caches.delete(n); })
       );
     }).then(function () { return self.clients.claim(); })

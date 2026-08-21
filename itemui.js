@@ -21,10 +21,10 @@
 
   function completeTodo(t,anchor,opts){
     var list=M().loadTodos(); var nowDone=false;
-    list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M().logTodoHistory(x.text); } });
+    list.forEach(function(x){ if(x.id===t.id){ x.done=!x.done; nowDone=x.done; if(x.done)M().logTodoHistory(x.text,x.id); } });
     M().saveTodos(list); if(nowDone)party(anchor); opts.refresh();
   }
-  function setTodoDone(t,done,opts){ var list=M().loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M().logTodoHistory(x.text); } }); M().saveTodos(list); if(done)party(document.body); opts.refresh(); }
+  function setTodoDone(t,done,opts){ var list=M().loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M().logTodoHistory(x.text,x.id); } }); M().saveTodos(list); if(done)party(document.body); opts.refresh(); }
   function snoozeTodo(id,days,opts){ var list=M().loadTodos(); list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } }); M().saveTodos(list); M().toast(days===7?"Pushed to next week":"Pushed to tomorrow"); opts.refresh(); }
   function duplicateTodo(t,opts){ var list=M().loadTodos(); var copy={}; for(var k in t)copy[k]=t[k]; copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0; list.push(copy); M().saveTodos(list); M().toast("Duplicated"); opts.refresh(); }
   function duplicateChore(chore,opts){ var list=M().loadChores(); var copy={}; for(var k in chore)copy[k]=chore[k]; copy.id="chore-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.name=(chore.name||"")+" (copy)"; copy.lastDone=null; copy.log=[]; copy.exceptions={}; list.push(copy); M().saveChores(list); M().toast("Duplicated"); opts.refresh(); }

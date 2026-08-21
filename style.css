@@ -1362,6 +1362,15 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
 }
 .cal-restore:active { background: var(--skip); color: #fff; }
 
+/* Compact variant for the single-line log rows further down History, so an
+   undo button doesn't make those rows as tall as the Restore cards above. */
+.cal-undo {
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  border-radius: 7px;
+  margin-left: 4px;
+}
+
 /* ---- one-off to-dos (inside the To-dos tile's accordion card) ---- */
 
 .todo-list {

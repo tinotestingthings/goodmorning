@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (v2026.08.21-3) — Calendar → History: alles wat je logde kun je met één knop terugdraaien. NoteSprint blijft werken zonder internet en synct je oefenwerk zodra je weer online bent
+
+
 ## 2026-08-21 (v2026.08.21-2) — Vogelspotinus: dagbudget en intro-ruimte gefixt, cursus krijgt voorrang, sync overschrijft je andere apparaat niet meer
 
 Vier bevindingen uit de code-review. Het dagbudget nieuwe vogels ging eraf bij

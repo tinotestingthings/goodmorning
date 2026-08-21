@@ -26,10 +26,13 @@
 
   // Local log of what was captured, so the History view can show it even after
   // the Supabase rows are drained into the vault. Capped to the last 60.
-  function logCapture(kind, title, held) {
+  // `ref` points at whatever this capture created — a to-do id, an Items id,
+  // or the Supabase `captures` row id — so History can take the capture back.
+  // Older entries have no ref; History hides the undo button for those.
+  function logCapture(kind, title, held, ref) {
     try {
       var list = JSON.parse(localStorage.getItem(k("capture.log")) || "[]");
-      list.push({ kind: kind, title: title, held: !!held, at: new Date().toISOString() });
+      list.push({ kind: kind, title: title, held: !!held, at: new Date().toISOString(), ref: ref || null });
       if (list.length > 60) list = list.slice(list.length - 60);
       localStorage.setItem(k("capture.log"), JSON.stringify(list));
     } catch (e) {}
@@ -108,19 +111,20 @@
                   : when === "pick" ? (whenDate.value || localYmd(new Date()))
                   : localYmd(new Date());
           var list = global.DayModel.loadTodos();
-          list.push({ id: "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+          var newTodoId = "todo-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+          list.push({ id: newTodoId,
             text: _t, dueDate: due, startTime: null, endTime: null,
             done: false, snoozes: 0, note: _note || null });
           global.DayModel.saveTodos(list);
-          logCapture("todo", _t, false);
+          logCapture("todo", _t, false, newTodoId);
           toast("To-do added · " + due);
           close();
           if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
           return;
         }
         if (!global.Items || !global.Items.add) { toast("App not ready — try again"); return; }
-        global.Items.add({ type: kind, state: kind === "project" ? "idea" : "todo", title: _t, note: _note });
-        logCapture(kind, _t, false);
+        var added = global.Items.add({ type: kind, state: kind === "project" ? "idea" : "todo", title: _t, note: _note });
+        logCapture(kind, _t, false, added && added.id);
         toast(kind === "project" ? "Project added" : "Task added");
         close();
         if (global.App && global.App.go && global.App.getRoute) global.App.go(global.App.getRoute());
@@ -129,6 +133,10 @@
       if (!global.SB) { toast("Not connected — try again"); return; }
       send.disabled = true; send.textContent = "Adding…";
       var title = body.split("\n")[0].slice(0, 120);
+      // Deliberately no .select() here: nothing else in the app reads from
+      // `captures`, so SELECT rights are unproven and asking for the inserted
+      // row back could fail the whole insert. History → undo therefore finds
+      // the row again by kind + title + status "new" instead of by id.
       global.SB.from("captures").insert({ kind: kind, title: title, body: body, status: "new" }).then(function (res) {
         send.disabled = false; send.textContent = "Add to inbox";
         if (res && res.error) { toast("Failed: " + res.error.message); return; }
