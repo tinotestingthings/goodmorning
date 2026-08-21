@@ -98,6 +98,42 @@ Klaar-criteria (plan): knop en speler werken op telefoon, iPad en laptop;
 zonder wachtrijrecords is de kaart identiek aan nu, op de knop zelf na
 (de knop is het instappunt en staat er altijd; alle status-UI komt uit data).
 
+## Fase 2 — worker-script (stand 21 aug 2026, avond: nog te schrijven)
+
+Status: fase 1 live (v2026.08.21-5). notebooklm-py 0.8.1 geïnstalleerd (pyenv 3.10.13,
+`notebooklm` op PATH), Playwright-login gedaan, `notebooklm auth check --test` → "Authentication is valid".
+Nog niets werkt de wachtrij af; elke knopdruk blijft "in de maak" tot dit script bestaat.
+
+**Bestand:** `tools/luisterinus-worker.py` (Python, buiten de PWA). Tinus draait hem zelf:
+`python3 tools/luisterinus-worker.py` — het script leest de service_role via
+`security find-generic-password -s gm-supabase-service-role -w` (Claude mag die sleutel niet lezen).
+Extra modus voor een losse proef zonder Supabase: `--test-url <url> --out podcast.m4a`.
+
+**Per `requested`-rij:**
+1. `GET {SUPABASE_URL}/rest/v1/podcast_queue?status=eq.requested&select=*` (headers `apikey` + `Authorization: Bearer <service_role>`)
+2. NotebookLM (API-signaturen geverifieerd via introspectie op 0.8.1):
+   ```python
+   from notebooklm import NotebookLMClient, AudioFormat, AudioLength
+   async with NotebookLMClient.from_storage() as client:
+       nb = await client.notebooks.create(title)                                   # nb.id
+       await client.sources.add_url(nb.id, url, wait=True, wait_timeout=120)      # SourcesAPI: wait bestaat hier wél
+       st = await client.artifacts.generate_audio(nb.id, language="nl",
+               audio_format=AudioFormat.DEEP_DIVE, audio_length=AudioLength.DEFAULT)  # st.task_id
+       await client.artifacts.wait_for_completion(nb.id, st.task_id, timeout=900)  # ArtifactsAPI; default 300 s is te kort
+       await client.artifacts.download_audio(nb.id, "/tmp/<id>.m4a")             # m4a, speelt in de app (bewezen)
+       await client.notebooks.delete(nb.id)                                       # idempotent; alleen na succes
+   ```
+   (`AudioFormat`: BRIEF/CRITIQUE/DEBATE/DEEP_DIVE; `AudioLength`: SHORT/DEFAULT/LONG; `ArtifactStatus.COMPLETED/FAILED`.)
+3. Upload: `POST {SUPABASE_URL}/storage/v1/object/digest-audio/<id>.m4a`, `Content-Type: audio/mp4`, `x-upsert: true`.
+4. `PATCH /rest/v1/podcast_queue?id=eq.<id>` → `{"status":"ready","audio_path":"<id>.m4a"}`; bij elke exception
+   `{"status":"failed"}` + één logregel, en door met de volgende rij (nooit blijven hangen).
+
+**Eerste run = fase 0-luisterproef**: de echte aanvraag `sbx-test-camperverhuurder-ai-chatbot` (Ius Mentis-artikel)
+staat klaar als `requested`. Bevalt de NL-audio niet → project stopt; knop kan er in één commit uit.
+
+**Daarna (fase 3):** Cowork-taak 2×/dag die dit script draait; `notebooklm auth refresh --quiet` als keepalive;
+opruimen >14 dagen (bucket + rijen); rij in `Mijn Wiki/90 System/Automations.md`.
+
 ## Opruimen (fase 3)
 
 Bucketbestanden en wachtrijrijen ouder dan 14 dagen weggooien — doet het
