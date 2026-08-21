@@ -1,56 +1,135 @@
 {
- "generated": "2026-08-21T04:49:26Z",
- "daily": [],
+ "generated": "2026-08-21T06:56:52Z",
+ "daily": [
+  {
+   "id": "2026-08-21-404media-subtlefakes-nonconsensuele-ai-beelden-moeilijker-herkenbaar",
+   "title": "\"Subtlefakes\": nonconsensuele AI-beelden worden bewust subtieler en daarmee veel moeilijker te herkennen",
+   "source": "404 Media (Emanuel Maiberg)",
+   "url": "https://www.404media.co/subtlefakes-slightly-altered-nonconsensual-ai-images-are-taking-over-x/",
+   "date": "2026-08-21",
+   "summary": "Emanuel Maiberg publiceerde op 20 augustus 2026 bij 404 Media een stuk over een verschuiving in nonconsensueel AI-beeldmateriaal: het wordt steeds lastiger te herkennen. De aanjager is een genre dat 404 Media \"subtlefakes\" noemt — licht bewerkte AI-beelden van echte mensen die X overspoelen. Het kantelpunt zit hem in de graad van manipulatie. Klassieke deepfake-porno is expliciet en daarmee relatief goed te detecteren, te modereren en juridisch te adresseren. Subtlefakes werken andersom: een bestaande foto van een echt persoon wordt net genoeg aangepast — kleding, houding, context — dat het beeld seksualiserend of vernederend wordt zonder ooit de drempel van \"expliciet\" te halen. Daarmee gli"
+  },
+  {
+   "id": "2026-08-21-arrayref-rust-crate-supply-chain-aanval-infostealer",
+   "title": "arrayref-crate vergiftigd: Rust-supply-chain-aanval steelt browsercredentials tijdens het compileren",
+   "source": "BleepingComputer / StepSecurity / Wiz",
+   "url": "https://www.bleepingcomputer.com/news/security/hackers-poison-arrayref-rust-crate-to-push-infostealer-malware/",
+   "date": "2026-08-21",
+   "summary": "Op 20 augustus 2026 is het account van de beheerder achter arrayref gekaapt, een Rust-crate met ruim 53 miljoen downloads in de afgelopen negentig dagen, gebruikt in cryptografie-, graphics- en blockchain-tooling. Binnen een venster van 23 minuten vergiftigde de aanvaller ook append-only-vec en internment. BleepingComputer bracht het verhaal, met technische analyses van StepSecurity en Wiz. De aanval is bijzonder netjes uitgevoerd. De originele broncode bleef volledig ongewijzigd; er werd alleen een dependency toegevoegd op proc-macro1, een typosquat van het populaire proc-macro2. De build.rs van dat pakket is een cross-platform dropper die over TLS een tweede binary ophaalt en uitvoert. Omd"
+  },
+  {
+   "id": "2026-08-21-cosnitch-copilot-lek-een-klik-data-uit-gmail-drive",
+   "title": "CoSnitch: Copilot lekte zijn eigen aanvalspad, één klik volstond voor datadiefstal uit Gmail en Drive",
+   "source": "Varonis Threat Labs / BleepingComputer / The Register / Dark Reading",
+   "url": "https://www.varonis.com/blog/cosnitch",
+   "date": "2026-08-21",
+   "summary": "Varonis Threat Labs heeft een kwetsbaarheid in Microsoft Copilot Personal gepubliceerd — CVE-2026-24301, gedoopt CoSnitch — waarmee een aanvaller met één klik van het slachtoffer gegevens kon wegsluizen uit gekoppelde accounts. Microsoft heeft het lek op 18 augustus 2026 gedicht na responsible disclosure; Varonis zegt geen aanwijzingen te hebben gevonden dat het vóór de fix in het wild is misbruikt. BleepingComputer, The Register, Dark Reading en The Hacker News pakten het verhaal op tussen 18 en 20 augustus. De technische kern is een ongedocumenteerde URL-parameter ?autorun=1. In combinatie met een query-parameter zorgde die ervoor dat Copilot een in de link ingebedde prompt automatisch uit"
+  },
+  {
+   "id": "2026-08-21-google-koopt-spirit-airlines-data-faillissement-ai-training",
+   "title": "Google koopt de complete bedrijfsdata van het failliete Spirit Airlines voor $10 miljoen — als AI-trainingsmateriaal",
+   "source": "Axios / CNN / SiliconANGLE / HuffPost / IT Pro",
+   "url": "https://www.axios.com/2026/08/17/google-spirit-airlines-bankruptcy",
+   "date": "2026-08-21",
+   "summary": "Google heeft een faillissementsveiling gewonnen om de data van de ter ziele gegane Amerikaanse prijsvechter Spirit Airlines te kopen voor $10 miljoen (Mercor bood $7,5 miljoen; de biedingen begonnen rond $5 miljoen). Het gaat om een opmerkelijk complete dwarsdoorsnede van een bedrijf: circa 100 miljoen e-mails, 500 miljoen Microsoft Teams-chats, 30 miljoen regels code, 3,4 miljoen loonstrookrecords en werknemersgegevens die teruggaan tot 1986, plus finance-, operations- en revenue-managementdata, prijsmodellen, boekingscurves, vluchtgedrag, wifi- en inflight-verkopen en restitutiehistorie. Axios en Skift braken het verhaal rond 17 augustus, CNN volgde op 18 augustus, en op 20 augustus meldde"
+  },
+  {
+   "id": "2026-08-21-openai-trekt-toegang-cyberonderzoekers-tac-in-technische-fout",
+   "title": "OpenAI zette gescreende cyberonderzoekers uit zijn Trusted Access-programma — \"technische fout\", maar niet iedereen komt terug",
+   "source": "TechCrunch / The Register",
+   "url": "https://techcrunch.com/2026/08/19/researchers-complain-that-openai-revoked-their-access-to-limited-cyber-program/",
+   "date": "2026-08-21",
+   "summary": "Op woensdag 19 augustus 2026 meldden meerdere beveiligingsonderzoekers op OpenAI's supportforum en op X dat hun toegang tot het Trusted Access for Cyber (TAC)-programma was ingetrokken, specifiek de Daybreak Blue-tier. Bij het openen van de Cyber-pagina van ChatGPT kregen ze meldingen dat hun identiteit niet geverifieerd kon worden of dat hun account niet in aanmerking kwam. TechCrunch bracht het verhaal op 19 augustus, The Register volgde op 20 augustus. OpenAI bevestigt dat het om een technische fout ging, die vooral gebruikers buiten de VS en Europa trof. Betrokkenen moeten zich opnieuw aanmelden en de verificatie opnieuw doorlopen. Daar zit de angel: The Register meldt dat het herstelpro"
+  }
+ ],
  "today": {
   "date": "2026-08-21",
   "tasks": [
    {
-    "id": "2026-08-19-wc-kitten",
-    "title": "WC kitten",
-    "status": "doing",
-    "detail": "Captured in the goodmorning app on 19 August; the note holds no further detail than the title.",
-    "hint": "Note what \"done\" looks like",
-    "notes": [],
-    "subtasks": []
-   },
-   {
     "id": "2026-07-28-piano-learn-familiar",
     "title": "Piano - learn Familiar",
     "status": "doing",
-    "detail": "Learn to play *Familiar* on piano.",
-    "hint": "Pick 15 min to practise",
+    "detail": "Learn to play Familiar on piano.",
+    "hint": "In uitvoering",
     "notes": [],
     "subtasks": []
    },
    {
-    "id": "2026-08-17-rotate-github-pat-before-18-september",
-    "title": "Rotate the GitHub PAT before 18 September 2026",
+    "id": "2026-08-19-wc-kitten",
+    "title": "WC kitten",
+    "status": "doing",
+    "detail": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "hint": "In uitvoering",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-11-battlefield-6-helicopter-flying-practice-goal",
+    "title": "Battlefield 6 — helicopter flying practice goal",
     "status": "todo",
-    "detail": "The fine-grained token `tinotestingthings-token` that the daily digest uses to push `feed.json` expires Friday 18 September 2026 — 28 days from today.",
-    "hint": "Do this in the week of 11 September",
+    "detail": "I play Battlefield 6 on mouse and keyboard — I should get better at flying helicopters.",
+    "hint": "Open taak",
     "notes": [],
     "subtasks": []
    }
   ],
   "projects": [
    {
+    "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
+    "title": "Een AI app waarmee je mallen voor kleding kan maken.",
+    "status": "active",
+    "updated": "2026-08-18",
+    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
     "id": "2026-07-14-team-verbetering-idee",
     "title": "Team verbetering — idee",
     "status": "active",
-    "updated": "2026-08-19 07:10",
-    "line": "Idee over hoe we ons team kunnen verbeteren: - 2-maandelijkse strategiesessie met mede-senior - Meer eisen en actielijst bijhouden voor onze manager - Meer zichtbaarheid creëren naar de manager",
+    "updated": "2026-08-19",
+    "line": "Idee over hoe we ons team kunnen verbeteren: 2-maandelijkse strategiesessie met mede-senior Meer eisen en actielijst bijhouden voor onze manager Meer zichtbaarheid creëren naar de manager",
     "notes": [
-     "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least",
-     "<!-- app-subtasks:start -->"
+     "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
     ],
     "subtasks": []
+   },
+   {
+    "id": "2026-08-19-vof-opzeggen",
+    "title": "VOF opzeggen",
+    "status": "active",
+    "updated": "2026-08-19",
+    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "notes": [],
+    "subtasks": [
+     {
+      "text": "Maria informeren opzeggen vof",
+      "done": false
+     },
+     {
+      "text": "Formulier invullen",
+      "done": false
+     },
+     {
+      "text": "Nummer hein getten (erwin gevraagd)",
+      "done": false
+     },
+     {
+      "text": "Formulier op de post",
+      "done": false
+     },
+     {
+      "text": "Dingen downloaden van belastingdienst en archiveren",
+      "done": false
+     }
+    ]
    },
    {
     "id": "2026-07-28-goodmorning-app-improvements",
     "title": "Goodmorning app improvements",
     "status": "active",
-    "updated": "2026-08-20 07:09",
-    "line": "Hub project for improvements to the goodmorning app. Per Tinus's instruction (app note, 2026-07-27): \"Make a Project with 'Goodmorning app improvements'. If I put notes here that are improvements to the app, add them as subtasks.\" Future ap",
+    "updated": "2026-08-20",
+    "line": "Hub project for improvements to the goodmorning app.",
     "notes": [],
     "subtasks": [
      {
@@ -156,59 +235,20 @@
     ]
    },
    {
-    "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
-    "title": "Een AI app waarmee je mallen voor kleding kan maken.",
-    "status": "active",
-    "updated": "2026-08-18 07:10",
-    "line": "No further detail in the note.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
     "id": "2026-08-18-ecosystem-explainer-remotion-script",
     "title": "Ecosystem explainer — script & storyboard (Remotion)",
     "status": "active",
-    "updated": "2026-08-20 07:09",
-    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Korte explainer-video voor in een presentatie, over hoe kennis het systeem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.",
+    "updated": "2026-08-20",
+    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
     "notes": [],
     "subtasks": []
-   },
-   {
-    "id": "2026-08-19-vof-opzeggen",
-    "title": "VOF opzeggen",
-    "status": "active",
-    "updated": "2026-08-19 07:10",
-    "line": "Captured in the goodmorning app on 19 August; the note carries only the title plus a five-step subtask list.",
-    "notes": [],
-    "subtasks": [
-     {
-      "text": "Maria informeren opzeggen vof",
-      "done": false
-     },
-     {
-      "text": "Formulier invullen",
-      "done": false
-     },
-     {
-      "text": "Nummer hein getten (erwin gevraagd)",
-      "done": false
-     },
-     {
-      "text": "Formulier op de post",
-      "done": false
-     },
-     {
-      "text": "Dingen downloaden van belastingdienst en archiveren",
-      "done": false
-     }
-    ]
    },
    {
     "id": "2026-08-20-be-better-with-claude",
     "title": "Be better with Claude",
     "status": "active",
-    "updated": "2026-08-20 07:09",
-    "line": "Getting more out of Claude: a 15-item subtask list on skills, plugins, review commands, context mode and token-saving tools to test.",
+    "updated": "2026-08-20",
+    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
     "notes": [],
     "subtasks": [
      {
@@ -277,8 +317,17 @@
     "id": "2026-07-11-finance-and-markets-learning-interest",
     "title": "Finance and markets — learning interest",
     "status": "idea-stage",
-    "updated": "2026-08-04 21:22",
+    "updated": "2026-08-04",
     "line": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-28-link-chatgpt-work-to-app",
+    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+    "status": "idea-stage",
+    "updated": "2026-08-07",
+    "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
     "notes": [],
     "subtasks": []
    },
@@ -286,7 +335,7 @@
     "id": "2026-07-11-personal-productivity-mental-health-management",
     "title": "Personal productivity as mental health management",
     "status": "idea-stage",
-    "updated": "2026-08-11 07:10",
+    "updated": "2026-08-11",
     "line": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
     "notes": [],
     "subtasks": [
@@ -301,11 +350,20 @@
     ]
    },
    {
+    "id": "2026-08-12-visit-every-park-in-utrecht",
+    "title": "Visit every park in Utrecht.",
+    "status": "idea-stage",
+    "updated": "2026-08-12",
+    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
     "id": "2026-07-11-work-compliance-topics-resources-to-gather",
     "title": "Work compliance topics — resources to gather",
     "status": "idea-stage",
-    "updated": "2026-08-20 07:09",
-    "line": "Topics to add work-relevant resources on: - ISO 27001 - ISO 27701 - EU AI Act - GDPR",
+    "updated": "2026-08-20",
+    "line": "Topics to add work-relevant resources on: ISO 27001 ISO 27701 EU AI Act GDPR",
     "notes": [],
     "subtasks": []
    },
@@ -313,26 +371,8 @@
     "id": "2026-07-28-learn-pistol-squats",
     "title": "Learn pistol squats",
     "status": "idea-stage",
-    "updated": "2026-08-20 07:09",
+    "updated": "2026-08-20",
     "line": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-28-link-chatgpt-work-to-app",
-    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
-    "status": "idea-stage",
-    "updated": "2026-08-07 07:09",
-    "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-12-visit-every-park-in-utrecht",
-    "title": "Visit every park in Utrecht.",
-    "status": "idea-stage",
-    "updated": "2026-08-12 12:44",
-    "line": "No further detail in the note.",
     "notes": [],
     "subtasks": []
    },
@@ -340,7 +380,7 @@
     "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
     "title": "Cooking — improving recipes",
     "status": "done",
-    "updated": "2026-08-04 22:28",
+    "updated": "2026-08-04",
     "line": "Goal: start and improve recipes based on current ones, using the second brain.",
     "notes": [],
     "subtasks": []
@@ -349,7 +389,7 @@
     "id": "2026-07-11-daily-habits-hub-site",
     "title": "Project: a daily \"things to do everyday\" hub site",
     "status": "done",
-    "updated": "2026-08-04 22:28",
+    "updated": "2026-08-04",
     "line": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
     "notes": [
      "2026-07-24 22:16 (Tinus): Done"
@@ -357,11 +397,38 @@
     "subtasks": []
    },
    {
-    "id": "2026-07-14-cookie-scanner-applicatie",
-    "title": "Project: Cookie Scanner Applicatie",
+    "id": "2026-08-01-backlog-list-type-build-spec",
+    "title": "Backlog list type — build spec",
     "status": "done",
-    "updated": "2026-08-20 07:09",
-    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostn",
+    "updated": "2026-08-04",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
+    "title": "Sandbox → live promotion — safety spec",
+    "status": "done",
+    "updated": "2026-08-04",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
+    "title": "Vogelspotinus — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-13",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-13-event-tracker-integration-and-backup-spec",
+    "title": "Event Tracker — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-18",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
     "notes": [],
     "subtasks": []
    },
@@ -370,102 +437,75 @@
     "title": "Daily digest app — instructions & Claude Code build prompt",
     "status": "done",
     "updated": "2026-08-19",
-    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed). Decisions made 2026-07-15:",
+    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed).",
     "notes": [],
     "subtasks": []
    },
    {
-    "id": "2026-08-01-backlog-list-type-build-spec",
-    "title": "Backlog list type — build spec",
+    "id": "2026-07-14-cookie-scanner-applicatie",
+    "title": "Project: Cookie Scanner Applicatie",
     "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Fleshes out the \"New Backlog list type\" subtask into scope, data model, and build steps.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
-    "title": "Sandbox → live promotion — safety spec",
-    "status": "done",
-    "updated": "2026-08-04 22:28",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after the 2026-08-04 incident where promoting the sandbox build to live blanked the calendar and work planning, and after finding the same root cau",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
-    "title": "Vogelspotinus — integration & backup spec",
-    "status": "done",
-    "updated": "2026-08-13 07:09",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus's 2026-08-10 chat instruction to bring **Vogelspotinus** (his bird-name learning PWA) into the goodmorning app \"just like the other uti",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-13-event-tracker-integration-and-backup-spec",
-    "title": "Event Tracker — integration & backup spec",
-    "status": "done",
-    "updated": "2026-08-18 07:10",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other u",
+    "updated": "2026-08-20",
+    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk).",
     "notes": [],
     "subtasks": []
    }
   ],
   "radar": {
-   "updated": "2026-08-20",
+   "updated": "2026-08-17",
    "follow_ups": 1,
-   "headline": "",
+   "headline": "EDPB vraagt de Commissie om review van het EU-US Data Privacy Framework na Trump v. Slaughter (impact 5).",
    "deadlines": [
     {
      "date": "2026-10-31",
-     "label": "ISO/IEC 27701:2025 — certification bodies must have transitioned"
+     "label": "ISO 27701: certificerende instellingen moeten over naar de 2025-editie"
     },
     {
      "date": "2026-12-02",
-     "label": "AI Act Art. 50(2) watermarking grace period ends; new Art. 5 prohibition (NCII/CSAM)"
+     "label": "AI Act art. 50(2) grace period eindigt + nieuw verbod op AI-NCII/CSAM"
     },
     {
      "date": "2027-08-02",
-     "label": "GPAI providers with pre-Aug-2025 models — full compliance deadline"
+     "label": "GPAI-aanbieders met pre-aug-2025-modellen: volledige compliance"
     },
     {
      "date": "2027-12-02",
-     "label": "AI Act standalone high-risk systems (Annex III) become applicable"
+     "label": "Zelfstandige high-risk AI-verplichtingen (Annex III) van toepassing"
     },
     {
      "date": "2028-08-02",
-     "label": "AI Act high-risk systems embedded in products (Annex I) — compliance deadline"
+     "label": "High-risk AI in producten (Annex I) compliance-deadline"
     }
    ],
    "items": [
     {
-     "id": "iso-27701-cb-transition",
-     "title": "ISO/IEC 27701:2025 — certification bodies must have transitioned",
+     "id": "deadline-2026-10-31",
+     "title": "ISO 27701: certificerende instellingen moeten over naar de 2025-editie",
      "date": "2026-10-31"
     },
     {
-     "id": "ai-act-art50-watermarking-grace-end",
-     "title": "AI Act Art. 50(2) watermarking grace period ends; new Art. 5 prohibition (NCII/CSAM)",
+     "id": "deadline-2026-12-02",
+     "title": "AI Act art. 50(2) grace period eindigt + nieuw verbod op AI-NCII/CSAM",
      "date": "2026-12-02"
     },
     {
-     "id": "gpai-pre-aug-2025-models",
-     "title": "GPAI providers with pre-Aug-2025 models — full compliance deadline",
+     "id": "deadline-2027-08-02",
+     "title": "GPAI-aanbieders met pre-aug-2025-modellen: volledige compliance",
      "date": "2027-08-02"
     },
     {
-     "id": "ai-act-annex-iii-high-risk",
-     "title": "AI Act standalone high-risk systems (Annex III) become applicable",
+     "id": "deadline-2027-12-02",
+     "title": "Zelfstandige high-risk AI-verplichtingen (Annex III) van toepassing",
      "date": "2027-12-02"
     },
     {
-     "id": "ai-act-annex-i-embedded-high-risk",
-     "title": "AI Act high-risk systems embedded in products (Annex I) — compliance deadline",
+     "id": "deadline-2028-08-02",
+     "title": "High-risk AI in producten (Annex I) compliance-deadline",
      "date": "2028-08-02"
     },
     {
      "id": "2026-07-23-edpb-data-breach-notification-template",
-     "title": "EDPB Art. 33 breach-notification template — watch for the final version",
+     "title": "EDPB common template for personal data breach notification (Art. 33)",
      "date": null
     }
    ],
