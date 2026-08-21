@@ -2,6 +2,36 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 — WijnWijs: 200 nieuwe SDEN 2-vragen, geschudde antwoorden, rustiger Vandaag (gerichte promote)
+
+Vragenbank van 210 naar 410. De 200 nieuwe vragen vullen de dun bezette
+thema's: De druif 5->43, Wet- en regelgeving 8->32, Wijnbereiding 15->43,
+Noord- en Zuid-Amerika en Zuid-Afrika/Australie/Nieuw-Zeeland elk 12->34;
+elk thema heeft er nu minstens 32, zodat een themasessie niet meer in
+herhaling valt. Bank gesplitst in questions-core.js (de eerste 210) en
+questions-sden2-extra.js (de nieuwe 200); questions.js voegt ze samen, de
+rest van de app is ongewijzigd. Alle 200 zijn getagd met hun SDEN-toetsterm
+(1.2 t/m 6b.2), net als de oude bank.
+
+Antwoordopties worden nu per sessie geschud (practice.js viewFor). De
+volgorde lag vast in de data, dus bij spaced repetition kon je de plek van
+het juiste antwoord onthouden in plaats van de stof. Waar/niet-waar blijft
+ongeschud. In de data zelf ook rechtgezet: juiste antwoorden gebalanceerd
+over A/B/C/D (waren 192x A), 10 vragen waar het juiste antwoord veel langer
+was dan de afleiders herschreven, en 3 legacy-types (pairing/spectrum)
+genormaliseerd naar multiple.
+
+Vandaag-pagina: de quick-fact-hero (360px hoog, decoratieve bol van 330px,
+kop op 49px) is vervangen door een compacte regel met een dun accent links,
+zodat "Start je sessie" meteen in beeld staat; 13 dode CSS-regels weg.
+
+Tests: tests/wijnwijs.core.test.mjs naar 22 (dubbelingen, 4 opties per
+meerkeuzevraag, minimaal 30 vragen per thema, antwoordpositieverdeling,
+lengte-verklapper, uitleg aanwezig, schudden van de optievolgorde).
+Gerichte promote van alleen wine/ (andere sessies hadden explainer/,
+sandbox/notesprint en sandbox/vogelspotinus onder handen); geen cache-bump
+(network-first shell).
+
 ## 2026-08-20 (v2026.08.20-1) — Cross-device: iPhone-notch, iOS-zoom, tablet/laptop-layout, toetsenbord in triage
 
 Ronde om de app op telefoon, tablet én laptop echt goed te laten werken.

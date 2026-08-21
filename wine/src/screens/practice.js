@@ -23,6 +23,7 @@ export function startSession(ctx, { title, ids, mode = "quiz", size = 6 }) {
     title,
     mode, // "quiz" | "flashcards"
     ids: list,
+    views: {},   // qid -> volgorde waarin de opties nu getoond worden
     index: 0,
     correctCount: 0,
     selected: null,
@@ -127,6 +128,25 @@ function currentQuestion() {
   return questionById(session.ids[session.index]);
 }
 
+// De volgorde van de antwoorden staat vast in de vragenbank. Zou de app die
+// één op één tonen, dan hoort bij een vraag altijd dezelfde letter en kun je
+// met spaced repetition de plék onthouden in plaats van de stof. Daarom krijgt
+// elke vraag per sessie een eigen, geschudde volgorde — zoals op een echt
+// examen. Waar/niet-waar blijft staan: daar is "Waar" altijd de eerste keuze.
+function viewFor(q) {
+  if (q.type === "truefalse") return { options: q.options, answer: q.answer };
+  if (!session.views[q.id]) {
+    const order = q.options.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    session.views[q.id] = order;
+  }
+  const order = session.views[q.id];
+  return { options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer) };
+}
+
 // Antwoord verwerken: SRS, XP, dagteller en streak in één update.
 function grade(correct) {
   const q = currentQuestion();
@@ -167,6 +187,7 @@ function setAside(ctx) {
 
 function quizView(ctx) {
   const q = currentQuestion();
+  const view = viewFor(q);   // geschudde optievolgorde voor deze sessie
   const flash = session.mode === "flashcards";
 
   const top = h("div", { class: "quiz-top" },
@@ -201,9 +222,9 @@ function quizView(ctx) {
   }
 
   const answers = h("div", { class: "answer-list" },
-    q.options.map((opt, i) => {
-      const isCorrect = session.checked && i === q.answer;
-      const isWrong = session.checked && session.selected === i && i !== q.answer;
+    view.options.map((opt, i) => {
+      const isCorrect = session.checked && i === view.answer;
+      const isWrong = session.checked && session.selected === i && i !== view.answer;
       return h("button", {
         disabled: session.checked,
         class: `${session.selected === i ? "selected" : ""} ${isCorrect ? "correct" : ""} ${isWrong ? "wrong" : ""}`,
@@ -218,7 +239,7 @@ function quizView(ctx) {
   card.appendChild(answers);
 
   if (session.checked) {
-    const good = session.selected === q.answer;
+    const good = session.selected === view.answer;
     const feedback = h("div", { class: `feedback ${good ? "success" : "error"}` },
       h("strong", null, good ? "Precies!" : "Nog niet helemaal."),
       h("p", null, q.explanation)
@@ -240,7 +261,7 @@ function quizView(ctx) {
       : h("button", {
           class: "button primary",
           disabled: session.selected === null,
-          onClick: () => { session.checked = true; grade(session.selected === q.answer); ctx.rerender(); }
+          onClick: () => { session.checked = true; grade(session.selected === view.answer); ctx.rerender(); }
         }, "Controleer")
   );
 

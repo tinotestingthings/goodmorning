@@ -43,24 +43,19 @@ export function renderToday(root, ctx) {
         h("small", null, streak === 1 ? "dag op rij" : "dagen op rij")
       )
     ),
-    h("article", { class: "fact-card" },
-      h("div", { class: "fact-decoration" }, h("span"), h("span"), h("span")),
-      h("div", { class: "fact-copy" },
-        h("span", { class: "card-kicker" }, `Quick fact · ${fact.kicker}`),
-        h("h2", null, fact.title),
-        h("p", null, fact.body),
-        h("div", { class: "card-actions" },
-          h("button", {
-            class: "button light",
-            onClick: () => startSession(ctx, {
-              title: `Test: ${fact.kicker}`,
-              ids: topicStats(state).find((t) => t.topic === fact.topic)?.ids || [],
-              size: 6
-            })
-          }, "Test mij hierover ", h("span", null, "→")),
-          h("span", { class: "level-label" }, fact.level)
-        )
-      )
+    h("aside", { class: "fact-line" },
+      h("p", null,
+        h("strong", null, fact.title + ". "),
+        fact.body
+      ),
+      h("button", {
+        class: "text-button",
+        onClick: () => startSession(ctx, {
+          title: `Test: ${fact.kicker}`,
+          ids: topicStats(state).find((t) => t.topic === fact.topic)?.ids || [],
+          size: 6
+        })
+      }, "Oefen ", fact.kicker.toLowerCase(), " ", h("span", null, "→"))
     ),
     h("div", { class: "dashboard-grid" },
       h("article", { class: "panel daily-panel" },
