@@ -25,6 +25,16 @@ const sourceUrls: Record<string, string> = {
   nachtvandenacht: "https://nachtvandenacht.nl/",
   oudemuziek: "https://oudemuziek.nl/en/fomu26/",
   nff: "https://www.filmfestival.nl/festival",
+  bockbierUtrecht: "https://bockbier-festival.nl/",
+  pintBockbier: "https://www.pintbockbierfestival.nl/",
+  gaudeamus: "https://gaudeamus.nl/",
+  smartlappen: "https://smartlappenfestival.nl/",
+  iamsterdam: "https://www.iamsterdam.com/uit/agenda",
+  ade: "https://www.amsterdam-dance-event.nl/",
+  idfa: "https://festival.idfa.nl/",
+  museumnacht: "https://museumnacht.amsterdam/",
+  lightfestival: "https://amsterdamlightfestival.com/",
+  festivalinfo: "https://www.festivalinfo.nl/",
 };
 const src = (id: string, name: string, firstSeenAt: string, url = sourceUrls[id]) => ({ id, name, firstSeenAt, url });
 
@@ -99,6 +109,62 @@ const core: EventRecord[] = [
     whyRelevant: "The one week a year Utrecht is the centre of Dutch film \u2014 national premieres, the Gouden Kalf awards, and NFFx030 with immersive installations and free open-air screenings out in the neighbourhoods.", whyNow: "The 46th edition runs Friday 25 September through Friday 2 October 2026 and the voorverkoop has already opened, starting with opening film Downtown by Michiel van Erp.", recommendedAction: "Browse the programme and book the premieres before they sell out", state: "unseen", discoveredAt: "2026-08-16", accent: "forest",
     sources: [src("nff", "Nederlands Film Festival \u2014 official programme page", "2026-08-16")],
     milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-16"
+  },
+  {
+    id: "gaudeamus-2026", title: "Gaudeamus Muziekweek 2026", shortDescription: "Fifty-plus concerts of brand-new and experimental music by the next generation of composers, across TivoliVredenburg and venues city-wide.",
+    startAt: "2026-09-09T00:00:00+02:00", endAt: "2026-09-13T23:59:00+02:00", venueName: "TivoliVredenburg + city venues", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.5,
+    primaryCategory: "Music", tags: ["music", "festival", "contemporary", "ticketed"], priceLabel: "Programme dependent", isFree: false, relevance: 80, rarity: 74, preparation: 40, urgency: 82,
+    whyRelevant: "Utrecht's festival for new music \u2014 the experimental counterpart to the early-music festival it directly follows.", whyNow: "The 2026 edition runs 9\u201313 September, right after Festival Oude Muziek; the programme is live.", recommendedAction: "Browse the programme for a concert or two", state: "unseen", discoveredAt: "2026-08-21", accent: "cyan",
+    sources: [src("gaudeamus", "Gaudeamus \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "bockbier-festival-utrecht-2026", title: "Bockbier Festival Utrecht 2026", shortDescription: "Three days of 25+ bock beers, live music, DJs and BBQ on Janskerkhof \u2014 the city's autumn beer festival.",
+    startAt: "2026-10-16T16:00:00+02:00", endAt: "2026-10-18T20:00:00+02:00", venueName: "Janskerkhof", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.0,
+    primaryCategory: "Food & Drink", tags: ["beer", "festival", "food", "autumn"], priceLabel: "Entry + tokens", isFree: false, relevance: 84, rarity: 70, preparation: 25, urgency: 60,
+    whyRelevant: "The Utrecht bock-beer festival, in the open air on Janskerkhof. Not to be confused with the PINT Bockbierfestival, which moved to Amsterdam.", whyNow: "Confirmed for 16\u201318 October 2026: Friday 16:00\u201324:00, Saturday 13:00\u201324:00, Sunday 13:00\u201320:00.", recommendedAction: "Pick a day and invite someone", state: "unseen", discoveredAt: "2026-08-21", accent: "ochre",
+    sources: [src("bockbierUtrecht", "Bockbier Festival Utrecht \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "pint-bockbierfestival-2026", title: "PINT Bockbierfestival 2026 (Amsterdam)", shortDescription: "The 44th edition of the classic PINT bock-beer festival \u2014 40+ bock beers \u2014 now at De Hallen Studio's in Amsterdam after moving from Utrecht.",
+    startAt: "2026-10-02T00:00:00+02:00", endAt: "2026-10-03T23:59:00+02:00", venueName: "De Hallen Studio's", city: "Amsterdam", region: "Amsterdam", country: "Netherlands", distanceKm: 38,
+    primaryCategory: "Food & Drink", tags: ["beer", "festival", "autumn"], priceLabel: "Entry + tokens", isFree: false, relevance: 78, rarity: 72, preparation: 35, urgency: 66,
+    whyRelevant: "The original Dutch bock-beer festival (PINT), which left Utrecht \u2014 the reason it no longer shows up in Utrecht listings.", whyNow: "Friday 2 and Saturday 3 October 2026, De Hallen Studio's, Hannie Dankbaarpassage 18.", recommendedAction: "Decide between this and the Utrecht edition two weeks later", state: "unseen", discoveredAt: "2026-08-21", accent: "ochre",
+    sources: [src("pintBockbier", "PINT Bockbierfestival \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "ade-2026", title: "Amsterdam Dance Event 2026", shortDescription: "The 30th ADE: 1000+ events and 2500 DJs across the whole city \u2014 the world's biggest electronic-music gathering.",
+    startAt: "2026-10-21T00:00:00+02:00", endAt: "2026-10-25T23:59:00+02:00", venueName: "Venues across Amsterdam", city: "Amsterdam", region: "Amsterdam", country: "Netherlands", distanceKm: 38,
+    primaryCategory: "Music", tags: ["music", "festival", "electronic", "ticketed"], priceLabel: "Per event", isFree: false, relevance: 75, rarity: 78, preparation: 65, urgency: 80,
+    whyRelevant: "Five days in which Amsterdam is the centre of electronic music \u2014 day programme (talks, art) included.", whyNow: "The 30th edition runs 21\u201325 October 2026; popular club nights sell out well in advance.", recommendedAction: "Scan the programme early if anything appeals", state: "unseen", discoveredAt: "2026-08-21", accent: "violet",
+    sources: [src("ade", "Amsterdam Dance Event \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "museumnacht-amsterdam-2026", title: "Museumnacht Amsterdam 2026", shortDescription: "70+ Amsterdam museums open 19:00\u201302:00 with music, performance and after-hours programming.",
+    startAt: "2026-11-07T19:00:00+01:00", endAt: "2026-11-08T02:00:00+01:00", venueName: "Museums across Amsterdam", city: "Amsterdam", region: "Amsterdam", country: "Netherlands", distanceKm: 38,
+    primaryCategory: "Culture", tags: ["culture", "museum", "night", "ticketed"], priceLabel: "One ticket, all museums", isFree: false, relevance: 80, rarity: 76, preparation: 45, urgency: 72,
+    whyRelevant: "One night a year the museums stay open late with special programming \u2014 a very different way to see them.", whyNow: "First Saturday of November (7 November 2026); tickets typically sell out.", recommendedAction: "Buy a ticket when sales open", state: "unseen", discoveredAt: "2026-08-21", accent: "rose",
+    sources: [src("museumnacht", "Museumnacht Amsterdam \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "idfa-2026", title: "IDFA 2026", shortDescription: "The world's largest documentary film festival: ten days of premieres, talks and immersive work across Amsterdam.",
+    startAt: "2026-11-12T00:00:00+01:00", endAt: "2026-11-22T23:59:00+01:00", venueName: "Cinemas across Amsterdam", city: "Amsterdam", region: "Amsterdam", country: "Netherlands", distanceKm: 38,
+    primaryCategory: "Film", tags: ["film", "festival", "documentary", "ticketed"], priceLabel: "Per screening", isFree: false, relevance: 82, rarity: 74, preparation: 50, urgency: 70,
+    whyRelevant: "The definitive documentary festival, an easy train ride away \u2014 strong fit for the film-heavy side of this tracker.", whyNow: "The 2026 edition runs 12\u201322 November; the programme lands in late October.", recommendedAction: "Set aside an evening and pick screenings when the programme drops", state: "unseen", discoveredAt: "2026-08-21", accent: "forest",
+    sources: [src("idfa", "IDFA \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "amsterdam-light-festival-2026", title: "Amsterdam Light Festival 2026\u201327", shortDescription: "The 15th edition of the winter light-art route along the canals, walkable or by boat.",
+    startAt: "2026-11-26T17:00:00+01:00", endAt: "2027-01-17T23:00:00+01:00", venueName: "Canal ring", city: "Amsterdam", region: "Amsterdam", country: "Netherlands", distanceKm: 38,
+    primaryCategory: "Culture", tags: ["culture", "light-art", "winter", "free"], priceLabel: "Free on foot; cruises paid", isFree: true, relevance: 74, rarity: 68, preparation: 20, urgency: 40,
+    whyRelevant: "Large-scale light art in public space \u2014 free to walk, and at its best on a cold clear evening.", whyNow: "Runs 26 November 2026 through 17 January 2027; no planning needed beyond picking an evening.", recommendedAction: "Combine with a winter evening in Amsterdam", state: "unseen", discoveredAt: "2026-08-21", accent: "violet",
+    sources: [src("lightfestival", "Amsterdam Light Festival \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
+  },
+  {
+    id: "smartlappenfestival-2026", title: "Utrechts Smartlappenfestival 2026", shortDescription: "The 34th edition: free tearjerker sing-alongs in caf\u00e9s and on squares across the old city centre.",
+    startAt: "2026-11-13T00:00:00+01:00", endAt: "2026-11-15T23:59:00+01:00", venueName: "Binnenstad caf\u00e9s + squares", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.0,
+    primaryCategory: "Music", tags: ["music", "festival", "free", "tradition"], priceLabel: "Free", isFree: true, relevance: 68, rarity: 66, preparation: 10, urgency: 45,
+    whyRelevant: "A Utrecht tradition: choirs singing smartlappen through the city-centre pubs \u2014 zero planning, just walk in.", whyNow: "The 34th edition is confirmed for 13\u201315 November 2026.", recommendedAction: "Wander through the binnenstad that weekend", state: "unseen", discoveredAt: "2026-08-21", accent: "coral",
+    sources: [src("smartlappen", "Utrechts Smartlappenfestival \u2014 official", "2026-08-21")], milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
   }
 ];
 
@@ -127,4 +193,6 @@ export const sources: SourceRecord[] = [
   { id: "tivoli", name: "TivoliVredenburg", url: sourceUrls.tivoli, type: "API", scope: "Venue", enabled: true, health: "Healthy", lastScan: "32 min ago", events: 73, newEvents: 5, duplicates: 19, saves: 21, saveRate: 29, leadTime: 109, earliest: 71 },
   { id: "staatsbos", name: "Staatsbosbeheer", url: sourceUrls.staatsbos, type: "RSS", scope: "Central Netherlands", enabled: true, health: "Warning", lastScan: "6 hr ago", events: 28, newEvents: 1, duplicates: 3, saves: 12, saveRate: 43, leadTime: 38, earliest: 57 },
   { id: "eventbrite", name: "Eventbrite Utrecht", url: sourceUrls.eventbrite, type: "API", scope: "25 km radius", enabled: false, health: "Paused", lastScan: "3 days ago", events: 211, newEvents: 0, duplicates: 81, saves: 17, saveRate: 8, leadTime: 31, earliest: 18 },
+  { id: "iamsterdam", name: "I amsterdam uitagenda", url: sourceUrls.iamsterdam, type: "Calendar", scope: "Amsterdam region", enabled: true, health: "Healthy", lastScan: "today", events: 8, newEvents: 8, duplicates: 0, saves: 0, saveRate: 0, leadTime: 62, earliest: 55 },
+  { id: "festivalinfo", name: "Festivalinfo.nl", url: sourceUrls.festivalinfo, type: "Calendar", scope: "National festival calendar", enabled: true, health: "Healthy", lastScan: "today", events: 6, newEvents: 6, duplicates: 2, saves: 0, saveRate: 0, leadTime: 84, earliest: 70 },
 ];
