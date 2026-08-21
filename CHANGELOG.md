@@ -2,6 +2,20 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-21 (v2026.08.21-2) — Vogelspotinus: dagbudget en intro-ruimte gefixt, cursus krijgt voorrang, sync overschrijft je andere apparaat niet meer
+
+Vier bevindingen uit de code-review. Het dagbudget nieuwe vogels ging eraf bij
+het TONEN van de introkaart, dus de sessie openen en weglopen kostte je een
+vogel zonder dat je iets leerde — vijf keer openen en je dag was op met nul
+geleerde vogels; dat gebeurt nu bij het eerste antwoord. De ruimte tussen
+introkaart en eerste vraag zakte naar nul zodra er weinig te herhalen viel
+(precies op dag één), waardoor je vijf vogels op "goed" zette met de foto nog
+op je netvlies. Vrij oefenen vulde de Griftpark-sessie met soorten buiten de
+cursus; cursusvogels krijgen nu voorrang op de twintig plekken. En een pull van
+de server schreef alleen localStorage bij terwijl de app zijn voortgang in het
+geheugen houdt, waardoor het volgende antwoord antwoorden van je andere
+apparaat overschreef.
+
 ## 2026-08-21 (v2026.08.21-1) — Vogelspotinus: 12 soorten toonden de verkeerde vogel (nu naam-geverifieerd), en de "Inkt"-look met vogel van vandaag
 
 De iNaturalist-fetcher pakte blind het eerste fuzzy zoekresultaat, dat op
