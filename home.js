@@ -307,47 +307,20 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
   var ICON_MUSIC_NOTE =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.6"/><circle cx="16.5" cy="16" r="2.6"/></svg>';
-  var ICON_LISTEN =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/></svg>';
   var ICON_CALENDAR_STAR =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m12 12 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 18l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg>';
 
-  // "Most used apps" strip in de hero-rij. Voorlopig hardcoded op NoteSprint
-  // en ChordSprint; de lijst staat los zodat hij later uit werkelijk gebruik
-  // (of uit de *_state tabellen) gevuld kan worden zonder de opmaak te raken.
   var ICON_GIFT =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>';
 
-  // 2026-08-19: NoteSprint + ChordSprint vervangen door Attentinus (op verzoek;
-  // de muziektegels komen misschien later terug — entries bewaard in git).
-  var MOST_USED = [
-    { label: "Attentinus", href: "attentinus/", icon: ICON_GIFT }
-  ];
-
-  function renderAppTile(opts) {
-    var a = document.createElement("a");
-    a.className = "app-tile";
-    a.href = opts.href;
-    a.setAttribute("aria-label", "Open " + opts.label);
-
-    var arrow = el("span", "app-tile-arrow");
-    arrow.innerHTML = ICON_ARROW_OUT;
-    a.appendChild(arrow);
-
-    var ic = el("span", "app-tile-icon");
-    ic.innerHTML = opts.icon;
-    a.appendChild(ic);
-
-    var label = el("div", "app-tile-label", opts.label);
-    a.appendChild(label);
-    fitTileLabel(label);
-    return a;
-  }
+  // 2026-08-22: de Attentinus-tegel en de podcast-tegel zijn uit de hero-rij gehaald (UX-plan):
+  // de verjaardagskaart (renderAttentTile) en de Utilities-tegel met badge zijn genoeg.
+  // renderAppTile ging daarmee mee; fitTileLabel blijft voor de vogel-tegel.
 
   // Shrink an app-tile label until it fits the tile on one line. The tile is a
   // fixed 92px, so a longer name than "NoteSprint" (e.g. "ChordSprint") used to
   // break mid-word onto a second line. Runs after layout via rAF, because the
-  // element isn't in the document yet when renderAppTile returns.
+  // element isn't in the document yet when renderBirdTile returns.
   var TILE_LABEL_MAX = 0.78;   // rem, matches the CSS default
   var TILE_LABEL_MIN = 0.6;    // rem, below this we wrap instead of shrinking
   function fitTileLabel(label) {
@@ -694,7 +667,7 @@
   // Attentinus tile — zelfde slot-patroon: alleen zichtbaar als er binnen 21
   // dagen iemand "jarig" is (of een andere jaarlijkse datum uit Attentinus).
   // Leest attentinus.people read-only uit attentinus_state; de app zelf is de
-  // plek waar je beheert en ideeën bijhoudt. (ICON_GIFT staat bij MOST_USED.)
+  // plek waar je beheert en ideeën bijhoudt.
 
   var ATTENT_SOON_DAYS = 21;   // zelfde venster als in de Attentinus-app
 
@@ -837,45 +810,14 @@
 
   // ---- hero (greeting + loop/done card + mini weather tile) ----
 
-  // Luisterinus-tile in de hero-rij — alléén als er een podcast klaarstaat
-  // (Opduikinus-principe: geen data = geen tile). Badge = aantal klaar. Wordt
-  // async aan de rij toegevoegd, zodat de home nooit op Supabase wacht.
-  // Na inloggen vanuit de overlay staat Today al op het scherm en rendert niets
-  // opnieuw; dan alsnog de tile toevoegen. SIGNED_IN komt ook bij tab-focus,
-  // vandaar de "staat er al"-check in appendPodcastTile.
-  var lastHeroRow = null;
-  if (window.SB) window.SB.auth.onAuthStateChange(function (event, session) {
-    if (event === "SIGNED_IN" && session && lastHeroRow) appendPodcastTile(lastHeroRow);
-  });
-
-  function appendPodcastTile(heroRow) {
-    if (!window.SB) return;
-    var since = new Date(Date.now() - 14 * 86400000).toISOString();
-    window.SB.from("podcast_queue").select("id", { count: "exact", head: true })
-      .eq("status", "ready").gte("requested_at", since).then(function (res) {
-      var n = res.error ? 0 : (res.count || 0);
-      // niets klaar, rij al vervangen (isConnected i.p.v. myGeneration: de rij
-      // weet zelf of hij nog leeft), of tile staat er al -> niets doen
-      if (!n || !heroRow.isConnected || heroRow.querySelector(".podcast-tile")) return;
-      var a = renderAppTile({ label: n === 1 ? "1 podcast" : n + " podcasts", href: "luisterinus/", icon: ICON_LISTEN });
-      a.classList.add("podcast-tile");
-      a.setAttribute("aria-label", "Open Luisterinus, " + n + " podcast" + (n === 1 ? "" : "s") + " klaar");
-      a.appendChild(el("span", "tile-badge tile-badge-red", String(n)));
-      heroRow.appendChild(a);
-    });
-  }
-
   function renderHero(myGeneration) {
     var wrap = el("div", "home-hero");
     wrap.appendChild(renderHeader());
 
     var heroRow = el("div", "hero-row");
-    lastHeroRow = heroRow;
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
-    MOST_USED.forEach(function (app) { heroRow.appendChild(renderAppTile(app)); });
     heroRow.appendChild(renderBirdTile());
-    appendPodcastTile(heroRow);
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");
