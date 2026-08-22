@@ -92,7 +92,7 @@
         d=addDays(d,1);
       }
     });
-    if(window.Ics){ var de=parseYmd(startStr); while(ymd(de)<=endStr){ if(icsOn(ymd(de)).length)bump(ymd(de),"event"); de=addDays(de,1); } }
+    var de=parseYmd(startStr); while(ymd(de)<=endStr){ if(icsOn(ymd(de)).length||attentOn(ymd(de)).length)bump(ymd(de),"event"); de=addDays(de,1); }
     return marks;
   }
 
@@ -481,12 +481,13 @@
     var head=el("div","cal-day-head");
     head.appendChild(el("h2","cal-day-title", selectedDate===todayStr()?"Today · "+niceDay(selectedDate):niceDay(selectedDate)));
     panel.appendChild(head);
-    var chores=choresOn(selectedDate), todos=todosOn(selectedDate), events=icsOn(selectedDate);
-    if(!chores.length && !todos.length && !events.length) panel.appendChild(el("p","cal-empty","Nothing scheduled. Add a task below."));
+    var chores=choresOn(selectedDate), todos=todosOn(selectedDate), events=icsOn(selectedDate), attent=attentOn(selectedDate);
+    if(!chores.length && !todos.length && !events.length && !attent.length) panel.appendChild(el("p","cal-empty","Nothing scheduled. Add a task below."));
     else { var list=el("div","cal-item-list");
       chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,selectedDate)); });
       todos.forEach(function(t){ list.appendChild(todoItem(t,true)); });
       events.forEach(function(ev){ list.appendChild(icsItem(ev)); });
+      attent.forEach(function(a){ list.appendChild(attentItem(a,selectedDate)); });
       panel.appendChild(list);
     }
     panel.appendChild(buildAddArea());
@@ -567,15 +568,41 @@
     attachHold(row,function(){ openChoreMenu(chore,occDate); });
     return row;
   }
-  function icsItem(ev){
-    var row=el("div","cal-item cal-item-ics");
+  // Alleen-lezen rij met kleurbalk: ICS-events en Attentinus-datums.
+  function barItem(tag,cls,title,sub){
+    var row=el(tag,"cal-item "+cls);
     row.appendChild(el("span","cal-ics-bar"));
     var body=el("div","cal-item-body");
-    body.appendChild(el("div","cal-item-title",ev.title));
-    body.appendChild(el("div","cal-item-sub",(ev.allDay?"All day":(ev.startTime||""))+" · Subscribed"));
+    body.appendChild(el("div","cal-item-title",title));
+    body.appendChild(el("div","cal-item-sub",sub));
     row.appendChild(body); return row;
   }
+  function icsItem(ev){ return barItem("div","cal-item-ics",ev.title,(ev.allDay?"All day":(ev.startTime||""))+" · Subscribed"); }
   function icsOn(ds){ return window.Ics?window.Ics.eventsOn(ds):[]; }
+
+  // Attentinus-datums (verjaardagen, feestdagen) als all-day items. Bron is
+  // de leescache die home.js vult bij het renderen van de tile; hier wordt
+  // nooit geschreven. Datumlogica: attentinus/dates.js (window.AttentDates).
+  var _attentRaw=null, _attentList=[];
+  function attentAll(){
+    var raw=null; try{ raw=localStorage.getItem(k("attentCache")); }catch(e){}
+    if(raw!==_attentRaw){ _attentRaw=raw; try{ _attentList=JSON.parse(raw)||[]; }catch(e){ _attentList=[]; } if(!Array.isArray(_attentList))_attentList=[]; }
+    return _attentList;
+  }
+  function attentOn(ds){ return window.AttentDates?window.AttentDates.on(attentAll(),ds):[]; }
+  function attentHref(a){ return "attentinus/#"+encodeURIComponent(a.id||""); }
+  function attentItem(a,ds){
+    var D=window.AttentDates, d=D.dateIn(a,parseInt(ds.slice(0,4),10)), yt=d?D.yearText(a,d):null;
+    var row=barItem("a","cal-item-attent",a.name,D.word(a)+(yt?" · "+yt:"")+" · Attentinus");
+    row.href=attentHref(a); return row;
+  }
+  // De cache komt pas na de Supabase-fetch van de home-tile; was de agenda al
+  // getekend, dan nog één keer — maar niet midden in een invoer.
+  document.addEventListener("dd-attent-cache",function(){
+    var ae=document.activeElement;
+    if(addMode||(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) return;
+    render();
+  });
 
   // long-press anywhere on the row (not on a button/handle) opens the menu
   function attachHold(row,onHold){
@@ -697,7 +724,7 @@
   function collectRange(startStr,endStr){
     // returns array of {ds, chores:[], todos:[]} for days with items
     var out=[]; var d=parseYmd(startStr), end=parseYmd(endStr);
-    while(d<=end){ var ds=ymd(d); var ch=choresOn(ds), td=todosOn(ds), ev=icsOn(ds); if(ch.length||td.length||ev.length)out.push({ds:ds,chores:ch,todos:td,events:ev}); d=addDays(d,1); }
+    while(d<=end){ var ds=ymd(d); var ch=choresOn(ds), td=todosOn(ds), ev=icsOn(ds), at=attentOn(ds); if(ch.length||td.length||ev.length||at.length)out.push({ds:ds,chores:ch,todos:td,events:ev,attent:at}); d=addDays(d,1); }
     return out;
   }
   function buildAgenda(){
@@ -715,6 +742,7 @@
       g.chores.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,g.ds)); });
       g.todos.forEach(function(t){ list.appendChild(todoItem(t,false,true)); });
       (g.events||[]).forEach(function(ev){ list.appendChild(icsItem(ev)); });
+      (g.attent||[]).forEach(function(a){ list.appendChild(attentItem(a,g.ds)); });
       wrap.appendChild(list);
     });
     return wrap;
@@ -728,10 +756,10 @@
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue ("+overdue.length+")"));
       var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
     }
-    var ch=choresOn(todayStr()), td=todosOn(todayStr()), evs=icsOn(todayStr());
+    var ch=choresOn(todayStr()), td=todosOn(todayStr()), evs=icsOn(todayStr()), at=attentOn(todayStr());
     wrap.appendChild(el("h3","cal-agenda-head","Today"));
-    if(!ch.length&&!td.length&&!evs.length) wrap.appendChild(el("p","cal-empty","Nothing scheduled for today."));
-    else { var list=el("div","cal-item-list"); ch.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,todayStr())); }); td.forEach(function(t){ list.appendChild(todoItem(t,false,true)); }); evs.forEach(function(ev){ list.appendChild(icsItem(ev)); }); wrap.appendChild(list); }
+    if(!ch.length&&!td.length&&!evs.length&&!at.length) wrap.appendChild(el("p","cal-empty","Nothing scheduled for today."));
+    else { var list=el("div","cal-item-list"); ch.forEach(function(r){ list.appendChild(choreItem(r.chore,r.state,todayStr())); }); td.forEach(function(t){ list.appendChild(todoItem(t,false,true)); }); evs.forEach(function(ev){ list.appendChild(icsItem(ev)); }); at.forEach(function(a){ list.appendChild(attentItem(a,todayStr())); }); wrap.appendChild(list); }
     wrap.appendChild(buildAddArea(todayStr(),"+ Add task today"));
     return wrap;
   }
@@ -1240,6 +1268,7 @@
     days.forEach(function(dt,idx){ var ds=ymd(dt);
       var cell=el("div","cal-week-allday-cell"); cell.style.gridRow="1";
       choresOn(ds).forEach(function(r){ var c=el("div","cal-allday-chip cal-allday-chore",r.chore.name); c.addEventListener("click",function(e){ e.stopPropagation(); selectedDate=ds; viewMode="day"; saveViewMode("day"); render(); }); cell.appendChild(c); });
+      attentOn(ds).forEach(function(a){ var c=el("a","cal-allday-chip cal-allday-attent",a.name); c.href=attentHref(a); c.addEventListener("click",function(e){ e.stopPropagation(); }); cell.appendChild(c); });
       // single-day untimed items are chips; multi-day items render as a span bar below
       todosOn(ds).filter(function(t){ return !t.startTime && !isMultiDay(t); }).forEach(function(t){ var c=el("div","cal-allday-chip"+(t.done?" done":""),t.text); c.addEventListener("click",function(e){ e.stopPropagation(); openItemMenu(t); }); cell.appendChild(c); });
       if(!cell.childNodes.length) cell.appendChild(el("div","cal-allday-add","+")); // tappable hint to add an untimed task

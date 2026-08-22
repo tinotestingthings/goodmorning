@@ -1,6 +1,23 @@
 # Changelog
 
 Newest first. One line per deploy to the live root.
+## 2026-08-22 (v2026.08.22-1) — Attentinus v3: feestdagen, agenda-chips, UI-ronde (gerichte promote)
+
+Attentinus: nieuwe categorie Feestdag voor datums die elk jaar anders vallen
+(Moederdag, Vaderdag, Pasen, Hemelvaart, Pinksteren, Secretaressedag, plus
+vaste dagen Valentijn/Dierendag/Sinterklaas/Kerst) — keuzelijst i.p.v.
+datumvelden, de app rekent de dag uit. Eén datumlogica in attentinus/dates.js
+(window.AttentDates), gedeeld door de app, de home-tile en de agenda. Agenda:
+Attentinus-datums als all-day chips/items in dag, week, maand, agenda en My
+Day (leescache k("attentCache") gevuld door home.js, nooit gepusht); klik
+opent de persoon via attentinus/#<id>. UI-ronde: één chronologische jaarlijst
+met maandkoppen (Binnenkort/Iedereen weg), leesweergave met Wijzig, ‹ Digest-
+link, zoekveld vanaf 13 regels, "+ toevoegen". Import/export kent
+"Mama ; moederdag". sw.js v70 (dates.js in precache). Review verwerkt; tests:
+attentinus.dates (nieuw), attentinus.boot, agendasync. Plan + status:
+docs/attentinus-v3.md. Gerichte promote van attentinus/, home.js, calendar.js,
+index.html, sw.js, style.css (root == sandbox voor deze bestanden).
+
 
 ## 2026-08-21 (v2026.08.21-5) — Luisterinus fase 1: podcastknop op de digest-kaart (wachtrij in Supabase), Luisterinus-app met speler, Utilities-tegel met wachtrij-badge en Today-tile als er een podcast klaarstaat. Setup-SQL + fase 0-checklist in docs/luisterinus.md
 

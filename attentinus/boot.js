@@ -298,7 +298,9 @@
                   { id: "i3", text: "Wijnproeverij-bon", done: false }] },
         { id: "demo-3", name: "Lisa & Tom", cat: "trouwdag", label: null, month: p3.month, day: p3.day, year: null, ideas: [] },
         { id: "demo-4", name: "Oma", cat: "sterfdag", label: null, month: p4.month, day: p4.day, year: p4.year,
-          ideas: [{ id: "i4", text: "Bloemen voor op het graf", done: false }] }
+          ideas: [{ id: "i4", text: "Bloemen voor op het graf", done: false }] },
+        { id: "demo-5", name: "Mama", cat: "feestdag", occasion: "moederdag", label: null,
+          ideas: [{ id: "i5", text: "Ontbijt op bed", done: false }] }
       ]));
     }
     userId = "demo";
