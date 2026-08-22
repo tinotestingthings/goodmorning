@@ -41,7 +41,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Secret | Used by | Lives in |
 |---|---|---|
 | Supabase publishable key + URL | the app (`supabase.js`) | public by design; RLS does the access control |
-| Supabase `service_role` | agenda backup, capture-bridge sync (daily-digest task) | macOS Keychain `gm-supabase-service-role` (er is geen `.env` meer; scripts lezen de Keychain, bijv. `tools/luisterinus-worker.py`) |
+| Supabase `service_role` | agenda backup, capture-bridge sync (daily-digest task), `tools/luisterinus-worker.py` | `Mijn Wiki/.secrets.nosync/goodmorning.env` als `SUPABASE_SERVICE_ROLE_KEY` (iCloud-vrij; symlink `~/Code/secrets/goodmorning.env` voor lokale scripts) — zie `90 System/Automations.md`. Niet (meer) onder die naam in de Keychain |
 | GitHub fine-grained PAT (`goodmorning` only, Contents: rw) | daily-digest task pushing `feed.json` | macOS Keychain `gm-github-pat` |
 | Human git/gh access | you + Claude Code | `gh auth login` (keychain), no token anywhere |
 

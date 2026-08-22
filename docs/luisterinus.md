@@ -88,8 +88,8 @@ select policyname from pg_policies where schemaname = 'storage' and tablename = 
 
 ## Testen zonder NotebookLM (fase 1-acceptatie)
 
-Na de SQL hierboven (via het Supabase-dashboard, of met service_role uit de
-macOS Keychain `gm-supabase-service-role`):
+Na de SQL hierboven (via het Supabase-dashboard, of met de service_role uit
+`~/Code/secrets/goodmorning.env`):
 
 1. Upload een willekeurig audiobestand naar `digest-audio` (bijv. `test/test.m4a`;
    `say "…" -o t.aiff && afconvert t.aiff -f mp4f -d aac test.m4a` maakt er een).
@@ -111,7 +111,7 @@ sindsdien staat het script op **Brief**). notebooklm-py 0.8.1 (pyenv 3.10.13), `
 ```bash
 python3 tools/luisterinus-worker.py
 ```
-Leest de service_role uit de Keychain (`gm-supabase-service-role`), werkt alle `requested`-rijen van de laatste
+Leest `SUPABASE_SERVICE_ROLE_KEY` uit `~/Code/secrets/goodmorning.env` (symlink naar `Mijn Wiki/.secrets.nosync/goodmorning.env`; of uit de omgeving), werkt alle `requested`-rijen van de laatste
 14 dagen af. Exit 0 = klaar (ook als een rij `failed` werd — dat is inhoudelijk, de app toont "probeer opnieuw");
 exit 2 = afgebroken zonder rijen aan te raken (login verlopen → `notebooklm login`, of NotebookLM onbereikbaar).
 Tweede gelijktijdige run zegt "al bezig" en stopt (lockfile in de temp-map).

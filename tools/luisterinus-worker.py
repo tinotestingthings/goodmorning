@@ -14,8 +14,9 @@ Gebruik:
   python3 tools/luisterinus-worker.py --test-url URL --out podcast.m4a   # losse proef, geen Supabase
 
 Vereist: `pip install "notebooklm-py[browser]"` + `notebooklm login` (eenmalig), en de
-service_role in de macOS Keychain (`gm-supabase-service-role`) — wordt bij het starten
-uitgelezen, staat nergens in dit bestand. notebooklm-py praat met ongedocumenteerde
+service_role als `SUPABASE_SERVICE_ROLE_KEY` in `~/Code/secrets/goodmorning.env` (symlink naar
+`Mijn Wiki/.secrets.nosync/goodmorning.env`, zie Automations.md) of als omgevingsvariabele —
+wordt bij het starten gelezen, staat nergens in dit bestand. notebooklm-py praat met ongedocumenteerde
 Google-endpoints en kan zonder waarschuwing breken; daarom raakt dit script de digest
 zelf nooit aan (feed.json blijft van één schrijver).
 """
@@ -23,6 +24,7 @@ import argparse
 import asyncio
 import fcntl
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -55,10 +57,25 @@ class StillBusy(Exception):
 
 # ---- Supabase (REST, service_role) -----------------------------------------
 
+SECRETS_FILES = [  # conventie uit Mijn Wiki/90 System/Automations.md: één iCloud-vrij .env-bestand
+    Path.home() / "Code/secrets/goodmorning.env",
+    Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/Mijn Wiki/.secrets.nosync/goodmorning.env",
+]
+
+
 def service_role():
-    return subprocess.check_output(
-        ["security", "find-generic-password", "-s", "gm-supabase-service-role", "-w"],
-        text=True, timeout=30).strip()  # timeout: geen eeuwig wachten op een Keychain-dialoog
+    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")  # fase 3: de Cowork-taak sourcet het .env-bestand
+    for f in SECRETS_FILES:
+        if key:
+            break
+        if f.is_file():
+            for line in f.read_text().splitlines():
+                if line.startswith("SUPABASE_SERVICE_ROLE_KEY="):
+                    key = line.split("=", 1)[1].strip().strip("'\"")
+                    break
+    if not key:
+        raise SystemExit("SUPABASE_SERVICE_ROLE_KEY niet gevonden (env of " + str(SECRETS_FILES[0]) + ")")
+    return key
 
 
 def sb(method, path, data=None, headers=None):
