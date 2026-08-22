@@ -2203,68 +2203,10 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
 .btn-danger { background: var(--dismiss); color: #fff; }
 
 /* ---- themes (explicit data-theme wins over prefers-color-scheme) ---- */
+/* De kleurpaletten per thema staan sinds 2026-08-22 in design.css (één bron, ook voor de
+   utility-apps via theme-sync.js). Hier blijven alleen de thema-specifieke componentregels. */
 
-:root[data-theme="dark"], .theme-swatch[data-theme="dark"] {
-  --bg: #0f1115; --card-bg: #1c2029; --text: #eef0f3;
-  --text-dim: #a5acb8; --border: #333945;
-  --keep: #2fae66; --dismiss: #d9534f; --skip: #4a90d9; --accent: #4a90d9;
-}
-/* Nova — the "professional" theme: deep blue-black canvas, indigo accent,
-   soft gold highlight; extra depth via the [data-theme="nova"] overrides
-   near the end of this file. */
-:root[data-theme="nova"], .theme-swatch[data-theme="nova"] {
-  --bg: #111420; --card-bg: #1c2133; --text: #e8eaf2;
-  --text-dim: #9aa0b5; --border: #2e3450;
-  --keep: #34c07c; --dismiss: #e2606b; --skip: #6d7cff; --accent: #6d7cff;
-  --gold: #d8b46a;
-}
-:root[data-theme="light"], .theme-swatch[data-theme="light"] {
-  --bg: #f5f6f8; --card-bg: #ffffff; --text: #1a1d24;
-  --text-dim: #5a6270; --border: #dde1e6;
-  --keep: #2fae66; --dismiss: #d9534f; --skip: #2f74d0; --accent: #1a1d24;
-}
-:root[data-theme="orange"], .theme-swatch[data-theme="orange"] {
-  --bg: #fff6ee; --card-bg: #ffffff; --text: #3a2415;
-  --text-dim: #9c7a60; --border: #f3ddc9;
-  --keep: #2fae66; --dismiss: #d9534f; --skip: #e8730c; --accent: #e8730c;
-}
-:root[data-theme="ocean"], .theme-swatch[data-theme="ocean"] {
-  --bg: #0b1622; --card-bg: #132433; --text: #e6eef5;
-  --text-dim: #8aa0b3; --border: #223649;
-  --keep: #2bb3a3; --dismiss: #e0655f; --skip: #3d9be0; --accent: #7fd4ff;
-}
-:root[data-theme="forest"], .theme-swatch[data-theme="forest"] {
-  --bg: #0e1712; --card-bg: #17241c; --text: #e8f0e8;
-  --text-dim: #93a894; --border: #26382c;
-  --keep: #43b96a; --dismiss: #d9713f; --skip: #5aa06a; --accent: #a6e3b0;
-}
-/* ---- the 2026-08-19 trio: a polished dark / normal / light set ----
-   Carbon    — flagship dark: near-black layered neutrals, azure accent.
-   Slate     — "normal": muted graphite between light and dark, calm default.
-   Porcelain — clean warm-neutral light with soft paper shadows. */
-:root[data-theme="carbon"], .theme-swatch[data-theme="carbon"] {
-  --bg: #0a0c10; --card-bg: #151920; --text: #f2f4f8;
-  --text-dim: #929cab; --border: #262c37;
-  --keep: #34c37c; --dismiss: #ef5d64; --skip: #5b9dff; --accent: #5b9dff;
-}
-:root[data-theme="slate"], .theme-swatch[data-theme="slate"] {
-  --bg: #222831; --card-bg: #2b323d; --text: #e9edf2;
-  --text-dim: #a0aab7; --border: #3a4350;
-  --keep: #43b97c; --dismiss: #e26a60; --skip: #74a5e0; --accent: #74a5e0;
-}
-:root[data-theme="porcelain"], .theme-swatch[data-theme="porcelain"] {
-  --bg: #f4f3f0; --card-bg: #ffffff; --text: #22262e;
-  --text-dim: #626b78; --border: #e2e1db;
-  --keep: #279d5c; --dismiss: #d05252; --skip: #3568c4; --accent: #3568c4;
-}
 
-/* Emoji+ : a bright, playful light palette that also sprinkles emoji onto the
-   main labels (see accents below) for a friendlier home screen. */
-:root[data-theme="emoji"], .theme-swatch[data-theme="emoji"] {
-  --bg: #fbf3ff; --card-bg: #ffffff; --text: #2a2140;
-  --text-dim: #8a7fa8; --border: #ecdcfb;
-  --keep: #2fae66; --dismiss: #f0616f; --skip: #7c5cff; --accent: #ff9f43;
-}
 :root[data-theme="emoji"] .tile-tasks .tile-label::before { content: "✅ "; }
 :root[data-theme="emoji"] .tile-projects .tile-label::before { content: "🚀 "; }
 :root[data-theme="emoji"] .loop-card-title::before { content: "🌅 "; }

@@ -47,11 +47,13 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 2. `DESIGN.md` (platte tekst, à la Stitch): dezelfde tokens uitgelegd + de smaakregels hierboven +
    do's/don'ts met voorbeelden uit de eigen apps. Eén verwijsregel in CLAUDE.md: alleen lezen bij
    UI-werk (token-hygiëne).
-3. Hoofdapp: linkt `design.css` NIET. Hij heeft een themakiezer (theme.js zet `data-theme`, paletten in
-   style.css vanaf regel ~2207) met hogere specificiteit, dus de tokens zouden er dood zijn; bovendien
-   botsten generieke klassen (`.card/.btn/.tile`) met bestaande selectors. De hoofdapp ís de referentie.
-   Follow-up (fase D): gekozen theme via localStorage doorgeven aan de utility-apps.
-   Bewuste unificatie: Attentinus/Trainerinus krijgen radius 14 (was 20) en een hairline-schaduw (was zacht/groot).
+3. Thema's: de paletten van de themakiezer (`data-theme`, 10 stuks) staan sinds 22 aug in `design.css`
+   (één bron; style.css houdt alleen thema-specifieke componentregels). theme.js schrijft het actieve thema
+   weg (`<ns>themeActive`); `theme-sync.js` zet het vóór de eerste paint op elke utility-app. Zo dragen
+   Luisterinus/Attentinus/Trainerinus exact het thema van de hoofdapp (Nova, Carbon, …); zonder gekozen
+   thema volgt `design.css` het systeem. Geen generieke componentklassen in design.css (botsten met
+   `.card/.btn/.tile`). Bewuste unificatie: Attentinus/Trainerinus radius 14 (was 20), hairline i.p.v. zachte schaduw.
+   ChordSprint zet zijn thema op `<body data-theme>` en volgt daarom nog niet — eigen ronde.
 4. Utility-apps: `<link rel="stylesheet" href="../design.css">` + eigen `:root` weg; app-specifieke
    regels blijven. Volgorde: Luisterinus (kaal, dus goedkoop) → Attentinus → Trainerinus →
    ChordSprint → (NoteSprint blijft zoals hij is) → daarna de gebundelde apps
@@ -83,7 +85,7 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 |---|---|
 | Hero-rij | weer + vogel zo laten |
 | Luisterinus per aflevering | acties: **klaar/geluisterd**, **verwijderen**, **taak aanmaken**, etc. — nummertje = klaar én ongehoord |
-| Licht of donker | systeem volgen, geen "first" |
+| Licht of donker | het thema van de hoofdapp volgen (theme-sync.js); zonder keuze het systeem |
 | NoteSprint | niets doen |
 | Referentiestijl | **het Utilities-menu** van de hoofdapp (donkere tegels, groene lijniconen, ronde hoeken) is de maat; de utility-apps volgen die stijl |
 

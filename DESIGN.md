@@ -1,8 +1,9 @@
 # DESIGN.md — zo zien de goodmorning-apps eruit
 
-Lees dit alleen bij UI/CSS-werk. De waarden staan in `design.css` (root; elke utility-app linkt hem als
-laatste stylesheet). De hoofdapp zelf linkt hem niet: die heeft een themakiezer (`data-theme`-paletten in
-`style.css`) en ís de referentie — **het Utilities-menu**.
+Lees dit alleen bij UI/CSS-werk. De waarden staan in `design.css` (root): de basistokens én de paletten van
+de themakiezer. De hoofdapp linkt hem vóór `style.css`; elke utility-app linkt hem als laatste stylesheet en
+laadt `theme-sync.js` in `<head>`, zodat hij hetzelfde thema draagt als de hoofdapp. Referentie voor alles:
+**het Utilities-menu van de hoofdapp**.
 
 ## Smaak (Tinus)
 
@@ -16,8 +17,9 @@ laatste stylesheet). De hoofdapp zelf linkt hem niet: die heeft een themakiezer 
 
 ## Thema
 
-Systeem volgen: licht is de basis, donker via `prefers-color-scheme: dark`. Nooit een app die
-vast licht of vast donker is.
+Het gekozen thema van de hoofdapp (Settings → Appearance) geldt overal: theme.js zet `data-theme` en
+schrijft het weg, `theme-sync.js` leest het in de utility-apps. Zonder keuze volgt `design.css` het
+systeem (licht basis, donker via `prefers-color-scheme`). Nooit een app die vast licht of vast donker is.
 
 | Token (alias) | Gebruik |
 |---|---|

@@ -8,6 +8,8 @@ var SHELL_FILES = [
   "./",
   "./index.html",
   "./style.css",
+  "./design.css",
+  "./theme-sync.js",
   "./app.js",
   "./theme.js",
   "./fx.js",

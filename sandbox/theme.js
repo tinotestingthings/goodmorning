@@ -79,6 +79,7 @@
     var s = load();
     var t = activeTheme(s);
     document.documentElement.setAttribute("data-theme", t);
+    try { localStorage.setItem(k("themeActive"), t); } catch (e) {}  // gelezen door theme-sync.js (utility-apps)
     var meta = document.querySelector('meta[name="theme-color"]:not([media])');
     if (!meta) {
       meta = document.createElement("meta");
