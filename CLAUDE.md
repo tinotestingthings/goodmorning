@@ -35,5 +35,9 @@ Each subfolder = one app with `index.html` + `boot.js` and its own Supabase `<ap
 `events/` is built from `events-src/` (`bash events-src/build.sh`); the rest have no build step.
 Live and sandbox copies of a utility app must be identical after a promote (`diff -rq app sandbox/app`).
 
+## UI-werk
+Alleen bij UI/CSS-taken: lees `DESIGN.md` (stijlregels + tokens); de tokens zelf staan in `design.css`, gelinkt door elke app.
+Plan en besluiten: `docs/ux-ui-plan.md`.
+
 ## Language
 Tinus is Dutch; commit messages and CHANGELOG entries may be Dutch or English — match the surrounding text.

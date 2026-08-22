@@ -1,0 +1,49 @@
+/* design.css — één stijlbron voor de hoofdapp én de utility-apps (DESIGN.md legt uit).
+   Referentie: het Utilities-menu van de hoofdapp. Volgt het systeemthema: licht is de
+   basis, donker via prefers-color-scheme — geen "first" meer.
+   Laad dit als LAATSTE stylesheet: de waarden hieronder overschrijven dan de lokale
+   :root-tokens van een app (zelfde namen), terwijl app-specifieke extra's blijven staan. */
+
+:root {
+  /* kleur — canonieke namen (hoofdapp) */
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1a1d24;
+  --text-dim: #5a6270;
+  --border: #dde1e6;
+  --skip: #4a90d9;     /* accent: links, primaire knoppen, "iets voor jou" in blauw */
+  --keep: #2fae66;     /* ok / iconen in tegels */
+  --dismiss: #d9534f;  /* gevaar / verwijderen */
+  --warn: #d9a441;     /* let op */
+
+  /* vorm, ruimte, letter */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* aliassen — namen die de utility-apps al gebruiken, zodat hun CSS ongemoeid blijft */
+  --card: var(--card-bg);
+  --muted: var(--text-dim);
+  --line: var(--border);
+  --blue: var(--skip);
+  --green: var(--keep);
+  --red: var(--dismiss);
+  --good: var(--keep);
+  --bad: var(--dismiss);
+  /* géén --accent/--btn: ChordSprint heeft een eigen accent en de hoofdapp gebruikt --accent anders;
+     die apps krijgen hun eigen ronde (zie docs/ux-ui-plan.md). */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --card-bg: #1a1d24;
+    --text: #eef0f3;
+    --text-dim: #9aa1ac;
+    --border: #2a2e37;
+    --shadow: none;
+  }
+}

@@ -47,10 +47,14 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 2. `DESIGN.md` (platte tekst, à la Stitch): dezelfde tokens uitgelegd + de smaakregels hierboven +
    do's/don'ts met voorbeelden uit de eigen apps. Eén verwijsregel in CLAUDE.md: alleen lezen bij
    UI-werk (token-hygiëne).
-3. Hoofdapp: `style.css` laat zijn `:root` vervallen ten gunste van `design.css`; verder ongemoeid.
+3. Hoofdapp: linkt `design.css` NIET. Hij heeft een themakiezer (theme.js zet `data-theme`, paletten in
+   style.css vanaf regel ~2207) met hogere specificiteit, dus de tokens zouden er dood zijn; bovendien
+   botsten generieke klassen (`.card/.btn/.tile`) met bestaande selectors. De hoofdapp ís de referentie.
+   Follow-up (fase D): gekozen theme via localStorage doorgeven aan de utility-apps.
+   Bewuste unificatie: Attentinus/Trainerinus krijgen radius 14 (was 20) en een hairline-schaduw (was zacht/groot).
 4. Utility-apps: `<link rel="stylesheet" href="../design.css">` + eigen `:root` weg; app-specifieke
    regels blijven. Volgorde: Luisterinus (kaal, dus goedkoop) → Attentinus → Trainerinus →
-   ChordSprint → NoteSprint (monospace blijft, alleen kleuren) → daarna de gebundelde apps
+   ChordSprint → (NoteSprint blijft zoals hij is) → daarna de gebundelde apps
    (WijnWijs, Vogelspotinus, Events, Kangaroo) elk in een eigen kleine ronde.
 - Klaar wanneer: elke app licht én donker correct toont met dezelfde kleuren, en een screenshot
   van twee willekeurige apps naast elkaar als één product leest.
@@ -61,8 +65,10 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
   SQL-migratie), status als rustige tekst; geen knoppen tot je tikt.
 - Vaste mini-speler onderaan (titel + play/pauze + voortgang) zodat scrollen de speler niet verliest;
   één speler tegelijk.
-- "Gehoord": `listened_at` in de rij (tik = afgespeeld tot het einde of handmatig). Utilities-nummertje
-  = klaar én ongehoord (beslispunt, zie onder); lijst toont gehoorde items gedimd onderaan.
+- Acties per aflevering (besluit Tinus): **klaar/geluisterd** (`listened_at`; automatisch aan het einde, of met
+  één tik), **verwijderen** (rij weg; bucketbestand ruimt het script op), **taak aanmaken** (zelfde `actions`-rij
+  als de Task-knop in Triage, zodat de digest-taak hem in 30 Tasks zet). Utilities-nummertje = klaar én ongehoord;
+  gehoorde items gedimd onderaan.
 - Testrijen (`title = 'test'`) en `test.m4a` weg.
 
 ### Fase D — Utilities & navigatie (½ sessie)
@@ -71,15 +77,15 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 - Nummertjes consistent: rood = "iets voor jou" (Triage-tab, Luisterinus), grijs = telling.
 - Terugknop in de app-header groter op telefoon; "Open ↗" alleen op laptop tonen.
 
-## Open beslispunten
+## Besluiten (Tinus, 22 aug 2026)
 
-| Vraag | Voorstel | Beslist in |
-|---|---|---|
-| Hero-rij: weer + vogel zo laten, of vogel breed? | zo laten; leegte is rust | A |
-| Luisterinus-nummertje: wachtrij (in de maak + klaar) of alleen klaar-en-ongehoord? | alleen klaar-en-ongehoord zodra `listened_at` bestaat | C |
-| Standaard licht of donker? | systeem volgen; geen "first" meer | B |
-| NoteSprint monospace behouden? | ja, alleen kleuren gelijktrekken | B |
-| Gebundelde apps (buildstap) ook via `design.css`? | ja, via `<link>` — geen rebuild nodig voor tokens | B |
+| Vraag | Besluit |
+|---|---|
+| Hero-rij | weer + vogel zo laten |
+| Luisterinus per aflevering | acties: **klaar/geluisterd**, **verwijderen**, **taak aanmaken**, etc. — nummertje = klaar én ongehoord |
+| Licht of donker | systeem volgen, geen "first" |
+| NoteSprint | niets doen |
+| Referentiestijl | **het Utilities-menu** van de hoofdapp (donkere tegels, groene lijniconen, ronde hoeken) is de maat; de utility-apps volgen die stijl |
 
 ## Wat dit plan niet is
 

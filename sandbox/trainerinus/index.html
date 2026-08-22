@@ -7,29 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Trainerinus</title>
   <style>
-    :root {
-      --bg: #f5f5f7;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --blue: #007aff;
-      --green: #34c759;
-      --grey-dot: #d1d5db;
-      --shadow: 0 10px 26px rgba(0,0,0,0.08);
-      --radius: 20px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f1115;
-        --card: #191c22;
-        --text: #e7e9ee;
-        --muted: #9aa0ac;
-        --line: #262b33;
-        --grey-dot: #3a404a;
-        --shadow: 0 10px 26px rgba(0,0,0,0.35);
-      }
-    }
+    :root { --grey-dot: #d1d5db; } /* basis-tokens komen uit ../design.css */
+    @media (prefers-color-scheme: dark) { :root { --grey-dot: #3a404a; } }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
@@ -83,6 +62,7 @@
     .foot { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
     .empty { font-size: 0.85rem; color: var(--muted); padding: 6px 2px; }
   </style>
+  <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste, overschrijft :root hierboven -->
 </head>
 <body>
   <header>
