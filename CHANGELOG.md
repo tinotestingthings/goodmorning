@@ -1,6 +1,13 @@
 # Changelog
 
 Newest first. One line per deploy to the live root.
+
+## 2026-08-22 (gerichte promote) — UX fase A/B: Today opgeruimd (Attentinus- en podcast-tegel weg, Trainerinus als kleine hero-tegel), design.css + DESIGN.md als stijlbron, themapaletten naar design.css, theme-sync.js laat Luisterinus/Attentinus/Trainerinus het thema van de hoofdapp dragen
+
+Gerichte promote van alleen de UX-bestanden (design.css, theme-sync.js, theme.js, style.css, index.html, sw.js,
+home.js en de index.html van Luisterinus/Attentinus/Trainerinus/ChordSprint) omdat een andere sessie nog
+ongecommit Events-werk in de tree heeft. ChordSprint en de gebundelde apps volgen het thema nog niet (eigen ronde).
+Twee /code-review medium-rondes verwerkt; agendasync-test groen. Plan: docs/ux-ui-plan.md.
 ## 2026-08-22 (v2026.08.22-1) — Attentinus v3: feestdagen, agenda-chips, UI-ronde (gerichte promote)
 
 Attentinus: nieuwe categorie Feestdag voor datums die elk jaar anders vallen

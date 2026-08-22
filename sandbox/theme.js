@@ -79,7 +79,8 @@
     var s = load();
     var t = activeTheme(s);
     document.documentElement.setAttribute("data-theme", t);
-    try { localStorage.setItem(k("themeActive"), t); } catch (e) {}  // gelezen door theme-sync.js (utility-apps)
+    // Gelezen door theme-sync.js (utility-apps); alleen schrijven als het verandert (apply draait elke minuut).
+    try { if (localStorage.getItem(k("themeActive")) !== t) localStorage.setItem(k("themeActive"), t); } catch (e) {}
     var meta = document.querySelector('meta[name="theme-color"]:not([media])');
     if (!meta) {
       meta = document.createElement("meta");
