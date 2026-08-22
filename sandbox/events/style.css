@@ -241,8 +241,8 @@ main { min-width: 0; }
 .modal h2 { margin: 0 0 6px; font-size: 20px; }
 .modal > p { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
 .modal label { display: block; font-size: 12.5px; font-weight: 600; margin: 12px 0; }
-.modal input, .modal textarea { width: 100%; margin-top: 5px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 10px 12px; font-weight: 400; }
-.modal input:focus, .modal textarea:focus { outline: 0; border-color: #b9c6bf; background: #fff; }
+.modal input, .modal select, .modal textarea { width: 100%; margin-top: 5px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 10px 12px; font-weight: 400; }
+.modal input:focus, .modal select:focus, .modal textarea:focus { outline: 0; border-color: #b9c6bf; background: #fff; }
 .modal textarea { min-height: 72px; resize: vertical; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
@@ -292,7 +292,7 @@ main { min-width: 0; }
   .toast { bottom: calc(76px + env(safe-area-inset-bottom)); }
   .form-row { grid-template-columns: 1fr; }
 
-  .mobile-bottom-nav { display: grid; position: fixed; inset: auto 0 0 0; grid-template-columns: repeat(5, 1fr); background: #fffffff2; backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); z-index: 40; }
+  .mobile-bottom-nav { display: grid; position: fixed; inset: auto 0 0 0; grid-auto-flow: column; grid-auto-columns: 1fr; background: #fffffff2; backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); z-index: 40; }
   .mobile-bottom-nav .nav-item { flex-direction: column; justify-content: center; gap: 3px; padding: 6px 2px; font-size: 10.5px; border-radius: 8px; position: relative; }
   .mobile-bottom-nav .nav-item em { font-style: normal; }
   .mobile-bottom-nav .nav-item.active { background: transparent; }
@@ -307,3 +307,9 @@ main { min-width: 0; }
   .summary-strip { grid-template-columns: repeat(2, 1fr); }
   .source-line { flex-wrap: wrap; }
 }
+
+/* Festivals tab — native selects dressed like the filter chips */
+.festival-filters { gap: 8px; }
+.festival-filter { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.festival-filter select.chip { color: var(--ink); }
+.card-main:disabled { cursor: default; color: inherit; }

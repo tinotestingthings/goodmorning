@@ -47,5 +47,10 @@ then rebuild. Every event needs a real source URL — don't invent dates or
 records; see the vault spec's date-verification rule (unverified/manual
 entries are clearly labelled `dateStatus: "manual"` in the UI).
 
+Recurring festivals live in `src/festivals.ts` (one record per festival, validated
+by `check-festivals.mjs` on every build); rules in `SOURCES.md` § Festivals, spec in
+`docs/festivals.md`. Festivals in the home regions are derived into inbox events at
+runtime — never add them to `data.ts` as well.
+
 Full integration writeup: `40 Projects/2026-08-13-event-tracker-integration-and-backup-spec.md`
 in the vault.

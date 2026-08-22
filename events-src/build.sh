@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 if [ ! -d node_modules/esbuild ]; then
   npm install --no-audit --no-fund
 fi
+node check-festivals.mjs
 ./node_modules/.bin/esbuild src/entry.tsx \
   --bundle --minify --format=iife \
   --jsx=automatic \

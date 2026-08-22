@@ -44,22 +44,36 @@ source review: 2026-08-21.
 | Concertgebouw / Muziekgebouw | https://www.concertgebouw.nl/ + https://www.muziekgebouw.nl/ | klassiek/jazz/hedendaags |
 | Festivalinfo (filter Amsterdam) | https://www.festivalinfo.nl/ | festivalkalender |
 
-## Year calendar — recurring events to (re)add each year
+## Festivals — `src/festivals.ts` (recurring events, the year calendar)
 
-**Utrecht:** Bevrijdingsfestival (5 mei) · SPRING Performing Arts (mei) ·
-Utrecht Marathon (eind mei/voorjaar) · Soenda (eind mei) · Verknipt (begin
-juni) · Utrecht Pride / Canal Pride (begin juni) · Tweetakt (juni) · UIT
-introweek (medio aug) · Festival Oude Muziek (eind aug–begin sep) · Gaudeamus
-Muziekweek (medio sep) · Utrechts Uitfeest (sep) · Nederlands Film Festival
-(eind sep) · Bockbier Festival Utrecht, Janskerkhof (medio okt) · Nacht van de
-Nacht (eind okt) · Le Guess Who? (begin nov) · Sint Maarten Parade (za rond
-11 nov) · Smartlappenfestival (medio nov) · De Parade (aug, afsluitende stad).
+Every recurring festival/event in the covered regions lives here as one record,
+year after year — this replaced the old "re-add each year" list. The Festivals
+tab shows them all; only the ones in the home regions (Utrecht + regions added
+in Settings) also become inbox events, derived at runtime. Spec: `docs/festivals.md`.
 
-**Amsterdam:** Koningsdag/-nacht (26–27 apr) · Holland Festival (juni) · Pride
-Amsterdam (eind jul–begin aug; 2026 eenmalig WorldPride) · Grachtenfestival
-(medio aug) · PINT Bockbierfestival, De Hallen (begin okt — **verhuisd uit
-Utrecht**) · Cinekid (herfstvakantie) · ADE (eind okt) · Museumnacht (1e za
-nov) · IDFA (medio nov) · Amsterdam Light Festival (eind nov–medio jan).
+Per record: `id` (stable slug, never changes), `name`, `city`, `province`
+(exact spelling from `PROVINCES`), `size` (`small` < 5,000 · `medium`
+5,000–30,000 · `large` > 30,000 visitors per edition, indicative), `genres`
+(1–3 keys from `GENRES`), `month` (usual start month), `when` (short text),
+`url` (official site, https), `blurb` (one sentence, English), optional
+`venue`, `price`, `free` and `next`.
+
+Weekly:
+- `next = { start, end, verifiedAt }` for the next edition as soon as the
+  official site publishes dates (ISO `YYYY-MM-DD`; `verifiedAt` = the day you
+  saw it there). Never guess; without dates leave `next` out — the tab then
+  shows the usual month. Remove `next` once that edition has ended and no new
+  dates are known.
+- Add festivals that are missing (festivalinfo.nl per province, podiuminfo,
+  official sites); remove ones that stopped and list them under "Bestaat niet
+  meer". Next step after Utrecht + Amsterdam: the big national ones (Lowlands,
+  Pinkpop, Best Kept Secret, Down the Rabbit Hole, Zwarte Cross, Into the Great
+  Wide Open, Oerol, Noorderzon, North Sea Jazz, Dekmantel, Mysteryland…).
+- Inbox rule: a recurring festival is a `festivals.ts` record, not a `data.ts`
+  event. `data.ts` is for rare/one-off/last-chance events, or a special
+  edition worth its own card (lustrum, final edition, WorldPride).
+- `node check-festivals.mjs` (also run by build.sh) validates the file; fix
+  what it reports before committing.
 
 ## Bestaat niet meer — niet opnieuw toevoegen
 

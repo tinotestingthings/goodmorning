@@ -1,5 +1,5 @@
 export type EventState = "unseen" | "seen" | "saved" | "planned" | "booked" | "attended" | "dismissed";
-export type View = "discover" | "inbox" | "saved" | "actions" | "timeline" | "sources" | "archive" | "settings";
+export type View = "discover" | "inbox" | "festivals" | "saved" | "actions" | "timeline" | "sources" | "archive" | "settings";
 
 export type Milestone = { id: string; type: string; title: string; occursAt: string; completed?: boolean };
 export type EventChange = { id: string; label: string; detail: string; detectedAt: string; importance: "low" | "medium" | "high" };

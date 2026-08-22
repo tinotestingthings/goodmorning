@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-22 (gerichte promote) — Eventino: Festivals-tab. Terugkerende festivals (27, Utrecht + Amsterdam) in events-src/src/festivals.ts met filters regio/grootte/genre/maand; festivals in je regio's (Utrecht + Settings, nu een keuzelijst) landen ook in de inbox, de rest alleen op de tab; validator check-festivals.mjs in build.sh; 14 jaarlijkse festivals uit data.ts; app heet in de UI Eventino
+
 ## 2026-08-22 (gerichte promote) — UX fase A/B: Today opgeruimd (Attentinus- en podcast-tegel weg, Trainerinus als kleine hero-tegel), design.css + DESIGN.md als stijlbron, themapaletten naar design.css, theme-sync.js laat Luisterinus/Attentinus/Trainerinus het thema van de hoofdapp dragen
 
 Gerichte promote van alleen de UX-bestanden (design.css, theme-sync.js, theme.js, style.css, index.html, sw.js,
