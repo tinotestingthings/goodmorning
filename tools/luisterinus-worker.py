@@ -3,7 +3,7 @@
 
 Per rij met status `requested` in Supabase `podcast_queue` (laatste 14 dagen, zelfde
 venster als de app): bron-URL in een nieuw NotebookLM-notebook, Audio Overview (Brief,
-Nederlands), m4a downloaden, uploaden naar de privébucket `digest-audio`, rij op `ready`.
+Engels), m4a downloaden, uploaden naar de privébucket `digest-audio`, rij op `ready`.
 Elke rij is best-effort: een inhoudelijke fout geeft één logregel + `failed`, en de
 volgende rij gaat door. Infra-fouten (login verlopen, NotebookLM onbereikbaar) breken de
 run af en laten de rijen onaangeraakt (exit 2), zodat je "draai notebooklm login" ziet
@@ -39,7 +39,7 @@ from notebooklm import AudioFormat, AudioLength, NotebookLMClient
 SUPABASE_URL = "https://bobltktjohhnoqhnxslf.supabase.co"
 TABLE = "podcast_queue"
 BUCKET = "digest-audio"
-LANGUAGE = "nl"        # fase 0 (Tinus, 22 aug): NL en EN allebei acceptabel; Brief-formaat gekozen
+LANGUAGE = "en"        # fase 0 (Tinus, 22 aug): Brief-formaat; Engels gekozen (NL was ook acceptabel)
 DAYS = 14              # oudere requested-rijen zijn in de app onzichtbaar -> niet meer maken
 SOURCE_TIMEOUT = 180   # s — bron importeren
 GEN_TIMEOUT = 900      # s — een Audio Overview duurt 3–10 min
