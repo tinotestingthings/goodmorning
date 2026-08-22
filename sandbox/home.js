@@ -696,53 +696,47 @@
   // Leest attentinus.people read-only uit attentinus_state; de app zelf is de
   // plek waar je beheert en ideeën bijhoudt. (ICON_GIFT staat bij MOST_USED.)
 
-  var ATTENT_SOON_DAYS = 21;   // zelfde venster als in de Attentinus-app
+  var ATTENT_SOON_DAYS = window.AttentDates ? window.AttentDates.SOON_DAYS : 21;   // zelfde venster als in de app
 
-  // Categorie van een persoon, met migratie voor rijen van vóór de vaste
-  // categorieën (toen was `label` vrije tekst). Moet gelijk blijven aan de
-  // migratie in attentinus/index.html.
-  function attentCat(p) {
-    if (p && p.cat) return p.cat;
-    var l = ((p && p.label) || "verjaardag").toLowerCase();
-    if (l === "verjaardag") return "verjaardag";
-    if (l === "trouwdag") return "trouwdag";
-    if (l === "sterfdag") return "sterfdag";
-    return "anders";
-  }
-
-  // Volgende keer dat maand/dag voorbijkomt, in dagen vanaf vandaag (0 = vandaag).
-  function attentNextDays(month, day) {
-    var now = new Date(); now.setHours(12, 0, 0, 0);
-    for (var y = now.getFullYear(); y <= now.getFullYear() + 1; y++) {
-      var dim = new Date(y, month, 0).getDate();
-      var d = new Date(y, month - 1, Math.min(day, dim), 12);
-      var days = Math.round((d - now) / 86400000);
-      if (days >= 0) return days;
-    }
-    return null;
-  }
+  // Datumlogica, feestdagen en categorie-migratie: attentinus/dates.js
+  // (window.AttentDates), gedeeld met de app en calendar.js.
 
   function renderAttentTile() {
     var slot = el("div", "events-tile-slot");
     fetchAppState("attentinus_state", function (data) {
       if (!data) return;
       var people;
-      try { people = JSON.parse(data[eventsPrefix() + "attentinus.people"] || "[]"); } catch (e) { return; }
-      if (!Array.isArray(people) || !people.length) return;
+      // Geen lijst in deze rij (andere namespace, oude vorm): niets afleiden
+      // uit "leeg" — tile én cache met rust laten.
+      var raw = data[eventsPrefix() + "attentinus.people"];
+      if (raw == null) return;
+      try { people = JSON.parse(raw); } catch (e) { return; }
+      if (!Array.isArray(people)) return;
+      // Leescache voor de agenda: calendar.js toont deze datums als all-day
+      // chips. Staat niet in de agendasync-KEYS en gaat dus nooit de server
+      // op; alleen Attentinus zelf schrijft attentinus_state. Bij een
+      // wijziging krijgt de agenda een seintje, want die was vaak al getekend.
+      try {
+        var ckey = k("attentCache"), cjson = JSON.stringify(people);
+        if (localStorage.getItem(ckey) !== cjson) { localStorage.setItem(ckey, cjson); document.dispatchEvent(new Event("dd-attent-cache")); }
+      } catch (e) {}
+      var D = window.AttentDates;
+      if (!people.length || !D) return;
       var soon = people.map(function (p) {
-        return { p: p, days: (p && p.month && p.day) ? attentNextDays(p.month, p.day) : null };
+        var nx = p ? D.next(p) : null;
+        return { p: p, days: nx ? nx.days : null };
       }).filter(function (x) {
         return x.days !== null && x.days <= ATTENT_SOON_DAYS;
       }).sort(function (a, b) { return a.days - b.days; });
       if (!soon.length) return;               // niets binnen het venster -> stil
 
       var first = soon[0];
-      var cat = attentCat(first.p);
-      var catWord = cat === "anders" ? ((first.p.label || "datum").toLowerCase()) : cat;
-      var overStr = "over " + first.days + (first.days === 1 ? " dag" : " dagen");
+      var cat = D.cat(first.p);
+      var catWord = D.word(first.p);
+      var overStr = D.until(first.days);
       var title = cat === "verjaardag"
         ? (first.days === 0 ? first.p.name + " is vandaag jarig!" : first.p.name + " is " + overStr + " jarig")
-        : first.p.name + ": " + catWord + (first.days === 0 ? " vandaag" : " " + overStr);
+        : first.p.name + ": " + catWord + " " + overStr;
       var sub;
       if (cat === "sterfdag") {
         sub = first.p.year ? (new Date().getFullYear() - first.p.year) + " jaar geleden" : "Herdenking";

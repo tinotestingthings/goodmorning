@@ -7,7 +7,23 @@ cadeau-ideeënbak (bij sterfdagen: notities).
   anders (met vrij label). Het jaartal betekent per categorie iets anders:
   verjaardag → "wordt N", trouwdag → "N jaar getrouwd", sterfdag →
   "N jaar geleden".
-- **Binnenkort** = komende 60 dagen; ≤ 21 dagen kleurt oranje, vandaag rood.
+- **Feestdag** = zesde categorie voor datums die elk jaar anders vallen
+  (Moederdag, Vaderdag, Pasen, Hemelvaart, Pinksteren, Secretaressedag; plus
+  vaste dagen als Valentijn, Dierendag, Sinterklaas, Kerst). Geen datumvelden:
+  je kiest uit de lijst, de app rekent de dag uit (`occasion: "<id>"` in de
+  rij, geen month/day). Een feestdag toevoegen = één regel in `OCCASIONS` in
+  `dates.js`.
+- **`dates.js`** is de ene datumlogica (`window.AttentDates`): de app, de
+  home-tile (`home.js`) en de agenda (`calendar.js`) lezen er allemaal uit.
+  Pure functies; test: `node tests/attentinus.dates.test.mjs`.
+- **Lijst** = één chronologische jaarlijst met maandkoppen, vandaag bovenaan;
+  ≤ 21 dagen krijgt een oranje badge, vandaag rood. Zoekveld vanaf 13 regels.
+  Detail is een leesweergave; "Wijzig" opent het formulier.
+- **Agenda-koppeling** (alleen tonen): `home.js` schrijft de lijst bij elke
+  tile-render naar `k("attentCache")`; `calendar.js` toont de datums als
+  all-day chips/items in dag/week/maand/agenda/My Day. Chip-klik opent
+  `attentinus/#<id>` (hash-deeplink naar de detailpagina). Er worden geen
+  to-do's aangemaakt.
 - De digest-home toont een rij ("X is over N dagen jarig · 2 ideeën") zodra
   iemand binnen 21 dagen valt — zelfde alleen-als-er-iets-speelt-patroon als
   de events-tegel. Home leest `attentinus.people` read-only uit
@@ -16,7 +32,8 @@ cadeau-ideeënbak (bij sterfdagen: notities).
 - Ideeën afvinken = "gebruikt"; ze blijven staan als geschiedenis.
 - **Bulk-invoer zonder AI erbij**: "Lijst importeren of exporteren…" onderaan
   de lijst. Eén persoon per regel, `Naam ; 21 aug 1965 ; verjaardag`
-  (datum ook `21-8`/`21/8`; jaartal en categorie optioneel). Alles wordt
+  (datum ook `21-8`/`21/8`; jaartal en categorie optioneel) of voor een
+  feestdag `Mama ; moederdag` (id of naam uit de lijst). Alles wordt
   client-side geparset: de gegevens gaan alleen van jouw browser naar jouw
   eigen Supabase-rij, er kijkt geen AI of andere tussenpartij mee. Exporteren
   levert dezelfde notatie op als backup.

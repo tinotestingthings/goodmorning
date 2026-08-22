@@ -3,6 +3,7 @@
 <head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="boot.js"></script>
+<script src="dates.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Attentinus</title>
@@ -53,7 +54,7 @@
     .p-row:first-of-type { border-top: 0; }
     .p-row .days {
       min-width: 52px; text-align: center; font-weight: 800; font-size: 0.8rem;
-      border-radius: 12px; padding: 6px 4px; background: var(--bg); color: var(--muted); flex-shrink: 0;
+      border-radius: 12px; padding: 6px 4px; background: var(--bg); color: var(--muted); flex-shrink: 0; white-space: nowrap;
     }
     .p-row .days.soon { color: var(--soon); }
     .p-row .days.now { color: #fff; background: var(--now); }
@@ -63,6 +64,14 @@
     .cat-ic svg { width: 100%; height: 100%; display: block; }
     .p-row .detail { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
     .p-row .chev { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+    .card h2.month { margin-top: 14px; }
+    .card h2.month:first-child { margin-top: 0; }
+    h2.month + .p-row { border-top: 0; }
+    a.back { display: inline-block; text-decoration: none; }
+    .search { width: 100%; margin-bottom: 8px; }
+    .p-head .p-name { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .p-head .p-line { font-size: 0.88rem; color: var(--muted); margin: 4px 0 12px; line-height: 1.45; }
+    .hint-line { font-size: 0.78rem; color: var(--muted); width: 100%; }
     .empty { font-size: 0.85rem; color: var(--muted); padding: 8px 2px; }
 
     /* detail-view */
@@ -127,8 +136,10 @@
   // gegevens blijven tussen jouw browser en jouw Supabase-rij — er komt geen
   // AI of andere tussenpartij aan te pas.
   var H = window.__gmAttent || {};
-  var SOON_DAYS = 21;
-  var UPCOMING_DAYS = 60;
+  // Datumlogica, categorie-migratie en feestdagen: dates.js (gedeeld met
+  // home.js en de agenda in calendar.js).
+  var D = window.AttentDates;
+  var SOON_DAYS = D.SOON_DAYS;
 
   // Vaste categorieën met icoon. `anders` heeft een vrij label (p.label).
   var CATS = [
@@ -140,6 +151,8 @@
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21v-5a3 3 0 0 1 6 0v5"/><path d="M12 12c1.6 0 2.6-1.3 2.6-2.9 0-1.9-1.5-2.4-2.6-4.6-1.1 2.2-2.6 2.7-2.6 4.6C9.4 10.7 10.4 12 12 12z"/><path d="M6 21h12"/></svg>' },
     { key: "jubileum", label: "Jubileum",
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="m12 6.6.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/><path d="m8.5 13.5-2 7 5.5-3 5.5 3-2-7"/></svg>' },
+    { key: "feestdag", label: "Feestdag",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.5 6 .9-4.4 4.3 1 6-5.3-2.8-5.3 2.8 1-6L3.3 9.4l6-.9z"/></svg>' },
     { key: "anders", label: "Anders",
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/><circle cx="12" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>' }
   ];
@@ -148,19 +161,7 @@
     return CATS[CATS.length - 1];
   }
 
-  // Categorie van een persoon, met migratie voor rijen van vóór de vaste
-  // categorieën (toen was `label` vrije tekst). Zelfde mapping staat in
-  // home.js (attentCat) — gelijk houden.
-  function catOf(p) {
-    if (p.cat) return p.cat;
-    var l = (p.label || "verjaardag").toLowerCase();
-    if (l === "verjaardag" || l === "trouwdag" || l === "sterfdag" || l === "jubileum") return l;
-    return "anders";
-  }
-  function catWord(p) {
-    var c = catOf(p);
-    return c === "anders" ? ((p.label || "datum").toLowerCase()) : c;
-  }
+  var catOf = D.cat, catWord = D.word, yearText = D.yearText;
 
   function readPeople() {
     try { var v = JSON.parse(localStorage.getItem("attentinus.people")); return Array.isArray(v) ? v : []; }
@@ -169,43 +170,29 @@
   function writePeople(list) { try { localStorage.setItem("attentinus.people", JSON.stringify(list)); } catch (e) {} }
 
   var people = readPeople();
-  var view = { mode: "list", personId: null };
+  var view = { mode: "list", personId: null, edit: false };
+  // Deeplink vanuit de agenda: attentinus/#<id> opent die persoon.
+  var hashId = "";
+  try { hashId = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+  if (hashId && people.some(function (p) { return p.id === hashId; })) view = { mode: "detail", personId: hashId, edit: false };
+  function gotoList() {
+    view = { mode: "list", personId: null, edit: false };
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    render();
+  }
   // io-paneelstate overleeft een re-render, zodat foutregels en de geplakte
   // tekst niet verdwijnen wanneer de lijst na een import opnieuw tekent.
   var ioOpen = false, ioText = "", ioResult = [];
 
-  // ---- datumhulpjes (lokale tijd) ----
-  function today0() { var d = new Date(); d.setHours(12, 0, 0, 0); return d; }
-  function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
-  function nextOccur(month, day) {
-    var now = today0();
-    for (var y = now.getFullYear(); y <= now.getFullYear() + 1; y++) {
-      var d = new Date(y, month - 1, Math.min(day, daysInMonth(y, month)), 12);
-      if (d >= now || sameDay(d, now)) return { date: d, days: Math.round((d - now) / 86400000) };
-    }
-    return null;
-  }
-  function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
-  var MONTHS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  var MONTHS = D.MONTHS;
   var MONTH_NAMES = {
     jan: 1, januari: 1, feb: 2, februari: 2, mrt: 3, maart: 3, apr: 4, april: 4, mei: 5,
     jun: 6, juni: 6, jul: 7, juli: 7, aug: 8, augustus: 8, sep: 9, sept: 9, september: 9,
     okt: 10, oktober: 10, nov: 11, november: 11, dec: 12, december: 12
   };
-  function fmtDate(p) { return p.day + " " + MONTHS[p.month - 1]; }
-
-  // Wat betekent het jaartal, per categorie: verjaardag -> leeftijd die iemand
-  // wordt, trouwdag -> zoveelste jaar getrouwd, sterfdag -> jaren geleden.
-  function yearText(p, occDate) {
-    if (!p.year) return null;
-    var n = occDate.getFullYear() - p.year;
-    if (n <= 0) return null;
-    var c = catOf(p);
-    if (c === "verjaardag") return "wordt " + n;
-    if (c === "trouwdag") return n + " jaar getrouwd";
-    if (c === "sterfdag") return n + " jaar geleden";
-    return n + " jaar";
-  }
+  // "3 sep" voor een vaste dag; een feestdag valt elk jaar anders, dus dan de
+  // eerstvolgende echte datum ("zo 9 mei").
+  function fmtDate(p, nx) { return catOf(p) === "feestdag" ? (nx ? D.fmt(nx.date, true) : "") : p.day + " " + MONTHS[p.month - 1]; }
   function ideaWord(p, n) {
     var notities = catOf(p) === "sterfdag";
     if (n === 0) return notities ? "geen notities" : "nog geen idee";
@@ -215,8 +202,8 @@
   function openIdeas(p) { return (p.ideas || []).filter(function (i) { return !i.done; }).length; }
 
   function personDetailLine(p) {
-    var nx = nextOccur(p.month, p.day);
-    var bits = [catWord(p) + " " + fmtDate(p)];
+    var nx = D.next(p);
+    var bits = [[catWord(p), fmtDate(p, nx)].filter(Boolean).join(" ")];
     if (nx) { var yt = yearText(p, nx.date); if (yt) bits.push(yt); }
     bits.push(ideaWord(p, openIdeas(p)));
     return bits.join(" · ");
@@ -249,7 +236,10 @@
       var parts = raw.split(";").map(function (x) { return x.trim(); });
       var name = parts[0];
       var date = parts.length > 1 ? parseDate(parts[1]) : null;
-      if (!name || !date) { bad.push({ line: idx + 1, raw: raw, why: !name ? "geen naam" : "datum niet herkend" }); return; }
+      // Geen datum maar een feestdag ("Mama ; moederdag"): regel i.p.v. dag.
+      var occ = (!date && parts.length > 1) ? D.occasionByName(parts[1]) : null;
+      if (!name || !(date || occ)) { bad.push({ line: idx + 1, raw: raw, why: !name ? "geen naam" : "datum niet herkend" }); return; }
+      if (occ) { ok.push({ id: newId("p"), name: name, cat: "feestdag", occasion: occ.id, ideas: [] }); return; }
       var cat = "verjaardag", label = null;
       if (parts[2]) {
         var c = parts[2].toLowerCase();
@@ -262,12 +252,14 @@
   }
   function isDuplicate(np) {
     return people.some(function (p) {
-      return p.name.toLowerCase() === np.name.toLowerCase() && p.month === np.month && p.day === np.day;
+      return p.name.toLowerCase() === np.name.toLowerCase() &&
+        (np.occasion ? p.occasion === np.occasion : (p.month === np.month && p.day === np.day));
     });
   }
   function exportText() {
     return people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "nl"); })
       .map(function (p) {
+        if (p.occasion) return p.name + " ; " + p.occasion;
         var d = p.day + "-" + p.month + (p.year ? "-" + p.year : "");
         var c = catOf(p) === "anders" ? (p.label || "anders") : catOf(p);
         return p.name + " ; " + d + " ; " + c;
@@ -295,16 +287,8 @@
     renderFoot();
   }
 
-  function personRow(p, showDays) {
+  function personRow(p, nx) {
     var row = el("div", "p-row");
-    var nx = nextOccur(p.month, p.day);
-    if (showDays) {
-      var days = el("span", "days");
-      if (nx && nx.days === 0) { days.textContent = "vandaag"; days.className = "days now"; }
-      else if (nx && nx.days <= SOON_DAYS) { days.textContent = nx.days + (nx.days === 1 ? " dag" : " dgn"); days.className = "days soon"; }
-      else if (nx) { days.textContent = nx.days + " dgn"; }
-      row.appendChild(days);
-    }
     var info = el("div", "info");
     var name = el("div", "name");
     name.appendChild(catIcon(p));
@@ -312,41 +296,75 @@
     info.appendChild(name);
     info.appendChild(el("div", "detail", personDetailLine(p)));
     row.appendChild(info);
+    // De badge is de enige nadruk: alleen binnen 21 dagen, en rechts zodat de
+    // namen links op één lijn blijven.
+    if (nx && nx.days <= SOON_DAYS) {
+      var days = el("span", "days" + (nx.days === 0 ? " now" : " soon"));
+      days.textContent = nx.days === 0 ? "vandaag" : nx.days + (nx.days === 1 ? " dag" : " dgn");
+      row.appendChild(days);
+    }
     row.appendChild(el("span", "chev", "›"));
-    row.addEventListener("click", function () { view = { mode: "detail", personId: p.id }; render(); });
+    row.addEventListener("click", function () { view = { mode: "detail", personId: p.id, edit: false }; render(); });
     return row;
   }
 
+  var SEARCH_FROM = 12;   // vanaf zoveel regels verschijnt het zoekveld
+  var query = "";
+
   function renderList() {
+    var home = el("a", "back", "‹ Digest"); home.href = "../";
+    root.appendChild(home);
     var header = el("header");
     header.appendChild(el("h1", null, "Attentinus"));
-    var add = el("button", null, "+ persoon");
-    add.addEventListener("click", function () { view = { mode: "detail", personId: null }; render(); });
+    var add = el("button", null, "+ toevoegen");
+    add.addEventListener("click", function () { view = { mode: "detail", personId: null, edit: true }; render(); });
     header.appendChild(add);
     root.appendChild(header);
 
-    var upcoming = people
-      .map(function (p) { return { p: p, nx: nextOccur(p.month, p.day) }; })
-      .filter(function (x) { return x.nx && x.nx.days <= UPCOMING_DAYS; })
-      .sort(function (a, b) { return a.nx.days - b.nx.days; });
-
-    var c1 = el("section", "card");
-    c1.appendChild(el("h2", null, "Binnenkort"));
-    if (!upcoming.length) c1.appendChild(el("div", "empty", "Niets in de komende " + UPCOMING_DAYS + " dagen."));
-    upcoming.forEach(function (x) { c1.appendChild(personRow(x.p, true)); });
-    root.appendChild(c1);
-
-    var c2 = el("section", "card");
-    c2.appendChild(el("h2", null, "Iedereen"));
-    if (!people.length) c2.appendChild(el("div", "empty", "Nog niemand toegevoegd — begin met “+ persoon” of importeer een lijst."));
-    people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "nl"); })
-      .forEach(function (p) { c2.appendChild(personRow(p, false)); });
+    var card = el("section", "card");
+    var box = el("div");
+    // Eén chronologische jaarlijst met maandkoppen: vandaag bovenaan, over de
+    // jaargrens heen. Bij een zoekopdracht geen koppen, alleen treffers.
+    function fill() {
+      box.innerHTML = "";
+      // Zonder zoekveld geen filter: anders blijft een oude zoekterm hangen
+      // zodra de lijst onder de drempel zakt, zonder knop om hem te wissen.
+      if (people.length <= SEARCH_FROM) query = "";
+      var q = query.trim().toLowerCase();
+      var rows = people
+        .map(function (p) { return { p: p, nx: D.next(p) }; })
+        .filter(function (x) { return !q || x.p.name.toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) { return ((a.nx ? a.nx.days : 1e9) - (b.nx ? b.nx.days : 1e9)) || a.p.name.localeCompare(b.p.name, "nl"); });
+      if (!rows.length) {
+        box.appendChild(el("div", "empty", q ? "Niets gevonden." : "Nog niemand toegevoegd — begin met “+ toevoegen” of importeer een lijst."));
+        return;
+      }
+      var thisYear = new Date().getFullYear(), last = null;
+      rows.forEach(function (x) {
+        var key = x.nx ? x.nx.date.getFullYear() * 12 + x.nx.date.getMonth() : -1;
+        if (!q && key !== last) {
+          last = key;
+          box.appendChild(el("h2", "month", x.nx
+            ? D.MONTHS_FULL[x.nx.date.getMonth()] + (x.nx.date.getFullYear() !== thisYear ? " " + x.nx.date.getFullYear() : "")
+            : "zonder datum"));
+        }
+        box.appendChild(personRow(x.p, x.nx));
+      });
+    }
+    if (people.length > SEARCH_FROM) {
+      var search = document.createElement("input");
+      search.type = "text"; search.className = "search"; search.placeholder = "Zoek op naam…"; search.value = query;
+      search.addEventListener("input", function () { query = search.value; fill(); });
+      card.appendChild(search);
+    }
+    fill();
+    card.appendChild(box);
     var io = el("button", "io-open", ioOpen ? "importeren/exporteren verbergen" : "Lijst importeren of exporteren…");
     io.addEventListener("click", function () { ioOpen = !ioOpen; render(); });
     var ioWrap = el("div", null); ioWrap.style.marginTop = "8px";
     ioWrap.appendChild(io);
-    c2.appendChild(ioWrap);
-    root.appendChild(c2);
+    card.appendChild(ioWrap);
+    root.appendChild(card);
 
     if (ioOpen) root.appendChild(renderIO());
   }
@@ -358,6 +376,7 @@
     hint.innerHTML = "Eén persoon per regel: <code>Naam ; 21 aug 1965 ; verjaardag</code><br />" +
       "Datum mag ook <code>21-8</code> of <code>21/8/1965</code>; jaartal en categorie zijn optioneel " +
       "(categorie: verjaardag · trouwdag · sterfdag · jubileum, of een eigen woord). " +
+      "Feestdag: <code>Mama ; moederdag</code> (" + D.OCCASIONS.map(function (o) { return o.id; }).join(" · ") + "). " +
       "Alles blijft in je browser en je eigen sync — hier kijkt niets of niemand mee.";
     card.appendChild(hint);
     var ta = document.createElement("textarea");
@@ -394,81 +413,148 @@
   function renderDetail() {
     var p = people.find(function (x) { return x.id === view.personId; }) || null;
     var isNew = !p;
-    if (isNew) p = { id: newId("p"), name: "", cat: "verjaardag", label: null, month: today0().getMonth() + 1, day: today0().getDate(), year: null, ideas: [] };
+    if (isNew) p = { id: newId("p"), name: "", cat: "verjaardag", label: null, month: new Date().getMonth() + 1, day: new Date().getDate(), year: null, ideas: [] };
+    var editing = isNew || view.edit;
 
     var back = el("button", "back", "‹ terug");
-    back.addEventListener("click", function () { view = { mode: "list", personId: null }; render(); });
+    back.addEventListener("click", gotoList);
     root.appendChild(back);
 
     var card = el("section", "card");
-    card.appendChild(el("h2", null, isNew ? "Nieuw persoon" : p.name));
+    if (!editing) {
+      // Leesweergave: waar je voor komt (datum, ideeën) staat voorop; het
+      // formulier zit achter "Wijzig".
+      var head = el("div", "p-head");
+      var nm = el("div", "p-name");
+      nm.appendChild(catIcon(p)); nm.appendChild(el("span", null, p.name));
+      head.appendChild(nm);
+      var nx = D.next(p), bits = [];
+      if (nx) {
+        bits.push(catWord(p) + " · " + D.fmt(nx.date, true) + (nx.date.getFullYear() !== new Date().getFullYear() ? " " + nx.date.getFullYear() : ""));
+        bits.push(D.until(nx.days));
+        var yt = yearText(p, nx.date); if (yt) bits.push(yt);
+      } else bits.push(catWord(p));
+      if (p.occasion && D.occasion(p.occasion)) bits.push(D.ruleText(D.occasion(p.occasion)));
+      head.appendChild(el("div", "p-line", bits.join(" · ")));
+      card.appendChild(head);
+      var edit = el("button", "btn ghost", "Wijzig");
+      edit.addEventListener("click", function () { view.edit = true; render(); });
+      card.appendChild(edit);
+    } else {
+      card.appendChild(el("h2", null, isNew ? "Nieuw" : p.name));
 
-    var rowName = el("div", "field-row");
-    rowName.appendChild(el("label", null, "Naam"));
-    var name = document.createElement("input"); name.type = "text"; name.value = p.name; name.placeholder = "Naam";
-    rowName.appendChild(name);
-    card.appendChild(rowName);
+      var rowName = el("div", "field-row");
+      rowName.appendChild(el("label", null, "Naam"));
+      var name = document.createElement("input"); name.type = "text"; name.value = p.name; name.placeholder = "Naam";
+      rowName.appendChild(name);
+      card.appendChild(rowName);
 
-    var chosenCat = catOf(p);
-    var rowCat = el("div", "field-row");
-    rowCat.appendChild(el("label", null, "Wat"));
-    var cats = el("div", "cats");
-    var customLabel = document.createElement("input");
-    customLabel.type = "text"; customLabel.placeholder = "eigen label (bv. examen)";
-    customLabel.value = (chosenCat === "anders" && p.label) ? p.label : "";
-    customLabel.style.display = chosenCat === "anders" ? "" : "none";
-    CATS.forEach(function (c) {
-      var chip = el("button", "cat-chip" + (c.key === chosenCat ? " active" : ""));
-      chip.type = "button";
-      var ic = el("span", "cat-ic"); ic.innerHTML = c.icon;
-      chip.appendChild(ic);
-      chip.appendChild(el("span", null, c.label));
-      chip.addEventListener("click", function () {
-        chosenCat = c.key;
-        Array.prototype.forEach.call(cats.children, function (ch) { ch.classList.remove("active"); });
-        chip.classList.add("active");
-        customLabel.style.display = c.key === "anders" ? "" : "none";
+      var chosenCat = catOf(p);
+      var rowCat = el("div", "field-row");
+      rowCat.appendChild(el("label", null, "Wat"));
+      var cats = el("div", "cats");
+      var customLabel = document.createElement("input");
+      customLabel.type = "text"; customLabel.placeholder = "eigen label (bv. examen)";
+      customLabel.value = (chosenCat === "anders" && p.label) ? p.label : "";
+
+      // Feestdag: geen datumvelden maar een keuze uit de vaste lijst, met de
+      // regel en de eerstvolgende datum eronder.
+      var rowOcc = el("div", "field-row");
+      rowOcc.appendChild(el("label", null, "Welke"));
+      var occSel = document.createElement("select");
+      // Een id dat (nog) niet in de lijst staat — bv. van een nieuwere versie op
+      // een ander apparaat — blijft staan en wordt niet stil door de eerste
+      // optie vervangen.
+      if (p.occasion && !D.occasion(p.occasion)) {
+        var unk = document.createElement("option"); unk.value = p.occasion; unk.textContent = p.occasion + " (onbekend)"; unk.selected = true;
+        occSel.appendChild(unk);
+      }
+      D.OCCASIONS.forEach(function (o) {
+        var opt = document.createElement("option"); opt.value = o.id; opt.textContent = o.label;
+        if (o.id === (p.occasion || "moederdag")) opt.selected = true;
+        occSel.appendChild(opt);
       });
-      cats.appendChild(chip);
-    });
-    rowCat.appendChild(cats);
-    card.appendChild(rowCat);
-    var rowCustom = el("div", "field-row");
-    rowCustom.appendChild(el("label", null, ""));
-    rowCustom.appendChild(customLabel);
-    card.appendChild(rowCustom);
+      var occHint = el("div", "hint-line");
+      function updOcc() {
+        var o = D.occasion(occSel.value), onx = o ? D.next({ occasion: o.id }) : null;
+        occHint.textContent = o ? D.ruleText(o) + (onx ? " · " + D.fmt(onx.date, true) + " " + onx.date.getFullYear() : "") : "onbekende feestdag — kies er een uit de lijst";
+      }
+      occSel.addEventListener("change", updOcc); updOcc();
+      rowOcc.appendChild(occSel); rowOcc.appendChild(occHint);
 
-    var rowDate = el("div", "field-row");
-    rowDate.appendChild(el("label", null, "Datum"));
-    var day = document.createElement("input"); day.type = "number"; day.min = 1; day.max = 31; day.value = p.day; day.className = "small";
-    var month = document.createElement("select");
-    MONTHS.forEach(function (m, i) {
-      var o = document.createElement("option"); o.value = String(i + 1); o.textContent = m;
-      if (i + 1 === p.month) o.selected = true;
-      month.appendChild(o);
-    });
-    var year = document.createElement("input"); year.type = "number"; year.placeholder = "jaar?"; year.className = "small";
-    if (p.year) year.value = p.year;
-    rowDate.appendChild(day); rowDate.appendChild(month); rowDate.appendChild(year);
-    card.appendChild(rowDate);
+      var rowDate = el("div", "field-row");
+      rowDate.appendChild(el("label", null, "Datum"));
+      var day = document.createElement("input"); day.type = "number"; day.min = 1; day.max = 31; day.value = p.day || new Date().getDate(); day.className = "small";
+      var month = document.createElement("select");
+      MONTHS.forEach(function (m, i) {
+        var o = document.createElement("option"); o.value = String(i + 1); o.textContent = m;
+        if (i + 1 === (p.month || new Date().getMonth() + 1)) o.selected = true;
+        month.appendChild(o);
+      });
+      var year = document.createElement("input"); year.type = "number"; year.placeholder = "jaar?"; year.className = "small";
+      if (p.year) year.value = p.year;
+      rowDate.appendChild(day); rowDate.appendChild(month); rowDate.appendChild(year);
 
-    var save = el("button", "btn", isNew ? "Toevoegen" : "Opslaan");
-    save.addEventListener("click", function () {
-      var nm = name.value.trim();
-      if (!nm) { name.focus(); return; }
-      p.name = nm;
-      p.cat = chosenCat;
-      p.label = chosenCat === "anders" ? (customLabel.value.trim() || "anders") : null;
-      p.month = Math.max(1, Math.min(12, parseInt(month.value, 10) || 1));
-      p.day = Math.max(1, Math.min(31, parseInt(day.value, 10) || 1));
-      var y = parseInt(year.value, 10);
-      p.year = (y > 1900 && y < 2100) ? y : null;
-      if (isNew) people.push(p);
-      writePeople(people);
-      view = { mode: "detail", personId: p.id };
-      render();
-    });
-    card.appendChild(save);
+      function showFor(key) {
+        customLabel.style.display = key === "anders" ? "" : "none";
+        rowOcc.style.display = key === "feestdag" ? "" : "none";
+        rowDate.style.display = key === "feestdag" ? "none" : "";
+      }
+      CATS.forEach(function (c) {
+        var chip = el("button", "cat-chip" + (c.key === chosenCat ? " active" : ""));
+        chip.type = "button";
+        var ic = el("span", "cat-ic"); ic.innerHTML = c.icon;
+        chip.appendChild(ic);
+        chip.appendChild(el("span", null, c.label));
+        chip.addEventListener("click", function () {
+          chosenCat = c.key;
+          Array.prototype.forEach.call(cats.children, function (ch) { ch.classList.remove("active"); });
+          chip.classList.add("active");
+          showFor(c.key);
+        });
+        cats.appendChild(chip);
+      });
+      rowCat.appendChild(cats);
+      card.appendChild(rowCat);
+      var rowCustom = el("div", "field-row");
+      rowCustom.appendChild(el("label", null, ""));
+      rowCustom.appendChild(customLabel);
+      card.appendChild(rowCustom);
+      card.appendChild(rowOcc);
+      card.appendChild(rowDate);
+      showFor(chosenCat);
+
+      var btns = el("div", "io-btns");
+      var save = el("button", "btn", isNew ? "Toevoegen" : "Opslaan");
+      save.addEventListener("click", function () {
+        var nm = name.value.trim();
+        if (!nm) { name.focus(); return; }
+        p.name = nm;
+        p.cat = chosenCat;
+        p.label = chosenCat === "anders" ? (customLabel.value.trim() || "anders") : null;
+        if (chosenCat === "feestdag") {
+          p.occasion = occSel.value;
+          delete p.month; delete p.day; delete p.year;
+        } else {
+          delete p.occasion;
+          p.month = Math.max(1, Math.min(12, parseInt(month.value, 10) || 1));
+          p.day = Math.max(1, Math.min(31, parseInt(day.value, 10) || 1));
+          var y = parseInt(year.value, 10);
+          p.year = (y > 1900 && y < 2100) ? y : null;
+        }
+        if (isNew) people.push(p);
+        writePeople(people);
+        view = { mode: "detail", personId: p.id, edit: false };
+        render();
+      });
+      btns.appendChild(save);
+      if (!isNew) {
+        var cancel = el("button", "btn ghost", "Annuleer");
+        cancel.addEventListener("click", function () { view.edit = false; render(); });
+        btns.appendChild(cancel);
+      }
+      card.appendChild(btns);
+    }
     root.appendChild(card);
 
     if (!isNew) {
@@ -508,7 +594,11 @@
       addRow.appendChild(input); addRow.appendChild(addBtn);
       ideasCard.appendChild(addRow);
       root.appendChild(ideasCard);
+    }
 
+    // Verwijderen alleen in de wijzig-stand: geen rode knop in beeld als je
+    // alleen even een idee komt noteren.
+    if (!isNew && editing) {
       var danger = el("button", "btn danger", "Verwijder " + p.name);
       var armed = false, timer = null;
       danger.addEventListener("click", function () {
@@ -520,8 +610,7 @@
         clearTimeout(timer);
         people = people.filter(function (x) { return x.id !== p.id; });
         writePeople(people);
-        view = { mode: "list", personId: null };
-        render();
+        gotoList();
       });
       var wrap = el("div", null); wrap.style.textAlign = "center"; wrap.style.marginBottom = "14px";
       wrap.appendChild(danger);

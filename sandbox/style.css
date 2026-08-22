@@ -3491,3 +3491,9 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
   opacity: 0.75;
 }
 .vault-note-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* Attentinus-datums in de agenda (all-day chips/items; bron: attentinus/dates.js + leescache uit home.js) */
+.cal-allday-chip.cal-allday-attent { background: #d97706; }
+.cal-item-attent .cal-ics-bar { background: #d97706; }
+a.cal-item-attent { color: inherit; text-decoration: none; }
+a.cal-allday-attent { text-decoration: none; }
