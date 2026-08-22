@@ -630,20 +630,23 @@
         var todo = enabled.filter(function (app, i) { return !statuses[i].green; });
         if (!todo.length) return;               // alles groen -> tile blijft weg
 
+        // 2026-08-22 (UX-plan): kleine hero-tegel, zelfde maat als de weer-tegel;
+        // geen "nog te gaan"-regel meer — de stippen zeggen genoeg.
         var a = document.createElement("a");
-        a.className = "events-tile trainer-tile";
+        a.className = "app-tile trainer-tile";
         a.href = "trainerinus/";
         a.setAttribute("aria-label", "Open Trainerinus, nog te oefenen: " + todo.map(function (t) { return t.short; }).join(", "));
 
-        var ic = el("span", "events-tile-icon");
+        var arrow = el("span", "app-tile-arrow");
+        arrow.innerHTML = ICON_ARROW_OUT;
+        a.appendChild(arrow);
+
+        var ic = el("span", "app-tile-icon");
         ic.innerHTML = ICON_TARGET;
         a.appendChild(ic);
 
-        var text = el("div", "events-tile-text");
-        text.appendChild(el("div", "events-tile-title", "Trainerinus"));
-        text.appendChild(el("div", "events-tile-sub",
-          "Nog te gaan: " + todo.map(function (t) { return t.short; }).join(" · ")));
-        a.appendChild(text);
+        var label = el("div", "app-tile-label", "Trainerinus");
+        a.appendChild(label);
 
         var dots = el("span", "trainer-dots");
         enabled.forEach(function (app, i) {
@@ -654,11 +657,8 @@
         });
         a.appendChild(dots);
 
-        var arrow = el("span", "events-tile-arrow");
-        arrow.innerHTML = ICON_ARROW_OUT;
-        a.appendChild(arrow);
-
         slot.appendChild(a);
+        fitTileLabel(label);
       });
     }, function () {});
     return slot;
@@ -811,6 +811,7 @@
     var heroRow = el("div", "hero-row");
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
+    heroRow.appendChild(renderTrainerTile());   // kleine tegel; blijft weg als alles groen is
     heroRow.appendChild(renderBirdTile());
     wrap.appendChild(heroRow);
 
@@ -2646,7 +2647,6 @@
     view.innerHTML = "";
     view.appendChild(renderHero(myGeneration));
     view.appendChild(renderEventsTile());
-    view.appendChild(renderTrainerTile());
     view.appendChild(renderAttentTile());
 
     fetch("feed.json", { cache: "no-store" })

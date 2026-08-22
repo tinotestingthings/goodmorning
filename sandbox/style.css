@@ -3440,6 +3440,7 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
 .trainer-dots { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
 .trainer-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); opacity: 0.35; }
 .trainer-dots i.on { background: #34c759; opacity: 1; }
+.app-tile .trainer-dots { justify-content: center; margin-top: 2px; }  /* stippen in de kleine hero-tegel */
 
 /* Opduikinus: één oude vault-notitie per dag (data uit feed.json:vaultNote) */
 .vault-note {
