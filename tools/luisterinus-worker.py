@@ -28,6 +28,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -83,8 +84,11 @@ def sb(method, path, data=None, headers=None):
     if headers:
         h.update(headers)
     req = urllib.request.Request(SUPABASE_URL + path, data=data, method=method, headers=h)
-    with urllib.request.urlopen(req, timeout=120) as r:
-        txt = r.read().decode()
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            txt = r.read().decode()
+    except urllib.error.HTTPError as e:  # de body zegt wát er mis is (bijv. 42501 permission denied)
+        raise RuntimeError(f"Supabase {e.code} op {method} {path.split('?')[0]}: {e.read().decode()[:300]}") from None
     return json.loads(txt) if txt else None
 
 

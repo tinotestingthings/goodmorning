@@ -56,7 +56,10 @@ create table if not exists public.podcast_queue (
 
 alter table public.podcast_queue enable row level security;
 -- Tabelrechten: policies alleen zijn niet genoeg (anders 42501 "permission denied").
+-- Dit project geeft nieuwe tabellen géén default-grants, dus ook service_role (het
+-- worker-script) moet expliciet; die rol omzeilt RLS maar niet de tabelrechten.
 grant select, insert, update on public.podcast_queue to authenticated;
+grant select, insert, update, delete on public.podcast_queue to service_role;
 
 create policy "podcast_queue authenticated select" on public.podcast_queue
   for select to authenticated using (true);
