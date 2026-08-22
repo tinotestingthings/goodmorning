@@ -109,6 +109,7 @@ zonder wachtrijrecords is de kaart identiek aan nu, op de knop zelf na
 Status: fase 0 = GO, fase 1 live (v2026.08.21-5), script geschreven, `/code-review medium` (8 bevindingen)
 verwerkt, NotebookLM-kant end-to-end bewezen (`--test-url` op het camperverhuurder-artikel → 17 min deep-dive;
 sindsdien staat het script op **Brief**). notebooklm-py 0.8.1 (pyenv 3.10.13), `notebooklm login` gedaan.
+**Eerste echte run 22 aug 2026: geslaagd** — camperverhuurder-rij → Brief (3,5 MB) → bucket → `ready`, speler in de app.
 
 **Draaien (Tinus, handmatig in fase 2):**
 ```bash
