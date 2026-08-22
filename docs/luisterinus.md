@@ -37,7 +37,7 @@ het kritieke pad van de digest.
    weer weg (één blok in triage.js + wat CSS).
 
 **Uitkomst (22 aug 2026, Tinus, in Gemini Notebook — de nieuwe naam van NotebookLM): GO.**
-Brief-formaat gemaakt; Nederlands én Engels allebei acceptabel. Het script gebruikt daarom `AudioFormat.BRIEF`, `language="nl"`.
+Brief-formaat gemaakt; Nederlands én Engels allebei acceptabel — keuze na de eerste echte run: **Engels**. Het script gebruikt `AudioFormat.BRIEF`, `language="en"`.
 
 ## Eénmalige setup (Tinus, Supabase SQL-editor)
 
@@ -122,7 +122,7 @@ Tweede gelijktijdige run zegt "al bezig" en stopt (lockfile in de temp-map).
 Losse proef zonder Supabase: `python3 tools/luisterinus-worker.py --test-url <url> --out podcast.m4a`.
 
 **Per rij:** preflight `notebooklm auth check --test` → notebook aanmaken → `sources.add_url(wait=True)` →
-`generate_audio(language="nl", audio_format=BRIEF)` → `wait_for_completion(timeout=900)` → `download_audio`
+`generate_audio(language="en", audio_format=BRIEF)` → `wait_for_completion(timeout=900)` → `download_audio`
 (m4a) → notebook verwijderen (mag falen) → upload `digest-audio/<id>.m4a` (`audio/mp4`, upsert) →
 `PATCH status=ready, audio_path=<id>.m4a`.
 
