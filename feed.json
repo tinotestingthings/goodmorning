@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-21T06:56:52Z",
+ "generated": "2026-08-22T06:47:00Z",
  "daily": [
   {
    "id": "2026-08-21-404media-subtlefakes-nonconsensuele-ai-beelden-moeilijker-herkenbaar",
@@ -7,129 +7,82 @@
    "source": "404 Media (Emanuel Maiberg)",
    "url": "https://www.404media.co/subtlefakes-slightly-altered-nonconsensual-ai-images-are-taking-over-x/",
    "date": "2026-08-21",
-   "summary": "Emanuel Maiberg publiceerde op 20 augustus 2026 bij 404 Media een stuk over een verschuiving in nonconsensueel AI-beeldmateriaal: het wordt steeds lastiger te herkennen. De aanjager is een genre dat 404 Media \"subtlefakes\" noemt — licht bewerkte AI-beelden van echte mensen die X overspoelen. Het kantelpunt zit hem in de graad van manipulatie. Klassieke deepfake-porno is expliciet en daarmee relatief goed te detecteren, te modereren en juridisch te adresseren. Subtlefakes werken andersom: een bestaande foto van een echt persoon wordt net genoeg aangepast — kleding, houding, context — dat het beeld seksualiserend of vernederend wordt zonder ooit de drempel van \"expliciet\" te halen. Daarmee gli"
+   "summary": "Emanuel Maiberg publiceerde op 20 augustus 2026 bij 404 Media een stuk over een verschuiving in nonconsensueel AI-beeldmateriaal: het wordt steeds lastiger te herkennen. De aanjager is een genre dat 404 Media \"subtlefakes\" noemt — licht bewerkte AI-beelden van echte mensen die X overspoelen. Het kantelpunt zit hem in de graad van manipulatie. Klassieke deepfake-porno is expliciet en daarmee relatief goed te detecteren, te modereren en juridisch te adresseren. Subtlefakes werken andersom: een bestaande foto van een echt persoon wordt net genoeg aangepast — kleding, houding, context — dat het beeld seksualiserend of vernederend wordt zonder ooit de drempel van \"expliciet\" te halen. Daarmee glipt het door geautomatiseerde filters, valt het buiten veel platformbeleid, en is voor het slachtoffer nauwelijks te bewijzen dat er überhaupt is gemanipuleerd."
   },
   {
-   "id": "2026-08-21-arrayref-rust-crate-supply-chain-aanval-infostealer",
-   "title": "arrayref-crate vergiftigd: Rust-supply-chain-aanval steelt browsercredentials tijdens het compileren",
-   "source": "BleepingComputer / StepSecurity / Wiz",
-   "url": "https://www.bleepingcomputer.com/news/security/hackers-poison-arrayref-rust-crate-to-push-infostealer-malware/",
-   "date": "2026-08-21",
-   "summary": "Op 20 augustus 2026 is het account van de beheerder achter arrayref gekaapt, een Rust-crate met ruim 53 miljoen downloads in de afgelopen negentig dagen, gebruikt in cryptografie-, graphics- en blockchain-tooling. Binnen een venster van 23 minuten vergiftigde de aanvaller ook append-only-vec en internment. BleepingComputer bracht het verhaal, met technische analyses van StepSecurity en Wiz. De aanval is bijzonder netjes uitgevoerd. De originele broncode bleef volledig ongewijzigd; er werd alleen een dependency toegevoegd op proc-macro1, een typosquat van het populaire proc-macro2. De build.rs van dat pakket is een cross-platform dropper die over TLS een tweede binary ophaalt en uitvoert. Omd"
+   "id": "2026-08-22-ap-boete-825-miljoen-uber-geautomatiseerde-deactivatie-chauffeurs",
+   "title": "AP legt Uber recordboete van 825 miljoen op voor geautomatiseerde deactivatie van chauffeursaccounts",
+   "source": "Autoriteit Persoonsgegevens / NOS / Reuters / Computable",
+   "url": "https://nos.nl/artikel/2627738-uber-schond-rechten-chauffeurs-ap-legt-megaboete-van-825-miljoen-op",
+   "date": "2026-08-22",
+   "summary": "De Autoriteit Persoonsgegevens heeft Uber op 21 augustus 2026 een boete van 825 miljoen euro opgelegd omdat het bedrijf accounts van chauffeurs deactiveerde via volledig geautomatiseerde systemen, zonder betekenisvolle menselijke tussenkomst en zonder de betrokken chauffeurs daar behoorlijk over te informeren. De AP bevestigde het besluit nadat Reuters erover berichtte; NOS, Computable en Security.NL pakten het dezelfde middag op. Uber gaat in beroep en noemt de boete \"disproportioneel\" — het bedrijf stelt dat er in het huidige beleid wél mensen bij zulke beslissingen betrokken zijn en dat chauffeurs kunnen klagen tegen een deactivatie. Het gaat om gedragingen tussen 2020 en 2022. Uber schorste chauffeurs die verdacht werden van fraude — bijvoorbeeld het onnodig omrijden om een hogere rit te factureren — tijdelijk of, bij aanhoudend lage klantbeoordelingen, permanent. De zaak begon met klachten uit Frankrijk en werd in Nederland behandeld omdat Ubers Europese hoofdkantoor in Amsterdam zit, wat de AP tot leidende toezichthouder maakt onder het one-stop-shopmechanisme."
   },
   {
-   "id": "2026-08-21-cosnitch-copilot-lek-een-klik-data-uit-gmail-drive",
-   "title": "CoSnitch: Copilot lekte zijn eigen aanvalspad, één klik volstond voor datadiefstal uit Gmail en Drive",
-   "source": "Varonis Threat Labs / BleepingComputer / The Register / Dark Reading",
-   "url": "https://www.varonis.com/blog/cosnitch",
-   "date": "2026-08-21",
-   "summary": "Varonis Threat Labs heeft een kwetsbaarheid in Microsoft Copilot Personal gepubliceerd — CVE-2026-24301, gedoopt CoSnitch — waarmee een aanvaller met één klik van het slachtoffer gegevens kon wegsluizen uit gekoppelde accounts. Microsoft heeft het lek op 18 augustus 2026 gedicht na responsible disclosure; Varonis zegt geen aanwijzingen te hebben gevonden dat het vóór de fix in het wild is misbruikt. BleepingComputer, The Register, Dark Reading en The Hacker News pakten het verhaal op tussen 18 en 20 augustus. De technische kern is een ongedocumenteerde URL-parameter ?autorun=1. In combinatie met een query-parameter zorgde die ervoor dat Copilot een in de link ingebedde prompt automatisch uit"
+   "id": "2026-08-22-ftc-handhavingsbeleid-surveillance-pricing-gepersonaliseerde-prijzen",
+   "title": "FTC kondigt handhavingsbeleid aan tegen \"surveillance pricing\": persoonsgegevens gebruiken om individuele prijzen te zetten",
+   "source": "FTC / Consumer Finance Monitor / The American Prospect / TechSpot",
+   "url": "https://www.consumerfinancemonitor.com/2026/08/20/ftc-proposes-enforcement-policy-on-personalized-pricing-as-states-and-congress-move-toward-broader-restrictions/",
+   "date": "2026-08-22",
+   "summary": "De Amerikaanse FTC heeft op 19 augustus 2026 een concept-*Enforcement Policy Statement Regarding Personalized Pricing* voor publieke consultatie gepubliceerd. De kern: bedrijven die persoonsgegevens van consumenten gebruiken om individuele prijzen te bepalen zonder dat behoorlijk te melden, kunnen daarmee sectie 5 van de FTC Act overtreden. Het onderwerp — in de VS \"surveillance pricing\" genoemd — is de prijszetting waarbij niet het product maar de kóper de prijs bepaalt: locatie, apparaat, browsegeschiedenis, eerdere aankopen, soms zelfs de batterijstand van je telefoon. Wat de FTC concreet eist is disclosure, niet een verbod. Bedrijven moeten \"clear and conspicuous\" melden dát een prijs gepersonaliseerd is, op welke basis dat gebeurt en welke soorten data daarvoor worden gebruikt. Daarnaast legt het statement een privacy-poot bloot: het ongemelde verzamelen of gebruiken van persoonsgegevens voor prijszetting kan op zichzelf al onrechtmatig zijn, en bedrijven die prijzen baseren op data zonder te verifiëren dat de consument voor die verzameling toestemming gaf lopen hetzelfde risico. De redenering over schade is dat een consument die door verborgen datagebruik meer betaalt \"substantial injury\" lijdt die hij niet kan vermijden, juist omdat de personalisatie verborgen is."
   },
   {
-   "id": "2026-08-21-google-koopt-spirit-airlines-data-faillissement-ai-training",
-   "title": "Google koopt de complete bedrijfsdata van het failliete Spirit Airlines voor $10 miljoen — als AI-trainingsmateriaal",
-   "source": "Axios / CNN / SiliconANGLE / HuffPost / IT Pro",
-   "url": "https://www.axios.com/2026/08/17/google-spirit-airlines-bankruptcy",
-   "date": "2026-08-21",
-   "summary": "Google heeft een faillissementsveiling gewonnen om de data van de ter ziele gegane Amerikaanse prijsvechter Spirit Airlines te kopen voor $10 miljoen (Mercor bood $7,5 miljoen; de biedingen begonnen rond $5 miljoen). Het gaat om een opmerkelijk complete dwarsdoorsnede van een bedrijf: circa 100 miljoen e-mails, 500 miljoen Microsoft Teams-chats, 30 miljoen regels code, 3,4 miljoen loonstrookrecords en werknemersgegevens die teruggaan tot 1986, plus finance-, operations- en revenue-managementdata, prijsmodellen, boekingscurves, vluchtgedrag, wifi- en inflight-verkopen en restitutiehistorie. Axios en Skift braken het verhaal rond 17 augustus, CNN volgde op 18 augustus, en op 20 augustus meldde"
-  },
-  {
-   "id": "2026-08-21-openai-trekt-toegang-cyberonderzoekers-tac-in-technische-fout",
-   "title": "OpenAI zette gescreende cyberonderzoekers uit zijn Trusted Access-programma — \"technische fout\", maar niet iedereen komt terug",
-   "source": "TechCrunch / The Register",
-   "url": "https://techcrunch.com/2026/08/19/researchers-complain-that-openai-revoked-their-access-to-limited-cyber-program/",
-   "date": "2026-08-21",
-   "summary": "Op woensdag 19 augustus 2026 meldden meerdere beveiligingsonderzoekers op OpenAI's supportforum en op X dat hun toegang tot het Trusted Access for Cyber (TAC)-programma was ingetrokken, specifiek de Daybreak Blue-tier. Bij het openen van de Cyber-pagina van ChatGPT kregen ze meldingen dat hun identiteit niet geverifieerd kon worden of dat hun account niet in aanmerking kwam. TechCrunch bracht het verhaal op 19 augustus, The Register volgde op 20 augustus. OpenAI bevestigt dat het om een technische fout ging, die vooral gebruikers buiten de VS en Europa trof. Betrokkenen moeten zich opnieuw aanmelden en de verificatie opnieuw doorlopen. Daar zit de angel: The Register meldt dat het herstelpro"
+   "id": "2026-08-22-openai-private-safety-processing-versus-anthropic-dataretentie",
+   "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
+   "source": "Axios / TechCrunch / The Register",
+   "url": "https://www.axios.com/2026/08/19/openai-previews-zero-retention-safety-system-as-anthropic-requires-data-logs",
+   "date": "2026-08-22",
+   "summary": "OpenAI heeft op 19 augustus 2026 bij een selecte groep zakelijke klanten een systeem in preview gezet dat het Private Safety Processing noemt. De belofte: patronen van misbruik herkennen over meerdere, samenhangende interacties heen, zonder de zero-data-retention-garantie (ZDR) op te geven die grote zakelijke afnemers eisen. In plaats van prompts en antwoorden op te slaan stuurt het systeem naar OpenAI alleen een strak afgebakend \"safety signal\" terug; de onderliggende inhoud blijft op infrastructuur van de klant, of ligt bij OpenAI versleuteld met sleutels die de klant beheert. Een bredere uitrol en een technische white paper staan voor september gepland. De directe aanleiding is een zet van Anthropic. Dat bedrijf voerde voor zakelijke klanten die Fable 5 en Mythos 5 willen gebruiken een retentietermijn van 30 dagen in, met als motivering dat sommige aanvallen alleen zichtbaar worden over een reeks verzoeken heen — het genoemde voorbeeld is *Best-of-N jailbreaking*, waarbij een aanvaller honderden minieme varianten van dezelfde prompt afvuurt tot er één door de waarborgen glipt. Zonder logs over een venster van dagen zie je zo'n patroon simpelweg niet. OpenAI's pitch is dat het diezelfde risico's wil vangen zonder de klant eerst 30 dagen opslag te laten accepteren; The Register (20 aug) vatte het samen als een jacht op Anthropics zakelijke klanten."
   }
  ],
  "today": {
-  "date": "2026-08-21",
+  "date": "2026-08-22",
   "tasks": [
-   {
-    "id": "2026-07-28-piano-learn-familiar",
-    "title": "Piano - learn Familiar",
-    "status": "doing",
-    "detail": "Learn to play Familiar on piano.",
-    "hint": "In uitvoering",
-    "notes": [],
-    "subtasks": []
-   },
    {
     "id": "2026-08-19-wc-kitten",
     "title": "WC kitten",
     "status": "doing",
-    "detail": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "detail": "De notitie is via de app aangemaakt en bevat geen verdere details.",
     "hint": "In uitvoering",
     "notes": [],
     "subtasks": []
    },
    {
-    "id": "2026-07-11-battlefield-6-helicopter-flying-practice-goal",
-    "title": "Battlefield 6 — helicopter flying practice goal",
+    "id": "2026-07-28-piano-learn-familiar",
+    "title": "Piano - learn Familiar",
+    "status": "doing",
+    "detail": "Familiar op piano leren spelen.",
+    "hint": "In uitvoering",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-21-google-koopt-spirit-airlines-data-faillissement-ai-training",
+    "title": "Google koopt de complete bedrijfsdata van het failliete Spirit Airlines voor $10 miljoen — als AI-trainingsmateriaal",
     "status": "todo",
-    "detail": "I play Battlefield 6 on mouse and keyboard — I should get better at flying helicopters.",
-    "hint": "Open taak",
+    "detail": "Uit de triage als taak gemarkeerd: Google kocht op een faillissementsveiling de complete bedrijfsdata van Spirit Airlines voor $10 miljoen als AI-trainingsmateriaal; de vakbond AFA-CWA vecht de verkoop aan.",
+    "hint": "Nieuw uit de triage",
     "notes": [],
     "subtasks": []
    }
   ],
   "projects": [
    {
-    "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
-    "title": "Een AI app waarmee je mallen voor kleding kan maken.",
-    "status": "active",
-    "updated": "2026-08-18",
-    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
     "id": "2026-07-14-team-verbetering-idee",
     "title": "Team verbetering — idee",
     "status": "active",
     "updated": "2026-08-19",
-    "line": "Idee over hoe we ons team kunnen verbeteren: 2-maandelijkse strategiesessie met mede-senior Meer eisen en actielijst bijhouden voor onze manager Meer zichtbaarheid creëren naar de manager",
+    "line": "Idee voor teamverbetering: tweemaandelijkse strategiesessie, actielijst richting de manager, meer zichtbaarheid.",
     "notes": [
      "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
     ],
     "subtasks": []
    },
    {
-    "id": "2026-08-19-vof-opzeggen",
-    "title": "VOF opzeggen",
-    "status": "active",
-    "updated": "2026-08-19",
-    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
-    "notes": [],
-    "subtasks": [
-     {
-      "text": "Maria informeren opzeggen vof",
-      "done": false
-     },
-     {
-      "text": "Formulier invullen",
-      "done": false
-     },
-     {
-      "text": "Nummer hein getten (erwin gevraagd)",
-      "done": false
-     },
-     {
-      "text": "Formulier op de post",
-      "done": false
-     },
-     {
-      "text": "Dingen downloaden van belastingdienst en archiveren",
-      "done": false
-     }
-    ]
-   },
-   {
     "id": "2026-07-28-goodmorning-app-improvements",
     "title": "Goodmorning app improvements",
     "status": "active",
     "updated": "2026-08-20",
-    "line": "Hub project for improvements to the goodmorning app.",
+    "line": "Hub voor app-verbeteringen; 3 van de 8 subtaken afgevinkt.",
     "notes": [],
     "subtasks": [
      {
@@ -235,20 +188,59 @@
     ]
    },
    {
+    "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
+    "title": "Een AI app waarmee je mallen voor kleding kan maken.",
+    "status": "active",
+    "updated": "2026-08-18",
+    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
     "id": "2026-08-18-ecosystem-explainer-remotion-script",
     "title": "Ecosystem explainer — script & storyboard (Remotion)",
     "status": "active",
     "updated": "2026-08-20",
-    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Script en storyboard voor een korte Remotion-explainer over hoe kennis het systeem binnenkomt en tot actie leidt.",
     "notes": [],
     "subtasks": []
+   },
+   {
+    "id": "2026-08-19-vof-opzeggen",
+    "title": "VOF opzeggen",
+    "status": "active",
+    "updated": "2026-08-19",
+    "line": "Vijf stappen om de VOF op te zeggen; nog geen enkele afgevinkt.",
+    "notes": [],
+    "subtasks": [
+     {
+      "text": "Maria informeren opzeggen vof",
+      "done": false
+     },
+     {
+      "text": "Formulier invullen",
+      "done": false
+     },
+     {
+      "text": "Nummer hein getten (erwin gevraagd)",
+      "done": false
+     },
+     {
+      "text": "Formulier op de post",
+      "done": false
+     },
+     {
+      "text": "Dingen downloaden van belastingdienst en archiveren",
+      "done": false
+     }
+    ]
    },
    {
     "id": "2026-08-20-be-better-with-claude",
     "title": "Be better with Claude",
     "status": "active",
-    "updated": "2026-08-20",
-    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
+    "updated": "2026-08-22",
+    "line": "Actieve lijst van 16 dingen om met Claude uit te proberen (skills, plugins, subagents); nog niets afgevinkt.",
     "notes": [],
     "subtasks": [
      {
@@ -310,6 +302,10 @@
      {
       "text": "Test caveman, die haalt veel semantiek weg van claude wat tokens bespaart",
       "done": false
+     },
+     {
+      "text": "grill-me skill = uitgebreid plan maken.",
+      "done": false
      }
     ]
    },
@@ -318,16 +314,7 @@
     "title": "Finance and markets — learning interest",
     "status": "idea-stage",
     "updated": "2026-08-04",
-    "line": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-07-28-link-chatgpt-work-to-app",
-    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
-    "status": "idea-stage",
-    "updated": "2026-08-07",
-    "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
+    "line": "Leerinteresse in markten en aandelen (niet persoonlijke financiën); nog in ideefase.",
     "notes": [],
     "subtasks": []
    },
@@ -336,7 +323,7 @@
     "title": "Personal productivity as mental health management",
     "status": "idea-stage",
     "updated": "2026-08-11",
-    "line": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
+    "line": "Leerinteresse in productiviteit als mentale-gezondheidsbeheer; twee open vragen over de wetenschap achter vitamines en productiviteit.",
     "notes": [],
     "subtasks": [
      {
@@ -350,20 +337,11 @@
     ]
    },
    {
-    "id": "2026-08-12-visit-every-park-in-utrecht",
-    "title": "Visit every park in Utrecht.",
-    "status": "idea-stage",
-    "updated": "2026-08-12",
-    "line": "Gesynchroniseerd vanuit de agenda-app; de notitie bevat verder geen details.",
-    "notes": [],
-    "subtasks": []
-   },
-   {
     "id": "2026-07-11-work-compliance-topics-resources-to-gather",
     "title": "Work compliance topics — resources to gather",
     "status": "idea-stage",
     "updated": "2026-08-20",
-    "line": "Topics to add work-relevant resources on: ISO 27001 ISO 27701 EU AI Act GDPR",
+    "line": "Onderwerpen om werkgerelateerde bronnen bij te verzamelen: ISO 27001, ISO 27701, EU AI Act, AVG.",
     "notes": [],
     "subtasks": []
    },
@@ -372,7 +350,25 @@
     "title": "Learn pistol squats",
     "status": "idea-stage",
     "updated": "2026-08-20",
-    "line": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
+    "line": "Pistol squats leren met beide benen, mits knievriendelijk; nog in ideefase.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-28-link-chatgpt-work-to-app",
+    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+    "status": "idea-stage",
+    "updated": "2026-08-07",
+    "line": "ChatGPT Work aan de app koppelen om vendor lock-in te voorkomen; nog in ideefase.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-12-visit-every-park-in-utrecht",
+    "title": "Visit every park in Utrecht.",
+    "status": "idea-stage",
+    "updated": "2026-08-12",
+    "line": "Elk park in Utrecht bezoeken; de notitie bevat verder geen details.",
     "notes": [],
     "subtasks": []
    },
@@ -381,7 +377,7 @@
     "title": "Cooking — improving recipes",
     "status": "done",
     "updated": "2026-08-04",
-    "line": "Goal: start and improve recipes based on current ones, using the second brain.",
+    "line": "Recepten verbeteren met behulp van het second brain — afgerond.",
     "notes": [],
     "subtasks": []
    },
@@ -390,45 +386,18 @@
     "title": "Project: a daily \"things to do everyday\" hub site",
     "status": "done",
     "updated": "2026-08-04",
-    "line": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
+    "line": "Hub-site voor dagelijkse dingen; afgerond (Tinus: \"Done\", 2026-07-24).",
     "notes": [
      "2026-07-24 22:16 (Tinus): Done"
     ],
     "subtasks": []
    },
    {
-    "id": "2026-08-01-backlog-list-type-build-spec",
-    "title": "Backlog list type — build spec",
+    "id": "2026-07-14-cookie-scanner-applicatie",
+    "title": "Project: Cookie Scanner Applicatie",
     "status": "done",
-    "updated": "2026-08-04",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
-    "title": "Sandbox → live promotion — safety spec",
-    "status": "done",
-    "updated": "2026-08-04",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
-    "title": "Vogelspotinus — integration & backup spec",
-    "status": "done",
-    "updated": "2026-08-13",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-    "notes": [],
-    "subtasks": []
-   },
-   {
-    "id": "2026-08-13-event-tracker-integration-and-backup-spec",
-    "title": "Event Tracker — integration & backup spec",
-    "status": "done",
-    "updated": "2026-08-18",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "updated": "2026-08-20",
+    "line": "Cookie-scannerapplicatie naar voorbeeld van mickbeer.com — afgerond.",
     "notes": [],
     "subtasks": []
    },
@@ -437,16 +406,43 @@
     "title": "Daily digest app — instructions & Claude Code build prompt",
     "status": "done",
     "updated": "2026-08-19",
-    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed).",
+    "line": "Bouwspec van de daily-digest-app (swipe feed); afgerond.",
     "notes": [],
     "subtasks": []
    },
    {
-    "id": "2026-07-14-cookie-scanner-applicatie",
-    "title": "Project: Cookie Scanner Applicatie",
+    "id": "2026-08-01-backlog-list-type-build-spec",
+    "title": "Backlog list type — build spec",
     "status": "done",
-    "updated": "2026-08-20",
-    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk).",
+    "updated": "2026-08-04",
+    "line": "Bouwspec voor het backlog-lijsttype in de app; afgerond.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
+    "title": "Sandbox → live promotion — safety spec",
+    "status": "done",
+    "updated": "2026-08-04",
+    "line": "Veiligheidsspec voor sandbox→live promotie, geschreven na het incident van 4 augustus; afgerond.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
+    "title": "Vogelspotinus — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-13",
+    "line": "Integratie- en backupspec voor Vogelspotinus in de goodmorning-app; afgerond.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-13-event-tracker-integration-and-backup-spec",
+    "title": "Event Tracker — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-18",
+    "line": "Integratie- en backupspec voor de Event Tracker; afgerond.",
     "notes": [],
     "subtasks": []
    }
@@ -519,5 +515,11 @@
     ]
    }
   }
+ },
+ "vaultNote": {
+  "title": "Gemeenten lekken nog steeds persoonsgegevens van inwoners (NOS/Nieuwsuur-onderzoek)",
+  "excerpt": "Onderzoek van NOS en Nieuwsuur (17 juli 2026) laat zien dat Nederlandse gemeenten nog altijd per ongeluk persoonsgegevens van inwoners op internet publiceren — ondanks dat de Autoriteit Persoonsgegevens gemeenten daar al sinds 2017 op aanspreekt. De onderzoekers vonden honderden documenten met e-mailadressen, privételefoonnummers, adresgegevens, identiteitsdocumentnummers en BSN's van inwoners. Concreet voorbeeld: de gemeente Voorschoten.",
+  "path": "Mijn Wiki/20 Sources/2026-07-18-gemeenten-lekken-persoonsgegevens-nos-onderzoek.md",
+  "noteDate": "2026-07-18"
  }
 }
