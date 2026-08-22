@@ -19,3 +19,4 @@ node_modules/
 .fuse_hidden*
 graphify-out/
 _sden2-lesmateriaal/
+__pycache__/

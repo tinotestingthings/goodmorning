@@ -24,7 +24,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Event Tracker | `events/` | `eventtracker_state` (personal state only; catalogue is baked in) | `events-src/` in this repo | `bash events-src/build.sh` → `events/bundle.js`; catalogue edited by the **event-catalog-refresh** task |
 | Trainerinus (oefencoach over de trainer-apps) | `trainerinus/` | `trainerinus_state` (tabel moet nog aangemaakt — SQL in `trainerinus/README.md`; app draait zonder tabel lokaal) | this repo | none; leest read-only de state-tabellen van vogelspotinus/chordsprint/notesprint/kangaroo |
 | Attentinus (verjaardagen + cadeau-ideeën) | `attentinus/` | `attentinus_state` (tabel moet nog aangemaakt — SQL in `attentinus/README.md`; app draait zonder tabel lokaal) | this repo | none; digest-home: vaste herotegel + rij bij een datum binnen 21 dagen; import/export client-side |
-| Luisterinus (digest-podcasts) | `luisterinus/` | leest `podcast_queue` + bucket `digest-audio` (geen eigen state-tabel) | this repo | none; Utilities-tegel met wachtrij-badge (practice.js), Today-tile als er een podcast klaarstaat (home.js), knop op de digest-kaart (triage.js). Spec: `docs/luisterinus.md` |
+| Luisterinus (digest-podcasts) | `luisterinus/` | leest `podcast_queue` + bucket `digest-audio` (geen eigen state-tabel) | this repo | none; Utilities-tegel met wachtrij-badge (practice.js), Today-tile als er een podcast klaarstaat (home.js), knop op de digest-kaart (triage.js). Verwerkscript `tools/luisterinus-worker.py` (notebooklm-py, handmatig draaien in fase 2). Spec: `docs/luisterinus.md` |
 | Ecosystem explainer (video) | `explainer/` | — | this repo | Remotion; not served by the PWA |
 
 ## Not in this repo (on purpose)
@@ -41,7 +41,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | Secret | Used by | Lives in |
 |---|---|---|
 | Supabase publishable key + URL | the app (`supabase.js`) | public by design; RLS does the access control |
-| Supabase `service_role` | agenda backup, capture-bridge sync (daily-digest task) | macOS Keychain `gm-supabase-service-role` + `~/Code/goodmorning/.env` |
+| Supabase `service_role` | agenda backup, capture-bridge sync (daily-digest task) | macOS Keychain `gm-supabase-service-role` (er is geen `.env` meer; scripts lezen de Keychain, bijv. `tools/luisterinus-worker.py`) |
 | GitHub fine-grained PAT (`goodmorning` only, Contents: rw) | daily-digest task pushing `feed.json` | macOS Keychain `gm-github-pat` |
 | Human git/gh access | you + Claude Code | `gh auth login` (keychain), no token anywhere |
 

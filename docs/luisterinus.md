@@ -36,6 +36,9 @@ het kritieke pad van de digest.
 5. No-go bij matige kwaliteit: project stopt hier; de knop in de app kan dan
    weer weg (één blok in triage.js + wat CSS).
 
+**Uitkomst (22 aug 2026, Tinus, in Gemini Notebook — de nieuwe naam van NotebookLM): GO.**
+Brief-formaat gemaakt; Nederlands én Engels allebei acceptabel. Het script gebruikt daarom `AudioFormat.BRIEF`, `language="nl"`.
+
 ## Eénmalige setup (Tinus, Supabase SQL-editor)
 
 ```sql
@@ -98,41 +101,44 @@ Klaar-criteria (plan): knop en speler werken op telefoon, iPad en laptop;
 zonder wachtrijrecords is de kaart identiek aan nu, op de knop zelf na
 (de knop is het instappunt en staat er altijd; alle status-UI komt uit data).
 
-## Fase 2 — worker-script (stand 21 aug 2026, avond: nog te schrijven)
+## Fase 2 — worker-script (`tools/luisterinus-worker.py`, 22 aug 2026)
 
-Status: fase 1 live (v2026.08.21-5). notebooklm-py 0.8.1 geïnstalleerd (pyenv 3.10.13,
-`notebooklm` op PATH), Playwright-login gedaan, `notebooklm auth check --test` → "Authentication is valid".
-Nog niets werkt de wachtrij af; elke knopdruk blijft "in de maak" tot dit script bestaat.
+Status: fase 0 = GO, fase 1 live (v2026.08.21-5), script geschreven, `/code-review medium` (8 bevindingen)
+verwerkt, NotebookLM-kant end-to-end bewezen (`--test-url` op het camperverhuurder-artikel → 17 min deep-dive;
+sindsdien staat het script op **Brief**). notebooklm-py 0.8.1 (pyenv 3.10.13), `notebooklm login` gedaan.
 
-**Bestand:** `tools/luisterinus-worker.py` (Python, buiten de PWA). Tinus draait hem zelf:
-`python3 tools/luisterinus-worker.py` — het script leest de service_role via
-`security find-generic-password -s gm-supabase-service-role -w` (Claude mag die sleutel niet lezen).
-Extra modus voor een losse proef zonder Supabase: `--test-url <url> --out podcast.m4a`.
+**Draaien (Tinus, handmatig in fase 2):**
+```bash
+python3 tools/luisterinus-worker.py
+```
+Leest de service_role uit de Keychain (`gm-supabase-service-role`), werkt alle `requested`-rijen van de laatste
+14 dagen af. Exit 0 = klaar (ook als een rij `failed` werd — dat is inhoudelijk, de app toont "probeer opnieuw");
+exit 2 = afgebroken zonder rijen aan te raken (login verlopen → `notebooklm login`, of NotebookLM onbereikbaar).
+Tweede gelijktijdige run zegt "al bezig" en stopt (lockfile in de temp-map).
+Losse proef zonder Supabase: `python3 tools/luisterinus-worker.py --test-url <url> --out podcast.m4a`.
 
-**Per `requested`-rij:**
-1. `GET {SUPABASE_URL}/rest/v1/podcast_queue?status=eq.requested&select=*` (headers `apikey` + `Authorization: Bearer <service_role>`)
-2. NotebookLM (API-signaturen geverifieerd via introspectie op 0.8.1):
-   ```python
-   from notebooklm import NotebookLMClient, AudioFormat, AudioLength
-   async with NotebookLMClient.from_storage() as client:
-       nb = await client.notebooks.create(title)                                   # nb.id
-       await client.sources.add_url(nb.id, url, wait=True, wait_timeout=120)      # SourcesAPI: wait bestaat hier wél
-       st = await client.artifacts.generate_audio(nb.id, language="nl",
-               audio_format=AudioFormat.DEEP_DIVE, audio_length=AudioLength.DEFAULT)  # st.task_id
-       await client.artifacts.wait_for_completion(nb.id, st.task_id, timeout=900)  # ArtifactsAPI; default 300 s is te kort
-       await client.artifacts.download_audio(nb.id, "/tmp/<id>.m4a")             # m4a, speelt in de app (bewezen)
-       await client.notebooks.delete(nb.id)                                       # idempotent; alleen na succes
-   ```
-   (`AudioFormat`: BRIEF/CRITIQUE/DEBATE/DEEP_DIVE; `AudioLength`: SHORT/DEFAULT/LONG; `ArtifactStatus.COMPLETED/FAILED`.)
-3. Upload: `POST {SUPABASE_URL}/storage/v1/object/digest-audio/<id>.m4a`, `Content-Type: audio/mp4`, `x-upsert: true`.
-4. `PATCH /rest/v1/podcast_queue?id=eq.<id>` → `{"status":"ready","audio_path":"<id>.m4a"}`; bij elke exception
-   `{"status":"failed"}` + één logregel, en door met de volgende rij (nooit blijven hangen).
+**Per rij:** preflight `notebooklm auth check --test` → notebook aanmaken → `sources.add_url(wait=True)` →
+`generate_audio(language="nl", audio_format=BRIEF)` → `wait_for_completion(timeout=900)` → `download_audio`
+(m4a) → notebook verwijderen (mag falen) → upload `digest-audio/<id>.m4a` (`audio/mp4`, upsert) →
+`PATCH status=ready, audio_path=<id>.m4a`.
 
-**Eerste run = fase 0-luisterproef**: de echte aanvraag `sbx-test-camperverhuurder-ai-chatbot` (Ius Mentis-artikel)
-staat klaar als `requested`. Bevalt de NL-audio niet → project stopt; knop kan er in één commit uit.
+**Foutregels (bewust):**
+- inhoudelijke fout (bron niet importeerbaar, generatie mislukt, quotum) → `failed`, maar alleen als de rij nog
+  `requested` is (een verse "probeer opnieuw" wordt nooit overschreven); door met de volgende rij;
+- time-out → rij blijft `requested` (NotebookLM werkt waarschijnlijk nog; notebook blijft staan, id in het log);
+- infra vóór er een notebook is (login, onbereikbaar) → run afgebroken, exit 2, niets aangeraakt;
+- upload gelukt maar `ready` niet gezet → rij blijft `requested`, volgende run overschrijft het bestand (upsert).
+
+**API-signaturen (geverifieerd via introspectie op 0.8.1):** `client.notebooks.create(title)`;
+`client.sources.add_url(id, url, wait=True, wait_timeout=)`; `client.artifacts.generate_audio(id, language=,
+audio_format=AudioFormat.BRIEF|DEEP_DIVE|CRITIQUE|DEBATE, audio_length=AudioLength.SHORT|DEFAULT|LONG)` →
+`.task_id`; `client.artifacts.wait_for_completion(id, task_id, timeout=)` → `GenerationStatus` met
+`is_complete/is_failed/is_rate_limited/error/error_code`; `client.artifacts.download_audio(id, path)`;
+`client.notebooks.delete(id)` (idempotent). `ArtifactStatus` zit niet in de top-level module.
 
 **Daarna (fase 3):** Cowork-taak 2×/dag die dit script draait; `notebooklm auth refresh --quiet` als keepalive;
-opruimen >14 dagen (bucket + rijen); rij in `Mijn Wiki/90 System/Automations.md`.
+opruimen >14 dagen (bucket + rijen); rij in `Mijn Wiki/90 System/Automations.md`. Opslag: een Brief is ~5–10 MB,
+de deep-dive-proef was 32 MB; de gratis Supabase-bucket (1 GB) is met het 14-dagenvenster ruim genoeg.
 
 ## Opruimen (fase 3)
 
