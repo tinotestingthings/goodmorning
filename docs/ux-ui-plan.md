@@ -61,7 +61,7 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 - Klaar wanneer: elke app licht én donker correct toont met dezelfde kleuren, en een screenshot
   van twee willekeurige apps naast elkaar als één product leest.
 
-### Fase C — Luisterinus-app (½–1 sessie, ná fase B)
+### Fase C — Luisterinus-app — GEDAAN 22 aug (live 98bbb2e)
 
 - Rij: titel, bron-domein · datum, **duur** (het script schrijft `duration_s` in de rij — kleine
   SQL-migratie), status als rustige tekst; geen knoppen tot je tikt.
@@ -71,7 +71,12 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
   één tik), **verwijderen** (rij weg; bucketbestand ruimt het script op), **taak aanmaken** (zelfde `actions`-rij
   als de Task-knop in Triage, zodat de digest-taak hem in 30 Tasks zet). Utilities-nummertje = klaar én ongehoord;
   gehoorde items gedimd onderaan.
-- Testrijen (`title = 'test'`) en `test.m4a` weg.
+- Testrijen (`title = 'test'`) weg (gedaan via de nieuwe Verwijderen-actie); `test.m4a` staat nog in de bucket
+  en verdwijnt met de opruimronde van fase 3.
+- Gebouwd: rij = titel + bron-domein · datum · duur; tik klapt de acties uit (Afspelen / Gehoord / Taak /
+  Verwijderen; bij `failed`: Probeer opnieuw). Vaste mini-speler met titel, sluitknop en één speler tegelijk;
+  uitgeluisterd = automatisch gehoord; gehoord dimt en schuift onderaan; Ververs-knop naast de subtitel
+  (de worker draait buiten de app om). Migratie `listened_at` + `duration_s` + delete-policy: docs/luisterinus.md.
 
 ### Fase D — Utilities & navigatie (½ sessie)
 
