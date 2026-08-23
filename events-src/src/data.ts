@@ -80,6 +80,22 @@ const core: EventRecord[] = [
     sources: [src("timeanddate-lunar-2026", "Time and Date \u2014 28 August 2026 lunar eclipse in the Netherlands", "2026-08-21", "https://www.timeanddate.com/eclipse/in/netherlands?iso=20260828"), src("natgeo-nl-2026", "National Geographic NL \u2014 sky events of 2026", "2026-08-21", "https://www.nationalgeographic.nl/natuur-leefomgeving/a69698625/spectaculairste-hemelverschijnselen-2026")],
     milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-21"
   },
+  {
+    id: "graffiti-centraal-museum-2026", title: "Graffiti \u2014 Centraal Museum", shortDescription: "A 1,000 m\u00b2 survey of graffiti as an artistic force, with more than 120 works by Basquiat, Keith Haring, Rammellzee, Jenny Holzer and Klara Lid\u00e9n.",
+    startAt: "2026-10-10T00:00:00+02:00", endAt: "2027-03-29T23:59:00+02:00", venueName: "Centraal Museum \u2014 De Stallen", city: "Utrecht", region: "Utrecht", country: "Netherlands", distanceKm: 1.5,
+    primaryCategory: "Culture", tags: ["culture", "museum", "art", "exhibition", "graffiti"], priceLabel: "Museum admission", isFree: false, relevance: 84, rarity: 87, preparation: 24, urgency: 58,
+    whyRelevant: "The successor to the Honthorst show in De Stallen, and a very different thing: seventy years of artistic development seen through the spray can, from New York writers to Basquiat, Haring and Lawrence Weiner. An initiative of Museion (Bolzano), co-produced with Centraal Museum, partly assembled with the Dutch Graffiti Library and Mick La Rock.", whyNow: "The official museum page confirms 10 October 2026 \u2013 29 March 2027 in De Stallen. It runs long, so there is no rush \u2014 but the museum's own Keith Haring canvas and the two Rammellzee diptychs from the Wildenberg Collection are rarely shown.", recommendedAction: "Note the opening and plan a visit once it has settled", state: "unseen", discoveredAt: "2026-08-23", accent: "coral",
+    sources: [src("museum", "Centraal Museum \u2014 official Graffiti exhibition page", "2026-08-23", "https://www.centraalmuseum.nl/nl/nu-te-zien/tentoonstellingen/graffiti")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-23"
+  },
+  {
+    id: "kerstsupermaan-2026", title: "Christmas Eve supermoon \u2014 closest full Moon of 2026", shortDescription: "The largest and closest supermoon of the year rises on Christmas Eve; the last time a full Moon fell on 24 December was 1996.",
+    startAt: "2026-12-24T00:00:00+01:00", venueName: "Eastern sky after moonrise", city: "Utrecht", region: "Utrecht", country: "Netherlands", latitude: 52.0907, longitude: 5.1214, distanceKm: 0,
+    primaryCategory: "Astronomy", tags: ["astronomy", "moon", "rare", "free", "winter"], priceLabel: "Free", isFree: true, relevance: 83, rarity: 86, preparation: 18, urgency: 46,
+    whyRelevant: "The third eye-level sky event of the year after the August solar and lunar eclipses, and the only one that needs nothing at all \u2014 no filters, no travel, no ticket. A full Moon on 24 December is a once-in-a-generation coincidence: the previous one was thirty years ago.", whyNow: "The \u2018cold moon\u2019 rises early and looks outsized low on the horizon. Later that night Jupiter and Mars sit just below it in the east, with Saturn in the west after sunset \u2014 a busy sky for the last week of December.", recommendedAction: "Put it in the calendar and find a clear eastern horizon", state: "unseen", discoveredAt: "2026-08-23", accent: "cyan",
+    sources: [src("natgeo-nl-2026", "National Geographic NL \u2014 sky events of 2026", "2026-08-23", "https://www.nationalgeographic.nl/natuur-leefomgeving/a69698625/spectaculairste-hemelverschijnselen-2026")],
+    milestones: [], changes: [], dateStatus: "verified", dateVerifiedAt: "2026-08-23"
+  },
 ];
 
 export const seedEvents = [...core, ...scrapedFilmEvents, ...monitoredFilmEvents];

@@ -1,4 +1,4 @@
-import type { EventRecord } from "./types";
+import type { EventChange, EventRecord } from "./types";
 
 export type MonitoredFilm = {
   id: string;
@@ -12,6 +12,8 @@ export type MonitoredFilm = {
   tags: string[];
   accent: string;
   verifiedAt: string;
+  discoveredAt?: string;
+  changes?: EventChange[];
   officialSources: { id: string; name: string; url: string }[];
   checks?: { id: string; title: string; occursAt: string }[];
 };
@@ -22,15 +24,19 @@ export const monitoredFilms: MonitoredFilm[] = [
   {
     id: "dune-part-three-2026",
     title: "Dune: Part Three",
-    releaseAt: "2026-12-18T00:00:00+01:00",
-    releaseScope: "Original worldwide release; Dutch programme TBA",
+    releaseAt: "2026-12-16T00:00:00+01:00",
+    releaseScope: "Dutch cinema release 16 December 2026; US/Canada 18 December",
     description: "Denis Villeneuve's conclusion to the Dune trilogy, based on Frank Herbert's Dune Messiah, is being monitored for Dutch release changes, premium-format screenings and ticket sales.",
     whyRelevant: "A major blockbuster and the conclusion of Denis Villeneuve's Dune trilogy.",
-    monitoringReason: "Legendary and IMAX confirm an original release on 18 December 2026. Dutch showtimes and ticket-sale dates may differ and remain under active monitoring.",
+    monitoringReason: "Dutch cinema listings now give a Netherlands release of 16 December 2026, two days ahead of the 18 December US/Canada date. Dutch showtimes, ticket-sale dates and premium-format screenings remain under active monitoring.",
     monitoringSignals: ["Dutch release changes", "Ticket sales", "IMAX and premium formats"],
     tags: ["film", "blockbuster", "dune", "imax", "ticketed", "monitored"],
     accent: "ochre",
-    verifiedAt: "2026-08-13",
+    verifiedAt: "2026-08-23",
+    discoveredAt: "2026-08-13",
+    changes: [
+      { id: "dune-3-nl-release-date-2026-08-23", label: "Dutch release date confirmed \u2014 16 December 2026", detail: "Dutch cinema listings (Filmladder, BiosAgenda) now state a Netherlands premiere of 16-12-2026, two days before the 18 December US/Canada release. The catalogue previously carried the 18 December date with the Dutch programme marked TBA.", detectedAt: "2026-08-23", importance: "high" },
+    ],
     officialSources: [
       { id: "legendary-dune-3", name: "Legendary — official Dune: Part Three page", url: "https://www.legendary.com/film/dune-part-three/" },
       { id: "imax-dune-3", name: "IMAX — official Dune: Part Three page", url: "https://www.imax.com/movie/dune-part-three" },
@@ -63,11 +69,11 @@ export const monitoredFilmEvents: EventRecord[] = monitoredFilms.map((film) => (
   whyNow: film.monitoringReason,
   recommendedAction: film.checks?.[0]?.title ?? "Watch official sources for release and ticket updates",
   state: "saved",
-  discoveredAt: film.verifiedAt,
+  discoveredAt: film.discoveredAt ?? film.verifiedAt,
   accent: film.accent,
-  sources: film.officialSources.map((source) => ({ ...source, firstSeenAt: film.verifiedAt })),
+  sources: film.officialSources.map((source) => ({ ...source, firstSeenAt: film.discoveredAt ?? film.verifiedAt })),
   milestones: (film.checks ?? []).map((check) => ({ ...check, type: "monitor" })),
-  changes: [],
+  changes: film.changes ?? [],
   dateStatus: "verified",
   dateVerifiedAt: film.verifiedAt,
 }));

@@ -2,6 +2,21 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-23 (v2026.08.23-1) — Eventino: wekelijkse catalogusronde (Graffiti, kerstsupermaan, Dune-datum NL)
+
+Wekelijkse event-catalog-refresh. Toegevoegd aan events-src/src/data.ts: **Graffiti**
+(Centraal Museum, De Stallen, 10 okt 2026 – 29 mrt 2027; 120+ werken, Basquiat/Haring/
+Rammellzee/Holzer/Lidén, initiatief van Museion) en **Kerstsupermaan 24 december 2026**
+(grootste en dichtstbijzijnde supermaan van het jaar; vorige volle maan op 24 december was
+in 1996). Gewijzigd in events-src/src/monitored-films.ts: **Dune: Part Three** verschijnt in
+Nederland op **16 december 2026**, twee dagen vóór de VS/Canada-datum van 18 december — de
+catalogus had nog 18 december met "Dutch programme TBA". MonitoredFilm kreeg daarvoor
+optionele velden `discoveredAt` (zodat een her-verificatie de ontdekkingsdatum niet
+verschuift) en `changes` (verschijnt in de Change history van de kaart). Kinepolis Utrecht
+bleef onleesbaar (client-rendered, lege respons) en houdt status Warning; geen records
+verzonnen. Bundle herbouwd en gespiegeld naar sandbox; live-clean guard groen,
+node --check groen op beide bundles. sw.js en sandbox/sw.js v70 → v71.
+
 ## 2026-08-22 (gerichte promote) — Eventino: Festivals-tab. Terugkerende festivals (27, Utrecht + Amsterdam) in events-src/src/festivals.ts met filters regio/grootte/genre/maand; festivals in je regio's (Utrecht + Settings, nu een keuzelijst) landen ook in de inbox, de rest alleen op de tab; validator check-festivals.mjs in build.sh; 14 jaarlijkse festivals uit data.ts; app heet in de UI Eventino
 
 ## 2026-08-22 (gerichte promote) — UX fase A/B: Today opgeruimd (Attentinus- en podcast-tegel weg, Trainerinus als kleine hero-tegel), design.css + DESIGN.md als stijlbron, themapaletten naar design.css, theme-sync.js laat Luisterinus/Attentinus/Trainerinus het thema van de hoofdapp dragen
