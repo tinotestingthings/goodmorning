@@ -6,11 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Luisterinus</title>
   <style>
+    /* Vangnet als ../design.css niet laadt: zonder deze regels valt elke var()
+       weg en krijg je een transparante serif-pagina op een witte iframe. */
+    :root { --bg: #f5f6f8; --card: #fff; --text: #1a1d24; --muted: #5a6270; --line: #dde1e6;
+            --blue: #4a90d9; --red: #d9534f; --radius: 14px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); padding: 16px 16px 120px; max-width: 640px; margin-inline: auto; }
     h1 { font-size: 1.25rem; margin: 4px 0 2px; }
     .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
-    .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
+    .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; }
+    /* de kop is een knop over de volle breedte: klikbaar als een rij, maar ook
+       bereikbaar met toetsenbord en VoiceOver */
+    .rowhead { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .rowhead:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
     .row.done { opacity: 0.55; }
     .row.playing { border-color: var(--blue); }
     .title { font-weight: 600; line-height: 1.3; }
@@ -20,7 +29,8 @@
     /* acties: alleen zichtbaar na een tik op de rij; tekstknoppen in de accentkleur */
     .acts { display: none; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
     .row.open .acts { display: flex; }
-    .act { border: 0; background: none; padding: 0; color: var(--blue); font: inherit; font-weight: 600; cursor: pointer; }
+    .act { border: 0; background: none; padding: 0; color: var(--blue); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .act-done { color: var(--muted); font-size: 0.9rem; }
     .act.danger { color: var(--red); margin-left: auto; }
     .act:disabled { opacity: 0.5; }
     .empty, #msg { color: var(--muted); font-size: 0.9rem; }

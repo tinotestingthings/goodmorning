@@ -40,20 +40,21 @@ het moment om het in één slag te doen, vóór Luisterinus een eigen uiterlijk 
 
 ### Fase B — DESIGN.md + gedeelde tokens (1–2 sessies) — de kern
 
-1. `design.css` in de repo-root (gepromoot → ook in `sandbox/`): tokens voor kleur (bg, card, text,
-   text-dim, border, accent = het blauw `--skip`, ok = groen, warn = amber, danger = rood), radius
-   (12/14/22), spacing (4/8/12/16/24), typografie (systeemfont, 5 maten), en 4 componentklassen:
-   `.card`, `.tile`, `.btn`, `.badge`. Light én dark via `prefers-color-scheme`, zonder "first".
-2. `DESIGN.md` (platte tekst, à la Stitch): dezelfde tokens uitgelegd + de smaakregels hierboven +
-   do's/don'ts met voorbeelden uit de eigen apps. Eén verwijsregel in CLAUDE.md: alleen lezen bij
-   UI-werk (token-hygiëne).
+1. `design.css` in de repo-root (gepromoot → ook in `sandbox/`): kleur-, radius-, spacing- en
+   typografietokens. **Geen** generieke componentklassen — `.card/.tile/.btn` bestonden al in
+   style.css en de apps, en een gedeelde versie herstijlde die stilletjes. De exacte waarden staan
+   alleen in `design.css`; herhaal ze nergens anders.
+2. `DESIGN.md` (platte tekst, à la Stitch): wat elk token betékent + de smaakregels hierboven +
+   do's/don'ts. Eén verwijsregel in CLAUDE.md: alleen lezen bij UI-werk (token-hygiëne).
 3. Thema's: de paletten van de themakiezer (`data-theme`, 10 stuks) staan sinds 22 aug in `design.css`
    (één bron; style.css houdt alleen thema-specifieke componentregels). theme.js schrijft het actieve thema
    weg (`<ns>themeActive`); `theme-sync.js` zet het vóór de eerste paint op elke utility-app. Zo dragen
    Luisterinus/Attentinus/Trainerinus exact het thema van de hoofdapp (Nova, Carbon, …); zonder gekozen
    thema volgt `design.css` het systeem. Geen generieke componentklassen in design.css (botsten met
    `.card/.btn/.tile`). Bewuste unificatie: Attentinus/Trainerinus radius 14 (was 20), hairline i.p.v. zachte schaduw.
-   ChordSprint zet zijn thema op `<body data-theme>` en volgt daarom nog niet — eigen ronde.
+   ChordSprint zet zijn thema op `<body data-theme>` en volgt daarom niet: het thema komt er niet door,
+   terwijl `design.css` wel zijn radius/font aanpast. Besluit Tinus 23 aug: **ChordSprint blijft zoals hij nu is**,
+   niet aankomen tot hij zelf aan de beurt is.
 4. Utility-apps: `<link rel="stylesheet" href="../design.css">` + eigen `:root` weg; app-specifieke
    regels blijven. Volgorde: Luisterinus (kaal, dus goedkoop) → Attentinus → Trainerinus →
    ChordSprint → (NoteSprint blijft zoals hij is) → daarna de gebundelde apps

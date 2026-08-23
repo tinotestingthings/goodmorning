@@ -603,8 +603,16 @@
   }
 
   function renderTrainerTile() {
-    var slot = el("div", "events-tile-slot");
-    if (!window.SB) return slot;
+    // De <a> is zelf het flex-item in .hero-row (met width:92px en
+    // flex-shrink:0 uit .app-tile). Een wrapper eromheen zou het flex-item
+    // worden zónder die maten — precies de fout die renderBirdTile hierboven
+    // beschrijft. Hij begint verborgen en verschijnt pas als er iets te
+    // oefenen valt.
+    var a = document.createElement("a");
+    a.className = "app-tile trainer-tile";
+    a.href = "trainerinus/";
+    a.style.display = "none";
+    if (!window.SB) return a;
     window.SB.auth.getSession().then(function (res) {
       var s = res && res.data && res.data.session;
       if (!s || !s.user) return;
@@ -632,9 +640,6 @@
 
         // 2026-08-22 (UX-plan): kleine hero-tegel, zelfde maat als de weer-tegel;
         // geen "nog te gaan"-regel meer — de stippen zeggen genoeg.
-        var a = document.createElement("a");
-        a.className = "app-tile trainer-tile";
-        a.href = "trainerinus/";
         a.setAttribute("aria-label", "Open Trainerinus, nog te oefenen: " + todo.map(function (t) { return t.short; }).join(", "));
 
         var arrow = el("span", "app-tile-arrow");
@@ -657,11 +662,11 @@
         });
         a.appendChild(dots);
 
-        slot.appendChild(a);
+        a.style.display = "";     // nu pas tonen: leeg blijft hij uit de rij
         fitTileLabel(label);
       });
     }, function () {});
-    return slot;
+    return a;
   }
 
   // Attentinus tile — zelfde slot-patroon: alleen zichtbaar als er binnen 21

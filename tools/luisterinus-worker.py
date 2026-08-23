@@ -127,7 +127,10 @@ def audio_seconds(path):
 # ---- NotebookLM ------------------------------------------------------------
 
 def preflight():
-    r = subprocess.run(["notebooklm", "auth", "check", "--test"], capture_output=True, text=True, timeout=120)
+    try:
+        r = subprocess.run(["notebooklm", "auth", "check", "--test"], capture_output=True, text=True, timeout=120)
+    except (subprocess.SubprocessError, OSError) as e:  # hang, of CLI niet op PATH
+        raise RunAborted(f"notebooklm-CLI reageert niet ({type(e).__name__}) — installeer/controleer notebooklm-py") from None
     if r.returncode != 0:
         raise RunAborted("NotebookLM-login verlopen of kapot — draai: notebooklm login")
 
@@ -189,11 +192,25 @@ async def process(client, row):
         except Exception as e2:
             log(f"status kon niet op failed: {e2}")
         return
+    body = {"status": "ready", "audio_path": f"{rid}.m4a"}
+    if secs:
+        body["duration_s"] = secs
     try:
-        patch(f"id=eq.{q(rid)}", {"status": "ready", "audio_path": f"{rid}.m4a", "duration_s": secs})
+        patch(f"id=eq.{q(rid)}", body)
         log("ready")
-    except Exception as e:  # audio staat al in de bucket; niet op failed zetten
-        log(f"audio staat in de bucket maar status niet gezet ({e}); volgende run maakt hem af")
+    except Exception as e:
+        # Tweede poging zonder duration_s: ontbreekt die kolom (migratie niet
+        # gedraaid, of PostgREST-schemacache loopt achter), dan zou de rij op
+        # `requested` blijven staan en maakt de volgende run de hele podcast
+        # opnieuw. Liever ready zonder duur dan eindeloos hergenereren.
+        if "duration_s" in body:
+            try:
+                patch(f"id=eq.{q(rid)}", {"status": "ready", "audio_path": f"{rid}.m4a"})
+                log(f"ready (zonder duur: {str(e)[:120]})")
+                return
+            except Exception as e2:
+                e = e2
+        log(f"audio staat in de bucket maar status niet gezet ({str(e)[:160]}); volgende run maakt hem opnieuw")
 
 
 async def run_queue():

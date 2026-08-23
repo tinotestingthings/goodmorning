@@ -1,8 +1,13 @@
 "use strict";
 
 // Bump this on any shell-file change so old installs pick up the update.
-var CACHE_NAME = "dd-sandbox-shell-v71";
-var CACHE_PREFIX = "dd-sandbox-shell-";
+// De cachenaam is per omgeving (2026-08-23): live en sandbox draaien op
+// dezelfde origin en Cache Storage is origin-scoped, dus met één gedeelde naam
+// wiste de activate van de één de offline-shell van de ander bij elke bump.
+var IS_SANDBOX = self.registration.scope.indexOf("/sandbox/") !== -1;
+var CACHE_PREFIX = (IS_SANDBOX ? "sbx" : "dd") + "-shell-";
+var CACHE_NAME = CACHE_PREFIX + "v71";
+var LEGACY_PREFIX = "dd-sandbox-shell-";   // de oude gedeelde naam; alleen live ruimt hem op
 
 var SHELL_FILES = [
   "./",
@@ -44,7 +49,13 @@ var SHELL_FILES = [
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(SHELL_FILES);
+      // Per bestand, niet addAll: die is atomair, dus één ontbrekend bestand
+      // (bijv. na een gerichte promote) liet de hele install falen en dan
+      // updatete de app nooit meer. Nu ontbreekt hooguit één cache-entry —
+      // de fetch-handler haalt hem alsnog van het netwerk.
+      return Promise.all(SHELL_FILES.map(function (f) {
+        return cache.add(f).catch(function () {});
+      }));
     }).then(function () { return self.skipWaiting(); })
   );
 });
@@ -56,8 +67,13 @@ self.addEventListener("activate", function (event) {
       // CACHE_NAME heet" wist ook de caches van de utility-apps eronder
       // (notesprint/sw.js), waardoor hun offline-modus stilletjes stukging.
       return Promise.all(
-        names.filter(function (n) { return n.indexOf(CACHE_PREFIX) === 0 && n !== CACHE_NAME; })
-             .map(function (n) { return caches.delete(n); })
+        names.filter(function (n) {
+          if (n === CACHE_NAME) return false;
+          if (n.indexOf(CACHE_PREFIX) === 0) return true;
+          // De oude gedeelde cache alleen door live laten opruimen, anders
+          // wist de sandbox alsnog de shell van de ander.
+          return !IS_SANDBOX && n.indexOf(LEGACY_PREFIX) === 0;
+        }).map(function (n) { return caches.delete(n); })
       );
     }).then(function () { return self.clients.claim(); })
   );

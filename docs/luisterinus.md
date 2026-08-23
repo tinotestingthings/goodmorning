@@ -11,9 +11,12 @@ het kritieke pad van de digest.
 ## Oppervlakken (fase 1, app-kant)
 
 - **Digest-kaart** (triage.js): knop "Maak er een podcast van" → nieuwe rij; status/speler op de kaart zolang die in de deck staat.
-- **Utilities-tegel "Luisterinus"** (practice.js): rood nummertje = rijen `requested` + `ready` van de laatste 14 dagen.
-- **Today-tile in de hero-rij** (home.js, `appendPodcastTile`): alléén zichtbaar als er ≥1 podcast `ready` is; nummertje = aantal.
-- **Luisterinus-app** (`luisterinus/`): lijst van de laatste 14 dagen met speler, "in de maak…", en "probeer opnieuw" bij `failed`. Leest alleen (plus failed→requested); deelt de login-sessie van Daily Digest.
+- **Utilities-tegel "Luisterinus"** (practice.js): rood nummertje = `ready` én nog niet gehoord, laatste 14 dagen.
+- **Luisterinus-app** (`luisterinus/`): lijst van de laatste 14 dagen. Tik op de kop (een echte knop, dus ook
+  met toetsenbord/VoiceOver) en de acties klappen uit: Afspelen · Gehoord/Ongehoord · Bron ↗ · Taak · Verwijderen
+  (bij `failed`: Probeer opnieuw). Vaste mini-speler onderaan met sluitknop; uitgeluisterd = automatisch gehoord.
+  De speler onthoudt alleen een id, zodat verversen nooit de verkeerde aflevering bijwerkt. Deelt de login-sessie
+  van Daily Digest. De Utilities-terugknop laat deze app bewust gemount, zodat een podcast doorspeelt.
 
 ## Statusmodel (fase 1, app-kant — zit in triage.js)
 
