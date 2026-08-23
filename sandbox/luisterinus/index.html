@@ -29,17 +29,19 @@
     #player { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); display: none; }
     #player.on { display: block; }
     #player .inner { max-width: 640px; margin-inline: auto; }
-    #player .ptitle { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
+    #player .prow { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    #player .ptitle { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #pclose { font-size: 1.25rem; line-height: 1; color: var(--muted); }
     #player audio { width: 100%; height: 36px; }
   </style>
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
 </head>
 <body>
   <h1>Luisterinus</h1>
-  <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties.</p>
+  <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties. <button type="button" class="act" id="refresh">Ververs</button></p>
   <p id="msg"></p>
   <div id="list"></div>
-  <div id="player"><div class="inner"><div class="ptitle" id="ptitle"></div><audio id="audio" controls preload="none"></audio></div></div>
+  <div id="player"><div class="inner"><div class="prow"><div class="ptitle" id="ptitle"></div><button type="button" class="act" id="pclose" aria-label="Speler sluiten">×</button></div><audio id="audio" controls preload="none"></audio></div></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="boot.js"></script>
 </body>

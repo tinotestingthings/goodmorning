@@ -68,6 +68,7 @@
       var p = audio.play();
       if (p && p.catch) p.catch(function () {}); // autoplay geblokkeerd is geen fout: controls staan er
       rowEl.classList.remove("open");
+      renderActs(row, rowEl);   // verse knoppen: act() liet de oude disabled achter
     });
   }
 
@@ -100,6 +101,7 @@
       if (res.error) { fail("Taak niet aangemaakt: " + res.error.message); return; }
       setMsg("Taak aangemaakt — staat na de volgende digest-sync in 30 Tasks.");
       rowEl.classList.remove("open");
+      renderActs(row, rowEl);
     });
   }
 
@@ -160,6 +162,8 @@
     rows.forEach(function (row) {
       var rowEl = el("div", "row");
       rowEl.dataset.at = row.requested_at || "";
+      rowEl.dataset.id = row.id;
+      rowEl._row = row;
       rowEl.addEventListener("click", function () { rowEl.classList.toggle("open"); });
       list.appendChild(renderRow(row, rowEl));
     });
@@ -177,12 +181,40 @@
       });
   }
 
+  // Handmatig verversen (de worker draait buiten de app om, dus "In de maak…"
+  // wordt vanzelf niet "klaar"). De speler blijft doorspelen: het audio-element
+  // staat buiten de lijst; we koppelen alleen de rij-verwijzing opnieuw.
+  function refresh(fail) {
+    var playingId = playingRow && playingRow.row.id;
+    playingRow = null;
+    load();
+    setTimeout(function () {
+      if (!playingId) return;
+      var rows = Array.prototype.slice.call(list.children);
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].dataset.id === playingId) {
+          playingRow = { row: rows[i]._row, el: rows[i] };
+          rows[i].classList.add("playing");
+          return;
+        }
+      }
+      audio.pause();                       // rij is weg (verwijderd of >14 dagen)
+      player.classList.remove("on");
+    }, 900);
+  }
+
   function boot() {
     list = document.getElementById("list");
     msg = document.getElementById("msg");
     player = document.getElementById("player");
     ptitle = document.getElementById("ptitle");
     audio = document.getElementById("audio");
+    document.getElementById("refresh").addEventListener("click", function () { refresh(); });
+    document.getElementById("pclose").addEventListener("click", function () {
+      audio.pause();
+      player.classList.remove("on");
+      if (playingRow) { playingRow.el.classList.remove("playing"); playingRow = null; }
+    });
     // Uitgeluisterd = gehoord, automatisch.
     audio.addEventListener("ended", function () {
       if (playingRow && !playingRow.row.listened_at) setListened(playingRow.row, playingRow.el, true, setMsg);

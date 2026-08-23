@@ -157,11 +157,13 @@ async def make_podcast(client, title, url, out, log):
     if not getattr(res, "is_complete", True):
         raise StillBusy(nb.id)
     await client.artifacts.download_audio(nb.id, str(out))
-    log(f"gedownload ({Path(out).stat().st_size // 1024} kB, {audio_seconds(out) or '?'} s)")
+    secs = audio_seconds(out)
+    log(f"gedownload ({Path(out).stat().st_size // 1024} kB, {secs or '?'} s)")
     try:
         await client.notebooks.delete(nb.id)  # alleen na succes opruimen; bij een fout blijft het notebook staan
     except Exception as e:
         log(f"notebook {nb.id} niet opgeruimd ({type(e).__name__}); audio is wel binnen")
+    return secs
 
 
 async def process(client, row):
@@ -173,8 +175,7 @@ async def process(client, row):
     try:
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / f"{rid}.m4a"
-            await make_podcast(client, row.get("title"), row.get("item_url"), out, log)
-            secs = audio_seconds(out)
+            secs = await make_podcast(client, row.get("title"), row.get("item_url"), out, log)
             upload(f"{rid}.m4a", out)
     except RunAborted:
         raise
