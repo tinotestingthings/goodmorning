@@ -2,6 +2,7 @@
 <html lang="nl">
 <head>
   <script src="../theme-sync.js"></script>
+  <script>try { if (window.top !== window.self) document.documentElement.className = "embedded"; } catch (e) {}</script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Luisterinus</title>
@@ -12,17 +13,28 @@
             --blue: #4a90d9; --red: #d9534f; --radius: 14px;
             --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); padding: 16px 16px 120px; max-width: 640px; margin-inline: auto; }
-    h1 { font-size: 1.25rem; margin: 4px 0 2px; }
-    .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
-    .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); padding: 16px 16px 24px; max-width: 640px; margin-inline: auto; }
+    /* alleen ruimte vrijhouden als de speler er echt staat */
+    body.with-player { padding-bottom: 104px; }
+    .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .head .act { flex-shrink: 0; padding-top: 4px; }
+    h1 { font-size: 1.15rem; margin: 0 0 2px; }
+    .sub { color: var(--muted); font-size: 0.82rem; margin: 0; line-height: 1.35; }
+    /* In de Utilities-iframe staat de naam al in de frame-header: geen tweede kop. */
+    .scope { display: none; }
+    /* In de Utilities-iframe: geen tweede naam, wel een korte scope-regel links
+       zodat de Ververs-knop niet los in de ruimte hangt. */
+    .embedded h1, .embedded .sub { display: none; }
+    .embedded .scope { display: block; color: var(--muted); font-size: 0.82rem; margin: 0; }
+    .embedded .head { margin-bottom: 8px; align-items: baseline; }
+    .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 13px; margin-bottom: 8px; }
     /* de kop is een knop over de volle breedte: klikbaar als een rij, maar ook
        bereikbaar met toetsenbord en VoiceOver */
     .rowhead { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
     .rowhead:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
     .row.done { opacity: 0.55; }
     .row.playing { border-color: var(--blue); }
-    .title { font-weight: 600; line-height: 1.3; }
+    .title { font-weight: 600; font-size: 0.95rem; line-height: 1.35; }
     .meta { color: var(--muted); font-size: 0.8rem; margin-top: 3px; }
     .status { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
     .status.failed { color: var(--red); }
@@ -47,8 +59,14 @@
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
 </head>
 <body>
-  <h1>Luisterinus</h1>
-  <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties. <button type="button" class="act" id="refresh">Ververs</button></p>
+  <div class="head">
+    <div>
+      <h1>Luisterinus</h1>
+      <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties.</p>
+      <p class="scope">Laatste 14 dagen</p>
+    </div>
+    <button type="button" class="act" id="refresh">Ververs</button>
+  </div>
   <p id="msg"></p>
   <div id="list"></div>
   <div id="player"><div class="inner"><div class="prow"><div class="ptitle" id="ptitle"></div><button type="button" class="act" id="pclose" aria-label="Speler sluiten">×</button></div><audio id="audio" controls preload="none"></audio></div></div>
