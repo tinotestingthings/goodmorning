@@ -14,7 +14,9 @@ het kritieke pad van de digest.
 - **Utilities-tegel "Luisterinus"** (practice.js): rood nummertje = `ready` én nog niet gehoord, laatste 14 dagen.
 - **Luisterinus-app** (`luisterinus/`): lijst van de laatste 14 dagen. Tik op de kop (een echte knop, dus ook
   met toetsenbord/VoiceOver) en de acties klappen uit: Afspelen · Gehoord/Ongehoord · Bron ↗ · Taak · Verwijderen
-  (bij `failed`: Probeer opnieuw). Vaste mini-speler onderaan met sluitknop; uitgeluisterd = automatisch gehoord.
+  (bij `failed`: Probeer opnieuw). **Verwijderen en Taak vragen eerst om bevestiging** via een eigen
+  `<dialog>` — het native `confirm()` wordt in de Utilities-iframe niet altijd getoond, waardoor die knoppen
+  niets leken te doen. Vaste mini-speler onderaan met sluitknop; uitgeluisterd = automatisch gehoord.
   De speler onthoudt alleen een id, zodat verversen nooit de verkeerde aflevering bijwerkt. Deelt de login-sessie
   van Daily Digest. De Utilities-terugknop laat deze app bewust gemount, zodat een podcast doorspeelt.
 
