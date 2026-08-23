@@ -70,7 +70,10 @@
   function showGrid() {
     // Blank the iframe on the way out. ChordSprint and NoteSprint play audio,
     // and an iframe left mounted keeps playing behind the grid.
-    if (frame.src && frame.src !== "about:blank") frame.src = "about:blank";
+    // Uitzondering (2026-08-23): Luisterinus is juist een luister-app — die
+    // moet doorspelen als je terugloopt naar de grid, dus laten we gemount.
+    var keepMounted = /luisterinus\//.test(frame.src || "");
+    if (frame.src && frame.src !== "about:blank" && !keepMounted) frame.src = "about:blank";
     frameWrap.hidden = true;
     launcher.hidden = false;
     frameTitle.textContent = "";
@@ -112,6 +115,7 @@
   function refreshPodcastBadge() {
     var card = grid.querySelector('[data-app="luisterinus"]');
     if (!card || !window.SB) return;
+    if (launcher.hidden) return;   // grid niet in beeld: geen query per token-refresh
     var since = new Date(Date.now() - 14 * 86400000).toISOString();
     window.SB.from("podcast_queue").select("id", { count: "exact", head: true })
       .eq("status", "ready").is("listened_at", null).gte("requested_at", since).then(function (res) {  // klaar én ongehoord (besluit 22 aug)

@@ -8,8 +8,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Trainerinus</title>
   <style>
-    :root { --grey-dot: #d1d5db; } /* basis-tokens komen uit ../design.css */
-    @media (prefers-color-scheme: dark) { :root { --grey-dot: #3a404a; } }
+    /* Geen eigen kleuren meer: de "nog niet gedaan"-stip is gedimde tekstkleur,
+       net als in de hoofdapp, zodat hij het gekozen thema volgt (een eigen
+       licht/donker-token keek naar het systeem en inverteerde bij Carbon op
+       een licht scherm). Alle basistokens komen uit ../design.css. */
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
@@ -29,7 +31,7 @@
 
     .app-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
     .app-row:first-of-type { border-top: 0; }
-    .app-row .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--grey-dot); flex-shrink: 0; }
+    .app-row .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muted); opacity: 0.35; flex-shrink: 0; }
     .app-row.green .dot { background: var(--green); }
     .app-row .info { flex: 1; min-width: 0; }
     .app-row .name { font-weight: 650; font-size: 0.95rem; }
@@ -44,7 +46,7 @@
     .week .col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .week .day-label { font-size: 0.68rem; color: var(--muted); }
     .week .col.today .day-label { color: var(--text); font-weight: 700; }
-    .week .mini { width: 9px; height: 9px; border-radius: 50%; background: var(--grey-dot); }
+    .week .mini { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); opacity: 0.35; }
     .week .mini.on { background: var(--green); }
     .week .mini.unknown { opacity: 0.35; }
 

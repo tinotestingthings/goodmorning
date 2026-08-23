@@ -2,6 +2,18 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-23 (v2026.08.23-2) — Luisterinus fase C + UX-fixes uit een max-review
+
+Luisterinus kreeg acties per aflevering (afspelen, gehoord, bron, taak, verwijderen), een vaste
+mini-speler en een gehoord-status; de Utilities-badge telt nu alleen wat klaar én ongehoord is.
+Daarna een `/code-review max` over de hele UX-dag: 15 bevindingen, 14 gefixt. De belangrijkste:
+de speler onthoudt alleen nog een id (verversen kon de verkeerde aflevering als gehoord wegschrijven),
+de rijkop is een echte knop (acties waren onbereikbaar met toetsenbord/VoiceOver), de bronlink is
+terug, elke Supabase-aanroep vangt netwerkfouten af, de terugknop in Utilities laat een lopende
+podcast doorspelen, de Trainerinus-hero-tegel is zelf het flex-item (92x95, gelijk aan weer en vogel),
+en live en sandbox hebben eigen service-worker-caches — met de gedeelde naam wiste een bump in de
+één de offline-shell van de ander. ChordSprint blijft bewust ongemoeid.
+
 ## 2026-08-23 (v2026.08.23-1) — Eventino: wekelijkse catalogusronde (Graffiti, kerstsupermaan, Dune-datum NL)
 
 Wekelijkse event-catalog-refresh. Toegevoegd aan events-src/src/data.ts: **Graffiti**
