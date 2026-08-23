@@ -112,6 +112,18 @@ def upload(object_path, local):
        Path(local).read_bytes(), {"Content-Type": "audio/mp4", "x-upsert": "true"})
 
 
+def audio_seconds(path):
+    """Duur in seconden via macOS `afinfo`; None als dat niet lukt (de app toont dan geen duur)."""
+    try:
+        out = subprocess.run(["afinfo", str(path)], capture_output=True, text=True, timeout=30).stdout
+        for line in out.splitlines():
+            if "estimated duration" in line:
+                return int(float(line.split(":")[1].split()[0]))
+    except Exception:
+        pass
+    return None
+
+
 # ---- NotebookLM ------------------------------------------------------------
 
 def preflight():
@@ -145,7 +157,7 @@ async def make_podcast(client, title, url, out, log):
     if not getattr(res, "is_complete", True):
         raise StillBusy(nb.id)
     await client.artifacts.download_audio(nb.id, str(out))
-    log(f"gedownload ({Path(out).stat().st_size // 1024} kB)")
+    log(f"gedownload ({Path(out).stat().st_size // 1024} kB, {audio_seconds(out) or '?'} s)")
     try:
         await client.notebooks.delete(nb.id)  # alleen na succes opruimen; bij een fout blijft het notebook staan
     except Exception as e:
@@ -162,6 +174,7 @@ async def process(client, row):
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / f"{rid}.m4a"
             await make_podcast(client, row.get("title"), row.get("item_url"), out, log)
+            secs = audio_seconds(out)
             upload(f"{rid}.m4a", out)
     except RunAborted:
         raise
@@ -176,7 +189,7 @@ async def process(client, row):
             log(f"status kon niet op failed: {e2}")
         return
     try:
-        patch(f"id=eq.{q(rid)}", {"status": "ready", "audio_path": f"{rid}.m4a"})
+        patch(f"id=eq.{q(rid)}", {"status": "ready", "audio_path": f"{rid}.m4a", "duration_s": secs})
         log("ready")
     except Exception as e:  # audio staat al in de bucket; niet op failed zetten
         log(f"audio staat in de bucket maar status niet gezet ({e}); volgende run maakt hem af")

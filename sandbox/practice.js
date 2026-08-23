@@ -107,14 +107,14 @@
     });
   }
 
-  // Luisterinus-badge: aantal podcasts in de wachtrij (in de maak + klaar),
+  // Luisterinus-badge: aantal podcasts dat klaarstaat en nog niet gehoord is,
   // als een iOS-notificatiebolletje. Geen sessie/tabel -> geen badge.
   function refreshPodcastBadge() {
     var card = grid.querySelector('[data-app="luisterinus"]');
     if (!card || !window.SB) return;
     var since = new Date(Date.now() - 14 * 86400000).toISOString();
     window.SB.from("podcast_queue").select("id", { count: "exact", head: true })
-      .in("status", ["requested", "ready"]).gte("requested_at", since).then(function (res) {
+      .eq("status", "ready").is("listened_at", null).gte("requested_at", since).then(function (res) {  // klaar én ongehoord (besluit 22 aug)
       if (res.error) return;               // netwerk/tabel weg: bestaande badge laten staan
       var n = res.count || 0;
       var b = card.querySelector(".tile-badge");

@@ -79,6 +79,21 @@ create policy "digest-audio authenticated read" on storage.objects
   for select to authenticated using (bucket_id = 'digest-audio');
 ```
 
+## Migratie fase C (22 aug 2026, Tinus, SQL-editor) — gehoord, duur, verwijderen
+
+```sql
+alter table public.podcast_queue
+  add column if not exists listened_at timestamptz,   -- gezet door de app (einde van de aflevering, of één tik)
+  add column if not exists duration_s integer;        -- gezet door het verwerkscript (afinfo)
+grant delete on public.podcast_queue to authenticated;
+create policy "podcast_queue authenticated delete" on public.podcast_queue
+  for delete to authenticated using (true);
+```
+
+Na deze migratie: Utilities-nummertje = `ready` én `listened_at is null`; de Luisterinus-app toont per
+aflevering de acties Afspelen / Gehoord / Taak (zelfde `actions`-rij als Triage's Task-knop) / Verwijderen
+(rij weg; het bucketbestand ruimt het script in fase 3 op).
+
 ## Storage-check als een signed URL "Object not found" geeft
 
 Dat is ook wat RLS teruggeeft als de leespolicy ontbreekt, dus check in de SQL-editor:
