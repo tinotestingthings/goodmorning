@@ -7,29 +7,41 @@
   <title>Luisterinus</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px; max-width: 640px; margin-inline: auto; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); padding: 16px 16px 120px; max-width: 640px; margin-inline: auto; }
     h1 { font-size: 1.25rem; margin: 4px 0 2px; }
     .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
-    .row { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+    .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
+    .row.done { opacity: 0.55; }
+    .row.playing { border-color: var(--blue); }
     .title { font-weight: 600; line-height: 1.3; }
-    .meta { color: var(--muted); font-size: 0.8rem; margin-top: 3px; display: flex; gap: 10px; }
-    .meta a { color: var(--blue); text-decoration: none; }
-    .slot { margin-top: 8px; }
-    .play { border: 0; background: none; padding: 0; color: var(--blue); font: inherit; font-weight: 600; cursor: pointer; }
-    .play:disabled { opacity: 0.5; }
-    .status { color: var(--muted); font-size: 0.9rem; }
-    .status.failed { color: var(--red); margin-right: 10px; }
-    audio.player { width: 100%; height: 32px; }
+    .meta { color: var(--muted); font-size: 0.8rem; margin-top: 3px; }
+    .status { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+    .status.failed { color: var(--red); }
+    /* acties: alleen zichtbaar na een tik op de rij; tekstknoppen in de accentkleur */
+    .acts { display: none; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .row.open .acts { display: flex; }
+    .act { border: 0; background: none; padding: 0; color: var(--blue); font: inherit; font-weight: 600; cursor: pointer; }
+    .act.danger { color: var(--red); margin-left: auto; }
+    .act:disabled { opacity: 0.5; }
     .empty, #msg { color: var(--muted); font-size: 0.9rem; }
     #msg:empty { display: none; }
+    /* vaste mini-speler onderaan; verschijnt pas bij afspelen */
+    #player { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); display: none; }
+    #player.on { display: block; }
+    #player .inner { max-width: 640px; margin-inline: auto; }
+    #player .prow { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    #player .ptitle { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #pclose { font-size: 1.25rem; line-height: 1; color: var(--muted); }
+    #player audio { width: 100%; height: 36px; }
   </style>
-  <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste, overschrijft :root hierboven -->
+  <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
 </head>
 <body>
   <h1>Luisterinus</h1>
-  <p class="sub">Podcasts uit je digest — de laatste 14 dagen.</p>
+  <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties. <button type="button" class="act" id="refresh">Ververs</button></p>
   <p id="msg"></p>
   <div id="list"></div>
+  <div id="player"><div class="inner"><div class="prow"><div class="ptitle" id="ptitle"></div><button type="button" class="act" id="pclose" aria-label="Speler sluiten">×</button></div><audio id="audio" controls preload="none"></audio></div></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="boot.js"></script>
 </body>
