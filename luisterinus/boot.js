@@ -24,7 +24,7 @@
       })
     : null;
 
-  var list, msg, player, ptitle, audio;
+  var list, msg, player, ptitle, audio, ask, askText, askOk, askCancel;
   var loaded = false;      // één keer laden; latere auth-events laten een spelende speler met rust
   var playingId = null;    // id van de aflevering in de mini-speler
 
@@ -55,6 +55,21 @@
       if (rows[i].dataset && rows[i].dataset.id === id) return rows[i];
     }
     return null;
+  }
+
+  // Bevestiging in de app zelf: het native confirm() wordt in de Utilities-iframe
+  // niet altijd getoond — dan leek een knop niets te doen. <dialog> regelt
+  // Escape, focus en backdrop; annuleren zet de knop weer aan via onNo().
+  function confirmAsk(text, okLabel, danger, onYes, onNo) {
+    if (!ask || !ask.showModal) { onYes(); return; }   // heel oude browser: gewoon doorgaan
+    askText.textContent = text;
+    askOk.textContent = okLabel;
+    askOk.className = "act" + (danger ? " danger" : "");
+    function cleanup() { askOk.onclick = null; askCancel.onclick = null; ask.onclose = null; }
+    askOk.onclick = function () { cleanup(); ask.close(); onYes(); };
+    askCancel.onclick = function () { cleanup(); ask.close(); onNo(); };
+    ask.onclose = function () { cleanup(); onNo(); };   // Escape of backdrop
+    ask.showModal();
   }
 
   // Tekstknop die zichzelf uitzet tijdens de async stap. fn krijgt fail(msg)
@@ -127,15 +142,23 @@
   }
 
   function remove(row, rowEl, fail) {
-    if (typeof confirm === "function" && !confirm("Deze aflevering verwijderen?")) { fail(""); return; }
-    run(SB.from("podcast_queue").delete().eq("id", row.id), function () {
-      if (playingId === row.id) clearPlaying();
-      rowEl.remove();
-      if (!list.children.length) renderEmpty();
-    }, fail, "Niet verwijderd");
+    confirmAsk("Deze aflevering verwijderen? De podcast en het audiobestand zijn daarna weg.",
+      "Verwijderen", true, function () {
+        run(SB.from("podcast_queue").delete().eq("id", row.id), function () {
+          if (playingId === row.id) clearPlaying();
+          rowEl.remove();
+          if (!list.children.length) renderEmpty();
+          setMsg("Aflevering verwijderd.");
+        }, fail, "Niet verwijderd");
+      }, function () { fail(""); });
   }
 
   function makeTask(row, rowEl, fail) {
+    confirmAsk("Taak aanmaken voor deze aflevering?", "Taak aanmaken", false,
+      function () { doMakeTask(row, rowEl, fail); }, function () { fail(""); });
+  }
+
+  function doMakeTask(row, rowEl, fail) {
     // Zelfde tabel als Triage's Task-knop; de digest-taak verwerkt `actions`.
     // De lokale agenda-to-do die Triage óók aanmaakt slaan we over: to-do's
     // rijden op de agenda-sync van de hoofdapp en die raken we hier niet aan.
@@ -268,6 +291,10 @@
     player = document.getElementById("player");
     ptitle = document.getElementById("ptitle");
     audio = document.getElementById("audio");
+    ask = document.getElementById("ask");
+    askText = document.getElementById("askText");
+    askOk = document.getElementById("askOk");
+    askCancel = document.getElementById("askCancel");
 
     // Uitgeluisterd = gehoord, automatisch. De rij wordt op id opgezocht, dus
     // een verversing tussendoor kan dit niet naar de verkeerde rij sturen.
