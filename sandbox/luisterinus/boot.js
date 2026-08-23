@@ -90,6 +90,7 @@
   function clearPlaying() {
     audio.pause();
     player.classList.remove("on");
+    document.body.classList.remove("with-player");
     var cur = playingId && rowElFor(playingId);
     if (cur) cur.classList.remove("playing");
     playingId = null;
@@ -103,6 +104,7 @@
       setPlaying(row.id, rowEl);
       ptitle.textContent = row.title || row.id;
       player.classList.add("on");
+      document.body.classList.add("with-player");
       audio.src = url;
       var p = audio.play();
       // iOS start niet vanuit een callback ná een netwerkronde (de tik telt dan
@@ -293,6 +295,7 @@
         playingId = null;
         audio.pause();
         player.classList.remove("on");
+        document.body.classList.remove("with-player");
         list.textContent = "";
         setMsg("Log eerst in via Daily Digest.");
         return;
