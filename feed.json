@@ -1,14 +1,6 @@
 {
- "generated": "2026-08-22T06:47:00Z",
+ "generated": "2026-08-23T06:45:00+02:00",
  "daily": [
-  {
-   "id": "2026-08-21-404media-subtlefakes-nonconsensuele-ai-beelden-moeilijker-herkenbaar",
-   "title": "\"Subtlefakes\": nonconsensuele AI-beelden worden bewust subtieler en daarmee veel moeilijker te herkennen",
-   "source": "404 Media (Emanuel Maiberg)",
-   "url": "https://www.404media.co/subtlefakes-slightly-altered-nonconsensual-ai-images-are-taking-over-x/",
-   "date": "2026-08-21",
-   "summary": "Emanuel Maiberg publiceerde op 20 augustus 2026 bij 404 Media een stuk over een verschuiving in nonconsensueel AI-beeldmateriaal: het wordt steeds lastiger te herkennen. De aanjager is een genre dat 404 Media \"subtlefakes\" noemt — licht bewerkte AI-beelden van echte mensen die X overspoelen. Het kantelpunt zit hem in de graad van manipulatie. Klassieke deepfake-porno is expliciet en daarmee relatief goed te detecteren, te modereren en juridisch te adresseren. Subtlefakes werken andersom: een bestaande foto van een echt persoon wordt net genoeg aangepast — kleding, houding, context — dat het beeld seksualiserend of vernederend wordt zonder ooit de drempel van \"expliciet\" te halen. Daarmee glipt het door geautomatiseerde filters, valt het buiten veel platformbeleid, en is voor het slachtoffer nauwelijks te bewijzen dat er überhaupt is gemanipuleerd."
-  },
   {
    "id": "2026-08-22-ap-boete-825-miljoen-uber-geautomatiseerde-deactivatie-chauffeurs",
    "title": "AP legt Uber recordboete van 825 miljoen op voor geautomatiseerde deactivatie van chauffeursaccounts",
@@ -23,34 +15,50 @@
    "source": "FTC / Consumer Finance Monitor / The American Prospect / TechSpot",
    "url": "https://www.consumerfinancemonitor.com/2026/08/20/ftc-proposes-enforcement-policy-on-personalized-pricing-as-states-and-congress-move-toward-broader-restrictions/",
    "date": "2026-08-22",
-   "summary": "De Amerikaanse FTC heeft op 19 augustus 2026 een concept-*Enforcement Policy Statement Regarding Personalized Pricing* voor publieke consultatie gepubliceerd. De kern: bedrijven die persoonsgegevens van consumenten gebruiken om individuele prijzen te bepalen zonder dat behoorlijk te melden, kunnen daarmee sectie 5 van de FTC Act overtreden. Het onderwerp — in de VS \"surveillance pricing\" genoemd — is de prijszetting waarbij niet het product maar de kóper de prijs bepaalt: locatie, apparaat, browsegeschiedenis, eerdere aankopen, soms zelfs de batterijstand van je telefoon. Wat de FTC concreet eist is disclosure, niet een verbod. Bedrijven moeten \"clear and conspicuous\" melden dát een prijs gepersonaliseerd is, op welke basis dat gebeurt en welke soorten data daarvoor worden gebruikt. Daarnaast legt het statement een privacy-poot bloot: het ongemelde verzamelen of gebruiken van persoonsgegevens voor prijszetting kan op zichzelf al onrechtmatig zijn, en bedrijven die prijzen baseren op data zonder te verifiëren dat de consument voor die verzameling toestemming gaf lopen hetzelfde risico. De redenering over schade is dat een consument die door verborgen datagebruik meer betaalt \"substantial injury\" lijdt die hij niet kan vermijden, juist omdat de personalisatie verborgen is."
+   "summary": "De Amerikaanse FTC heeft op 19 augustus 2026 een concept-Enforcement Policy Statement Regarding Personalized Pricing voor publieke consultatie gepubliceerd. De kern: bedrijven die persoonsgegevens van consumenten gebruiken om individuele prijzen te bepalen zonder dat behoorlijk te melden, kunnen daarmee sectie 5 van de FTC Act overtreden. Het onderwerp — in de VS \"surveillance pricing\" genoemd — is de prijszetting waarbij niet het product maar de kóper de prijs bepaalt: locatie, apparaat, browsegeschiedenis, eerdere aankopen, soms zelfs de batterijstand van je telefoon."
   },
   {
-   "id": "2026-08-22-openai-private-safety-processing-versus-anthropic-dataretentie",
-   "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
-   "source": "Axios / TechCrunch / The Register",
-   "url": "https://www.axios.com/2026/08/19/openai-previews-zero-retention-safety-system-as-anthropic-requires-data-logs",
-   "date": "2026-08-22",
-   "summary": "OpenAI heeft op 19 augustus 2026 bij een selecte groep zakelijke klanten een systeem in preview gezet dat het Private Safety Processing noemt. De belofte: patronen van misbruik herkennen over meerdere, samenhangende interacties heen, zonder de zero-data-retention-garantie (ZDR) op te geven die grote zakelijke afnemers eisen. In plaats van prompts en antwoorden op te slaan stuurt het systeem naar OpenAI alleen een strak afgebakend \"safety signal\" terug; de onderliggende inhoud blijft op infrastructuur van de klant, of ligt bij OpenAI versleuteld met sleutels die de klant beheert. Een bredere uitrol en een technische white paper staan voor september gepland. De directe aanleiding is een zet van Anthropic. Dat bedrijf voerde voor zakelijke klanten die Fable 5 en Mythos 5 willen gebruiken een retentietermijn van 30 dagen in, met als motivering dat sommige aanvallen alleen zichtbaar worden over een reeks verzoeken heen — het genoemde voorbeeld is *Best-of-N jailbreaking*, waarbij een aanvaller honderden minieme varianten van dezelfde prompt afvuurt tot er één door de waarborgen glipt. Zonder logs over een venster van dagen zie je zo'n patroon simpelweg niet. OpenAI's pitch is dat het diezelfde risico's wil vangen zonder de klant eerst 30 dagen opslag te laten accepteren; The Register (20 aug) vatte het samen als een jacht op Anthropics zakelijke klanten."
+   "id": "2026-08-23-ictrecht-recruitment-ai-high-risk-ec-conceptrichtsnoeren-bijlage-iii",
+   "title": "ICTRecht ontleedt de EC-conceptrichtsnoeren voor high-risk AI: wanneer is een recruitmenttool Bijlage III?",
+   "source": "ICTRecht (Bas Dekker), 20 augustus 2026",
+   "url": "https://www.ictrecht.nl/blog/wanneer-is-jouw-recruitment-ai-tool-een-high-risk-systeem",
+   "date": "2026-08-23",
+   "summary": "ICTRecht (Bas Dekker) opende op 20 augustus een blogreeks over de conceptrichtsnoeren van de Europese Commissie voor de classificatie van high-risk AI-systemen — acht risicogebieden met veel praktijkvoorbeelden. Deel één behandelt werving en selectie, punt 4(a) van Bijlage III AI Act. Dit is de eerste bron in de watchlist die de conceptrichtsnoeren zelf systematisch uitpakt in plaats van er alleen naar te verwijzen, en het is precies het soort materiaal waar Tinus' compliance-praktijk mee werkt."
+  },
+  {
+   "id": "2026-08-23-nvidia-harness-belangrijker-dan-model-arc-agi-3-agents",
+   "title": "Nvidia: bij lange taken doet de harness meer dan het model — Opus 5 van 30% naar 100% op ARC-AGI-3",
+   "source": "NVIDIA Technical Blog / TechCrunch (21 augustus 2026)",
+   "url": "https://techcrunch.com/2026/08/21/nvidia-just-showed-that-the-harness-not-the-ai-model-is-now-the-real-hero/",
+   "date": "2026-08-23",
+   "summary": "Nvidia publiceerde op vrijdag 21 augustus onderzoek dat de aandacht verschuift van modelkeuze naar wat eromheen zit. Bij long-horizon taken — opdrachten waarbij een systeem uren of dagen achtereen beslissingen moet nemen voordat een doel bereikt is — blijkt de harness bepalender dan het onderliggende model. Met een op maat gebouwde harness (goed geheugenbeheer plus een \"supervisor\"-component die het werk aanstuurt) haalde Claude Opus 5 een score van 100% op ARC-AGI-3, een benchmark van 2D-spellen zonder instructies waarin het model zelf moet uitvogelen hoe het wint. Zonder die harness scoorde Opus 5 30% — al de hoogste score van alle geteste modellen."
+  },
+  {
+   "id": "2026-08-23-tiktok-bytedance-400-miljoen-schikking-doj-kinderprivacy-coppa",
+   "title": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse ministerie van Justitie over kinderprivacy",
+   "source": "US Department of Justice / Washington Post / NBC News / Privacynieuws.nl",
+   "url": "https://www.justice.gov/opa/pr/justice-department-secures-400m-settlement-tiktok-and-bytedance-resolve-childrens-privacy",
+   "date": "2026-08-23",
+   "summary": "Het Amerikaanse ministerie van Justitie heeft op 21 augustus 2026 een schikking van 400 miljoen dollar bereikt met TikTok en moederbedrijf ByteDance, waarmee de rechtszaak uit 2024 over schending van de kinderprivacywet COPPA (Children's Online Privacy Protection Act) wordt afgesloten. Het DOJ noemt het een van de grootste bedragen ooit geïnd in een COPPA-zaak. De betaling is opgesplitst: 300 miljoen direct, de resterende 100 miljoen zodra een rechter een eerder consent decree tegen voorganger Musical.ly formeel intrekt. Nederlandse privacybronnen (Privacynieuws.nl, Security.NL) pikten het bericht op 22 augustus op."
   }
  ],
  "today": {
-  "date": "2026-08-22",
+  "date": "2026-08-23",
   "tasks": [
-   {
-    "id": "2026-08-19-wc-kitten",
-    "title": "WC kitten",
-    "status": "doing",
-    "detail": "De notitie is via de app aangemaakt en bevat geen verdere details.",
-    "hint": "In uitvoering",
-    "notes": [],
-    "subtasks": []
-   },
    {
     "id": "2026-07-28-piano-learn-familiar",
     "title": "Piano - learn Familiar",
     "status": "doing",
     "detail": "Familiar op piano leren spelen.",
+    "hint": "In uitvoering",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-19-wc-kitten",
+    "title": "WC kitten",
+    "status": "doing",
+    "detail": "De notitie is via de app aangemaakt en bevat geen verdere details.",
     "hint": "In uitvoering",
     "notes": [],
     "subtasks": []
@@ -212,102 +220,16 @@
     "updated": "2026-08-19",
     "line": "Vijf stappen om de VOF op te zeggen; nog geen enkele afgevinkt.",
     "notes": [],
-    "subtasks": [
-     {
-      "text": "Maria informeren opzeggen vof",
-      "done": false
-     },
-     {
-      "text": "Formulier invullen",
-      "done": false
-     },
-     {
-      "text": "Nummer hein getten (erwin gevraagd)",
-      "done": false
-     },
-     {
-      "text": "Formulier op de post",
-      "done": false
-     },
-     {
-      "text": "Dingen downloaden van belastingdienst en archiveren",
-      "done": false
-     }
-    ]
+    "subtasks": []
    },
    {
     "id": "2026-08-20-be-better-with-claude",
     "title": "Be better with Claude",
     "status": "active",
-    "updated": "2026-08-22",
+    "updated": "2026-08-23",
     "line": "Actieve lijst van 16 dingen om met Claude uit te proberen (skills, plugins, subagents); nog niets afgevinkt.",
     "notes": [],
-    "subtasks": [
-     {
-      "text": "Skills, when to use skill creators. I should think about what processes to automate via skills",
-      "done": false
-     },
-     {
-      "text": "Plugins = skills + more skills + hooks, mcp servers. Welke zijn cutting edge?",
-      "done": false
-     },
-     {
-      "text": "Test SUPER POWER SKILL",
-      "done": false
-     },
-     {
-      "text": "Test Get Shit Done (GSD). Dit opent meerdere subagents per task. Voorkomt contextrot. Kost tokens op korte termijn.",
-      "done": false
-     },
-     {
-      "text": "Use /review en /ultrareview. Check of hij dit zelf ook al doet of niet",
-      "done": false
-     },
-     {
-      "text": "Learn or use claude context mode. Waarom zou je die niet altijd gebruiken?",
-      "done": false
-     },
-     {
-      "text": "Try en test thedotmack/claude-mem. Alrijd gebruiken? Of niet.",
-      "done": false
-     },
-     {
-      "text": "\"/plugin marketplace add thedotmack/claude-mem\"",
-      "done": false
-     },
-     {
-      "text": "Try frontend-desifn (claude official) plugin",
-      "done": false
-     },
-     {
-      "text": "Use AwesomeDesign.md ofzoiets, wat lijkt op google stitch. Gebruik om NW formatting te pakken. Hergebruik die.",
-      "done": false
-     },
-     {
-      "text": "Is Ponytail nice?",
-      "done": false
-     },
-     {
-      "text": "Kijk of notebooklm-py in de bestaande workflow kan. Bijv op basis van een hoge kans op waardevolle nieuwsbericht een podcast maken en in de app zetten? Dit kan ook notes van youtube lezen bijv...",
-      "done": false
-     },
-     {
-      "text": "Gebruik draw.io om architecture diagrams te maken van apps.",
-      "done": false
-     },
-     {
-      "text": "Misschien kan Handy gebruikt worden voor speech to text",
-      "done": false
-     },
-     {
-      "text": "Test caveman, die haalt veel semantiek weg van claude wat tokens bespaart",
-      "done": false
-     },
-     {
-      "text": "grill-me skill = uitgebreid plan maken.",
-      "done": false
-     }
-    ]
+    "subtasks": []
    },
    {
     "id": "2026-07-11-finance-and-markets-learning-interest",
@@ -517,9 +439,9 @@
   }
  },
  "vaultNote": {
-  "title": "Gemeenten lekken nog steeds persoonsgegevens van inwoners (NOS/Nieuwsuur-onderzoek)",
-  "excerpt": "Onderzoek van NOS en Nieuwsuur (17 juli 2026) laat zien dat Nederlandse gemeenten nog altijd per ongeluk persoonsgegevens van inwoners op internet publiceren — ondanks dat de Autoriteit Persoonsgegevens gemeenten daar al sinds 2017 op aanspreekt. De onderzoekers vonden honderden documenten met e-mailadressen, privételefoonnummers, adresgegevens, identiteitsdocumentnummers en BSN's van inwoners. Concreet voorbeeld: de gemeente Voorschoten.",
-  "path": "Mijn Wiki/20 Sources/2026-07-18-gemeenten-lekken-persoonsgegevens-nos-onderzoek.md",
-  "noteDate": "2026-07-18"
+  "title": "Risotto Met Pompoen en Geitenkaas",
+  "excerpt": "Zondag Recepten — Total Time: 40 min — Servings: 2 personen — Source: Ah.nl Snipper de ui en knoflook. Ris de tijm van het takje. Hak de rest van de kruiden fijn (rozemarijn wordt niet gebruikt). Rooster in een droge wok de pijnboompitten. Laat op bord afkoelen.",
+  "path": "Mijn Wiki/20 Sources/2026-07-13-risotto-met-pompoen-en-geitenkaas.md",
+  "noteDate": "2026-07-13"
  }
 }
