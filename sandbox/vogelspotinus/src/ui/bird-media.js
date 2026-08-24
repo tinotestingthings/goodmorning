@@ -36,9 +36,16 @@ export const PLACEHOLDER_IMG =
  *   variants (data/bird-photos.json) and, when a soort maar een foto heeft,
  *   de uitsnede licht varieren -- allebei tegen het onthouden van de foto in
  *   plaats van de vogel.
+ * @param {string}  [options.src]      een specifieke variant afdwingen. Nodig
+ *   waar de aanroeper zelf al heeft gekozen welke foto's naast elkaar komen te
+ *   staan (de rasgroepquiz toont er drie tegelijk en moet er drie VERSCHILLENDE
+ *   hebben; quizPhotoUrl vermijdt alleen de vorige, niet alle vorige).
  */
-export function birdPhoto(bird, { fit = "cover", zoomable = true, alt, vary = false } = {}) {
-  const src = (vary ? quizPhotoUrl(bird) : photoUrl(bird)) ?? PLACEHOLDER_IMG;
+export function birdPhoto(
+  bird,
+  { fit = "cover", zoomable = true, alt, vary = false, src: forcedSrc } = {}
+) {
+  const src = forcedSrc ?? (vary ? quizPhotoUrl(bird) : photoUrl(bird)) ?? PLACEHOLDER_IMG;
   const altText = alt ?? primaryName(bird) ?? t("a11yBirdPhoto");
   const attribution = vary ? photoAttribution(bird, src) : null;
 

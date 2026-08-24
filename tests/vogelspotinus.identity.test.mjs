@@ -18,6 +18,12 @@ const GM = process.argv[2] || new URL("..", import.meta.url).pathname;
 const APP = `${GM}/sandbox/vogelspotinus`;
 const json = (p) => JSON.parse(readFileSync(`${APP}/${p}`, "utf8"));
 
+/** Bron zonder commentaar, zodat een toelichting die het woord noemt niet meetelt. */
+const codeOf = (f) =>
+  readFileSync(`${APP}/${f}`, "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "");
+
 let checks = 0;
 const check = (label, fn) => {
   fn();
@@ -345,6 +351,31 @@ check("de rasgroep voedt de afleiders via tags.family", () => {
   }
 });
 
+check("de rasgroepquiz gebruikt de kaart uit Bladeren, geen eigen mini-versie", () => {
+  // Feedback van Tinus: het waren losse <img>'s in plaats van de kaartjes die
+  // je bij Bladeren ziet. Een tweede kaartontwerp gaat uit de pas lopen met het
+  // eerste, dus hier hoort birdCard() te staan -- met alleen CSS die hem kleiner
+  // maakt.
+  const src = codeOf("src/screens/quiz-modes/group.js");
+  assert.match(src, /import \{ birdCard \}/, "group.js bouwt zijn kaartjes niet met birdCard");
+  assert.doesNotMatch(src, /h\("img"/, "group.js bouwt nog een eigen <img>");
+  assert.doesNotMatch(src, /h\("figure"/, "group.js bouwt nog een eigen <figure>");
+  // De kaarten mogen pas open ná het antwoord: het detailblad toont de rasgroep.
+  assert.match(src, /card\.disabled = true/, "de kaart is vooraf niet uitgeschakeld");
+  assert.match(src, /kaartje\.disabled = false/, "de kaart gaat na het antwoord niet open");
+});
+
+check("birdCard kan een specifieke fotovariant tonen", async () => {
+  // Zonder die optie krijgen de drie kaarten van groep 4 -- de teckel is het
+  // enige ras -- drie keer dezelfde foto, want photoUrl() kiest altijd dezelfde.
+  const kaart = codeOf("src/ui/bird-card.js");
+  const media = codeOf("src/ui/bird-media.js");
+  assert.match(kaart, /photoSrc/, "birdCard neemt geen photoSrc aan");
+  assert.match(kaart, /src: photoSrc/, "birdCard geeft photoSrc niet door aan birdPhoto");
+  assert.match(media, /src: forcedSrc/, "birdPhoto kent geen src-override");
+  assert.match(media, /forcedSrc \?\?/, "birdPhoto laat de override niet vóór zijn eigen keuze gaan");
+});
+
 // --- 8. De NL-top-30 en de geluidsschakelaar ----------------------------------
 
 check("het NL-top-30-spel bevat 30 erkende rassen, gesorteerd op nl-bezoeken", () => {
@@ -376,12 +407,6 @@ check("met geluidsvragen uit stelt de oefensessie er geen enkele", async () => {
 });
 
 // --- 9. Niets in de app zoekt nog op de oude sleutel -------------------------
-
-/** Bron zonder commentaar, zodat een toelichting die het woord noemt niet meetelt. */
-const codeOf = (f) =>
-  readFileSync(`${APP}/${f}`, "utf8")
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/.*$/gm, "");
 
 check("de identiteitsmodules noemen scientificName helemaal niet meer", () => {
   // Deze vijf sleutelen puur op identiteit: elke vermelding is een gemiste plek.

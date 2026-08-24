@@ -362,7 +362,11 @@ Afwijkingen:
    opent met beagle, Australische herder en cane corso, met het kooikerhondje
    op 9 en de stabij op 29. Alleen FCI-erkende rassen, wat de dingo eruit haalt.
 2. **Quizmodus "Rasgroepen".** Drie honden uit dezelfde FCI-groep, kies de
-   groep, krijg daarna de uitleg. De groepsindeling bleek wél te halen — niet
+   groep, krijg daarna de uitleg. De drie kaartjes zijn *de kaart uit Bladeren*
+   (`birdCard`), alleen kleiner — eerst waren het losse `<img>`'s, en een tweede
+   kaartontwerp gaat uit de pas lopen met het eerste. Ze zijn pas aan te tikken
+   ná het antwoord: het detailblad noemt de rasgroep, dus daarvoor zou dat de
+   vraag weggeven. De groepsindeling bleek wél te halen — niet
    uit de Engelse infobox (die heeft `fcigroup` niet meer) maar uit de
    NEDERLANDSE Wikipedia, op twee onafhankelijke plekken die het in nul van de
    328 overlappende gevallen oneens zijn: het `classificatie`-veld en het

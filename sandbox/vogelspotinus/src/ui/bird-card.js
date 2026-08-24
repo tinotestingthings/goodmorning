@@ -13,7 +13,14 @@ import { isFavorite } from "../core/favorites.js";
 import { birdPhoto } from "./bird-media.js";
 import { nameLine } from "./bird-names.js";
 
-export function birdCard(bird, { onOpen }) {
+/**
+ * @param {object} bird
+ * @param {object} options
+ * @param {(bird: object) => void} options.onOpen
+ * @param {string} [options.photoSrc] een specifieke fotovariant afdwingen
+ *   (rasgroepquiz: drie kaarten van hetzelfde ras met drie verschillende foto's)
+ */
+export function birdCard(bird, { onOpen, photoSrc }) {
   const badge = h(
     "span",
     { class: "fav-badge", hidden: !isFavorite(bird) },
@@ -27,7 +34,12 @@ export function birdCard(bird, { onOpen }) {
       class: "card",
       onclick: () => onOpen(bird),
     },
-    h("div", { class: "card-media" }, birdPhoto(bird, { zoomable: false, fit: "cover" }), badge),
+    h(
+      "div",
+      { class: "card-media" },
+      birdPhoto(bird, { zoomable: false, fit: "cover", src: photoSrc }),
+      badge
+    ),
     h(
       "div",
       { class: "card-body" },

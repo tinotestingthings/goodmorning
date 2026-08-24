@@ -17,11 +17,12 @@
 
 import { h, shuffle } from "../../core/dom.js";
 import { t } from "../../core/i18n.js";
-import { allBirds, hasPhoto, primaryName } from "../../core/birds.js";
+import { allBirds, hasPhoto } from "../../core/birds.js";
 import { photoVariants } from "../../core/photos.js";
 import { FCI_GROUPS, groupAbout, groupHint, groupName } from "../../data/fci-groups.js";
 import { emptyPoolCard, setResult } from "../../ui/quiz-card.js";
-import { PLACEHOLDER_IMG } from "../../ui/bird-media.js";
+import { birdCard } from "../../ui/bird-card.js";
+import { openBirdDetail } from "../../ui/detail-sheet.js";
 
 const OPTION_COUNT = 4;
 const CARDS_PER_QUESTION = 3;
@@ -54,16 +55,21 @@ function pickThree(dogs) {
   return cards.length ? cards : shuffled;
 }
 
-/** Eén miniatuurkaartje: dezelfde vorm als in Bladeren, maar kleiner. */
+/**
+ * Eén kaartje: exact de kaart uit Bladeren, alleen kleiner (`group-card`).
+ * Dezelfde foto-afhandeling, dezelfde namenregel, hetzelfde favorietenbadge --
+ * een eigen mini-variant zou een tweede kaart zijn die uit de pas gaat lopen.
+ *
+ * Tikken opent het detailblad, maar pas NA het antwoord: daar staat de
+ * rasgroep in, dus daarvoor zou het de vraag weggeven. Precies op het moment
+ * dat je wilt weten wat je net gezien hebt, kun je erop.
+ */
 function miniCard(entry) {
   const dog = entry.dog ?? entry;
-  const url = entry.url ?? photoVariants(dog)[0] ?? PLACEHOLDER_IMG;
-  return h(
-    "figure",
-    { class: "group-card" },
-    h("img", { src: url, alt: "", loading: "lazy" }),
-    h("figcaption", {}, primaryName(dog))
-  );
+  const card = birdCard(dog, { onOpen: openBirdDetail, photoSrc: entry.url });
+  card.classList.add("group-card");
+  card.disabled = true; // gaat aan zodra er geantwoord is
+  return card;
 }
 
 export const groupMode = {
@@ -94,7 +100,9 @@ export const groupMode = {
     const distractors = shuffle(speelbaar.filter((g) => g !== answer)).slice(0, OPTION_COUNT - 1);
     const options = shuffle([answer, ...distractors]);
 
-    const grid = h("div", { class: "group-grid" }, ...cards.map(miniCard));
+    let settled = false;
+    const kaartjes = cards.map(miniCard);
+    const grid = h("div", { class: "group-grid" }, ...kaartjes);
     const choices = h("div", { class: "choice-grid" });
     const result = h("p", { class: "quiz-result", role: "status", "aria-live": "polite" });
     const explain = h("div", { class: "quiz-answer" });
@@ -117,7 +125,6 @@ export const groupMode = {
     api.container.replaceChildren(card);
 
     const buttons = new Map();
-    let settled = false;
     for (const option of options) {
       const button = h("button", { type: "button", class: "choice-btn" }, label(option));
       button.addEventListener("click", () => {
@@ -129,11 +136,17 @@ export const groupMode = {
           if (group === answer) el.classList.add("choice-correct");
         }
         if (!correct) button.classList.add("choice-wrong");
+        // Nu mag je doorklikken naar de hond: de vraag is beantwoord.
+        for (const kaartje of kaartjes) kaartje.disabled = false;
         setResult(result, correct);
         // De uitleg is het punt van deze modus: je leert de groep pas als je
         // weet waar hij voor staat. Hij komt daarom ook bij een goed antwoord.
         explain.replaceChildren(
-          h("p", { class: "quiz-answer-name" }, `${t("fciGroupShort")} ${answer.n} · ${label(answer)}`),
+          h(
+            "p",
+            { class: "quiz-answer-name" },
+            `${t("fciGroupShort")} ${answer.n} · ${label(answer)}`
+          ),
           h("p", { class: "names" }, groupHint(answer.n)),
           h("p", { class: "quiz-answer-fact" }, groupAbout(answer.n))
         );
