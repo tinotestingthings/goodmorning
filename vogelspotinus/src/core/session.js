@@ -25,6 +25,7 @@ import { boxInfo, recordAnswer } from "./leitner.js";
 import { bumpNewToday, newTodayCount } from "./stats.js";
 import { allBirds, hasPhoto } from "./birds.js";
 import { pickDistractors } from "./distractors.js";
+import { soundQuestionsEnabled } from "./sound.js";
 import { shuffle } from "./dom.js";
 
 const REVIEW_CAP = 20;
@@ -44,14 +45,19 @@ const OPTION_COUNT = 4;
  *  - response "photo-choice": "welke foto is de X?" -- traint de omgekeerde
  *    richting en doorbreekt het onthouden van een foto.
  */
+/** Een geluidsvraag mag alleen als er geluid IS en als je het kunt horen. */
+function mayAskSound(bird) {
+  return Boolean(bird.soundUrl) && soundQuestionsEnabled();
+}
+
 function questionShape(bird, { firstTest }) {
   const box = boxInfo(bird).box;
   if (firstTest) return { cue: "photo", response: "choice" };
   if (box >= 4) {
-    const cue = bird.soundUrl && Math.random() < SOUND_CUE_CHANCE ? "sound" : "photo";
+    const cue = mayAskSound(bird) && Math.random() < SOUND_CUE_CHANCE ? "sound" : "photo";
     return { cue, response: "type" };
   }
-  if (bird.soundUrl && Math.random() < SOUND_CUE_CHANCE) {
+  if (mayAskSound(bird) && Math.random() < SOUND_CUE_CHANCE) {
     return { cue: "sound", response: "choice" };
   }
   if (Math.random() < PHOTO_PICK_CHANCE) return { cue: "name", response: "photo-choice" };

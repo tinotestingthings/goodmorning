@@ -4,41 +4,92 @@
 //
 // Screens read birds through here and never poke at raw field names, so the
 // `_nl` / `_en` suffix convention from build_data.py stays in one file.
+//
+// IDENTITEIT is `id`, niet `scientificName`. Voor vogels zijn die twee gelijk
+// (zie loadBirds), zodat elke opgeslagen sleutel -- Leitner-state, favorieten,
+// de soortenlijst van een custom game -- geldig blijft. Een hondenras heeft
+// straks geen soortnaam (een labrador en een chihuahua zijn allebei Canis
+// lupus familiaris), dus daar wordt `id` een eigen waarde en blijft
+// `scientificName` leeg. Alles wat een soort MOET onderscheiden gebruikt `id`;
+// `scientificName` is vanaf nu puur weergave.
 // ---------------------------------------------------------------------------
 
 import { currentLanguage, otherLanguage } from "./i18n.js";
 
 const DATA_URL = "data/birds.json";
+// Honden zijn een APARTE fetch, geen tweede blok in birds.json. Zo blijft een
+// kapotte of ontbrekende hondendataset een app die alleen vogels kent, in
+// plaats van een app die niet start.
+const DOGS_URL = "data/dogs.json";
 
 /** @type {Array<object>} */
 let birds = [];
 /** @type {Map<string, object>} */
-let byScientificName = new Map();
+let byId = new Map();
 
 export function allBirds() {
   return birds;
 }
 
-export function birdByScientificName(name) {
-  return byScientificName.get(name) ?? null;
+export function speciesById(id) {
+  return byId.get(id) ?? null;
 }
 
-export async function loadBirds() {
-  const res = await fetch(DATA_URL);
-  if (!res.ok) throw new Error(`${DATA_URL} responded ${res.status}`);
+async function fetchList(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url} responded ${res.status}`);
   const data = await res.json();
-  if (!Array.isArray(data) || data.length === 0)
-    throw new Error(`${DATA_URL} is empty or malformed`);
+  if (!Array.isArray(data) || data.length === 0) throw new Error(`${url} is empty or malformed`);
+  return data;
+}
 
-  birds = data;
-  byScientificName = new Map(data.map((b) => [b.scientificName, b]));
+/**
+ * Alle soorten inlezen: vogels verplicht, honden als het lukt.
+ *
+ * De twee bestanden gaan tegelijk de deur uit maar hebben een verschillend
+ * gewicht. Vogels zijn de app: valt dat bestand om, dan hoort het foutscherm
+ * met een retry-knop te verschijnen. Honden zijn een uitbreiding: valt die om,
+ * dan is Spotinus even alleen een vogel-app -- dat is een betere uitkomst dan
+ * een app die helemaal niet start. Zelfde afweging als bij bird-photos.json.
+ */
+export async function loadBirds() {
+  const [birdData, dogData] = await Promise.all([
+    fetchList(DATA_URL),
+    fetchList(DOGS_URL).catch((err) => {
+      console.warn(`[data] ${DOGS_URL} niet geladen, Spotinus toont alleen vogels`, err);
+      return [];
+    }),
+  ]);
+
+  birds = [...birdData, ...dogData];
   // Pre-compute the search haystack once instead of rebuilding it per keystroke
-  // for all 566 birds (the old code did the latter, un-debounced).
+  // for all 566 birds (the old code did the latter, un-debounced). Hier krijgt
+  // elke soort ook zijn `id` en zijn `kind`: birds.json kent beide velden niet,
+  // en voor vogels IS de soortnaam de identiteit -- dat moet zo blijven, anders
+  // raakt elke opgeslagen sleutel zijn soort kwijt. Eén regel hier scheelt 566
+  // regels `"kind": "bird"` in het databestand.
   for (const bird of birds) {
+    bird.id ??= bird.scientificName;
+    bird.tags ??= {};
+    bird.tags.kind ??= "bird";
     bird.searchText = [bird.englishName, bird.dutchName, bird.scientificName]
       .filter(Boolean)
       .join(" ")
       .toLowerCase();
+  }
+  byId = new Map(birds.map((b) => [b.id, b]));
+  // Een soort zonder id, of twee soorten met hetzelfde id, is stille
+  // dataverminking: ze delen dan één sleutel in de Leitner-state en in de
+  // favorieten, dus je voortgang loopt door elkaar zonder dat iets het meldt.
+  // Precies waar deze Map load-bearing werd toen de tweede dataset erbij kwam.
+  // Liever het foutscherm met een retry-knop -- loadData() vangt deze throw al
+  // af -- dan dat.
+  const zonderId = birds.filter((b) => !b.id);
+  if (zonderId.length || byId.size !== birds.length) {
+    throw new Error(
+      `soortdata: ${zonderId.length} soort(en) zonder id, ` +
+        `${birds.length - byId.size} dubbel id`
+    );
   }
   return birds;
 }

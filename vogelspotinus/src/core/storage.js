@@ -17,6 +17,7 @@ export const KEYS = {
   seededDefaults: "vogelspotinus.seededDefaults",
   stats: "vogelspotinus.stats",
   browseSort: "vogelspotinus.browseSort",
+  soundQuestions: "vogelspotinus.soundQuestions",
 };
 
 /**

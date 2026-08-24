@@ -6,8 +6,14 @@
 import { byId, debounce, h } from "../core/dom.js";
 import { matchCountText, t } from "../core/i18n.js";
 import { registerScreen, showScreen } from "../core/nav.js";
-import { allBirds, birdByScientificName, primaryName, searchBirds } from "../core/birds.js";
-import { cloneSelection, describeSelection, emptySelection, filterBirds } from "../core/filters.js";
+import { allBirds, primaryName, searchBirds, speciesById } from "../core/birds.js";
+import {
+  cloneSelection,
+  describeSelection,
+  emptySelection,
+  filterBirds,
+  kindPool,
+} from "../core/filters.js";
 import { newGameId, saveGame } from "../core/games.js";
 import { renderFilterBar } from "../ui/filter-bar.js";
 import { birdPhoto } from "../ui/bird-media.js";
@@ -24,7 +30,7 @@ export function openBuilder(existingGame) {
   if (existingGame) {
     editingId = existingGame.id;
     selection = cloneSelection(existingGame.filters);
-    pickMode = selection.specificBirds?.length ? "specific" : "tags";
+    pickMode = selection.specificIds?.length ? "specific" : "tags";
     byId("builder-mode-select").value = existingGame.gameMode;
     byId("builder-name").value = existingGame.name;
     nameIsAuto = false;
@@ -39,6 +45,13 @@ export function openBuilder(existingGame) {
   showScreen("builder");
 }
 
+function onFilterChange({ rebuildBar = false } = {}) {
+  // Zelfde regel als op Bladeren en Quiz: van dier wisselen verandert welke
+  // dimensies er zijn, dus dan opnieuw opbouwen; bij een gewone chip niet.
+  if (rebuildBar) renderFilterBar(byId("builder-filter-bar"), selection, onFilterChange, kindPool(selection));
+  updateCount();
+}
+
 function updateCount() {
   byId("builder-count").textContent = matchCountText(filterBirds(allBirds(), selection).length);
   if (nameIsAuto) {
@@ -48,7 +61,7 @@ function updateCount() {
 
 function setPickMode(mode) {
   pickMode = mode;
-  if (mode === "tags") selection.specificBirds = [];
+  if (mode === "tags") selection.specificIds = [];
   render();
 }
 
@@ -74,8 +87,8 @@ function renderPickModeSwitch() {
 }
 
 function renderSelectedChips() {
-  const chips = (selection.specificBirds ?? [])
-    .map((name) => birdByScientificName(name))
+  const chips = (selection.specificIds ?? [])
+    .map((id) => speciesById(id))
     .filter(Boolean)
     .map((bird) =>
       h(
@@ -85,8 +98,8 @@ function renderSelectedChips() {
           class: "chip active",
           "aria-label": `${t("deleteGame")}: ${primaryName(bird)}`,
           onclick: () => {
-            selection.specificBirds = selection.specificBirds.filter(
-              (n) => n !== bird.scientificName
+            selection.specificIds = selection.specificIds.filter(
+              (n) => n !== bird.id
             );
             updateCount();
             renderSpecificPicker();
@@ -100,17 +113,17 @@ function renderSelectedChips() {
 
 function renderSpecificPicker() {
   const query = byId("builder-bird-search").value.trim();
-  const selected = new Set(selection.specificBirds ?? []);
+  const selected = new Set(selection.specificIds ?? []);
   const matches = query ? searchBirds(allBirds(), query).slice(0, MAX_SEARCH_RESULTS) : [];
 
   byId("builder-bird-results").replaceChildren(
     ...matches.map((bird) => {
-      const box = h("input", { type: "checkbox", checked: selected.has(bird.scientificName) });
+      const box = h("input", { type: "checkbox", checked: selected.has(bird.id) });
       box.addEventListener("change", () => {
-        const set = new Set(selection.specificBirds ?? []);
-        if (box.checked) set.add(bird.scientificName);
-        else set.delete(bird.scientificName);
-        selection.specificBirds = [...set];
+        const set = new Set(selection.specificIds ?? []);
+        if (box.checked) set.add(bird.id);
+        else set.delete(bird.id);
+        selection.specificIds = [...set];
         updateCount();
         renderSelectedChips();
       });
@@ -119,7 +132,13 @@ function renderSpecificPicker() {
         { class: "pick-row" },
         box,
         birdPhoto(bird, { zoomable: false, fit: "cover" }),
-        h("span", {}, primaryName(bird), " ", h("em", { lang: "la" }, bird.scientificName))
+        h(
+          "span",
+          {},
+          primaryName(bird),
+          bird.scientificName ? " " : null,
+          bird.scientificName ? h("em", { lang: "la" }, bird.scientificName) : null
+        )
       );
     })
   );
@@ -152,7 +171,7 @@ function render() {
   byId("builder-filter-bar").hidden = !byTags;
   byId("builder-specific-picker").hidden = byTags;
 
-  if (byTags) renderFilterBar(byId("builder-filter-bar"), selection, updateCount);
+  if (byTags) renderFilterBar(byId("builder-filter-bar"), selection, onFilterChange, kindPool(selection));
   else renderSpecificPicker();
 
   updateCount();

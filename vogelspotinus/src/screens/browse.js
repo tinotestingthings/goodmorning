@@ -12,10 +12,10 @@ import { matchCountText, t } from "../core/i18n.js";
 import { EVENTS, on } from "../core/events.js";
 import { registerScreen, gameContext, currentScreenId, refreshScreen } from "../core/nav.js";
 import { allBirds, primaryName, searchBirds } from "../core/birds.js";
-import { emptySelection, filterBirds } from "../core/filters.js";
+import { emptySelection, filterBirds, kindPool } from "../core/filters.js";
 import { KEYS, read, write } from "../core/storage.js";
 import { openSheet, sheetBody } from "../ui/sheet.js";
-import { renderFilterBar } from "../ui/filter-bar.js";
+import { renderFilterBar, renderKindSwitch } from "../ui/filter-bar.js";
 import { birdCard, setCardFavorite } from "../ui/bird-card.js";
 import { openBirdDetail } from "../ui/detail-sheet.js";
 
@@ -26,8 +26,14 @@ const NEXT_CHUNK = 24;
 // waarnemingen). De dataset zelf staat in taxonomische volgorde, en daarin
 // beginnen de Anseriformes -- dus opende Bladeren altijd met een muur van
 // exotische ganzen in plaats van merel, roodborst en koolmees.
+// Honden staan niet in GBIF; voor hen is het aantal Wikipedia-bezoeken over 60
+// dagen de beste beschikbare maat voor "ras dat je herkent". Twee verschillende
+// eenheden in één sortering klinkt fout, maar de schalen blijken goed te passen
+// (mediaan 6793 waarnemingen tegen 6575 bezoeken), dus in de gemengde lijst
+// staat de eerste hond gewoon op plek 89 in plaats van achter alle 566 vogels.
 const SORTS = {
-  common: (a, b) => (b.gbifOccurrenceCount ?? 0) - (a.gbifOccurrenceCount ?? 0),
+  common: (a, b) =>
+    (b.gbifOccurrenceCount ?? b.popularity ?? 0) - (a.gbifOccurrenceCount ?? a.popularity ?? 0),
   az: (a, b) => primaryName(a).localeCompare(primaryName(b)),
   taxo: null, // datasetvolgorde
 };
@@ -37,13 +43,14 @@ let sortMode = Object.hasOwn(SORTS, read(KEYS.browseSort, "common"))
   : "common";
 
 const selection = emptySelection();
-/** @type {Map<string, HTMLElement>} scientific name -> card element */
+/** @type {Map<string, HTMLElement>} soort-id -> card element */
 const cardCache = new Map();
 
 let matches = [];
 let shown = 0;
 let observer = null;
 let sheetCountEl = null;
+let sheetBarEl = null;
 
 /** In a saved "browse" game the pool is fixed by the game, not by the filter bar. */
 function isGameContext() {
@@ -63,10 +70,10 @@ function computeMatches() {
 }
 
 function cardFor(bird) {
-  let card = cardCache.get(bird.scientificName);
+  let card = cardCache.get(bird.id);
   if (!card) {
     card = birdCard(bird, { onOpen: openBirdDetail });
-    cardCache.set(bird.scientificName, card);
+    cardCache.set(bird.id, card);
   }
   return card;
 }
@@ -129,7 +136,10 @@ function openOptions() {
     build(dialog) {
       sheetCountEl = h("p", { class: "count-line" }, matchCountText(matches.length));
       const bar = h("div");
-      renderFilterBar(bar, selection, renderGrid);
+      sheetBarEl = bar;
+      // De balk stelt zichzelf samen uit het gekozen dier: bij honden verdwijnen
+      // "Status in NL", "Familie" en de kleuren die geen hond heeft.
+      renderFilterBar(bar, selection, onFilterChange, kindPool(selection));
       dialog.append(
         sheetBody(
           h("h2", {}, t("options")),
@@ -142,8 +152,24 @@ function openOptions() {
     },
     onClose() {
       sheetCountEl = null;
+      sheetBarEl = null;
     },
   });
+}
+
+/**
+ * De diersoortschakelaar en de filterbalk schrijven op dezelfde selectie, dus
+ * na een wijziging in de een moet de ander opnieuw kloppen.
+ */
+function onFilterChange({ rebuildBar = false } = {}) {
+  renderKindSwitch(byId("browse-kind"), selection, onFilterChange);
+  // Van dier wisselen verandert wélke dimensies er zijn, dus dan moet de balk
+  // opnieuw opgebouwd. Bij een gewone chip niet: dat zou je zoekveld, je
+  // scrollpositie en je focus weggooien -- precies wat deze balk vermijdt.
+  if (rebuildBar && sheetBarEl) {
+    renderFilterBar(sheetBarEl, selection, onFilterChange, kindPool(selection));
+  }
+  renderGrid();
 }
 
 function mount() {
@@ -162,6 +188,9 @@ function mount() {
 function render() {
   byId("browse-options-btn").hidden = isGameContext();
   byId("browse-search-row").hidden = false;
+  // In een opgeslagen spel ligt de pool vast; dan zou de schakelaar liegen.
+  byId("browse-kind").hidden = isGameContext();
+  if (!isGameContext()) renderKindSwitch(byId("browse-kind"), selection, onFilterChange);
   renderGrid();
 }
 
@@ -171,7 +200,7 @@ export function registerBrowseScreen() {
   // A favourite toggled anywhere patches the cached card in place; only a
   // "favorites only" filter needs the grid recomputed.
   on(EVENTS.favoritesChanged, ({ bird, isFavorite }) => {
-    setCardFavorite(cardCache.get(bird.scientificName), isFavorite);
+    setCardFavorite(cardCache.get(bird.id), isFavorite);
     if (selection.favoritesOnly && currentScreenId() === "browse") renderGrid();
   });
 

@@ -5,6 +5,7 @@
 import { byId, h } from "../core/dom.js";
 import { currentLanguage, setLanguage, t } from "../core/i18n.js";
 import { LANGUAGES } from "../core/strings.js";
+import { setSoundQuestions, soundQuestionsEnabled } from "../core/sound.js";
 import { EVENTS, on } from "../core/events.js";
 import { registerScreen, currentScreenId, refreshScreen } from "../core/nav.js";
 import {
@@ -37,6 +38,35 @@ function renderLanguageSwitch() {
       )
     )
   );
+}
+
+/**
+ * Geluidsvragen aan/uit. Staat bij Instellingen en niet in het Opties-blad van
+ * de quiz, omdat het over je omstandigheden gaat (koptelefoon, trein, telefoon
+ * op stil) en niet over wat je wilt oefenen -- je zet hem één keer om.
+ */
+function renderSoundSwitch() {
+  const opties = [
+    { on: true, labelKey: "soundQuestionsOn" },
+    { on: false, labelKey: "soundQuestionsOff" },
+  ];
+  const knoppen = opties.map(({ on, labelKey }) => {
+    const knop = h("button", { type: "button" }, t(labelKey));
+    knop.addEventListener("click", () => {
+      setSoundQuestions(on);
+      sync();
+    });
+    return { on, knop };
+  });
+  function sync() {
+    for (const { on, knop } of knoppen) {
+      const actief = on === soundQuestionsEnabled();
+      knop.classList.toggle("active", actief);
+      knop.setAttribute("aria-pressed", String(actief));
+    }
+  }
+  byId("sound-switch").replaceChildren(...knoppen.map((k) => k.knop));
+  sync();
 }
 
 function renderThemeSwitch() {
@@ -91,6 +121,7 @@ function renderThemeCustomizer() {
 
 function render() {
   renderLanguageSwitch();
+  renderSoundSwitch();
   renderThemeSwitch();
   renderThemeCustomizer();
 }

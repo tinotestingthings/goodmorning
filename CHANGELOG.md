@@ -2,7 +2,7 @@
 
 Newest first. One line per deploy to the live root.
 
-## 2026-08-23 — Spotinus: vogelspotinus wordt een dier-app, honden erbij (in `sandbox/`, nog niet live)
+## 2026-08-24 (v2026.08.24-1) — Spotinus: vogelspotinus wordt een dier-app, honden erbij
 
 Vogelspotinus heet voortaan Spotinus en kent naast 566 vogels ook 361 hondenrassen. Drie fasen:
 

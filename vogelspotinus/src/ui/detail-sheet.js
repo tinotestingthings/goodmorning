@@ -9,6 +9,7 @@
 import { h, icon } from "../core/dom.js";
 import { t } from "../core/i18n.js";
 import { bilingual, primaryName } from "../core/birds.js";
+import { groupHint, groupLabel } from "../data/fci-groups.js";
 import { FILTER_DEFINITIONS, filterValueLabel } from "../core/filters.js";
 import { isFavorite, toggleFavorite } from "../core/favorites.js";
 import { stopSound } from "../core/sound.js";
@@ -84,12 +85,31 @@ function detailFields(bird) {
   const origin = bilingual(bird, "origin");
   if (origin) rows.push(field(t("origin"), origin));
 
-  const nlStatusDef = FILTER_DEFINITIONS.find((d) => d.key === "nlStatus");
-  rows.push(field(t("statusInNl"), filterValueLabel(nlStatusDef, bird.tags?.nlStatus)));
+  // De rasgroep zegt waar een hond VOOR is; dat is het interessantste feit dat
+  // we over hem hebben, dus hij staat hoog en met zijn typering erbij.
+  if (bird.tags?.fciGroup) {
+    rows.push(
+      field(t("fciGroupLabel"), `${groupLabel(bird.tags.fciGroup)} — ${groupHint(bird.tags.fciGroup)}`)
+    );
+  }
+
+  // De enige rij die niet achter een waardecheck stond: bij vogels is nlStatus
+  // altijd gevuld, dus dat viel nooit op. Een hondenras heeft geen status als
+  // Nederlandse broedvogel, en toonde daardoor een rij met een leeg antwoord.
+  if (bird.tags?.nlStatus) {
+    const nlStatusDef = FILTER_DEFINITIONS.find((d) => d.key === "nlStatus");
+    rows.push(field(t("statusInNl"), filterValueLabel(nlStatusDef, bird.tags.nlStatus)));
+  }
 
   const habitat = bilingual(bird, "habitat");
   if (habitat) rows.push(field(t("habitat"), habitat));
-  if (bird.lengthCm) rows.push(field(t("length"), `${bird.lengthCm} cm`));
+  // Bij een vogel is dit de lengte van snavel tot staart; bij een hond meet je
+  // de schofthoogte. Zelfde veld, ander woord -- anders klopt het bijschrift bij
+  // een corgi van 30 cm gewoon niet.
+  if (bird.lengthCm) {
+    const label = bird.tags?.kind === "dog" ? t("heightAtWithers") : t("length");
+    rows.push(field(label, `${bird.lengthCm} cm`));
+  }
 
   const conservation = bilingual(bird, "conservationStatus");
   if (conservation) rows.push(field(t("conservationStatus"), conservation));

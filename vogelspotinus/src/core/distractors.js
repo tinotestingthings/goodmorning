@@ -13,7 +13,16 @@ import { shuffle } from "./dom.js";
 
 function similarity(bird, candidate) {
   let score = 0;
+  // Zelfde diersoort weegt het zwaarst: een hond tussen drie mezen is geen
+  // vraag, die herken je zonder te kijken.
+  if (bird.tags?.kind && candidate.tags?.kind === bird.tags.kind) score += 6;
   if (bird.tags?.family && candidate.tags?.family === bird.tags.family) score += 4;
+  // Hondenrassen hebben geen familie in de data (de FCI-groep is nergens
+  // machineleesbaar te krijgen). Land van herkomst is dan de beste vervanger:
+  // herders uit hetzelfde land lijken op elkaar, en zonder zo'n term wordt
+  // "labrador of chihuahua?" precies de te makkelijke vraag waarvoor dit
+  // module bestaat.
+  if (!bird.tags?.family && bird.origin_en && candidate.origin_en === bird.origin_en) score += 3;
   if (bird.tags?.sizeBucket && candidate.tags?.sizeBucket === bird.tags.sizeBucket) score += 1;
   const colors = bird.tags?.colors ?? [];
   const otherColors = candidate.tags?.colors ?? [];
@@ -28,11 +37,11 @@ function similarity(bird, candidate) {
  * allebei optie zijn -- dan zouden er twee "goede" knoppen op het scherm staan.
  */
 export function pickDistractors(bird, pool, count, displayName) {
-  const seen = new Set([displayName ? displayName(bird) : bird.scientificName]);
+  const seen = new Set([displayName ? displayName(bird) : bird.id]);
   const scored = [];
   for (const candidate of pool) {
     if (candidate === bird) continue;
-    const name = displayName ? displayName(candidate) : candidate.scientificName;
+    const name = displayName ? displayName(candidate) : candidate.id;
     if (seen.has(name)) continue;
     seen.add(name);
     scored.push({ candidate, score: similarity(bird, candidate), tiebreak: Math.random() });

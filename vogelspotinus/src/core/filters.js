@@ -11,6 +11,7 @@
 import { resolveLabel, t } from "./i18n.js";
 import { allBirds } from "./birds.js";
 import { isFavorite } from "./favorites.js";
+import { groupByNumber } from "../data/fci-groups.js";
 
 /**
  * type:
@@ -19,6 +20,21 @@ import { isFavorite } from "./favorites.js";
  *   "boolean"      -- an on/off switch backed by local state, not by tag data
  */
 export const FILTER_DEFINITIONS = [
+  {
+    // Welk soort dier. Staat als gewone dimensie in de registry, zodat de
+    // custom-game-builder hem gratis krijgt -- maar de schakelaar zelf hoort
+    // niet weggestopt in het Opties-blad, dus Bladeren en Quiz zetten hem er
+    // groot boven (zie kindSwitch in ui/filter-bar.js). Eén selectie, twee
+    // plekken om hem te bedienen.
+    key: "kind",
+    labelKey: "filterKind",
+    type: "single-multi",
+    source: "tag",
+    values: [
+      { value: "bird", labelKey: "kindBird" },
+      { value: "dog", labelKey: "kindDog" },
+    ],
+  },
   {
     key: "commonness",
     labelKey: "filterCommonness",
@@ -102,6 +118,19 @@ export function populateFamilyValues() {
   for (const bird of allBirds()) {
     const key = bird.tags?.family;
     if (!key || seen.has(key)) continue;
+    // Honden dragen hun FCI-rasgroep als familie ("fci-8"). Die naam staat in
+    // data/fci-groups.js en niet in de dataset, want anders zou het
+    // buildscript diezelfde tien namen nog een keer moeten kennen.
+    const fci = /^fci-(\d{1,2})$/.exec(key);
+    if (fci) {
+      // Allebei de talen apart, niet twee keer de huidige: dit label wordt één
+      // keer bij het opstarten gebouwd en daarna door resolveLabel() gelezen.
+      // Zou hier de actieve taal in beide velden staan, dan bleven de
+      // rasgroepen na een taalwissel in de opstarttaal hangen.
+      const groep = groupByNumber.get(Number(fci[1]));
+      seen.set(key, { en: groep?.en ?? key, nl: groep?.nl ?? key });
+      continue;
+    }
     seen.set(key, {
       en: bird.familyNameEn || key,
       nl: bird.familyNameNl || bird.familyNameEn || key,
@@ -116,6 +145,54 @@ export function filterLabel(def) {
   return t(def.labelKey);
 }
 
+/**
+ * De pool waartegen de filterbalk zichzelf samenstelt: alle soorten van het
+ * gekozen dier.
+ *
+ * Alleen op `kind` filteren, niet op de hele selectie. Zou de balk zich naar de
+ * volledige selectie voegen, dan verdwijnt elke chip die je net hebt aangevinkt
+ * zodra hij de enige overgebleven waarde is -- en kom je er niet meer vanaf.
+ * De kind-schakelaar staat er los boven, dus terug kan altijd.
+ */
+export function kindPool(selection) {
+  const kinds = selection?.kind ?? [];
+  return kinds.length ? allBirds().filter((b) => kinds.includes(b.tags?.kind)) : allBirds();
+}
+
+/**
+ * Welke dimensies en waarden zinvol zijn voor `pool`.
+ *
+ * `nlStatus`, `commonness` en `family` zijn vogelbegrippen; groen en paars zijn
+ * geen hondenkleur. In plaats van bij elke dimensie bij te houden voor welk
+ * dier hij geldt, kijken we gewoon of ook maar één soort in de huidige pool die
+ * waarde heeft. Dat klopt vanzelf voor elk dier dat er later bij komt, en het
+ * verbergt ook lege chips binnen een dimensie die verder wel gevuld is.
+ *
+ * De `kind`-dimensie zelf en boolean-schakelaars blijven altijd staan: die
+ * hangen niet aan de pool, en `kind` is juist hoe je de pool verandert.
+ */
+export function availableFilters(pool) {
+  const present = new Map();
+  for (const bird of pool) {
+    for (const def of FILTER_DEFINITIONS) {
+      if (def.type === "boolean") continue;
+      const value = bird.tags?.[def.key];
+      if (value == null) continue;
+      if (!present.has(def.key)) present.set(def.key, new Set());
+      const bucket = present.get(def.key);
+      if (Array.isArray(value)) value.forEach((v) => bucket.add(v));
+      else bucket.add(value);
+    }
+  }
+  return FILTER_DEFINITIONS.filter(
+    (def) => def.type === "boolean" || def.key === "kind" || present.has(def.key)
+  ).map((def) => {
+    if (def.type === "boolean" || def.key === "kind") return def;
+    const seen = present.get(def.key);
+    return { ...def, values: def.values.filter((v) => seen.has(v.value)) };
+  });
+}
+
 export function filterValueLabel(def, value) {
   const entry = def.values.find((v) => v.value === value);
   if (!entry) return value;
@@ -127,14 +204,16 @@ export function filterValueLabel(def, value) {
 /**
  * Selection shape:
  *   { commonness: ["common"], colors: ["black"], favoritesOnly: true,
- *     specificBirds: ["Parus major", ...] }
+ *     specificIds: ["Parus major", ...] }
  *
- * `specificBirds`, when non-empty, is a hand-picked list from the Custom Game
+ * `specificIds`, when non-empty, is a hand-picked list from the Custom Game
  * Builder and overrides every tag filter -- it is how a precise "just these
- * species" game is made.
+ * species" game is made. Heette `specificBirds` en bevatte soortnamen; die
+ * zijn voor vogels gelijk aan het id, dus opgeslagen spellen migreren zonder
+ * verlies (de shim staat in games.js).
  */
 export function emptySelection() {
-  const selection = { specificBirds: [] };
+  const selection = { specificIds: [] };
   for (const def of FILTER_DEFINITIONS) {
     selection[def.key] = def.type === "boolean" ? false : [];
   }
@@ -147,8 +226,8 @@ export function cloneSelection(selection) {
 
 export function matchesFilters(bird, selection) {
   if (!selection) return true;
-  if (selection.specificBirds?.length) {
-    return selection.specificBirds.includes(bird.scientificName);
+  if (selection.specificIds?.length) {
+    return selection.specificIds.includes(bird.id);
   }
 
   for (const def of FILTER_DEFINITIONS) {
@@ -177,8 +256,8 @@ export function filterBirds(pool, selection) {
 
 /** Human-readable summary, used to auto-name custom games. */
 export function describeSelection(selection) {
-  if (selection.specificBirds?.length) {
-    return `${selection.specificBirds.length} ${t("birdsSelected")}`;
+  if (selection.specificIds?.length) {
+    return `${selection.specificIds.length} ${t("birdsSelected")}`;
   }
   const parts = [];
   for (const def of FILTER_DEFINITIONS) {
