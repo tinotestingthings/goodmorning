@@ -17,7 +17,11 @@ export function nameLine(bird, { className = "sub-names" } = {}) {
     if (parts.length) parts.push(" · ");
     parts.push(h("span", { lang: secondaryNameLang() }, name));
   }
-  if (parts.length) parts.push(" · ");
-  parts.push(h("em", { lang: "la" }, bird.scientificName));
+  // Een soort zonder wetenschappelijke naam (straks: een hondenras) laat die
+  // regel gewoon weg -- inclusief de scheidingspunt ervoor.
+  if (bird.scientificName) {
+    if (parts.length) parts.push(" · ");
+    parts.push(h("em", { lang: "la" }, bird.scientificName));
+  }
   return h("p", { class: className }, parts);
 }

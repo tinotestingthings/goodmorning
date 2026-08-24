@@ -17,7 +17,7 @@ Promote: `bash tools/promote.sh "what changed"` (guards + copy + tag + push). Ne
 | App | Path | Supabase table | Source of truth | Build |
 |---|---|---|---|---|
 | Kangaroo Gym | `kangaroo/` | `kangaroo_state` | this repo (`kangaroo-src/` TSX) | `bash kangaroo-src/build.sh` -> `sandbox/kangaroo/bundle.js`, then promote |
-| Vogelspotinus (bird ID trainer) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles; `tools/fetch-bird-photos.mjs` for the extra quiz photos (`data/bird-photos.json`, iNaturalist CC). Leerdoel: Griftpark-100-cursus (`src/data/course-griftpark.js`, uit luistervink.nl) |
+| Spotinus (dier-ID trainer: vogels + hondenrassen) | `vogelspotinus/` | `vogelspotinus_state` | this repo (`src/` ES modules) | `tools/build-bird-tiles.mjs` for tiles; `tools/fetch-bird-photos.mjs` (`data/bird-photos.json`, iNaturalist CC); `tools/build-dogs.mjs` (`data/dogs.json` + `data/dog-photos.json`, Wikidata/Wikipedia/Commons). Map en tabel houden bewust hun oude naam: daar hangt alle Leitner-voortgang aan. Identiteit is `id` (vogels: soortnaam, honden: `dog:Q…`), diersoort in `tags.kind`. Rasgroepen (FCI) uit nl.wikipedia in `tags.fciGroup`, uitleg in `src/data/fci-groups.js`. Leerdoel: Griftpark-100-cursus (`src/data/course-griftpark.js`, uit luistervink.nl). Test: `node tests/vogelspotinus.identity.test.mjs` |
 | NoteSprint | `notesprint/` | `notesprint_state` | this repo (`boot.js` loads the app) | none |
 | Ear training / ChordSprint | `ear-training/` | `chordsprint_state` | this repo | none |
 | WijnWijs (wine) | `wine/` | `wine_state` | this repo (`src/` ES modules) | none; tests: `node tests/wijnwijs.core.test.mjs` |

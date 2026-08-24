@@ -13,14 +13,15 @@ import { matchCountText, t } from "../core/i18n.js";
 import { EVENTS, on } from "../core/events.js";
 import { registerScreen, gameContext, currentScreenId, refreshScreen } from "../core/nav.js";
 import { allBirds, hasPhoto } from "../core/birds.js";
-import { emptySelection, filterBirds } from "../core/filters.js";
+import { emptySelection, filterBirds, kindPool } from "../core/filters.js";
 import { openSheet, sheetBody } from "../ui/sheet.js";
-import { renderFilterBar } from "../ui/filter-bar.js";
+import { renderFilterBar, renderKindSwitch } from "../ui/filter-bar.js";
 import { typeMode } from "./quiz-modes/type.js";
 import { choiceMode } from "./quiz-modes/choice.js";
 import { studyMode } from "./quiz-modes/study.js";
+import { groupMode } from "./quiz-modes/group.js";
 
-const MODES = [typeMode, choiceMode, studyMode];
+const MODES = [typeMode, choiceMode, studyMode, groupMode];
 const MODE_BY_GAME_MODE = new Map(MODES.map((m) => [m.gameMode, m]));
 
 const selection = emptySelection();
@@ -28,6 +29,7 @@ let activeMode = typeMode;
 let score = { correct: 0, total: 0 };
 let lastBird = null;
 let sheetCountEl = null;
+let sheetBarEl = null;
 
 function isGameContext() {
   return gameContext()?.gameMode?.startsWith("quiz") ?? false;
@@ -124,17 +126,32 @@ function openOptions() {
 
       sheetCountEl = h("p", { class: "count-line" }, matchCountText(pool().length));
       const bar = h("div");
-      renderFilterBar(bar, selection, () => {
-        sheetCountEl.textContent = matchCountText(pool().length);
-        startActiveMode();
-      });
+      sheetBarEl = bar;
+      // De balk stelt zichzelf samen uit het gekozen dier: bij honden verdwijnen
+      // "Status in NL", "Familie" en de kleuren die geen hond heeft.
+      renderFilterBar(bar, selection, onFilterChange, kindPool(selection));
 
       dialog.append(sheetBody(h("h2", {}, t("options")), modeSwitch, sheetCountEl, bar));
     },
     onClose() {
       sheetCountEl = null;
+      sheetBarEl = null;
     },
   });
+}
+
+/**
+ * De diersoortschakelaar en de filterbalk schrijven op dezelfde selectie; na een
+ * wijziging in de een moet de ander opnieuw kloppen, en begint de quiz opnieuw
+ * omdat de pool verandert.
+ */
+function onFilterChange({ rebuildBar = false } = {}) {
+  renderKindSwitch(byId("quiz-kind"), selection, onFilterChange);
+  if (rebuildBar && sheetBarEl) {
+    renderFilterBar(sheetBarEl, selection, onFilterChange, kindPool(selection));
+  }
+  if (sheetCountEl) sheetCountEl.textContent = matchCountText(pool().length);
+  startActiveMode();
 }
 
 function mount() {
@@ -144,7 +161,10 @@ function mount() {
 function render() {
   const inGame = isGameContext();
   byId("quiz-options-btn").hidden = inGame;
+  // In een opgeslagen spel ligt de pool vast; dan zou de schakelaar liegen.
+  byId("quiz-kind").hidden = inGame;
   if (inGame) activeMode = MODE_BY_GAME_MODE.get(gameContext().gameMode) ?? typeMode;
+  else renderKindSwitch(byId("quiz-kind"), selection, onFilterChange);
   startActiveMode();
 }
 

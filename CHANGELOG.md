@@ -2,6 +2,42 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-23 — Spotinus: vogelspotinus wordt een dier-app, honden erbij (in `sandbox/`, nog niet live)
+
+Vogelspotinus heet voortaan Spotinus en kent naast 566 vogels ook 361 hondenrassen. Drie fasen:
+
+1. **Identiteit van `scientificName` naar `id`.** Een labrador en een chihuahua zijn allebei
+   *Canis lupus familiaris*, dus de soortnaam kan de sleutel niet blijven. Voor vogels geldt
+   `id === scientificName`, waardoor alle Leitner-voortgang, favorieten en opgeslagen spellen
+   ongewijzigd blijven werken. `specificBirds` heet nu `specificIds`, met een shim die oude
+   spellen bij het inlezen omhangt — bewust alleen in het geheugen, zodat het opstarten geen
+   push naar Supabase uitlokt.
+2. **`tools/build-dogs.mjs`** bouwt `data/dogs.json` + `data/dog-photos.json` uit Wikidata,
+   nl/en.wikipedia en Commons. Foto's komen uit de artikelen, niet uit de Commons-categorie:
+   die van de labrador levert binnen vier bestanden een röntgenfoto van heupdysplasie op.
+   Beelden die bij meerdere rassen voorkomen worden geweerd — één labradorfoto stond bij 23
+   rassen en een foto van een eland bij 12.
+3. **Honden in de app**: schakelaar Alles/Vogels/Honden boven Bladeren en Quiz, filters die
+   niet bij het gekozen dier passen verdwijnen vanzelf (bij honden blijven 7 van de 12
+   kleurchips over), afleiders mengen de diersoorten niet, en de detailkaart zegt
+   "schofthoogte" waar bij een vogel "lengte" staat. Map, Supabase-tabel en localStorage-prefix
+   houden bewust hun oude naam.
+
+Daarna nog drie wensen: een seed-spel **Honden · NL top 30** (op nl.wikipedia-bezoeken, alleen
+FCI-erkende rassen — dat haalt de dingo eruit), een quizmodus **Rasgroepen** (drie honden uit
+dezelfde FCI-groep, kies de groep, krijg de uitleg) en een schakelaar in Instellingen om
+**geluidsvragen uit** te zetten. De FCI-groep bleek wél te halen: niet uit de Engelse infobox,
+maar uit de nl.wikipedia-pagina, waar het `classificatie`-veld en het sjabloon
+`{{Navigatie FCI-groepN}}` het in nul van de 328 overlappende gevallen oneens zijn — 340 van
+de 361 rassen.
+
+`/code-review medium` vond drie echte bugs, alle drie gefixt: `byId` zonder integriteitscheck
+(dubbel id laat twee soorten stil één Leitner-sleutel delen), opgeslagen vogelspellen die
+ineens ook honden matchten (55 → 118 soorten), en een dagkaart die per page load een ander
+dier gaf doordat een asynchrone fotoaanvulling de poollengte verschoof.
+
+Nieuw vangnet: `node tests/vogelspotinus.identity.test.mjs` — 21 checks tegen de echte data.
+
 ## 2026-08-23 (v2026.08.23-2) — Luisterinus fase C + UX-fixes uit een max-review
 
 Luisterinus kreeg acties per aflevering (afspelen, gehoord, bron, taak, verwijderen), een vaste

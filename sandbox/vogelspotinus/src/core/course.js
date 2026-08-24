@@ -8,23 +8,27 @@
 // ---------------------------------------------------------------------------
 
 import { GRIFTPARK_COURSE } from "../data/course-griftpark.js";
-import { birdByScientificName, hasPhoto } from "./birds.js";
+import { hasPhoto, speciesById } from "./birds.js";
 import { boxInfo, BOX_COUNT } from "./leitner.js";
 
 const LEARNED_BOX = 3; // zelfde drempel als progress.js: vanaf box 3 telt "geleerd"
 
 let course = null;
 
-/** Resolve de soortenlijst een keer tegen de dataset; onbekende namen vallen stil weg. */
+/**
+ * Resolve de soortenlijst een keer tegen de dataset; onbekende namen vallen
+ * stil weg. De cursus is een VOGELlijst en noteert soortnamen; die zijn voor
+ * vogels gelijk aan het id, dus opzoeken kan gewoon op id.
+ */
 export function activeCourse() {
   if (!course) {
     const birds = [];
     const detections = new Map();
     for (const [sci, n] of GRIFTPARK_COURSE.species) {
-      const bird = birdByScientificName(sci);
+      const bird = speciesById(sci);
       if (!bird) continue;
       birds.push(bird);
-      detections.set(sci, n);
+      detections.set(bird.id, n);
     }
     course = { ...GRIFTPARK_COURSE, birds, detections };
   }
@@ -32,12 +36,12 @@ export function activeCourse() {
 }
 
 export function inCourse(bird) {
-  return activeCourse().detections.has(bird.scientificName);
+  return activeCourse().detections.has(bird.id);
 }
 
 /** Hoe vaak de luistervink deze soort in het Griftpark hoorde (of null). */
 export function courseDetections(bird) {
-  return activeCourse().detections.get(bird.scientificName) ?? null;
+  return activeCourse().detections.get(bird.id) ?? null;
 }
 
 /**

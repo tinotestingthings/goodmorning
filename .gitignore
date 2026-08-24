@@ -20,3 +20,7 @@ node_modules/
 graphify-out/
 _sden2-lesmateriaal/
 __pycache__/
+
+# build-dogs.mjs schrijft deze bij elke run opnieuw (het contactvel is 290 KB)
+tools/dogs-photo-check.html
+tools/dogs-colour-report.txt

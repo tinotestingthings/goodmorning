@@ -1,0 +1,17 @@
+# Foto's die geen goede quizfoto zijn. Eén Commons-bestandsnaam per regel
+# (zonder "File:"), precies zoals hij onder de foto in het contactvel staat.
+#
+#   node tools/build-dogs.mjs sandbox/vogelspotinus --exclude tools/dogs-photo-excludes.txt
+#
+# Het script filtert al automatisch op röntgenfoto's, schedels, logo's,
+# postzegels en historische schilderijen (PD-old). Wat hier staat is wat daar
+# doorheen kwam en pas bij het kijken opvalt: close-ups van een lichaamsdeel,
+# een mens die het beeld vult, taxidermie.
+#
+# Aangevuld op 23 aug 2026 na een naamscan over alle 894 gekozen foto's.
+# 62 daarvan hadden een verdachte naam; de meeste bleken vals alarm (een
+# jaartal in de naam is gewoon de opnamedatum, en een hond op een agility-baan
+# is nog steeds herkenbaar). Deze twee zijn wél mis.
+
+Whippet teeth.jpg
+Irish Wolfhound - Ulster Museum.JPG

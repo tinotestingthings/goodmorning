@@ -16,7 +16,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** How many of the most-due cards to pick randomly from, so drills aren't identical. */
 const PICK_WINDOW = 5;
 
-/** @type {Record<string, {box: number, dueAt: number}>} */
+/** @type {Record<string, {box: number, dueAt: number}>} gesleuteld op soort-id */
 let state = {};
 
 export function loadLeitnerState() {
@@ -25,7 +25,7 @@ export function loadLeitnerState() {
 }
 
 function entryFor(bird) {
-  return state[bird.scientificName] ?? { box: 1, dueAt: 0 };
+  return state[bird.id] ?? { box: 1, dueAt: 0 };
 }
 
 /**
@@ -34,7 +34,7 @@ function entryFor(bird) {
  * de box-logica op een plek blijft.
  */
 export function boxInfo(bird) {
-  const raw = state[bird.scientificName];
+  const raw = state[bird.id];
   return {
     started: !!raw,
     box: raw?.box ?? 1,
@@ -53,7 +53,7 @@ export function recordAnswer(bird, knewIt) {
   // seen/correct/wrong/lastSeen worden meegedragen: bestaande rijen hebben ze
   // al en de vault-backup rekent erop. Ze alleen op {box,dueAt} overschrijven
   // wist die historie bij het eerstvolgende antwoord.
-  state[bird.scientificName] = {
+  state[bird.id] = {
     box,
     dueAt: Date.now() + INTERVAL_DAYS[box] * DAY_MS,
     seen: (before.seen ?? 0) + 1,
@@ -89,7 +89,7 @@ export function progress(pool) {
   let reviewing = 0;
   let mastered = 0;
   for (const bird of pool) {
-    const entry = state[bird.scientificName];
+    const entry = state[bird.id];
     if (!entry) fresh += 1;
     else if (entry.box >= BOX_COUNT) mastered += 1;
     else reviewing += 1;

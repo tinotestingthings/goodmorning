@@ -22,7 +22,7 @@ import { applySeed, loadGames } from "./core/games.js";
 import { loadLeitnerState } from "./core/leitner.js";
 import { loadExtraPhotos } from "./core/photos.js";
 import { currentScreenId, initNav, refreshScreen, showScreen } from "./core/nav.js";
-import { SEED } from "./data/seed-games.js";
+import { buildSeed } from "./data/seed-games.js";
 import { PLACEHOLDER_IMG } from "./ui/bird-media.js";
 import { registerHomeScreen } from "./screens/home.js";
 import { registerBrowseScreen } from "./screens/browse.js";
@@ -92,7 +92,8 @@ async function loadData() {
     return;
   }
   populateFamilyValues();
-  applySeed(SEED);
+  // Ná loadBirds(): de seed leest de hondenlijst uit de dataset.
+  applySeed(buildSeed());
   hideBootState();
   showScreen("home");
   // Verrijking, geen dependency: de extra quizfoto's mogen na de eerste

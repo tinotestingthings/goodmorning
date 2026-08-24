@@ -13,24 +13,67 @@
 // ---------------------------------------------------------------------------
 
 import { emptySelection } from "../core/filters.js";
+import { allBirds } from "../core/birds.js";
 import { GRIFTPARK_COURSE } from "./course-griftpark.js";
 
-// v3: het losse Griftpark-quizspel is vervangen door de cursus + oefensessie
-// op Home (die de Leitner-planning WEL voedt; het oude meerkeuzespel deed dat
-// niet). Wat blijft is een blader-spel over dezelfde honderd soorten, nu in
-// de volgorde en omvang van de cursuslijst i.p.v. de oude 42 uit de maandtop.
-export const SEED = {
-  version: "3",
-  retire: ["griftpark-top20", "griftpark-all"],
-  games: [
-    {
-      id: "griftpark-browse",
-      name: "Griftpark · 100",
-      gameMode: "browse",
-      filters: {
-        ...emptySelection(),
-        specificBirds: GRIFTPARK_COURSE.species.map(([sci]) => sci),
+const NL_DOG_COUNT = 30;
+
+/**
+ * De honden die je in Nederland het vaakst tegenkomt -- bij benadering.
+ *
+ * WAT DIT WEL EN NIET IS. Er bestaat geen vrij beschikbare lijst van
+ * hondenregistraties per ras in Nederland; de Raad van Beheer publiceert die
+ * niet als open data. Wat we wél kunnen meten is hoe vaak elk rasartikel op de
+ * NEDERLANDSTALIGE Wikipedia wordt bekeken (`nlPopularity`, 60 dagen). Dat is
+ * belangstelling, geen telling -- maar het is Nederlandse belangstelling, en
+ * dat scheelt: de lijst opent met beagle, Australische herder en cane corso,
+ * en heeft het kooikerhondje op 9 en de stabij op 29 staan. Twee Nederlandse
+ * rassen in de top 30 die in de Engelse cijfers nergens te bekennen zijn.
+ *
+ * Alleen door de FCI erkende rassen doen mee. Dat is geen willekeurige eis
+ * maar precies de goede: hij haalt de dingo uit de lijst, die hoog scoort om
+ * redenen die niets met Nederlandse straten te maken hebben.
+ */
+function popularDutchDogs() {
+  return allBirds()
+    .filter((s) => s.tags?.kind === "dog" && s.tags?.fciGroup)
+    .sort((a, b) => (b.nlPopularity ?? 0) - (a.nlPopularity ?? 0))
+    .slice(0, NL_DOG_COUNT)
+    .map((s) => s.id);
+}
+
+/**
+ * De seed wordt bij het opstarten opgebouwd, ná het laden van de data -- de
+ * hondenlijst komt namelijk uit de dataset zelf. Bump `version` als je de
+ * inhoud wijzigt; applySeed() voegt een spel alleen toe als het id nog niet
+ * bestaat, dus zonder bump verandert er bij bestaande installaties niets.
+ */
+export function buildSeed() {
+  return {
+    // v4: honden erbij, dus een tweede seed-spel.
+    version: "4",
+    retire: ["griftpark-top20", "griftpark-all"],
+    games: [
+      {
+        id: "griftpark-browse",
+        name: "Griftpark · 100",
+        gameMode: "browse",
+        filters: {
+          ...emptySelection(),
+          specificIds: GRIFTPARK_COURSE.species.map(([sci]) => sci),
+        },
       },
-    },
-  ],
-};
+      {
+        id: "honden-nl-top30",
+        name: "Honden · NL top 30",
+        // Meerkeuze en niet bladeren: dit is een lijst om te LEREN, niet om
+        // door te scrollen. De Griftpark-tegel is het naslagwerk.
+        gameMode: "quiz-choice",
+        filters: {
+          ...emptySelection(),
+          specificIds: popularDutchDogs(),
+        },
+      },
+    ],
+  };
+}

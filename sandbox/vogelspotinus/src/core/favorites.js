@@ -10,7 +10,7 @@
 import { KEYS, read, write } from "./storage.js";
 import { EVENTS, emit } from "./events.js";
 
-/** @type {Set<string>} scientific names */
+/** @type {Set<string>} soort-ids */
 let favorites = new Set();
 
 export function loadFavorites() {
@@ -19,7 +19,7 @@ export function loadFavorites() {
 }
 
 export function isFavorite(bird) {
-  return favorites.has(bird.scientificName);
+  return favorites.has(bird.id);
 }
 
 export function favoriteCount() {
@@ -28,7 +28,7 @@ export function favoriteCount() {
 
 /** Toggle and persist. Returns the new state. */
 export function toggleFavorite(bird) {
-  const key = bird.scientificName;
+  const key = bird.id;
   const nowFavorite = !favorites.has(key);
   if (nowFavorite) favorites.add(key);
   else favorites.delete(key);

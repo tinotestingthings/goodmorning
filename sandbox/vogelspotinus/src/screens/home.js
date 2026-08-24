@@ -18,7 +18,7 @@ import { allBirds, bilingual, hasPhoto, photoUrl, primaryName } from "../core/bi
 import { matchesFilters } from "../core/filters.js";
 import { allGames, deleteGame } from "../core/games.js";
 import { courseDetections, courseProgress } from "../core/course.js";
-import { birdOfTheDay } from "../core/daily.js";
+import { speciesOfTheDay } from "../core/daily.js";
 import { photoAttribution } from "../core/photos.js";
 import { plannedSessionSize } from "../core/session.js";
 import { currentStreak } from "../core/stats.js";
@@ -35,7 +35,7 @@ const MODE_ICONS = {
 // --- Vogel van vandaag ------------------------------------------------------
 
 function dailyBirdBlock() {
-  const bird = birdOfTheDay();
+  const bird = speciesOfTheDay();
   if (!bird) return null;
 
   const heard = courseDetections(bird);
@@ -66,7 +66,9 @@ function dailyBirdBlock() {
         "h2",
         { class: "daily-name" },
         primaryName(bird),
-        h("span", { class: "daily-latin", lang: "la" }, bird.scientificName)
+        bird.scientificName
+          ? h("span", { class: "daily-latin", lang: "la" }, bird.scientificName)
+          : null
       ),
       h(
         "p",
@@ -152,14 +154,14 @@ function quietLink(labelKey, onClick) {
 }
 
 /**
- * Stable pick (first by scientific name) so a tile's photo only changes when
- * the matching pool itself changes, not on every re-render.
+ * Stable pick (first by id) so a tile's photo only changes when the matching
+ * pool itself changes, not on every re-render.
  */
 function representativeBird(game) {
   let best = null;
   for (const bird of allBirds()) {
     if (!hasPhoto(bird) || !matchesFilters(bird, game.filters)) continue;
-    if (!best || bird.scientificName.localeCompare(best.scientificName) < 0) best = bird;
+    if (!best || bird.id.localeCompare(best.id) < 0) best = bird;
   }
   return best;
 }

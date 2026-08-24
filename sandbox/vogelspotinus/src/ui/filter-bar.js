@@ -9,19 +9,69 @@
 
 import { h, icon } from "../core/dom.js";
 import { t } from "../core/i18n.js";
-import { FILTER_DEFINITIONS, filterLabel, filterValueLabel } from "../core/filters.js";
+import {
+  FILTER_DEFINITIONS,
+  availableFilters,
+  filterLabel,
+  filterValueLabel,
+} from "../core/filters.js";
 
 /**
  * @param {HTMLElement} container
  * @param {object} selection mutated in place; the caller owns it
- * @param {(selection: object) => void} onChange
+ * @param {(opts: {rebuildBar?: boolean}) => void} onChange wordt met
+ *   `rebuildBar: true` aangeroepen als de diersoort wisselde -- dan klopt de
+ *   rest van de balk niet meer en moet hij opnieuw opgebouwd worden.
+ * @param {Array<object>} [pool] alle soorten; dimensies en waarden die hierin
+ *   nergens voorkomen worden weggelaten. Zonder pool tonen we alles.
  */
-export function renderFilterBar(container, selection, onChange) {
+export function renderFilterBar(container, selection, onChange, pool) {
   container.replaceChildren();
   container.classList.add("filter-bar");
-  for (const def of FILTER_DEFINITIONS) {
+  const defs = pool ? availableFilters(pool) : FILTER_DEFINITIONS;
+  for (const def of defs) {
     container.append(buildGroup(def, selection, onChange));
   }
+}
+
+/**
+ * De diersoortschakelaar, als segmented control voor bovenaan een scherm.
+ *
+ * Schrijft op dezelfde `selection.kind` als de gewone filterdimensie -- dit is
+ * een tweede bedieningsplek, geen tweede stuk state. "Alles" is een lege
+ * selectie, precies zoals bij elke andere dimensie.
+ */
+export function renderKindSwitch(container, selection, onChange) {
+  const def = FILTER_DEFINITIONS.find((d) => d.key === "kind");
+  const options = [{ value: null, labelKey: "all" }, ...def.values];
+  const buttons = options.map((option) => {
+    const button = h(
+      "button",
+      { type: "button" },
+      option.value ? filterValueLabel(def, option.value) : t(option.labelKey)
+    );
+    button.addEventListener("click", () => {
+      selection.kind = option.value ? [option.value] : [];
+      sync();
+      onChange({ rebuildBar: true });
+    });
+    return { option, button };
+  });
+
+  function sync() {
+    const selected = selection.kind ?? [];
+    for (const { option, button } of buttons) {
+      const on = option.value ? selected.includes(option.value) : selected.length === 0;
+      button.classList.toggle("active", on);
+      button.setAttribute("aria-pressed", String(on));
+    }
+  }
+
+  container.classList.add("segmented");
+  container.setAttribute("role", "group");
+  container.setAttribute("aria-label", filterLabel(def));
+  container.replaceChildren(...buttons.map((b) => b.button));
+  sync();
 }
 
 function buildGroup(def, selection, onChange) {
@@ -61,7 +111,7 @@ function booleanControl(def, selection, onChange) {
     chip.classList.toggle("active", on);
     chip.setAttribute("aria-pressed", String(on));
     chip.replaceChildren(icon("star", on ? "icon-fill" : null), h("span", {}, filterLabel(def)));
-    onChange(selection);
+    onChange({});
   });
   return h("div", { class: "chip-row" }, chip);
 }
@@ -102,7 +152,7 @@ function chipControl(def, selection, onChange) {
   allChip.addEventListener("click", () => {
     selection[def.key] = [];
     sync();
-    onChange(selection);
+    onChange({ rebuildBar: def.key === "kind" });
   });
   for (const [value, chip] of chips) {
     chip.addEventListener("click", () => {
@@ -111,7 +161,7 @@ function chipControl(def, selection, onChange) {
         ? selected.filter((v) => v !== value)
         : [...selected, value];
       sync();
-      onChange(selection);
+      onChange({ rebuildBar: def.key === "kind" });
     });
   }
 
@@ -150,7 +200,7 @@ function checklistControl(def, selection, onChange) {
             ? [...current, entry.value]
             : current.filter((v) => v !== entry.value);
           updateSummary();
-          onChange(selection);
+          onChange({});
         });
         return h("label", { class: "pick-row" }, box, h("span", {}, label));
       });

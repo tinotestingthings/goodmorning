@@ -1,7 +1,7 @@
 {
-  "name": "Vogelspotinus",
-  "short_name": "Vogelspotinus",
-  "description": "Learn the names of birds you can spot in the Netherlands.",
+  "name": "Spotinus",
+  "short_name": "Spotinus",
+  "description": "Learn to name the animals you can spot: birds and dog breeds.",
   "start_url": "index.html",
   "scope": ".",
   "display": "standalone",
