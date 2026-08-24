@@ -2,6 +2,18 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-24 (v2026.08.24-2) — Spotinus: de rasgroepquiz gebruikt de kaart uit Bladeren
+
+De drie kaartjes in de rasgroepquiz waren losse foto's met een bijschrift; nu zijn het de
+kaarten uit Bladeren, alleen kleiner (`birdCard()` plus een `group-card`-modifier in CSS). Zo
+delen ze de foto-afhandeling, het favorietenbadge en de stijl, en kan er geen tweede
+kaartontwerp uit de pas gaan lopen.
+
+`birdPhoto()` en `birdCard()` kregen daarvoor een `src`-optie: FCI-groep 4 telt maar één ras
+(de teckel), dus die drie kaarten moeten drie verschillende foto's van dezelfde hond tonen --
+`quizPhotoUrl()` vermijdt alleen de vorige. De kaarten zijn pas aan te tikken na het antwoord,
+want het detailblad noemt de rasgroep.
+
 ## 2026-08-24 (v2026.08.24-1) — Spotinus: vogelspotinus wordt een dier-app, honden erbij
 
 Vogelspotinus heet voortaan Spotinus en kent naast 566 vogels ook 361 hondenrassen. Drie fasen:

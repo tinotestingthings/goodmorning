@@ -1250,40 +1250,48 @@ button.secondary.playing {
   overflow: hidden;
 }
 
-/* Rasgroep-quiz: drie kleine kaartjes naast elkaar, dezelfde vorm als in
-   Bladeren maar zonder de tweede naamregel -- de vraag gaat over het patroon
-   tussen de drie, niet over één hond. Op een smal scherm blijven ze naast
-   elkaar staan (drie kolommen), want ze náást elkaar zien is de hele oefening;
-   onder elkaar zou je moeten scrollen om te vergelijken. */
+/* Rasgroep-quiz: drie kaarten uit Bladeren naast elkaar, alleen kleiner. Het
+   is dezelfde .card -- hier staat dus alleen wat er ANDERS is bij dit formaat,
+   niet een tweede kaartontwerp. Ze blijven op elk schermformaat naast elkaar
+   staan: ze náást elkaar zien is de hele oefening, onder elkaar zou je moeten
+   scrollen om te vergelijken. */
 .group-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
+  /* Geen align-items: start -- dan krijgt een kaart met een omslaande naam een
+     andere hoogte dan zijn buren en staat de rij scheef. Uitrekken tot de
+     langste houdt de drie foto's op één lijn, en dat is wat je vergelijkt. */
 }
 
-.group-card {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+.card.group-card {
   min-width: 0;
 }
 
-.group-card img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--surface-2, var(--surface));
-  display: block;
+/* Vóór het antwoord is de kaart niet aan te tikken (het detailblad verklapt de
+   rasgroep). Hij moet er dan wel gewoon uitzien -- niet uitgegrijsd, want de
+   foto is de vraag. */
+.card.group-card:disabled {
+  cursor: default;
+  opacity: 1;
 }
 
-.group-card figcaption {
-  font-size: var(--text-xs);
-  line-height: 1.3;
-  color: var(--text-dim);
-  text-align: center;
-  overflow-wrap: anywhere;
+.card.group-card .photo {
+  aspect-ratio: 4 / 3;
+}
+
+.card.group-card .card-body {
+  padding: var(--space-2);
+}
+
+.card.group-card .card-name {
+  font-size: var(--text-sm);
+}
+
+/* De tweede namenregel (Engelse naam) past niet in een derde van de breedte
+   en voegt hier niets toe: de vraag gaat over de groep, niet over het ras. */
+.card.group-card .sub-names {
+  display: none;
 }
 
 .choice-grid {
