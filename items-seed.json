@@ -62,6 +62,14 @@
    {
     "text": "Add ai act and ai act changes from omnibus",
     "done": false
+   },
+   {
+    "text": "Add gdpr",
+    "done": false
+   },
+   {
+    "text": "Add ai act and ai act changes from omnibus",
+    "done": false
    }
   ],
   "state": "todo",
@@ -152,7 +160,7 @@
   "id": "2026-08-13-learn-more-about-git-and-github",
   "type": "task",
   "title": "Learn more about Git and Github",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -162,7 +170,7 @@
   "id": "2026-08-17-learning-tool-maken-voor-mezelf-voor-coden-git-etc",
   "type": "task",
   "title": "Learning tool maken voor mezelf voor coden. Git etc",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -182,7 +190,7 @@
   "id": "2026-08-17-unbroken-kijken-over-jappenkampen",
   "type": "task",
   "title": "Unbroken kijken over jappenkampen",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -192,7 +200,7 @@
   "id": "2026-08-19-wc-kitten",
   "type": "task",
   "title": "WC kitten",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "active",
   "source": "vault",
@@ -202,7 +210,7 @@
   "id": "2026-08-20-testbacklog-19aug",
   "type": "task",
   "title": "Testbacklog 19aug",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -213,6 +221,26 @@
   "type": "task",
   "title": "Google koopt de complete bedrijfsdata van het failliete Spirit Airlines voor $10 miljoen — als AI-trainingsmateriaal",
   "note": "Google heeft een faillissementsveiling gewonnen om de data van de ter ziele gegane Amerikaanse prijsvechter **Spirit Airlines** te kopen voor **$10 miljoen** (Mercor bood $7,5 miljoen; de biedingen begonnen rond $5 miljoen). Het gaat om een opmerkelijk complete dwarsdoorsnede van een bedrijf: circa **100 miljoen e-mails**, **500 miljoen Microsoft Teams-chats**, **30 miljoen regels code**, **3,4 miljoen loonstrookrecords** en werknemersgegevens die teruggaan tot **1986**, plus finance-, operations- en revenue-managementdata, prijsmodellen, boekingscurves, vluchtgedrag, wifi- en inflight-verkopen en restitutiehistorie. Axios en Skift braken het verhaal rond 17 augustus, CNN volgde op 18 augustus, en op 20 augustus meldde SiliconANGLE dat de deal alsnog kan stranden.",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-22-openai-private-safety-processing-versus-anthropic-dataretentie",
+  "type": "task",
+  "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
+  "note": "OpenAI heeft op 19 augustus 2026 bij een selecte groep zakelijke klanten een systeem in preview gezet dat het **Private Safety Processing** noemt. De belofte: patronen van misbruik herkennen over meerdere, samenhangende interacties heen, zonder de zero-data-retention-garantie (ZDR) op te geven die grote zakelijke afnemers eisen. In plaats van prompts en antwoorden op te slaan stuurt het systeem naar OpenAI alleen een strak afgebakend \"safety signal\" terug; de onderliggende inhoud blijft op infrastructuur van de klant, of ligt bij OpenAI versleuteld met sleutels die de klant beheert. Een bredere uitrol en een technische white paper staan voor september gepland.",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-23-tiktok-bytedance-400-miljoen-schikking-doj-kinderprivacy-coppa",
+  "type": "task",
+  "title": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse ministerie van Justitie over kinderprivacy",
+  "note": "Het Amerikaanse ministerie van Justitie heeft op 21 augustus 2026 een schikking van 400 miljoen dollar bereikt met TikTok en moederbedrijf ByteDance, waarmee de rechtszaak uit 2024 over schending van de kinderprivacywet COPPA (Children's Online Privacy Protection Act) wordt afgesloten. Het DOJ noemt het een van de grootste bedragen ooit geïnd in een COPPA-zaak. De betaling is opgesplitst: 300 miljoen direct, de resterende 100 miljoen zodra een rechter een eerder consent decree tegen voorganger Musical.ly formeel intrekt. Nederlandse privacybronnen (Privacynieuws.nl, Security.NL) pikten het bericht op 22 augustus op.",
   "subtasks": [],
   "state": "todo",
   "source": "vault",
@@ -254,6 +282,14 @@
   "title": "Personal productivity as mental health management",
   "note": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
   "subtasks": [
+   {
+    "text": "Welke wetenschap achter vitamines is er",
+    "done": false
+   },
+   {
+    "text": "Welke wetenachap achter productiviteit is er",
+    "done": false
+   },
    {
     "text": "Welke wetenschap achter vitamines is er",
     "done": false
@@ -363,6 +399,106 @@
    },
    {
     "text": "Compliance Radar entries should be editable like tasks and projects",
+    "done": false
+   },
+   {
+    "text": "Live hotfix: title `SBX · Daily Digest` → `Daily Digest`; path-guard the reset button so it can't wipe live `dd.*` data (commit 818ee07, 2026-08-04)",
+    "done": true
+   },
+   {
+    "text": "Make sandbox→live promotion safe — runtime namespace (killed the `sed` transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
+    "done": true
+   },
+   {
+    "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
+    "done": false
+   },
+   {
+    "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
+    "done": false
+   },
+   {
+    "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
+    "done": false
+   },
+   {
+    "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
+    "done": false
+   },
+   {
+    "text": "I should be able to hold and drag to reorder backlog items",
+    "done": false
+   },
+   {
+    "text": "Verify offline mode: can the app still be used offline, and are changes saved and synced when back online?",
+    "done": false
+   },
+   {
+    "text": "Integrate the **Vogelspotinus** bird-spotting/learning app as a utility app inside goodmorning (same as the Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs). It's currently a standalone no-backend PWA — to match the others it also needs to persist progress to Supabase (`dd:`/`sbx:` namespaced keys) and get a daily-digest backup leg. Full spec: [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]] (C8 backup leg + `vogelspotinus_state` table drafted; wire into the live digest task at integration time).",
+    "done": false
+   },
+   {
+    "text": "**Vogelspotinus voortgangsfeatures** — statuskaart (geleerd/beheerst/streak/box-verdeling + \"te herhalen vandaag\"-tegel), drie oefenspellen (Herhalen / Goed gehad / Lastige vogels), de gewone quiz telt nu mee voor de SRS, per-vogel badges in Bladeren, en het Bladeren-infoblok + Wikipedia/Xeno-canto icon-links op de quiz/study-reveal. Gebouwd in sandbox en gepromoot naar live 2026-08-11. Details + open follow-ups in [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]].",
+    "done": true
+   },
+   {
+    "text": "**Vogel van de dag als tegel op het homescreen** — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand `vogelspotinus/data/bird-tiles.json` (561 vogels, 107 kB) dat `tools/build-bird-tiles.mjs` uit `birds.json` (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
+    "done": true
+   },
+   {
+    "text": "**Homescreen app-tile labels fit on one line** — \"ChordSprint\" was too wide for the 92px \"most used\" tile and broke mid-word onto a second line. Fixed 2026-08-18 (commit 35bbe3b, live + sandbox): the label now takes the full tile width, and `fitTileLabel()` in `home.js` steps the font size down after layout until it fits (floor 0.6rem, falls back to wrapping below that). Adaptive rather than a hardcoded size, so future app names fit too.",
+    "done": true
+   },
+   {
+    "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
+    "done": true
+   },
+   {
+    "text": "Calendar: duplicate a box on PC via shift+drag",
+    "done": false
+   },
+   {
+    "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+    "done": false
+   },
+   {
+    "text": "Morning loop tile style should match the other tiles",
+    "done": true
+   },
+   {
+    "text": "Add an emoji+ theme",
+    "done": true
+   },
+   {
+    "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
+    "done": false
+   },
+   {
+    "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
+    "done": false
+   },
+   {
+    "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
+    "done": false
+   },
+   {
+    "text": "Triage: add a history view",
+    "done": false
+   },
+   {
+    "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
+    "done": false
+   },
+   {
+    "text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
+    "done": false
+   },
+   {
+    "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+    "done": false
+   },
+   {
+    "text": "Compliance Radar entries should be editable like tasks and projects",
     "done": true
    },
    {
@@ -403,14 +539,6 @@
    },
    {
     "text": "**Vogelspotinus voortgangsfeatures** — statuskaart (geleerd/beheerst/streak/box-verdeling + \"te herhalen vandaag\"-tegel), drie oefenspellen (Herhalen / Goed gehad / Lastige vogels), de gewone quiz telt nu mee voor de SRS, per-vogel badges in Bladeren, en het Bladeren-infoblok + Wikipedia/Xeno-canto icon-links op de quiz/study-reveal. Gebouwd in sandbox en gepromoot naar live 2026-08-11. Details + open follow-ups in [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]].",
-    "done": true
-   },
-   {
-    "text": "**Vogel van de dag als tegel op het homescreen** — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand `vogelspotinus/data/bird-tiles.json` (561 vogels, 107 kB) dat `tools/build-bird-tiles.mjs` uit `birds.json` (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
-    "done": true
-   },
-   {
-    "text": "**Homescreen app-tile labels fit on one line** — \"ChordSprint\" was too wide for the 92px \"most used\" tile and broke mid-word onto a second line. Fixed 2026-08-18 (commit 35bbe3b, live + sandbox): the label now takes the full tile width, and `fitTileLabel()` in `home.js` steps the font size down after layout until it fits (floor 0.6rem, falls back to wrapping below that). Adaptive rather than a hardcoded size, so future app names fit too.",
     "done": true
    },
    {
@@ -476,7 +604,7 @@
   "id": "2026-08-12-visit-every-park-in-utrecht",
   "type": "project",
   "title": "Visit every park in Utrecht.",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "idea",
   "source": "vault",
@@ -496,7 +624,7 @@
   "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
   "type": "project",
   "title": "Een AI app waarmee je mallen voor kleding kan maken.",
-  "note": null,
+  "note": "",
   "subtasks": [],
   "state": "active",
   "source": "vault",
@@ -516,7 +644,7 @@
   "id": "2026-08-19-vof-opzeggen",
   "type": "project",
   "title": "VOF opzeggen",
-  "note": null,
+  "note": "<!-- app-subtasks:start -->",
   "subtasks": [
    {
     "text": "Maria informeren opzeggen vof",
@@ -547,7 +675,7 @@
   "id": "2026-08-20-be-better-with-claude",
   "type": "project",
   "title": "Be better with Claude",
-  "note": null,
+  "note": "<!-- app-subtasks:start -->",
   "subtasks": [
    {
     "text": "Skills, when to use skill creators. I should think about what processes to automate via skills",
