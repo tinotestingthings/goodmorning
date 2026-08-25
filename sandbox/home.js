@@ -2215,16 +2215,195 @@
       swipe: true
     };
   }
+  // ---- today overload: offer to bulk-move to-dos when the day is stacked ----
+  // Only to-dos count and only to-dos are movable — chores are rhythm, not
+  // backlog, and shifting an occurrence is a per-item decision (ItemUI menu).
+  // The banner asks at most once per day; the answer lives in localStorage,
+  // per device, like a snooze — not synced state.
+  var OVERLOAD_MIN = 8; // ponytail: fixed threshold, make it a setting if it nags
+  var overloadPicking = false;
+  var overloadPickDay = null;   // the day picking started — a new day drops the mode
+  var overloadSel = {};
+
+  function overloadReset() { overloadPicking = false; overloadPickDay = null; overloadSel = {}; }
+
+  // Tomorrow / the coming Saturday / the coming Monday, deduped by date and
+  // sorted, so the buttons are always chronological and never offer the same
+  // day twice (on a Sunday "next Monday" IS tomorrow; on a Friday so is
+  // "Saturday"). nudgeToWeekday lands on the first matching weekday from a
+  // date onwards, counting from tomorrow so a target is never today.
+  function overloadTargets() {
+    var tom = new Date();
+    tom.setDate(tom.getDate() + 1);
+    var cands = [
+      { label: "Tomorrow", d: tom },
+      { label: "Saturday", d: nudgeToWeekday(tom, 6) },
+      { label: "Next week", d: nudgeToWeekday(tom, 1) }
+    ];
+    var seen = {}, out = [];
+    cands.forEach(function (c) {
+      var ds = localDateStr(c.d);
+      if (seen[ds]) return;            // first label wins — "Tomorrow" outranks the rest
+      seen[ds] = true;
+      out.push({ label: c.label, ymd: ds });
+    });
+    out.sort(function (a, b) { return a.ymd < b.ymd ? -1 : a.ymd > b.ymd ? 1 : 0; });
+    return out;
+  }
+
+  // Same move semantics as itemui's snoozeTodo, but to an absolute date: a
+  // multi-day to-do keeps its span (endDate shifts along) and snoozes ticks up.
+  // Only still-open to-dos move — a selected row the user completed on another
+  // device in the meantime must not be resurrected on the target day.
+  // ponytail: fourth copy of the span shift (itemui snoozeTodo, calendar
+  // moveTodo/postpone); lift into DayModel if a fifth caller shows up.
+  function moveTodosTo(ids, ymdStr, label) {
+    var byId = {};
+    ids.forEach(function (id) { byId[id] = true; });
+    var list = loadTodos(), moved = 0;
+    list.forEach(function (t) {
+      if (!byId[t.id] || t.done) return;
+      if (t.endDate && t.dueDate) {
+        var span = Math.round((new Date(t.endDate + "T00:00:00") - new Date(t.dueDate + "T00:00:00")) / 86400000);
+        if (!(span >= 0)) span = 0;
+        var e = new Date(ymdStr + "T00:00:00");
+        e.setDate(e.getDate() + span);
+        t.endDate = localDateStr(e);
+      }
+      t.dueDate = ymdStr;
+      t.snoozes = (t.snoozes || 0) + 1;
+      moved++;
+    });
+    saveTodos(list);
+    overloadReset();
+    markOverloadAsked();
+    toast("Pushed " + moved + " to " + label.toLowerCase());
+  }
+
+  function markOverloadAsked() {
+    try { localStorage.setItem(k("today.overloadAsked"), localDateStr()); } catch (e) {}
+  }
+
+  function overloadBanner(count) {
+    var card = el("div", "overload-banner");
+    card.appendChild(el("div", "overload-banner-text", count + " tasks stacked up — move a few?"));
+    var pick = el("button", "btn btn-primary", "Pick tasks"); pick.type = "button";
+    pick.addEventListener("click", function () {
+      overloadPicking = true; overloadPickDay = localDateStr(); overloadSel = {};
+      render();
+    });
+    var no = el("button", "btn btn-ghost", "Not now"); no.type = "button";
+    no.addEventListener("click", function () { markOverloadAsked(); card.remove(); });
+    card.appendChild(pick); card.appendChild(no);
+    return card;
+  }
+
+  // Selection is toggled in place: a full render() would refetch feed.json and
+  // rebuild the whole view (losing scroll position, and the picker itself
+  // until the network answers) for what is a pure in-memory flag.
+  function overloadPickerCard(todos) {
+    var wrap = el("div", "overload-pick");
+    wrap.appendChild(el("div", "home-today-head", "Tap the tasks to move"));
+
+    // Drop ids that are no longer on the list (completed or moved elsewhere),
+    // so the counter and the move can never act on a row that isn't shown.
+    var live = {};
+    todos.forEach(function (t) { live[t.id] = true; });
+    Object.keys(overloadSel).forEach(function (id) { if (!live[id]) delete overloadSel[id]; });
+
+    var bar = el("div", "overload-bar");
+    var barLabel = el("span", "overload-bar-label", "");
+    var targetBtns = [];
+
+    function syncBar() {
+      var n = Object.keys(overloadSel).length;
+      barLabel.textContent = n ? "Move " + n + " to:" : "Nothing picked yet";
+      targetBtns.forEach(function (b) { b.disabled = n === 0; });
+    }
+
+    var list = el("div", "todo-list");
+    todos.forEach(function (t) {
+      var row = el("div", "todo-row overload-row");
+      var chk = document.createElement("button");
+      chk.type = "button";
+      chk.className = "todo-check overload-check";
+      chk.innerHTML = CHECK_ICON;
+      chk.tabIndex = -1;              // the row itself is the control
+      chk.setAttribute("aria-hidden", "true");
+      row.appendChild(chk);
+      var tw = el("div", "todo-text-wrap");
+      tw.appendChild(el("div", "todo-text", t.text));
+      var dueLabel = todoDueLabel(t);
+      if (dueLabel) tw.appendChild(el("div", "todo-due", dueLabel));
+      row.appendChild(tw);
+
+      row.setAttribute("role", "checkbox");
+      row.tabIndex = 0;
+      function paint() {
+        var sel = !!overloadSel[t.id];
+        row.classList.toggle("overload-row-sel", sel);
+        chk.classList.toggle("overload-check-sel", sel);
+        row.setAttribute("aria-checked", sel ? "true" : "false");
+        row.setAttribute("aria-label", (sel ? "Deselect: " : "Select: ") + t.text);
+      }
+      function toggle() {
+        if (overloadSel[t.id]) delete overloadSel[t.id]; else overloadSel[t.id] = true;
+        paint(); syncBar();
+      }
+      row.addEventListener("click", toggle);
+      row.addEventListener("keydown", function (e) {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); }
+      });
+      paint();
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+
+    bar.appendChild(barLabel);
+    overloadTargets().forEach(function (tgt) {
+      var b = el("button", "btn btn-primary", tgt.label); b.type = "button";
+      b.addEventListener("click", function () { moveTodosTo(Object.keys(overloadSel), tgt.ymd, tgt.label); render(); });
+      targetBtns.push(b);
+      bar.appendChild(b);
+    });
+    var cancel = el("button", "btn btn-ghost", "Cancel"); cancel.type = "button";
+    cancel.addEventListener("click", function () { overloadReset(); render(); });
+    bar.appendChild(cancel);
+    syncBar();
+    wrap.appendChild(bar);
+    return wrap;
+  }
+
   function appendUrgentCards(container) {
     if (!window.ItemUI || !window.DayModel) return;
     var today = localDateStr();
+
+    var oChores = overdueChores();
+    var oTodos = overdueTodos();
+    var chores = dueTodayChores();
+    var todos = dueTodayTodos();
+
+    // A new day ends picking mode: yesterday's selection means nothing now,
+    // and Today must never open straight into the picker without the banner.
+    if (overloadPicking && overloadPickDay !== today) overloadReset();
+
+    if (overloadPicking) {
+      var movable = oTodos.concat(todos);
+      if (movable.length) {
+        container.appendChild(overloadPickerCard(movable));
+        oTodos = []; todos = [];   // the to-dos live in the picker; chores render as usual below
+      } else {
+        overloadReset();           // nothing left to move (completed elsewhere)
+      }
+    } else if (oTodos.length + todos.length >= OVERLOAD_MIN &&
+               localStorage.getItem(k("today.overloadAsked")) !== today) {
+      container.appendChild(overloadBanner(oTodos.length + todos.length));
+    }
 
     // Overdue first — most pressing. The row carries the MISSED occurrence
     // (progress.prevDue) so "Postpone this day" moves that occurrence instead
     // of writing an exception on today; ticking still marks it done today
     // (the itemui tick guard only refuses FUTURE days).
-    var oChores = overdueChores();
-    var oTodos = overdueTodos();
     if (oChores.length || oTodos.length) {
       container.appendChild(el("div", "home-today-head home-overdue-head", "Overdue"));
       var oList = el("div", "cal-item-list home-today-list");
@@ -2233,8 +2412,6 @@
       container.appendChild(oList);
     }
 
-    var chores = dueTodayChores();
-    var todos = dueTodayTodos();
     if (!chores.length && !todos.length) return;
     container.appendChild(el("div", "home-today-head", "Today"));
     var list = el("div", "cal-item-list home-today-list");
