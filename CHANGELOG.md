@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-25 (v2026.08.25-1) — Bulk-verplaatsen van to-do's: banner op Today bij een volle dag, vaste knop in de agenda ('All')
+
+
 ## 2026-08-24 (v2026.08.24-2) — Spotinus: de rasgroepquiz gebruikt de kaart uit Bladeren
 
 De drie kaartjes in de rasgroepquiz waren losse foto's met een bijschrift; nu zijn het de
