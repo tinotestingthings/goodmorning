@@ -174,7 +174,39 @@
     return seg;
   }
   function goToday(){ var n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); selectedDate=todayStr(); searchOpen=false; render(); }
-  function setView(v){ viewMode=v; saveViewMode(v); searchOpen=false; render(); }
+  function setView(v){ viewMode=v; saveViewMode(v); searchOpen=false; bulkExit(); render(); }
+
+  // ---- bulk-move ("All" view): pick several to-dos, push them to one day ----
+  // Always available here, unlike Today's banner which only appears when the
+  // day is stacked. The move itself is DayModel.moveTodosTo, shared with home.
+  var bulkMode=false, bulkSel={};
+  function bulkExit(){ bulkMode=false; bulkSel={}; }
+  function bulkToggle(id){ if(bulkSel[id])delete bulkSel[id]; else bulkSel[id]=true; }
+  var BULK_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  // Sticky action bar; targets come from DayModel so "All" and Today agree.
+  function bulkBar(){
+    var bar=el("div","bulk-bar");
+    var label=el("span","bulk-bar-label","");
+    var btns=[];
+    function sync(){ var n=Object.keys(bulkSel).length;
+      label.textContent=n?("Move "+n+" to:"):"Tap to-dos to pick them";
+      btns.forEach(function(b){ b.disabled=n===0; }); }
+    bar.appendChild(label);
+    (M.moveTargets?M.moveTargets():[]).forEach(function(tgt){
+      var b=el("button","btn btn-primary",tgt.label); b.type="button";
+      b.addEventListener("click",function(){
+        var moved=M.moveTodosTo(Object.keys(bulkSel),tgt.ymd);
+        bulkExit(); M.toast("Pushed "+moved+" to "+tgt.label.toLowerCase()); render();
+      });
+      btns.push(b); bar.appendChild(b);
+    });
+    var c=el("button","btn btn-ghost","Done"); c.type="button";
+    c.addEventListener("click",function(){ bulkExit(); render(); });
+    bar.appendChild(c);
+    bar.__sync=sync; sync();
+    return bar;
+  }
 
   // Google-Calendar-style left drawer holding all the controls that used to
   // crowd the top: Today, every view, Search, Work schedule, Plan work.
@@ -508,6 +540,7 @@
   }
   function linkChip(url){ var a=document.createElement("a"); a.className="cal-link-chip"; a.href=url; a.target="_blank"; a.rel="noopener noreferrer"; a.textContent="🔗"; a.addEventListener("click",function(e){ e.stopPropagation(); }); return a; }
   function todoItem(t,grid,swipe){
+    if(bulkMode) return bulkTodoItem(t);
     var row=el("div","cal-item"); row.setAttribute("data-todo",t.id);
     var cb=catBar(t.category); if(cb)row.appendChild(cb);
     var chk=check(t.done,function(){ completeTodoToggle(t,chk); });
@@ -727,15 +760,54 @@
     while(d<=end){ var ds=ymd(d); var ch=choresOn(ds), td=todosOn(ds), ev=icsOn(ds), at=attentOn(ds); if(ch.length||td.length||ev.length||at.length)out.push({ds:ds,chores:ch,todos:td,events:ev,attent:at}); d=addDays(d,1); }
     return out;
   }
+  // Selection row: no complete/hold/edit affordances — in this mode a tap means
+  // "pick", nothing else. Completed to-dos can't move, so they stay locked.
+  function bulkTodoItem(t){
+    var row=el("div","cal-item bulk-row"+(t.done?" cal-item-locked":""));
+    row.setAttribute("data-todo",t.id);
+    var cb=catBar(t.category); if(cb)row.appendChild(cb);
+    var chk=el("button","cal-bulk-check"); chk.type="button"; chk.innerHTML=BULK_CHECK;
+    chk.tabIndex=-1; chk.setAttribute("aria-hidden","true");
+    row.appendChild(chk);
+    var body=el("div","cal-item-body");
+    var tw=el("div","cal-item-titlewrap");
+    tw.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
+    if(t.snoozes>0)tw.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×"));
+    body.appendChild(tw);
+    var sub=[]; if(t.startTime)sub.push(t.startTime); sub.push(t.done?"Done — can't move":"To-do");
+    body.appendChild(el("div","cal-item-sub",sub.join(" · ")));
+    row.appendChild(body);
+    if(t.done) return row;
+    row.setAttribute("role","checkbox"); row.tabIndex=0;
+    function paint(){ var sel=!!bulkSel[t.id];
+      row.classList.toggle("bulk-row-sel",sel); chk.classList.toggle("bulk-check-sel",sel);
+      row.setAttribute("aria-checked",sel?"true":"false");
+      row.setAttribute("aria-label",(sel?"Deselect: ":"Select: ")+t.text); }
+    function hit(){ bulkToggle(t.id); paint();
+      var bar=document.querySelector(".bulk-bar"); if(bar&&bar.__sync)bar.__sync(); }
+    row.addEventListener("click",hit);
+    row.addEventListener("keydown",function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hit(); } });
+    paint();
+    return row;
+  }
+
   function buildAgenda(){
     var wrap=el("div","cal-agenda");
-    wrap.appendChild(buildAddArea(todayStr(),"+ Add task"));
+    if(!bulkMode){
+      wrap.appendChild(buildAddArea(todayStr(),"+ Add task"));
+      var start=el("div","cal-bulk-start");
+      var sb=el("button","btn btn-ghost","⇉  Move several…"); sb.type="button";
+      sb.addEventListener("click",function(){ bulkMode=true; bulkSel={}; render(); });
+      start.appendChild(sb); wrap.appendChild(start);
+    }
     var overdue=overdueTodos();
     if(overdue.length){ wrap.appendChild(el("h3","cal-agenda-head cal-overdue-head","Overdue"));
       var ol=el("div","cal-item-list"); overdue.forEach(function(t){ ol.appendChild(todoItem(t,false,true)); }); wrap.appendChild(ol);
     }
     var groups=collectRange(todayStr(),ymd(addDays(new Date(),45)));
-    if(!groups.length && !overdue.length){ wrap.appendChild(el("p","cal-empty","Nothing coming up.")); return wrap; }
+    if(!groups.length && !overdue.length){ wrap.appendChild(el("p","cal-empty","Nothing coming up."));
+      if(bulkMode) wrap.appendChild(bulkBar());
+      return wrap; }
     groups.forEach(function(g){
       wrap.appendChild(el("h3","cal-agenda-head", g.ds===todayStr()?"Today · "+niceDay(g.ds):niceDay(g.ds)));
       var list=el("div","cal-item-list");
@@ -745,6 +817,7 @@
       (g.attent||[]).forEach(function(a){ list.appendChild(attentItem(a,g.ds)); });
       wrap.appendChild(list);
     });
+    if(bulkMode) wrap.appendChild(bulkBar());
     return wrap;
   }
   function overdueTodos(){ var today=todayStr(); return M.loadTodos().filter(function(t){ return !t.done && t.dueDate && t.dueDate<today && catOk(t); }); }
@@ -1640,5 +1713,5 @@
     editTodo: function(t){ if(t&&t.dueDate){ var d=parseYmd(t.dueDate); viewYear=d.getFullYear(); viewMonth=d.getMonth(); selectedDate=t.dueDate; } openTodoEditor(t); },
     editChore: function(c){ openChoreEditor(c); }
   };
-  if(window.App && window.App.onShow) window.App.onShow("calendar",function(){ addMode=null; searchOpen=false; render(); });
+  if(window.App && window.App.onShow) window.App.onShow("calendar",function(){ addMode=null; searchOpen=false; bulkExit(); render(); });
 })();

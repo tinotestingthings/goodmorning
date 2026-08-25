@@ -2232,7 +2232,8 @@
   // day twice (on a Sunday "next Monday" IS tomorrow; on a Friday so is
   // "Saturday"). nudgeToWeekday lands on the first matching weekday from a
   // date onwards, counting from tomorrow so a target is never today.
-  function overloadTargets() {
+  // Exported on DayModel — the calendar's "All" view offers the same targets.
+  function moveTargets() {
     var tom = new Date();
     tom.setDate(tom.getDate() + 1);
     var cands = [
@@ -2255,9 +2256,9 @@
   // multi-day to-do keeps its span (endDate shifts along) and snoozes ticks up.
   // Only still-open to-dos move — a selected row the user completed on another
   // device in the meantime must not be resurrected on the target day.
-  // ponytail: fourth copy of the span shift (itemui snoozeTodo, calendar
-  // moveTodo/postpone); lift into DayModel if a fifth caller shows up.
-  function moveTodosTo(ids, ymdStr, label) {
+  // Pure data operation, exported on DayModel and shared with the calendar's
+  // "All" view; returns how many to-dos actually moved.
+  function moveTodosTo(ids, ymdStr) {
     var byId = {};
     ids.forEach(function (id) { byId[id] = true; });
     var list = loadTodos(), moved = 0;
@@ -2275,9 +2276,7 @@
       moved++;
     });
     saveTodos(list);
-    overloadReset();
-    markOverloadAsked();
-    toast("Pushed " + moved + " to " + label.toLowerCase());
+    return moved;
   }
 
   function markOverloadAsked() {
@@ -2302,7 +2301,7 @@
   // rebuild the whole view (losing scroll position, and the picker itself
   // until the network answers) for what is a pure in-memory flag.
   function overloadPickerCard(todos) {
-    var wrap = el("div", "overload-pick");
+    var wrap = el("div", "bulk-pick");
     wrap.appendChild(el("div", "home-today-head", "Tap the tasks to move"));
 
     // Drop ids that are no longer on the list (completed or moved elsewhere),
@@ -2311,8 +2310,8 @@
     todos.forEach(function (t) { live[t.id] = true; });
     Object.keys(overloadSel).forEach(function (id) { if (!live[id]) delete overloadSel[id]; });
 
-    var bar = el("div", "overload-bar");
-    var barLabel = el("span", "overload-bar-label", "");
+    var bar = el("div", "bulk-bar");
+    var barLabel = el("span", "bulk-bar-label", "");
     var targetBtns = [];
 
     function syncBar() {
@@ -2323,10 +2322,10 @@
 
     var list = el("div", "todo-list");
     todos.forEach(function (t) {
-      var row = el("div", "todo-row overload-row");
+      var row = el("div", "todo-row bulk-row");
       var chk = document.createElement("button");
       chk.type = "button";
-      chk.className = "todo-check overload-check";
+      chk.className = "todo-check bulk-check";
       chk.innerHTML = CHECK_ICON;
       chk.tabIndex = -1;              // the row itself is the control
       chk.setAttribute("aria-hidden", "true");
@@ -2341,8 +2340,8 @@
       row.tabIndex = 0;
       function paint() {
         var sel = !!overloadSel[t.id];
-        row.classList.toggle("overload-row-sel", sel);
-        chk.classList.toggle("overload-check-sel", sel);
+        row.classList.toggle("bulk-row-sel", sel);
+        chk.classList.toggle("bulk-check-sel", sel);
         row.setAttribute("aria-checked", sel ? "true" : "false");
         row.setAttribute("aria-label", (sel ? "Deselect: " : "Select: ") + t.text);
       }
@@ -2360,9 +2359,15 @@
     wrap.appendChild(list);
 
     bar.appendChild(barLabel);
-    overloadTargets().forEach(function (tgt) {
+    moveTargets().forEach(function (tgt) {
       var b = el("button", "btn btn-primary", tgt.label); b.type = "button";
-      b.addEventListener("click", function () { moveTodosTo(Object.keys(overloadSel), tgt.ymd, tgt.label); render(); });
+      b.addEventListener("click", function () {
+        var moved = moveTodosTo(Object.keys(overloadSel), tgt.ymd);
+        overloadReset();
+        markOverloadAsked();
+        toast("Pushed " + moved + " to " + tgt.label.toLowerCase());
+        render();
+      });
       targetBtns.push(b);
       bar.appendChild(b);
     });
@@ -2892,6 +2897,8 @@
   // edit the exact same chores/to-dos (single source of truth — the calendar
   // must not fork the data model or the recurrence math).
   window.DayModel = {
+    moveTodosTo: moveTodosTo,
+    moveTargets: moveTargets,
     loadTodos: loadTodos,
     saveTodos: saveTodos,
     logTodoHistory: logTodoHistory,
