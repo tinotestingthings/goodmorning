@@ -1,0 +1,194 @@
+(function (global) {
+  "use strict";
+
+  // Segue-engine: een rijtje YouTube-fragmenten achter elkaar afspelen, harde
+  // cut op de eindtijd. Twee helften, los bruikbaar:
+  //   codec  — link <-> [{id, start, end, label}]   pure functies, geen DOM
+  //   speler — Segue.play(el, clips, opts)          YT IFrame API
+  // Geen opslag, geen state: de link *is* de opslag. Payload is dezelfde als
+  // die van segue.video/watch#…, dus links zijn beide kanten op uitwisselbaar.
+  //
+  // Eén afspraak: end <= start betekent "tot het einde van de video".
+
+  var API_SRC = "https://www.youtube.com/iframe_api";
+  var SEGUE_URL = "https://segue.video/watch#";
+
+  // ---- codec ---------------------------------------------------------------
+
+  // btoa() struikelt over accenten; via UTF-8-bytes niet.
+  function b64(s) {
+    return btoa(String.fromCharCode.apply(null, new TextEncoder().encode(s)));
+  }
+  function unb64(s) {
+    s = String(s).replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    return new TextDecoder().decode(Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0); }));
+  }
+
+  // "1:02:03" | "4:20" | "83" | "1m23s" -> seconden; NaN als het geen tijd is.
+  function seconds(v) {
+    if (typeof v === "number") return isFinite(v) && v > 0 ? v : 0;
+    var s = String(v == null ? "" : v).trim();
+    if (!s) return 0;
+    var u = s.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?$/i);
+    if (u && (u[1] || u[2] || u[3])) return (+u[1] || 0) * 3600 + (+u[2] || 0) * 60 + (+u[3] || 0);
+    var parts = s.split(":").map(Number);
+    if (!parts.length || parts.some(function (n) { return isNaN(n) || n < 0; })) return NaN;
+    return parts.reduce(function (t, n) { return t * 60 + n; }, 0);
+  }
+
+  function clock(sec) {
+    sec = Math.max(0, Math.round(seconds(sec) || 0));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, s = sec % 60;
+    var mm = h ? String(m).padStart(2, "0") : String(m);
+    return (h ? h + ":" : "") + mm + ":" + String(s).padStart(2, "0");
+  }
+
+  // Losse id, of elke YouTube-URL-vorm (watch, youtu.be, embed, shorts, live).
+  function videoId(url) {
+    var s = String(url == null ? "" : url).trim();
+    if (/^[\w-]{11}$/.test(s)) return s;
+    var m = s.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  // De velden die één clip in de tekstvorm beschrijven; komma's, pipes en
+  // tildes zijn scheidingstekens, dus die kunnen niet in een label staan.
+  function clean(s) { return String(s == null ? "" : s).replace(/[,|~]/g, " ").replace(/\s+/g, " ").trim(); }
+
+  function encode(clips, opts) {
+    opts = opts || {};
+    var body = (clips || []).map(function (c) {
+      var start = Math.round(seconds(c.start) || 0);
+      var end = Math.round(seconds(c.end) || 0);
+      return [videoId(c.id) || "", start, end, clean(c.label)].join(",");
+    }).join("|");
+    return b64(["2", clean(opts.title) || "Clips", opts.transition || "hard-cut", body].join("~"));
+  }
+
+  function build(clips, opts) { return SEGUE_URL + encode(clips, opts); }
+
+  // Slikt een hele segue-link, een eigen #hash of kaal base64. null = onleesbaar.
+  function parse(link) {
+    var raw = String(link == null ? "" : link).trim();
+    var hash = raw.indexOf("#") >= 0 ? raw.slice(raw.indexOf("#") + 1) : raw;
+    var text;
+    try { text = unb64(hash); } catch (e) { return null; }
+    var f = text.split("~");
+    if (f.length < 4) return null;
+    var clips = f.slice(3).join("~").split("|").map(function (part) {
+      var p = part.split(",");
+      var id = videoId(p[0]);
+      if (!id) return null;
+      var start = seconds(p[1]), end = seconds(p[2]);
+      return { id: id, start: isNaN(start) ? 0 : start, end: isNaN(end) ? 0 : end, label: (p[3] || "").trim() };
+    }).filter(Boolean);
+    return clips.length ? { version: f[0], title: f[1], transition: f[2], clips: clips } : null;
+  }
+
+  // ---- speler --------------------------------------------------------------
+
+  var apiReady = null;
+  function loadApi() {
+    if (apiReady) return apiReady;
+    apiReady = new Promise(function (resolve, reject) {
+      if (global.YT && global.YT.Player) return resolve(global.YT);
+      var prev = global.onYouTubeIframeAPIReady;
+      global.onYouTubeIframeAPIReady = function () {
+        if (typeof prev === "function") prev();
+        resolve(global.YT);
+      };
+      var s = document.createElement("script");
+      s.src = API_SRC;
+      // Offline of YouTube geblokkeerd: melden, en een volgende poging opnieuw
+      // toestaan in plaats van een belofte die nooit oplost.
+      s.onerror = function () { apiReady = null; reject(new Error("iframe_api")); };
+      document.head.appendChild(s);
+    });
+    return apiReady;
+  }
+
+  // el wordt vervangen door de iframe. Terug: {next, prev, go, pause, resume,
+  // index, destroy}. opts: {onChange(i, clip), onEnd(), onError(reden, i, clip),
+  // autoplay}. reden is "clip" (deze video speelt niet) of "api" (geen speler).
+  function play(el, clips, opts) {
+    if (!el || !clips || !clips.length) return null;
+    opts = opts || {};
+    var i = 0, player = null, timer = null, ended = false, dead = false, switched = 0;
+
+    function fail(why) { if (opts.onError) opts.onError(why, i, clips[i]); }
+
+    function go(n) {
+      if (dead || !player) return;
+      i = Math.min(Math.max(n, 0), clips.length - 1);
+      ended = false;
+      var c = clips[i];
+      switched = Date.now();
+      // ponytail: altijd herladen — seekTo binnen dezelfde video zou vloeiender
+      // zijn, doe dat pas als opeenvolgende clips uit één video hinderlijk haperen.
+      player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
+      if (opts.onChange) opts.onChange(i, c);
+    }
+
+    function advance() {
+      if (i + 1 < clips.length) return go(i + 1);
+      if (ended) return;
+      ended = true;
+      try { player.pauseVideo(); } catch (e) {}
+      if (opts.onEnd) opts.onEnd();
+    }
+
+    // YouTube's eigen endSeconds mist de cut soms een halve seconde; deze tik
+    // is de echte schaar, het ENDED-event hieronder is het vangnet.
+    function tick() {
+      if (!player || !player.getCurrentTime || player.getPlayerState() !== 1) return;
+      var c = clips[i];
+      if (c && c.end > c.start && player.getCurrentTime() >= c.end - 0.15) advance();
+    }
+
+    loadApi().catch(function () { if (!dead) fail("api"); return null; }).then(function (YT) {
+      if (dead || !YT) return;
+      player = new YT.Player(el, {
+        videoId: clips[0].id,
+        playerVars: {
+          start: Math.round(clips[0].start),
+          end: clips[0].end > clips[0].start ? Math.round(clips[0].end) : undefined,
+          autoplay: opts.autoplay === false ? 0 : 1,
+          rel: 0, playsinline: 1, modestbranding: 1
+        },
+        events: {
+          onReady: function () {
+            if (dead) return;
+            timer = setInterval(tick, 250);
+            if (opts.onChange) opts.onChange(0, clips[0]);
+          },
+          // Vangnet als de tik de cut mist. Vlak na een wissel niet: dan is dit
+          // het late einde van de vórige clip en zou het er een overslaan.
+          onStateChange: function (e) { if (e.data === 0 && Date.now() - switched > 1000) advance(); },
+          // Verwijderde of niet-insluitbare video: doorlopen, niet blijven hangen.
+          onError: function () { fail("clip"); advance(); }
+        }
+      });
+    });
+
+    return {
+      next: function () { advance(); },
+      prev: function () { go(i - 1); },
+      go: go,
+      pause: function () { try { player.pauseVideo(); } catch (e) {} },
+      resume: function () { try { player.playVideo(); } catch (e) {} },
+      index: function () { return i; },
+      destroy: function () {
+        dead = true;
+        clearInterval(timer);
+        try { player && player.destroy(); } catch (e) {}
+      }
+    };
+  }
+
+  global.Segue = {
+    SEGUE_URL: SEGUE_URL,
+    seconds: seconds, clock: clock, videoId: videoId,
+    encode: encode, build: build, parse: parse, play: play
+  };
+})(typeof window !== "undefined" ? window : globalThis);

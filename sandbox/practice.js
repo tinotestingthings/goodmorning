@@ -24,6 +24,8 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
     luisterinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>',
+    clipinus:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.2 7.6 20 18M20 6 8.2 16.4"/></svg>',
     attentinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>'
   };
@@ -37,7 +39,8 @@
     { key: "vogelspotinus", label: "Vogelspotinus", url: "vogelspotinus/index.html" },
     { key: "events", label: "Events", url: "events/index.html" },
     { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" },
-    { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" }
+    { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" },
+    { key: "clipinus", label: "Clipinus", url: "clipinus/index.html" }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
