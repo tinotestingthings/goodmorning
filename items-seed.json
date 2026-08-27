@@ -524,7 +524,7 @@
   "title": "Ecosystem explainer — script & storyboard (Remotion)",
   "note": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Korte explainer-video voor in een presentatie, over hoe kennis het systeem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.",
   "subtasks": [],
-  "state": "active",
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -543,6 +543,16 @@
   "type": "project",
   "title": "Be better with Claude",
   "note": "<!-- app-subtasks:start -->",
+  "subtasks": [],
+  "state": "active",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-27-optimize-productivity-workflow",
+  "type": "project",
+  "title": "Optimize productivity workflow",
+  "note": "",
   "subtasks": [],
   "state": "active",
   "source": "vault",
