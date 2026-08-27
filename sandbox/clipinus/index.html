@@ -38,8 +38,9 @@
     .clip .l { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #out { display: none; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
     #out.on { display: flex; }
-    #msg { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }
-    #msg:empty { display: none; }
+    #msg, #sum { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }
+    #msg:empty, #sum:empty { display: none; }
+    #sum { margin: 12px 0 0; }
     #msg.bad { color: var(--red); }
   </style>
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
@@ -58,6 +59,7 @@
 
   <p id="msg"></p>
   <div id="stage"></div>
+  <p id="sum"></p>
   <ol id="clips"></ol>
 
   <div id="out">

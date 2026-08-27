@@ -7,7 +7,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var box = $("script"), msg = $("msg"), stage = $("stage"), list = $("clips"),
-      out = $("out"), copyBtn = $("copy"), segueLink = $("segue");
+      out = $("out"), copyBtn = $("copy"), segueLink = $("segue"), sum = $("sum");
   var ctl = null, current = [];
 
   // "0:43-1:02 Refrein", met de video-regel erboven (of ervoor op dezelfde regel).
@@ -40,6 +40,15 @@
     return lines.join("\n");
   }
 
+  // "3 fragmenten \u00b7 1:12" — met een + als er een fragment tot het eind van
+  // de video doorloopt, want die lengte weten we hier nog niet.
+  function summary(clips) {
+    var known = clips.filter(function (c) { return c.end > c.start; });
+    var total = known.reduce(function (t, c) { return t + (c.end - c.start); }, 0);
+    var n = clips.length + " fragment" + (clips.length === 1 ? "" : "en");
+    return total ? n + " \u00b7 " + Segue.clock(total) + (known.length < clips.length ? "+" : "") : n;
+  }
+
   function say(text, bad) {
     msg.textContent = text || "";
     msg.className = bad ? "bad" : "";
@@ -68,6 +77,7 @@
     if (replaceHash !== false) history.replaceState(null, "", "#" + hash);
     segueLink.href = Segue.SEGUE_URL + hash;
     out.className = "on";
+    sum.textContent = summary(clips);
     render(clips, 0);
 
     // YT.Player vervangt het element, dus elke keer een verse div in het kader.
@@ -95,7 +105,7 @@
 
   $("clear").onclick = function () {
     if (ctl) { ctl.destroy(); ctl = null; }
-    box.value = ""; list.innerHTML = ""; say("");
+    box.value = ""; list.innerHTML = ""; say(""); sum.textContent = "";
     stage.className = ""; stage.innerHTML = ""; out.className = "";
     history.replaceState(null, "", location.pathname + location.search);
   };
