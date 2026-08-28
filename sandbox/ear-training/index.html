@@ -54,7 +54,26 @@
 #clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
 #clipStage.on{display:block}
 #clipStage iframe{width:100%;height:100%;border:0;display:block}
-#clipTarget{width:100%}
+#clipRuler .rRow{display:flex;gap:1px;margin:8px 0 2px}
+#clipRuler .rSlot{flex:1;height:26px;border-radius:3px;background:var(--btn);display:flex;align-items:flex-end;justify-content:center}
+#clipRuler .rSlot span{font-size:9px;line-height:12px;color:var(--muted)}
+#clipRuler .rSlot.rIn{background:var(--line)}
+#clipRuler .rSlot.rIn span{color:var(--text)}
+#clipRuler .rSlot.rHeeft{box-shadow:inset 0 -3px 0 var(--good)}
+#clipRuler .rSlot.rTonic{background:var(--text)}
+#clipRuler .rSlot.rTonic span{color:var(--card)}
+#clipRuler .rSlot.rNu{background:var(--accent)}
+#clipRuler .rSlot.rNu span{color:#fff}
+#clipRuler .rLegend{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:8px}
+.cRow{display:flex;gap:2px;margin-bottom:4px}
+.cChip{flex:1;min-width:0;padding:4px 0;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--text);display:flex;flex-direction:column;align-items:center;cursor:pointer;font:inherit}
+.cChip b{font-size:10px;font-weight:700;line-height:13px}
+.cChip i{font-size:9px;font-style:normal;line-height:11px;color:var(--muted)}
+.cChip.cUit{opacity:.45}
+.cChip.cLeeg{border-style:dashed}
+.cChip.cNu{border-color:var(--accent);background:var(--btn)}
+.cChip.cStap{flex:0 0 auto;padding:4px 10px}
+#clipWhere{margin:2px 0 0}
 .clipTest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .clipTest .small{flex:1;min-width:150px}
 #clipLog div{padding:3px 0;border-bottom:1px solid var(--line);font-size:.85rem;color:var(--muted)}
@@ -382,12 +401,21 @@
     <div class="top"><div><div class="logo">Clip lab</div><div class="version">Meetbank voor YouTube-fragmenten</div></div><button class="btn ghost" id="clipsBackBtn">Done</button></div>
     <div class="card">
       <div class="label">Fragment</div>
-      <select id="clipTarget"></select>
+      <div id="clipRuler"></div>
+      <div id="clipChips"></div>
+      <p class="small" id="clipWhere"></p>
       <div id="clipStage"></div>
       <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
       <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
+      <div class="split"><button class="btn ghost" id="clipRehang">Verhang naar…</button><button class="btn ghost" id="clipProgAdd">+ stap</button></div>
       <p class="small" id="clipMsg"></p>
       <p class="small">De 24 hoofdstukken zijn nog hele hoofdstukken. Speel er een, en tik Start/Eind hier op het moment dat je wilt overhouden. Binnen dezelfde video springt de speler, dus reclame komt één keer; wisselen tussen omhoog en omlaag laadt opnieuw en kan weer een reclame kosten. 'Speler weg' begint sowieso opnieuw.</p>
+    </div>
+    <div class="card">
+      <div class="label">Progressie</div>
+      <div id="clipProg"></div>
+      <div class="split"><button class="btn primary" id="clipProgPlay">▶ Speel reeks</button><button class="btn ghost" id="clipProgClear">Leeg</button></div>
+      <p class="small">Stappen achter elkaar afgespeeld. Zelfde video = springen, dus geen reclame tussen de stappen.</p>
     </div>
     <div class="card">
       <div class="label">Proeven</div>
@@ -1759,7 +1787,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={};
+let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={},clipVerhangen=false;
 const clipOut={};
 
 function clipDefaultText(){
@@ -1936,6 +1964,149 @@ function clipEdge(which){
   clipSay((which==='start'?'Start':'Eind')+' op '+Segue.clock(which==='start'?c.start:c.end)+' gezet.');
 }
 
+/* ---- De liniaal: twee octaven met de 1 in het midden -----------------------
+   Elk van de 24 fragmenten is één halve toon van de grondtoon af: -12 tot +12,
+   zonder de 0. Dat is precies twee octaven, en dus valt de hele
+   fragmentenverzameling op één rij. Welke landingen in de toonladder vallen
+   hangt van majeur/mineur af (scaleDefs), dus de kleuren schuiven mee met de
+   toonsoort die je in Settings kiest. */
+const PC_NAAM=['1','♭2','2','♭3','3','4','♭5','5','♭6','6','♭7','7'];
+
+// "m3 ↑" -> +3 halve tonen, "P4 ↓" -> -5. null als het label geen beweging is.
+function clipOffsetVan(c){
+  const m=String(c&&c.label||'').match(/(m2|M2|m3|M3|P4|TT|P5|m6|M6|m7|M7|P8)\s*(↑|↓)/);
+  if(!m)return null;
+  const semi=intervalDefs[m[1]]?.semitones;
+  if(!semi)return null;
+  return m[2]==='↑'?semi:-semi;
+}
+function clipIntervalVan(off){
+  const semi=Math.abs(off);
+  const iv=intervalAll.find(k=>intervalDefs[k]?.semitones===semi);
+  return iv?{interval:iv,richting:off<0?'↓':'↑'}:null;
+}
+// Waar komt deze beweging uit: graad, akkoordcijfer, en of hij in de toonladder valt.
+function clipLanding(off){
+  const pc=((off%12)+12)%12;
+  const steps=scaleDefs[currentMode]?.steps||{};
+  const graad=Object.keys(steps).find(d=>steps[d]===pc)||null;
+  // omhoog heet de tritonus ♯4, omlaag ♭5 — zelfde toets, andere richting
+  const naam=(pc===6&&off>0)?'♯4':PC_NAAM[pc];
+  return {pc,naam,graad,roman:graad?scaleDefs[currentMode].romans[graad]:null,onder:off<0};
+}
+function clipLandingText(off){
+  const l=clipLanding(off),iv=clipIntervalVan(off);
+  if(!iv)return '';
+  const richting=off<0?'omlaag':'omhoog';
+  const waar=l.graad
+    ?'komt uit op de '+l.graad+' ('+l.roman+') '+(l.onder?'onder':'boven')+' de 1'
+    :'komt uit op de '+l.naam+' — buiten de toonladder';
+  return iv.interval+' '+richting+' · '+waar;
+}
+/* Fragmenten per beweging. Er mogen er meer dan één op dezelfde beweging staan;
+   herhaald tikken bladert erdoorheen. Zo kan een fragment nooit achter een
+   ander verdwijnen — en hoeft verhangen niet te ruilen. */
+function clipPerBeweging(){
+  const uit={};
+  clipList().forEach((c,i)=>{const o=clipOffsetVan(c);if(o!==null)(uit[o]=uit[o]||[]).push(i)});
+  return uit;
+}
+function clipHuidigeOffset(){
+  const c=clipList()[clipIdx];
+  return c?clipOffsetVan(c):null;
+}
+
+function renderClipLiniaal(){
+  const el=$('clipRuler');
+  if(!el)return;
+  const perBew=clipPerBeweging(),hier=clipHuidigeOffset();
+  let html='';
+  for(let off=-12;off<=12;off++){
+    const l=clipLanding(off);
+    const klas=['rSlot'];
+    if(off===0)klas.push('rTonic');
+    if(l.graad)klas.push('rIn');
+    if(off!==0&&perBew[off])klas.push('rHeeft');
+    if(off!==0&&off===hier)klas.push('rNu');
+    html+='<div class="'+klas.join(' ')+'"><span>'+(l.graad?l.graad:'')+'</span></div>';
+  }
+  el.innerHTML='<div class="rRow">'+html+'</div><div class="rLegend"><span>octaaf onder</span><span>1</span><span>octaaf boven</span></div>';
+}
+function renderClipChips(){
+  const el=$('clipChips');
+  if(!el)return;
+  const perBew=clipPerBeweging(),hier=clipHuidigeOffset();
+  const rij=(richting,teken)=>intervalAll.map(iv=>{
+    const off=(richting==='down'?-1:1)*(intervalDefs[iv]?.semitones||0);
+    const l=clipLanding(off),lijst=perBew[off];
+    const klas=['cChip',l.graad?'cIn':'cUit',lijst?'cHeeft':'cLeeg',off===hier?'cNu':''].join(' ');
+    return '<button type="button" class="'+klas+'" data-clipmove="'+off+'"><b>'+iv+teken+'</b><i>'+l.naam+(lijst&&lijst.length>1?' ·'+lijst.length:'')+'</i></button>';
+  }).join('');
+  // Fragmenten waarvan het label geen beweging is, blijven anders onbereikbaar:
+  // de chips hierboven kennen ze niet en een keuzelijst is er niet meer.
+  const los=clipList().map((c,i)=>({c,i})).filter(x=>clipOffsetVan(x.c)===null);
+  const rijLos=los.length
+    ?'<p class="small">Zonder beweging:</p><div class="cRow">'+los.map(x=>
+        '<button type="button" class="cChip cUit cHeeft'+(x.i===clipIdx?' cNu':'')+'" data-clipclip="'+x.i+'"><b>'+htmlEscape(String(x.c.label||'?').slice(0,6))+'</b><i>'+Segue.clock(x.c.start)+'</i></button>').join('')+'</div>'
+    :'';
+  el.innerHTML='<div class="cRow">'+rij('down','↓')+'</div><div class="cRow">'+rij('up','↑')+'</div>'+rijLos;
+  el.querySelectorAll('[data-clipmove]').forEach(b=>b.onclick=()=>clipKiesBeweging(+b.dataset.clipmove));
+  el.querySelectorAll('[data-clipclip]').forEach(b=>b.onclick=()=>{clipVerhangen=false;clipPlay(+b.dataset.clipclip);renderClipLab()});
+}
+function clipKiesBeweging(off){
+  if(clipVerhangen){clipVerhangNaar(off);return}
+  const lijst=clipPerBeweging()[off];
+  if(!lijst){
+    clipSay('Nog geen fragment op '+clipLandingText(off)+'.');
+    renderClipLab();
+    return;
+  }
+  // staat er al een van deze beweging? dan de volgende
+  const n=lijst.indexOf(clipIdx);
+  clipPlay(lijst[(n+1)%lijst.length]);
+  renderClipLab();
+}
+/* Verhangen: het label van het huidige fragment wordt de nieuwe beweging. Het
+   label is wat de app aan de synth koppelt (clipPhraseId), dus dit verzet de
+   betekenis van het fragment, niet de tijden. */
+function clipVerhangNaar(off){
+  const iv=clipIntervalVan(off),c=clipList()[clipIdx];
+  clipVerhangen=false;
+  if(!iv||!c){renderClipLab();return}
+  const erbij=(clipPerBeweging()[off]||[]).filter(n=>n!==clipIdx).length;
+  c.label=iv.interval+' '+iv.richting;
+  clipReplaceLine(clipIdx,c);saveClipLab();renderClipLab();
+  clipSay('Fragment hangt nu aan '+clipLandingText(off)+'.'+(erbij?' Er staan er nu '+(erbij+1)+' op; tik nog eens om te bladeren.':''));
+}
+
+/* ---- Progressie: bewegingen achter elkaar --------------------------------- */
+function clipProgLijst(){const st=loadClipLab();if(!Array.isArray(st.prog))st.prog=[];return st.prog}
+function renderClipProg(){
+  const el=$('clipProg');
+  if(!el)return;
+  const prog=clipProgLijst(),perBew=clipPerBeweging();
+  el.innerHTML=prog.length
+    ?'<div class="cRow">'+prog.map((off,n)=>{
+        const iv=clipIntervalVan(off),l=clipLanding(off);
+        const mist=perBew[off]?'':' cLeeg';
+        return '<button type="button" class="cChip cStap'+mist+'" data-clipstap="'+n+'" title="tik om te verwijderen"><b>'+(iv?iv.interval+iv.richting:'?')+'</b><i>'+l.naam+'</i></button>';
+      }).join('')+'</div>'
+    :'<p class="small">Nog geen stappen. Kies een beweging en tik "+ stap".</p>';
+  el.querySelectorAll('[data-clipstap]').forEach(b=>b.onclick=()=>{
+    clipProgLijst().splice(+b.dataset.clipstap,1);saveClipLab();renderClipProg();
+  });
+}
+function clipProgSpeel(){
+  const prog=clipProgLijst(),perBew=clipPerBeweging(),clips=clipList();
+  const reeks=prog.map(off=>clips[(perBew[off]||[])[0]]).filter(Boolean);
+  if(!reeks.length){clipSay('Geen fragmenten voor deze stappen.');return}
+  clipSay(reeks.length+' van de '+prog.length+' stappen hebben een fragment.');
+  clipPlayList(reeks,{onChange:n=>{
+    const c=reeks[n],off=clipOffsetVan(c);
+    if(off!==null){clipIdx=clips.indexOf(c);renderClipLiniaal();renderClipChips();$('clipWhere').textContent=clipLandingText(off)}
+  }});
+}
+
 function renderClipLog(){
   const el=$('clipLog');
   if(!el)return;
@@ -1947,11 +2118,13 @@ function renderClipLab(){
   if(!window.Segue)clipSay('De speler (../clipinus/segue.js) laadde niet — staat Clipinus al naast deze app?');
   const st=loadClipLab(),clips=clipList();
   if(clipIdx>=clips.length)clipIdx=0;
-  const sel=$('clipTarget');
-  sel.innerHTML=clips.length
-    ?clips.map((c,i)=>'<option value="'+i+'">'+htmlEscape(c.label||('fragment '+(i+1)))+' · '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+'</option>').join('')
-    :'<option value="0">geen fragmenten</option>';
-  sel.value=String(clipIdx);
+  renderClipLiniaal();renderClipChips();renderClipProg();
+  const off=clipHuidigeOffset(),c=clips[clipIdx];
+  $('clipWhere').textContent=clipVerhangen
+    ?'Tik de beweging waar dit fragment voortaan bij hoort.'
+    :(off!==null?clipLandingText(off)+' · '+Segue.clock(c.start)+'–'+Segue.clock(c.end)
+                :(c?'fragment zonder beweging-label · '+Segue.clock(c.start)+'–'+Segue.clock(c.end):''));
+  $('clipRehang').textContent=clipVerhangen?'Verhangen: tik een beweging':'Verhang naar…';
   $('clipText').value=st.text;
   $('clipTests').innerHTML=CLIP_TESTS.map(t=>
     '<div class="clipTest"><button class="btn" data-cliptest="'+t.id+'"'+(clipBusy?' disabled':'')+'>'+htmlEscape(t.naam)+'</button>'+
@@ -1961,11 +2134,14 @@ function renderClipLab(){
   document.querySelectorAll('[data-clipverdict]').forEach(b=>b.onclick=()=>clipNote('synth naast de video: '+(b.dataset.clipverdict==='wel'?'wél':'niet')+' gehoord'));
   renderClipLog();
 }
-function openClips(){clipsReturn=currentScreenName();showScreen('clips')}
+function openClips(){clipVerhangen=false;clipsReturn=currentScreenName();showScreen('clips')}
 
 $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
-$('clipTarget').onchange=()=>clipPlay(+$('clipTarget').value||0);
+$('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
+$('clipProgAdd').onclick=()=>{const off=clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
+$('clipProgPlay').onclick=()=>clipProgSpeel();
+$('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipProg()};
 $('clipPlayBtn').onclick=()=>clipPlay(clipIdx);
 $('clipStopBtn').onclick=()=>{clipStop();clipSay('Speler weg.')};
 $('clipStartHere').onclick=()=>clipEdge('start');
