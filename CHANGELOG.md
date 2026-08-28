@@ -6,7 +6,7 @@ Newest first. One line per deploy to the live root.
 ## 2026-08-25 (v2026.08.25-1) — Bulk-verplaatsen van to-do's: banner op Today bij een volle dag, vaste knop in de agenda ('All')
 
 
-## 2026-08-25 (v2026.08.25-1) — Spotinus: 24 bouwstromingen
+## 2026-08-25 (v2026.08.25-2) — Spotinus: 24 bouwstromingen
 
 Derde kind naast vogels en honden: architectuur. De stroming is de soort — 24
 handgeschreven stijlkaarten (tools/arch-styles.mjs: periode, herkenkenmerken,

@@ -10,7 +10,7 @@
   g.DD_ENV = {
     sandbox: isSandbox,
     ns: isSandbox ? "sbx." : "dd.",
-    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.08.25-1"
+    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.08.25-2"
   };
   g.k = function (name) { return g.DD_ENV.ns + name; };
   try { if (g.document) g.document.title = g.DD_ENV.titlePrefix + "Daily Digest"; } catch (e) {}
