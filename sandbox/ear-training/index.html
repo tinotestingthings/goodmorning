@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.76</title>
+<title>ChordSprint v1.77</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -51,6 +51,14 @@
 /* v1.76 NoteSprint-like vertical mini-piano range control */
 .miniPianoStage{display:grid;grid-template-columns:minmax(0,1fr)52px;gap:9px;align-items:stretch;margin:6px auto 8px}.miniPianoStage .miniPiano{margin:0;height:156px}.pianoVSlider{position:relative;height:156px;min-width:50px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--btn) 64%,transparent);display:flex;align-items:center;justify-content:center;padding:18px 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}.pianoVTrack{position:relative;width:16px;height:100%;border-radius:999px;background:color-mix(in srgb,var(--line) 80%,var(--card));box-shadow:inset 0 0 0 1px var(--line)}.pianoVFill{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,var(--line))}.pianoVThumb{position:absolute;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:999px;background:var(--accent);border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);color:white;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;line-height:1}.pianoVLabel{position:absolute;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.03em;pointer-events:none}.pianoVLabel.top{top:4px}.pianoVLabel.bottom{bottom:4px}.pianoSliderRow,.pianoRange{display:none!important}@media(max-width:460px){.miniPianoStage{grid-template-columns:minmax(0,1fr)48px;gap:7px}.miniPianoStage .miniPiano{height:148px}.pianoVSlider{height:148px;min-width:46px;padding:18px 8px}.pianoVThumb{width:32px;height:32px}.miniPianoBox{padding:10px 8px}}
 
+#clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+#clipStage.on{display:block}
+#clipStage iframe{width:100%;height:100%;border:0;display:block}
+#clipTarget{width:100%}
+.clipTest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.clipTest .small{flex:1;min-width:150px}
+#clipLog div{padding:3px 0;border-bottom:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+#clipLog div:last-child{border-bottom:0}
 </style>
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste, overschrijft :root hierboven -->
 </head>
@@ -61,13 +69,13 @@
       <h1 class="logo">ChordSprint <span class="bigEmoji">🎹</span></h1>
       <p>Hear the tonic chord, then identify the progression.</p>
       <button class="btn primary wide" id="startBtn">▶ Start</button>
-      <div class="quad" style="margin-top:10px"><button class="btn" id="homePlayBtn">🎵 Preview</button><button class="btn ghost" id="homeSettingsBtn">⚙️ Settings</button><button class="btn ghost" id="homePhrasesBtn">📝 Phrases</button><button class="btn ghost" id="homeHelpBtn">❔ Help</button><button class="btn ghost" id="homePlaygroundBtn">🛝 Playground</button></div>
+      <div class="quad" style="margin-top:10px"><button class="btn" id="homePlayBtn">🎵 Preview</button><button class="btn ghost" id="homeSettingsBtn">⚙️ Settings</button><button class="btn ghost" id="homePhrasesBtn">📝 Phrases</button><button class="btn ghost" id="homeHelpBtn">❔ Help</button><button class="btn ghost" id="homePlaygroundBtn">🛝 Playground</button><button class="btn ghost" id="homeClipsBtn">🎬 Clip lab</button></div>
     </div>
     <div class="card"><div class="label">Modes</div><div class="modeGrid" id="homeModes"></div></div>
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.76 · clearer Base First labels</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.77 · Clip lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -369,7 +377,36 @@
       <button class="btn ghost wide" id="resetPhrasesBtn" style="margin-top:10px">Reset personal phrases only</button>
     </div>
   </section>
+
+  <section id="clipsScreen" class="screen">
+    <div class="top"><div><div class="logo">Clip lab</div><div class="version">Meetbank voor YouTube-fragmenten</div></div><button class="btn ghost" id="clipsBackBtn">Done</button></div>
+    <div class="card">
+      <div class="label">Fragment</div>
+      <select id="clipTarget"></select>
+      <div id="clipStage"></div>
+      <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
+      <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
+      <p class="small" id="clipMsg"></p>
+      <p class="small">De 24 hoofdstukken zijn nog hele hoofdstukken. Speel er een, en tik Start/Eind hier op het moment dat je wilt overhouden.</p>
+    </div>
+    <div class="card">
+      <div class="label">Proeven</div>
+      <div id="clipTests"></div>
+      <p class="small">Zes metingen die samen bepalen of echte opnames iets toevoegen aan de frases. Uitkomsten gaan in het logboek en synchroniseren mee: meten op de telefoon, teruglezen op de laptop.</p>
+    </div>
+    <div class="card">
+      <div class="label">Logboek</div>
+      <div id="clipLog"></div>
+      <button class="btn ghost" id="clipClearLog" style="margin-top:10px">Logboek wissen</button>
+    </div>
+    <div class="card">
+      <div class="label">Alle fragmenten</div>
+      <textarea id="clipText" spellcheck="false"></textarea>
+      <div class="split"><button class="btn" id="clipSaveBtn">Bewaar</button><button class="btn ghost" id="clipResetBtn">Terug naar de hoofdstukken</button></div>
+    </div>
+  </section>
 </div>
+<script src="../clipinus/segue.js"></script>
 <script type="application/gm-app" id="gm-app-code">
 const $=id=>document.getElementById(id);
 const degreeAll=['1','2','3','4','5','6','7'];
@@ -465,7 +502,7 @@ function loadPresets(){try{const saved=JSON.parse(localStorage.getItem('cpt_pres
 function savePresets(){localStorage.setItem('cpt_presets',JSON.stringify(presets))}
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function currentScreenName(){const active=document.querySelector('.screen.active');return active?active.id.replace('Screen',''):'home'}
-function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground()}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
 function openHelp(){helpReturn=currentScreenName();showScreen('help')}
 function openPhrases(){phraseReturn=currentScreenName();showScreen('phrases')}
 function openPlayground(){playgroundReturn=currentScreenName();showScreen('playground')}
@@ -1706,6 +1743,238 @@ document.querySelectorAll('[data-inkey-base]').forEach(b=>b.onclick=()=>{inKeyAn
 $('inKeyPianoModeBtn')&&($('inKeyPianoModeBtn').onclick=()=>{inKeyPianoMode=!inKeyPianoMode;localStorage.setItem('cpt_inKeyPianoMode',String(inKeyPianoMode));markCustom();persistCurrentSettings();renderAll();renderDots()});
 $('inKeyScaleGreyBtn')&&($('inKeyScaleGreyBtn').onclick=()=>{inKeyGreyOutsideScale=!inKeyGreyOutsideScale;localStorage.setItem('cpt_inKeyGreyOutsideScale',String(inKeyGreyOutsideScale));markCustom();persistCurrentSettings();renderAll();renderDots()});
 $('startBtn').onclick=()=>{showScreen('practice');newProgression(true)};$('homePlayBtn').onclick=()=>{key='C';currentMode=tonalityMode==='minor'?'minor':'major';playRoot()};$('homeSettingsBtn').onclick=()=>showScreen('settings');$('homePhrasesBtn').onclick=openPhrases;$('homeHelpBtn').onclick=openHelp;$('homePlaygroundBtn').onclick=openPlayground;$('playPhraseBtn').onclick=openPhrases;$('playPlaygroundBtn').onclick=openPlayground;$('playHelpBtn').onclick=openHelp;$('settingsPhrasesBtn').onclick=openPhrases;$('settingsPlaygroundBtn').onclick=openPlayground;$('settingsHelpBtn').onclick=openHelp;$('helpPhrasesBtn').onclick=openPhrases;$('helpPlaygroundBtn').onclick=openPlayground;$('helpBackBtn').onclick=()=>showScreen(helpReturn||'home');$('playgroundBackBtn').onclick=()=>showScreen(playgroundReturn||'home');$('phrasesBackBtn').onclick=()=>showScreen(phraseReturn||'home');$('playSettingsBtn').onclick=()=>showScreen('settings');$('backHomeBtn').onclick=()=>{stopAudio();showScreen('home')};$('settingsBackBtn').onclick=()=>showScreen(lastScreen||'home');$('playBtn').onclick=play;if($('playRootBtn'))$('playRootBtn').onclick=playRoot;$('playModeBtn').onclick=togglePlaybackMode;$('newBtn').onclick=()=>newProgression(true);$('nextBtn').onclick=()=>newProgression(true);$('resetScoreBtn').onclick=resetScore;$('resetMistakesBtn')&&($('resetMistakesBtn').onclick=resetMistakesOnly);$('seeMistakesBtn')&&($('seeMistakesBtn').onclick=toggleAllMistakes);$('saveConfigBtn').onclick=saveCurrentAsPreset;$('resetBuiltinsBtn').onclick=restoreBuiltins;$('lengthSelect').onchange=()=>{markCustom();persistCurrentSettings();newProgression(false)};$('keyMode').onchange=()=>{markCustom();persistCurrentSettings();newProgression(false)};$('noRepeatsBtn').onclick=()=>{variety.noRepeats=!variety.noRepeats;markCustom();persistCurrentSettings();newProgression(false)};$('noBounceBtn').onclick=()=>{variety.noBounce=!variety.noBounce;markCustom();persistCurrentSettings();newProgression(false)};
+/* ---- Clip lab (2026-08-28) ------------------------------------------------
+   Meetbank voor YouTube-fragmenten: zes proeven die samen bepalen of echte
+   opnames iets toevoegen aan de frasebibliotheek. De speler zelf is
+   ../clipinus/segue.js (window.Segue); hieronder staat alleen de bank eromheen.
+   Bewaren gaat naar cpt_clipLab — díé prefix is wat boot.js omzet naar dd:/sbx:
+   en naar chordsprint_state synct, dus wat je op je telefoon meet staat daarna
+   op je laptop. Een sleutel zonder cpt_ zou sandbox en live laten delen. */
+const CLIP_VIDEO={up:'PhDIm_2qS5s',down:'vJnAnrX2uXQ'};
+/* Hoofdstukgrenzen uit de twee David Bennett-video's ("Songs that will help you
+   identify ascending/descending intervals"). Let op de sprongen bij P5 (omhoog)
+   en m6 (omlaag): daar zit een sponsorblok tussen. Dit zijn hoofdstukken van
+   20 s tot 2 min, geen fragmenten — inkorten doe je met Start/Eind hier. */
+const CLIP_CHAPTER={
+ up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
+ down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
+};
+let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home';
+const clipOut={};
+
+function clipDefaultText(){
+  if(!window.Segue)return '';        // zonder de speler is er ook geen klok
+  const out=[];
+  ['up','down'].forEach(dir=>{
+    out.push('# '+(dir==='up'?'omhoog':'omlaag')+' — David Bennett, hele hoofdstukken (nog niet ingekort)');
+    out.push('https://youtu.be/'+CLIP_VIDEO[dir]);
+    intervalAll.forEach(iv=>{const c=CLIP_CHAPTER[dir][iv];if(c)out.push(Segue.clock(c[0])+'-'+Segue.clock(c[1])+' '+iv+' '+(dir==='up'?'↑':'↓'))});
+  });
+  return out.join('\n');
+}
+function loadClipLab(){
+  if(!clipState){
+    try{clipState=JSON.parse(localStorage.getItem('cpt_clipLab')||'null')}catch(e){clipState=null}
+    if(!clipState||typeof clipState!=='object')clipState={};
+  }
+  if(typeof clipState.text!=='string'||!clipState.text.trim())clipState.text=clipDefaultText();
+  if(!Array.isArray(clipState.log))clipState.log=[];
+  return clipState;
+}
+function saveClipLab(){try{localStorage.setItem('cpt_clipLab',JSON.stringify(clipState))}catch(e){}}
+function clipList(){return window.Segue?Segue.parseText(loadClipLab().text).clips:[]}
+function clipSay(t){const el=$('clipMsg');if(el)el.textContent=t||''}
+function clipNote(line){
+  const st=loadClipLab(),d=new Date(),p=n=>('0'+n).slice(-2);
+  st.log.unshift(p(d.getDate())+'-'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes())+' · '+line);
+  st.log=st.log.slice(0,40);saveClipLab();renderClipLog();
+}
+/* "m3 ↑" op een fragment -> het phrase-id waarmee de synth hetzelfde interval
+   speelt. Zonder label geen proef 4. */
+function clipPhraseId(c){
+  const m=String(c&&c.label||'').match(/(m2|M2|m3|M3|P4|TT|P5|m6|M6|m7|M7|P8)\s*(↑|↓)/);
+  return m?('int_'+m[1]+'_'+(m[2]==='↑'?'up':'down')):null;
+}
+
+function clipStop(){if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}const st=$('clipStage');if(st){st.classList.remove('on');st.innerHTML=''}}
+function clipPlayList(list,extra){
+  if(!window.Segue){clipSay('De speler (clipinus/segue.js) laadde niet.');return null}
+  extra=extra||{};
+  stopAudio();                    // de synth zwijgt zodra er beeld is
+  clipStop();
+  const stage=$('clipStage');stage.classList.add('on');stage.innerHTML='<div></div>';
+  clipCtl=Segue.play(stage.firstChild,list,{
+    onChange:extra.onChange,
+    onError:(why,n)=>{
+      clipSay(why==='api'?'De speler laadde niet — offline?'
+        :why==='autoplay'?'De browser blokkeert automatisch starten: tik zelf op de speler.'
+        :'Dit fragment speelt hier niet (verwijderd of niet insluitbaar).');
+      if(extra.onError)extra.onError(why,n);
+    }
+  });
+  return clipCtl;
+}
+function clipPlay(i){
+  const clips=clipList();
+  if(!clips.length){clipSay('Geen fragmenten.');return null}
+  clipIdx=Math.min(Math.max(i,0),clips.length-1);clipSay('');
+  return clipPlayList([clips[clipIdx]]);
+}
+
+function clipPause(ms){return new Promise(r=>setTimeout(r,ms))}
+function clipPoll(fn,ms){return new Promise(r=>{const t0=Date.now();const iv=setInterval(()=>{let v=null;try{v=fn()}catch(e){}if(v!==null&&v!==undefined&&v!==false){clearInterval(iv);r(v)}else if(Date.now()-t0>(ms||20000)){clearInterval(iv);r(null)}},100)})}
+/* Wacht tot de speeltijd echt loopt. Terug: hoe lang dat duurde en wáár hij
+   stond toen hij ging lopen — dat laatste is de landing die proef 2 meet. */
+function clipMoving(ctl,ms){
+  return new Promise(r=>{
+    if(!ctl)return r(null);
+    const t0=Date.now();let last=null;
+    const iv=setInterval(()=>{
+      const t=ctl.time();
+      // Zolang de speler er nog niet is geeft time() 0 terug; die nul is geen
+      // landing, anders meet je de sprong van 'geen speler' naar 'speler'.
+      if(t){
+        if(last!==null&&t>last+0.05){clearInterval(iv);r({wachtte:(Date.now()-t0)/1000,landde:last});return}
+        last=t;
+      }
+      if(Date.now()-t0>(ms||25000)){clearInterval(iv);r(null)}
+    },100);
+  });
+}
+const clipOffset=(x,c)=>x?((x.landde-c.start>=0?'+':'')+(x.landde-c.start).toFixed(1)+' s'):'?';
+const clipHuidige=()=>clipList()[clipIdx]||null;
+
+const CLIP_TESTS=[
+ {id:'speelt',naam:'1 · Speelt het?',uitleg:'hoe lang tot er geluid is',run:async()=>{
+   const r=await clipMoving(clipPlay(clipIdx));
+   return r?'speelde na '+r.wachtte.toFixed(1)+' s':'kwam niet op gang — tik zelf op de speler';
+ }},
+ {id:'landt',naam:'2 · Landt het?',uitleg:'de eerste sprong is keyframe-grof, de tweede niet',run:async()=>{
+   const c=clipHuidige();
+   if(!c)return 'geen fragment gekozen';
+   const a=await clipMoving(clipPlay(clipIdx));
+   await clipPause(800);
+   const b=await clipMoving(clipPlay(clipIdx));
+   return 'gevraagd '+Segue.clock(c.start)+' · 1e keer '+clipOffset(a,c)+', 2e keer '+clipOffset(b,c);
+ }},
+ {id:'herhaal',naam:'3 · Herhalen',uitleg:'3× hetzelfde fragment achter elkaar',run:async()=>{
+   const c=clipHuidige();
+   if(!c)return 'geen fragment gekozen';
+   const ctl=clipPlay(clipIdx),spots=[];
+   for(let n=0;n<3;n++){
+     if(n)ctl.go(0);
+     const r=await clipMoving(ctl);
+     spots.push(r?r.landde-c.start:NaN);
+     await clipPause(500);
+   }
+   return 'afwijking per beurt: '+spots.map(s=>isNaN(s)?'—':(s>=0?'+':'')+s.toFixed(1)+' s').join(' · ');
+ }},
+ {id:'synth',naam:'4 · Naast de synth',uitleg:'video, dan de synth — hoor je die nog?',run:async()=>{
+   const c=clipHuidige();
+   if(!c)return 'geen fragment gekozen';
+   const pid=clipPhraseId(c);
+   if(!pid)return 'dit fragment heeft geen interval-label zoals "m3 ↑"';
+   const ctl=clipPlay(clipIdx);
+   if(!await clipMoving(ctl))return 'video kwam niet op gang';
+   await clipPoll(()=>ctl.time()>=c.end-0.4,(c.end-c.start+25)*1000);
+   ctl.pause();await clipPause(400);playPhraseInterval(pid);
+   return 'synth speelde ná de video — zeg hiernaast of je hem hoorde';
+ }},
+ {id:'schakel',naam:'5 · Doorschakelen',uitleg:'hoe groot is het gat tussen twee fragmenten',run:async()=>{
+   const clips=clipList();
+   if(clips.length<2||!clips[clipIdx])return 'minstens twee fragmenten nodig';
+   const a=clips[clipIdx],b=clips[(clipIdx+1)%clips.length];
+   let t0=0;
+   const ctl=clipPlayList([a,b],{onChange:n=>{if(n===1)t0=Date.now()}});
+   if(!await clipMoving(ctl))return 'eerste fragment kwam niet op gang';
+   if(!await clipPoll(()=>t0||null,(a.end-a.start+30)*1000))return 'schakelde niet door';
+   const ok=await clipPoll(()=>{const t=ctl.time();return t>=b.start-1&&t<=b.end+3?t:null},30000);
+   return ok?'gat: '+((Date.now()-t0)/1000).toFixed(1)+' s':'tweede fragment kwam niet op gang';
+ }},
+ {id:'stuk',naam:'6 · Wat gaat er stuk?',uitleg:'kapot video-id: komt de melding door?',run:async()=>{
+   let why=null;
+   clipPlayList([{id:'aaaaaaaaaaa',start:0,end:5,label:'kapot'}],{onError:w=>{why=w}});
+   const r=await clipPoll(()=>why,20000);
+   return r?'gemeld als "'+r+'" — de melding kwam door':'geen melding binnen 20 s';
+ }}
+];
+
+async function runClipTest(id){
+  const t=CLIP_TESTS.find(x=>x.id===id);
+  if(!t||clipBusy)return;
+  clipBusy=true;clipOut[id]='bezig…';renderClipLab();
+  let res;
+  try{res=await t.run()}catch(e){res='fout: '+((e&&e.message)||e)}
+  clipBusy=false;clipOut[id]=res;renderClipLab();clipNote(t.naam+' — '+res);
+}
+
+/* Alleen de regel van dít fragment herschrijven, zodat je eigen commentaar en
+   volgorde in het tekstvak blijven staan. Het regelnummer komt uit parseText
+   zelf (clip.line), dus hier wordt niets nageteld. */
+function clipReplaceLine(idx,c){
+  const src=clipList()[idx];
+  if(!src||typeof src.line!=='number')return;
+  const lines=loadClipLab().text.split('\n');
+  const parts=String(lines[src.line]||'').trim().split(/\s+/);
+  const head=Segue.videoId(parts[0])?parts[0]+' ':'';
+  lines[src.line]=head+Segue.clock(c.start)+'-'+Segue.clock(c.end)+(c.label?' '+c.label:'');
+  clipState.text=lines.join('\n');
+}
+function clipEdge(which){
+  if(!clipCtl)return clipSay('Speel eerst een fragment.');
+  const c=clipList()[clipIdx];
+  if(!c)return;
+  const t=Math.round(clipCtl.time());       // de tekstvorm rekent in hele seconden
+  if(which==='start')c.start=t;else c.end=t;
+  if(c.end<=c.start)c.end=c.start+3;        // een lege knip is geen knip
+  clipReplaceLine(clipIdx,c);saveClipLab();renderClipLab();
+  // meld wat er staat, niet waar je tikte: een te korte knip is net opgerekt
+  clipSay((which==='start'?'Start':'Eind')+' op '+Segue.clock(which==='start'?c.start:c.end)+' gezet.');
+}
+
+function renderClipLog(){
+  const el=$('clipLog');
+  if(!el)return;
+  const log=loadClipLab().log;
+  el.innerHTML=log.length?log.map(l=>'<div>'+htmlEscape(l)+'</div>').join(''):'<p class="small">Nog niets gemeten.</p>';
+}
+function renderClipLab(){
+  if(!$('clipsScreen'))return;
+  if(!window.Segue)clipSay('De speler (../clipinus/segue.js) laadde niet — staat Clipinus al naast deze app?');
+  const st=loadClipLab(),clips=clipList();
+  if(clipIdx>=clips.length)clipIdx=0;
+  const sel=$('clipTarget');
+  sel.innerHTML=clips.length
+    ?clips.map((c,i)=>'<option value="'+i+'">'+htmlEscape(c.label||('fragment '+(i+1)))+' · '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+'</option>').join('')
+    :'<option value="0">geen fragmenten</option>';
+  sel.value=String(clipIdx);
+  $('clipText').value=st.text;
+  $('clipTests').innerHTML=CLIP_TESTS.map(t=>
+    '<div class="clipTest"><button class="btn" data-cliptest="'+t.id+'"'+(clipBusy?' disabled':'')+'>'+htmlEscape(t.naam)+'</button>'+
+    (t.id==='synth'?'<button class="btn ghost smallBtn" data-clipverdict="wel">Wel gehoord</button><button class="btn ghost smallBtn" data-clipverdict="niet">Niet gehoord</button>':'')+
+    '<span class="small">'+htmlEscape(clipOut[t.id]||t.uitleg)+'</span></div>').join('');
+  document.querySelectorAll('[data-cliptest]').forEach(b=>b.onclick=()=>runClipTest(b.dataset.cliptest));
+  document.querySelectorAll('[data-clipverdict]').forEach(b=>b.onclick=()=>clipNote('synth naast de video: '+(b.dataset.clipverdict==='wel'?'wél':'niet')+' gehoord'));
+  renderClipLog();
+}
+function openClips(){clipsReturn=currentScreenName();showScreen('clips')}
+
+$('homeClipsBtn').onclick=()=>openClips();
+$('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
+$('clipTarget').onchange=()=>clipPlay(+$('clipTarget').value||0);
+$('clipPlayBtn').onclick=()=>clipPlay(clipIdx);
+$('clipStopBtn').onclick=()=>{clipStop();clipSay('Speler weg.')};
+$('clipStartHere').onclick=()=>clipEdge('start');
+$('clipEndHere').onclick=()=>clipEdge('end');
+$('clipSaveBtn').onclick=()=>{loadClipLab().text=$('clipText').value;saveClipLab();renderClipLab();clipSay('Bewaard.')};
+$('clipResetBtn').onclick=()=>{
+  const b=$('clipResetBtn');
+  if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='Zeker weten? Je knippen gaan weg';setTimeout(()=>{b.dataset.armed='';b.textContent='Terug naar de hoofdstukken'},4000);return}
+  b.dataset.armed='';b.textContent='Terug naar de hoofdstukken';
+  loadClipLab().text=clipDefaultText();saveClipLab();renderClipLab();clipSay('Terug naar de hoofdstukken.');
+};
+$('clipClearLog').onclick=()=>{loadClipLab().log=[];saveClipLab();renderClipLog()};
+
 document.body.dataset.theme=localStorage.getItem('cpt_theme')||'clean';
 const savedCurrent=JSON.parse(localStorage.getItem('cpt_currentConfig')||'null');if(savedCurrent&&currentPresetId==='custom')setConfig(savedCurrent);else applyPreset(currentPresetId,false);
 renderAll();newProgression(false);

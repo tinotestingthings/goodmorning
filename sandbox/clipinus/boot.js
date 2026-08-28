@@ -10,45 +10,6 @@
       out = $("out"), copyBtn = $("copy"), segueLink = $("segue"), sum = $("sum");
   var ctl = null, current = [];
 
-  // "0:43-1:02 Refrein", met de video-regel erboven (of ervoor op dezelfde regel).
-  var RANGE = /^([\d:.hms]+)\s*(?:-|–|—|tot|to)\s*([\d:.hms]+)\s*(.*)$/i;
-
-  function fromScript(text) {
-    var vid = null, clips = [], skipped = 0;
-    String(text || "").split("\n").forEach(function (raw) {
-      var line = raw.trim();
-      if (!line || line.charAt(0) === "#") return;
-      var parts = line.split(/\s+/);
-      var id = Segue.videoId(parts[0]);
-      if (id) { vid = id; parts.shift(); }
-      var rest = parts.join(" ").trim();
-      if (!rest) { if (!id) skipped++; return; }
-      var m = rest.match(RANGE);
-      var start = m && Segue.seconds(m[1]), end = m && Segue.seconds(m[2]);
-      if (!m || !vid || isNaN(start) || isNaN(end)) { skipped++; return; }
-      clips.push({ id: vid, start: start, end: end, label: m[3] });
-    });
-    return { clips: clips, skipped: skipped };
-  }
-
-  function toScript(clips) {
-    var lines = [], last = null;
-    clips.forEach(function (c) {
-      if (c.id !== last) { lines.push("https://youtu.be/" + c.id); last = c.id; }
-      lines.push(Segue.clock(c.start) + "-" + Segue.clock(c.end) + (c.label ? " " + c.label : ""));
-    });
-    return lines.join("\n");
-  }
-
-  // "3 fragmenten \u00b7 1:12" — met een + als er een fragment tot het eind van
-  // de video doorloopt, want die lengte weten we hier nog niet.
-  function summary(clips) {
-    var known = clips.filter(function (c) { return c.end > c.start; });
-    var total = known.reduce(function (t, c) { return t + (c.end - c.start); }, 0);
-    var n = clips.length + " fragment" + (clips.length === 1 ? "" : "en");
-    return total ? n + " \u00b7 " + Segue.clock(total) + (known.length < clips.length ? "+" : "") : n;
-  }
-
   function say(text, bad) {
     msg.textContent = text || "";
     msg.className = bad ? "bad" : "";
@@ -94,7 +55,7 @@
   }
 
   $("play").onclick = function () {
-    var r = fromScript(box.value);
+    var r = Segue.parseText(box.value);
     if (!r.clips.length) {
       say("Geen fragmenten gevonden. Eerst een YouTube-link, daaronder regels als 0:43-1:02 Refrein.", true);
       return;
@@ -121,7 +82,7 @@
   if (location.hash.length > 1) {
     var parsed = Segue.parse(location.hash);
     if (parsed) {
-      box.value = toScript(parsed.clips);
+      box.value = Segue.toText(parsed.clips);
       start(parsed.clips, false);
     } else {
       say("Deze link kon ik niet lezen.", true);

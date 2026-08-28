@@ -86,6 +86,40 @@
     return clips.length ? { version: f[0], title: f[1], transition: f[2], clips: clips } : null;
   }
 
+  // Tekstvorm, ook het formaat waarin een mens (of een LLM) fragmenten opschrijft:
+  // een YouTube-link op een regel zet de huidige video, daaronder regels als
+  // "0:43-1:02 Refrein". Regels met # ervoor zijn commentaar.
+  var RANGE = /^([\d:.hms]+)\s*(?:-|–|—|tot|to)\s*([\d:.hms]+)\s*(.*)$/i;
+
+  // clip.line is het regelnummer in de tekst; daarmee kan een aanroeper precies
+  // die ene regel herschrijven zonder de rest van het tekstvak aan te raken.
+  function parseText(text) {
+    var vid = null, clips = [], skipped = 0;
+    String(text == null ? "" : text).split("\n").forEach(function (raw, n) {
+      var line = raw.trim();
+      if (!line || line.charAt(0) === "#") return;
+      var parts = line.split(/\s+/);
+      var id = videoId(parts[0]);
+      if (id) { vid = id; parts.shift(); }
+      var rest = parts.join(" ").trim();
+      if (!rest) { if (!id) skipped++; return; }
+      var m = rest.match(RANGE);
+      var start = m && seconds(m[1]), end = m && seconds(m[2]);
+      if (!m || !vid || isNaN(start) || isNaN(end)) { skipped++; return; }
+      clips.push({ id: vid, start: start, end: end, label: m[3].trim(), line: n });
+    });
+    return { clips: clips, skipped: skipped };
+  }
+
+  function toText(clips) {
+    var lines = [], last = null;
+    (clips || []).forEach(function (c) {
+      if (c.id !== last) { lines.push("https://youtu.be/" + c.id); last = c.id; }
+      lines.push(clock(c.start) + "-" + clock(c.end) + (c.label ? " " + c.label : ""));
+    });
+    return lines.join("\n");
+  }
+
   // ---- speler --------------------------------------------------------------
 
   var apiReady = null;
@@ -109,8 +143,9 @@
   }
 
   // el wordt vervangen door de iframe. Terug: {next, prev, go, pause, resume,
-  // index, destroy}. opts: {onChange(i, clip), onEnd(), onError(reden, i, clip),
-  // autoplay}. reden is "clip" (deze video speelt niet) of "api" (geen speler).
+  // index, time, destroy}. opts: {onChange(i, clip), onEnd(), onError(reden, i,
+  // clip), autoplay}. reden is "clip" (deze video speelt niet), "autoplay" (de
+  // browser blokkeert starten) of "api" (de speler laadde niet).
   function play(el, clips, opts) {
     if (!el || !clips || !clips.length) return null;
     opts = opts || {};
@@ -154,7 +189,7 @@
           start: Math.round(clips[0].start),
           end: clips[0].end > clips[0].start ? Math.round(clips[0].end) : undefined,
           autoplay: opts.autoplay === false ? 0 : 1,
-          rel: 0, playsinline: 1, modestbranding: 1
+          rel: 0, playsinline: 1
         },
         events: {
           onReady: function () {
@@ -166,7 +201,10 @@
           // het late einde van de vórige clip en zou het er een overslaan.
           onStateChange: function (e) { if (e.data === 0 && Date.now() - switched > 1000) advance(); },
           // Verwijderde of niet-insluitbare video: doorlopen, niet blijven hangen.
-          onError: function () { fail("clip"); advance(); }
+          onError: function () { fail("clip"); advance(); },
+          // De browser weigert automatisch afspelen: dat moet de gebruiker weten,
+          // anders staat er een stil kader zonder uitleg.
+          onAutoplayBlocked: function () { fail("autoplay"); }
         }
       });
     });
@@ -178,6 +216,7 @@
       pause: function () { try { player.pauseVideo(); } catch (e) {} },
       resume: function () { try { player.playVideo(); } catch (e) {} },
       index: function () { return i; },
+      time: function () { try { return player.getCurrentTime() || 0; } catch (e) { return 0; } },
       destroy: function () {
         dead = true;
         clearInterval(timer);
@@ -189,6 +228,7 @@
   global.Segue = {
     SEGUE_URL: SEGUE_URL,
     seconds: seconds, clock: clock, videoId: videoId,
-    encode: encode, build: build, parse: parse, play: play
+    encode: encode, build: build, parse: parse, play: play,
+    parseText: parseText, toText: toText
   };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -61,6 +61,28 @@ check("accenten overleven", S.parse(S.build([{ id: "dQw4w9WgXcQ", start: 1, end:
 check("eind <= start blijft staan", S.parse(S.build([{ id: "dQw4w9WgXcQ", start: 30, end: 0, label: "tot eind" }])).clips[0].end, 0);
 
 
+console.log("\ntekstvorm (parseText/toText)");
+const script = [
+  "# eerst de video",
+  "https://youtu.be/dQw4w9WgXcQ",
+  "0:08-0:14 Eerste",
+  "1:00-1:06 Tweede",
+  "https://www.youtube.com/watch?v=oHg5SJYRHA0 0:03-0:09 Zelfde regel",
+  "koekjes en thee"
+].join("\n");
+const pt = S.parseText(script);
+check("drie clips", pt.clips.length, 3);
+check("een regel overgeslagen", pt.skipped, 1);
+check("video wisselt mee", pt.clips.map(c => c.id), ["dQw4w9WgXcQ", "dQw4w9WgXcQ", "oHg5SJYRHA0"]);
+check("tijden en label", pt.clips[2], { id: "oHg5SJYRHA0", start: 3, end: 9, label: "Zelfde regel", line: 4 });
+const bare = c => ({ id: c.id, start: c.start, end: c.end, label: c.label });
+check("regelnummer wijst naar de bronregel", pt.clips.map(c => c.line), [2, 3, 4]);
+check("label met streepje blijft heel", S.parseText("dQw4w9WgXcQ\n0:43-1:02 half-tijd").clips[0].label, "half-tijd");
+check("bereik zonder video telt niet", S.parseText("0:01-0:02 los").clips.length, 0);
+check("alleen een video-regel is geen fout", S.parseText("dQw4w9WgXcQ").skipped, 0);
+check("heen en terug", S.parseText(S.toText(pt.clips)).clips.map(bare), pt.clips.map(bare));
+check("toText groepeert per video", S.toText(pt.clips).split("\n").filter(l => l.indexOf("http") === 0).length, 2);
+
 // De speler-helft met een nep-YT: geen browser nodig, maar wel de echte
 // doorschakel-logica (tik op de eindtijd, ENDED als vangnet, fout = overslaan).
 console.log("\nvolgorde (nep-speler)");
