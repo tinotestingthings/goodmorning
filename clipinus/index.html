@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <script src="../theme-sync.js"></script>
+  <script>try { if (window.top !== window.self) document.documentElement.className = "embedded"; } catch (e) {}</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Clipinus</title>
+  <style>
+    /* Vangnet als ../design.css niet laadt: anders valt elke var() weg. */
+    :root { --bg: #f5f6f8; --card: #fff; --text: #1a1d24; --muted: #5a6270; --line: #dde1e6;
+            --blue: #4a90d9; --red: #d9534f; --radius: 14px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); padding: 16px 16px 24px; max-width: 640px; margin-inline: auto; }
+    h1 { font-size: 1.15rem; margin: 0 0 2px; }
+    .sub { color: var(--muted); font-size: 0.82rem; margin: 0 0 12px; line-height: 1.35; }
+    .embedded h1 { display: none; }
+    textarea { width: 100%; min-height: 108px; resize: vertical; background: var(--card); color: var(--text);
+               border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 13px;
+               font: inherit; font-size: 0.9rem; line-height: 1.5; }
+    textarea:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .acts { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 10px 0 4px; }
+    .act { border: 0; background: none; padding: 0; color: var(--blue); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .act:disabled { opacity: 0.5; cursor: default; }
+    .act.quiet { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+    #stage { display: none; margin-top: 12px; aspect-ratio: 16 / 9; background: #000; border-radius: var(--radius); overflow: hidden; }
+    #stage.on { display: block; }
+    #stage iframe { width: 100%; height: 100%; border: 0; display: block; }
+    ol { list-style: none; margin: 12px 0 0; padding: 0; }
+    li { margin-bottom: 6px; }
+    /* elke clip is een knop over de volle breedte: klikken = daarheen springen */
+    .clip { display: flex; gap: 10px; width: 100%; text-align: left; background: var(--card); color: inherit;
+            border: 1px solid var(--line); border-radius: var(--radius); padding: 9px 12px; font: inherit; cursor: pointer; }
+    .clip:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .clip.now { border-color: var(--blue); }
+    .clip .t { color: var(--muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .clip .l { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #out { display: none; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    #out.on { display: flex; }
+    #msg, #sum { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }
+    #msg:empty, #sum:empty { display: none; }
+    #sum { margin: 12px 0 0; }
+    #msg.bad { color: var(--red); }
+  </style>
+  <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
+</head>
+<body>
+  <h1>Clipinus</h1>
+  <p class="sub">Een YouTube-link plus tijdvakken wordt één link die alleen die fragmenten achter elkaar speelt.</p>
+
+  <textarea id="script" spellcheck="false" aria-label="Fragmenten"
+    placeholder="https://youtu.be/dQw4w9WgXcQ&#10;0:43-1:02 Refrein&#10;2:10-2:25 Bridge"></textarea>
+
+  <div class="acts">
+    <button type="button" class="act" id="play">Speel</button>
+    <button type="button" class="act quiet" id="clear">Leegmaken</button>
+  </div>
+
+  <p id="msg"></p>
+  <div id="stage"></div>
+  <p id="sum"></p>
+  <ol id="clips"></ol>
+
+  <div id="out">
+    <button type="button" class="act" id="copy">Kopieer link</button>
+    <a class="act quiet" id="segue" target="_blank" rel="noopener">Openen op segue.video</a>
+  </div>
+
+  <script src="segue.js"></script>
+  <script src="boot.js"></script>
+</body>
+</html>
