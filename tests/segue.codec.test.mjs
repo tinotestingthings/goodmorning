@@ -90,13 +90,15 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 let made = null;
 class FakePlayer {
   constructor(el, cfg) {
-    made = this; this.cfg = cfg; this.loads = []; this.state = 1;
+    made = this; this.cfg = cfg; this.loads = []; this.seeks = []; this.state = 1;
     this.t = cfg.playerVars.start || 0;
     setTimeout(() => cfg.events.onReady(), 0);
   }
   getCurrentTime() { return this.t; }
   getPlayerState() { return this.state; }
   loadVideoById(o) { this.loads.push(o); this.t = o.startSeconds; this.state = 1; }
+  seekTo(s) { this.seeks.push(s); this.t = s; }
+  playVideo() { this.state = 1; }
   pauseVideo() { this.state = 2; }
   destroy() { this.dead = true; }
 }
@@ -114,11 +116,13 @@ await wait(60);
 check("eerste clip in playerVars", [made.cfg.videoId, made.cfg.playerVars.start, made.cfg.playerVars.end], ["aaaaaaaaaaa", 0, 10]);
 
 made.t = 10.2; await wait(400);
-check("na eindtijd -> clip 2", made.loads[0], { videoId: "aaaaaaaaaaa", startSeconds: 20, endSeconds: 30 });
-made.t = 30.1; await wait(400);
-check("en door naar clip 3", made.loads[1], { videoId: "bbbbbbbbbbb", startSeconds: 5, endSeconds: 8 });
+check("zelfde video: springen, niet herladen", [made.seeks, made.loads.length], [[20], 0]);
+made.t = 20.5; await wait(300);   // hij speelt in clip 2 (een echte speler springt niet
+made.t = 30.1; await wait(400);   // van de sprong meteen naar de eindtijd)
+check("andere video: wel herladen", made.loads[0], { videoId: "bbbbbbbbbbb", startSeconds: 5, endSeconds: 8 });
 check("index volgt mee", ctl.index(), 2);
 
+made.t = 6; await wait(300);      // en in clip 3
 made.t = 8.1; await wait(400);
 check("einde meldt zich", ends, 1);
 await wait(400);
@@ -126,20 +130,26 @@ check("en maar één keer", ends, 1);
 check("onChange per clip", seen, [0, 1, 2]);
 
 made.state = 1; made.t = 100; await wait(400);
-check("na het einde geen nieuwe clip", made.loads.length, 2);
+check("na het einde geen nieuwe clip", [made.loads.length, made.seeks.length], [1, 1]);
 
 // Een fout onderweg, en het ENDED-vangnet met zijn race-guard
 const ctl2 = S.play({}, seq, { onError: why => seen.push(why) });
 await wait(60);
 made.cfg.events.onError({ data: 150 });
-check("fout = overslaan", made.loads[made.loads.length - 1].startSeconds, 20);
+check("fout = overslaan", made.seeks[made.seeks.length - 1], 20);
 check("fout wordt gemeld", seen[seen.length - 1], "clip");
-const loads = made.loads.length;
+const beurten = made.loads.length + made.seeks.length;
 made.cfg.events.onStateChange({ data: 0 });
-check("laat ENDED vlak na een wissel slaat niets over", made.loads.length, loads);
+check("laat ENDED vlak na een wissel slaat niets over", made.loads.length + made.seeks.length, beurten);
 await wait(1100);
 made.cfg.events.onStateChange({ data: 0 });
 check("ENDED schakelt daarna wel door", made.loads[made.loads.length - 1].videoId, "bbbbbbbbbbb");
+
+// setClips: een ander rijtje op dezelfde speler, zonder nieuwe iframe
+const voor = made.loads.length;
+ctl2.setClips([{ id: "bbbbbbbbbbb", start: 40, end: 44, label: "los" }]);
+ctl2.go(0);
+check("setClips + zelfde video = springen", [made.seeks[made.seeks.length - 1], made.loads.length], [40, voor]);
 ctl.destroy(); ctl2.destroy();
 check("destroy ruimt op", made.dead, true);
 

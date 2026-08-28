@@ -150,6 +150,7 @@
     if (!el || !clips || !clips.length) return null;
     opts = opts || {};
     var i = 0, player = null, timer = null, ended = false, dead = false, switched = 0;
+    var loaded = null, seeking = false;   // welke video staat er, en zoekt hij nog
 
     function fail(why) { if (opts.onError) opts.onError(why, i, clips[i]); }
 
@@ -159,9 +160,19 @@
       ended = false;
       var c = clips[i];
       switched = Date.now();
-      // ponytail: altijd herladen — seekTo binnen dezelfde video zou vloeiender
-      // zijn, doe dat pas als opeenvolgende clips uit één video hinderlijk haperen.
-      player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
+      seeking = true;
+      // Zelfde video? Dan springen in plaats van herladen. Elke loadVideoById is
+      // voor YouTube een nieuwe kijksessie en levert dus een nieuwe reclame op —
+      // een reeks fragmenten uit één video hoort één keer reclame te kosten, niet
+      // per fragment. Let op: na seekTo vervalt endSeconds, dus de tik hieronder
+      // is dan de enige schaar. Die was het toch al.
+      if (loaded === c.id) {
+        player.seekTo(c.start, true);
+        player.playVideo();
+      } else {
+        player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
+        loaded = c.id;
+      }
       if (opts.onChange) opts.onChange(i, c);
     }
 
@@ -178,7 +189,16 @@
     function tick() {
       if (!player || !player.getCurrentTime || player.getPlayerState() !== 1) return;
       var c = clips[i];
-      if (c && c.end > c.start && player.getCurrentTime() >= c.end - 0.15) advance();
+      if (!c) return;
+      var t = player.getCurrentTime();
+      // Vlak na een sprong meldt de speler nog de óude positie. Die zou hier als
+      // "eind bereikt" tellen en het fragment meteen overslaan; wachten tot hij
+      // in de buurt van het nieuwe begin is (keyframes kunnen ~2 s vroeg landen).
+      if (seeking) {
+        if ((t >= c.start - 3 && t < c.end) || Date.now() - switched > 5000) seeking = false;
+        return;
+      }
+      if (c.end > c.start && t >= c.end - 0.15) advance();
     }
 
     loadApi().catch(function () { if (!dead) fail("api"); return null; }).then(function (YT) {
@@ -194,6 +214,7 @@
         events: {
           onReady: function () {
             if (dead) return;
+            loaded = clips[0].id;
             timer = setInterval(tick, 250);
             if (opts.onChange) opts.onChange(0, clips[0]);
           },
@@ -216,6 +237,9 @@
       pause: function () { try { player.pauseVideo(); } catch (e) {} },
       resume: function () { try { player.playVideo(); } catch (e) {} },
       index: function () { return i; },
+      // Een ander rijtje op dezelfde speler: scheelt een nieuwe iframe, en
+      // daarmee opnieuw reclame, zolang het dezelfde video is.
+      setClips: function (list) { if (list && list.length) { clips = list; i = 0; ended = false; } },
       time: function () { try { return player.getCurrentTime() || 0; } catch (e) { return 0; } },
       destroy: function () {
         dead = true;

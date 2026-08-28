@@ -387,7 +387,7 @@
       <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
       <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
       <p class="small" id="clipMsg"></p>
-      <p class="small">De 24 hoofdstukken zijn nog hele hoofdstukken. Speel er een, en tik Start/Eind hier op het moment dat je wilt overhouden.</p>
+      <p class="small">De 24 hoofdstukken zijn nog hele hoofdstukken. Speel er een, en tik Start/Eind hier op het moment dat je wilt overhouden. Binnen dezelfde video springt de speler, dus reclame komt één keer; wisselen tussen omhoog en omlaag laadt opnieuw en kan weer een reclame kosten. 'Speler weg' begint sowieso opnieuw.</p>
     </div>
     <div class="card">
       <div class="label">Proeven</div>
@@ -1759,7 +1759,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home';
+let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={};
 const clipOut={};
 
 function clipDefaultText(){
@@ -1798,18 +1798,22 @@ function clipPhraseId(c){
 
 function clipStop(){if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}const st=$('clipStage');if(st){st.classList.remove('on');st.innerHTML=''}}
 function clipPlayList(list,extra){
-  if(!window.Segue){clipSay('De speler (clipinus/segue.js) laadde niet.');return null}
-  extra=extra||{};
+  if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
+  clipExtra=extra||{};
   stopAudio();                    // de synth zwijgt zodra er beeld is
-  clipStop();
+  // Een bestaande speler hergebruiken in plaats van een nieuwe iframe maken:
+  // elke nieuwe iframe is voor YouTube een nieuwe kijksessie, en dus opnieuw
+  // reclame vóór een fragment van twee seconden. Binnen dezelfde video springt
+  // de motor nu; alleen bij een àndere video kost het weer een laadbeurt.
+  if(clipCtl){clipCtl.setClips(list);clipCtl.go(0);return clipCtl}
   const stage=$('clipStage');stage.classList.add('on');stage.innerHTML='<div></div>';
   clipCtl=Segue.play(stage.firstChild,list,{
-    onChange:extra.onChange,
+    onChange:(n,c)=>{if(clipExtra.onChange)clipExtra.onChange(n,c)},
     onError:(why,n)=>{
       clipSay(why==='api'?'De speler laadde niet — offline?'
         :why==='autoplay'?'De browser blokkeert automatisch starten: tik zelf op de speler.'
         :'Dit fragment speelt hier niet (verwijderd of niet insluitbaar).');
-      if(extra.onError)extra.onError(why,n);
+      if(clipExtra.onError)clipExtra.onError(why,n);
     }
   });
   return clipCtl;
