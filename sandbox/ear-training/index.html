@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.77</title>
+<title>ChordSprint v1.78</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -51,9 +51,9 @@
 /* v1.76 NoteSprint-like vertical mini-piano range control */
 .miniPianoStage{display:grid;grid-template-columns:minmax(0,1fr)52px;gap:9px;align-items:stretch;margin:6px auto 8px}.miniPianoStage .miniPiano{margin:0;height:156px}.pianoVSlider{position:relative;height:156px;min-width:50px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--btn) 64%,transparent);display:flex;align-items:center;justify-content:center;padding:18px 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}.pianoVTrack{position:relative;width:16px;height:100%;border-radius:999px;background:color-mix(in srgb,var(--line) 80%,var(--card));box-shadow:inset 0 0 0 1px var(--line)}.pianoVFill{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,var(--line))}.pianoVThumb{position:absolute;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:999px;background:var(--accent);border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);color:white;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;line-height:1}.pianoVLabel{position:absolute;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.03em;pointer-events:none}.pianoVLabel.top{top:4px}.pianoVLabel.bottom{bottom:4px}.pianoSliderRow,.pianoRange{display:none!important}@media(max-width:460px){.miniPianoStage{grid-template-columns:minmax(0,1fr)48px;gap:7px}.miniPianoStage .miniPiano{height:148px}.pianoVSlider{height:148px;min-width:46px;padding:18px 8px}.pianoVThumb{width:32px;height:32px}.miniPianoBox{padding:10px 8px}}
 
-#clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
-#clipStage.on{display:block}
-#clipStage iframe{width:100%;height:100%;border:0;display:block}
+#clipStage,#playClipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+#clipStage.on,#playClipStage.on{display:block}
+#clipStage iframe,#playClipStage iframe{width:100%;height:100%;border:0;display:block}
 #clipRuler .rRow{display:flex;gap:1px;margin:8px 0 2px}
 #clipRuler .rSlot{flex:1;height:26px;border-radius:3px;background:var(--btn);display:flex;align-items:flex-end;justify-content:center}
 #clipRuler .rSlot span{font-size:9px;line-height:12px;color:var(--muted)}
@@ -74,6 +74,7 @@
 .cChip.cNu{border-color:var(--accent);background:var(--btn)}
 .cChip.cStap{flex:0 0 auto;padding:4px 10px}
 #clipWhere{margin:6px 0 2px}
+.phraseClipBtn{margin-top:6px}
 #clipWhereMain{display:block;font-size:1.15rem;font-weight:800}
 #clipWhereSub{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
 #clipRuler .rSlot.rSpan{box-shadow:inset 0 4px 0 var(--accent)}
@@ -101,7 +102,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.77 · Clip lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.78 · phrase clips in het spel</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -112,7 +113,7 @@
         <button class="btn playActionBtn" id="newBtn" aria-label="Skip to new round">Skip</button>
       </div>
       <div class="metaBar"><span>Mode <b id="modeLabel">Medium</b></span><span>Key <b id="keyLabel">?</b></span><span>Next <b id="nextLabel">1</b>/<b id="targetLen">3</b></span></div>
-      <div id="feedback" class="feedback"></div><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
+      <div id="feedback" class="feedback"></div><div id="playClipStage"></div><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
     </div>
     <div class="card choiceCard"><div class="choiceHead"><div class="label"><span id="chooseKind">Choose chord</span> <span id="chooseNumber">1</span></div><div class="choiceActions"><button class="btn smallBtn hidden" id="inKeyAnswerBaseBtn">Base: Previous</button><button class="btn smallBtn" id="playModeBtn">🔊 Chords</button></div></div><div class="choiceGrid" id="choiceGrid"></div><p class="small" id="choiceHint">Wrong clicks flash red. Hold an answer to preview your phrase.</p></div>
   </section>
@@ -189,6 +190,7 @@
         <div class="settingsSection"><div class="label">Current config</div><div class="split"><button class="btn primary" id="saveConfigBtn">Save as gamemode</button><button class="btn" id="resetBuiltinsBtn">Restore default presets</button></div><p class="small">Saving stores the current practice type, tonality, length, key mode, direction, variety and options as a homepage gamemode.</p></div>
         <div class="settingsSection"><div class="label">Load / reorder gamemodes</div><div class="presetManage" id="presetManage"></div><p class="small">Tap a gamemode to load its settings, then tweak them in Practice or Sound and save as a new gamemode. Use ↑/↓ to reorder.</p></div>
         <div class="settingsSection hidden" id="allMistakesSection"><div class="label">All mistake stats</div><div class="targetStatsBox" id="targetStatsBox"></div><p class="small">Shows the weakest items first. These also feed the Mistakes gamemode.</p></div>
+        <div class="settingsSection"><div class="label">Phrase clips</div><button class="btn" id="phraseClipsBtn"></button><p class="small">Hold on an answer plays the matching YouTube clip from the Clip lab. Text only (or offline): the written phrases, as before.</p></div>
         <div class="settingsSection"><div class="label">Backup</div><div class="exportImportBox"><button class="btn" id="exportSettingsBtn">Export settings</button><button class="btn" id="importSettingsBtn">Import settings</button></div><p class="small">Scope: exports/imports local presets, phrases, stats, sound, theme and settings. Export/import opens a confirmation popup first.</p></div>
         <div class="dangerZone"><div class="label">Reset</div><button class="btn ghost wide" id="resetScoreBtn">Reset score only</button><p class="small">Scope: resets score, streak, attempts and accuracy. It does not change mistakes, theme, presets, phrases, tonality, key mode, direction, selected degrees or variety settings.</p></div>
       </div>
@@ -539,7 +541,7 @@ function loadPresets(){try{const saved=JSON.parse(localStorage.getItem('cpt_pres
 function savePresets(){localStorage.setItem('cpt_presets',JSON.stringify(presets))}
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function currentScreenName(){const active=document.querySelector('.screen.active');return active?active.id.replace('Screen',''):'home'}
-function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name!=='practice'&&typeof playClipStop==='function')playClipStop();if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
 function openHelp(){helpReturn=currentScreenName();showScreen('help')}
 function openPhrases(){phraseReturn=currentScreenName();showScreen('phrases')}
 function openPlayground(){playgroundReturn=currentScreenName();showScreen('playground')}
@@ -1083,7 +1085,7 @@ function renderChoices(){
 }
 function clearFeedback(){$('feedback').textContent='';$('feedback').className='feedback';$('answerReveal').textContent='';clearInKeyStepReveal();$('nextBox').classList.add('hidden')}
 function newProgression(autoPlay=true){
-  stopAudio();const keyMode=$('keyMode').value;key=keyMode==='random'?majorKeys[Math.floor(Math.random()*majorKeys.length)]:'C';syncPianoViewToKey(false);answer=[];locked=false;pianoWrongMidiHits=[];clearFeedback();
+  stopAudio();playClipStop();const keyMode=$('keyMode').value;key=keyMode==='random'?majorKeys[Math.floor(Math.random()*majorKeys.length)]:'C';syncPianoViewToKey(false);answer=[];locked=false;pianoWrongMidiHits=[];clearFeedback();
   if(isMistakeMode()){
     const pool=weakTargets();
     if(!pool.length){currentMistakeItem=null;practiceType='intervals';currentMode='major';currentInterval='P4';currentIntervalDirection='up';currentIntervalTarget=tonicMidi()+intervalDefs.P4.semitones;current=[currentInterval];currentRoots=[currentIntervalTarget];$('keyLabel').textContent='Mistakes';$('givenText').textContent='No mistakes yet · try a normal mode first';renderDots();$('feedback').innerHTML='<div class="mistakeEmpty">No mistakes saved yet. Use another gamemode first; wrong answers will feed this mode.</div>';return}
@@ -1272,7 +1274,8 @@ function phraseBoxHtml(id,idx=0){
   const p=selectedPhraseUnified(e)||{};
   if(!p.title)return '';
   const label=phraseDirectionLabel(e,idx);
-  return `<div class="phraseHintBox" data-hint-id="${htmlEscape(id)}">${label?`<span class="phraseHintBoxLabel">${htmlEscape(label)}</span>`:''}<b>${phraseTitleHtml(id,p)}</b><small>${htmlEscape(normalizeNotationText(p.cue||''))}</small></div>`;
+  const clipBtn=phraseClipsOn()&&clipForPhraseId(id)?`<button class="btn smallBtn phraseClipBtn" data-play-clip="${htmlEscape(id)}">▶ Clip</button>`:'';
+  return `<div class="phraseHintBox" data-hint-id="${htmlEscape(id)}">${label?`<span class="phraseHintBoxLabel">${htmlEscape(label)}</span>`:''}<b>${phraseTitleHtml(id,p)}</b><small>${htmlEscape(normalizeNotationText(p.cue||''))}</small>${clipBtn}</div>`;
 }
 function phrasePairHtml(id){
   const boxes=phrasePairIds(id).map((pid,i)=>phraseBoxHtml(pid,i)).filter(Boolean).join('');
@@ -1328,6 +1331,12 @@ function choiceLabel(choice){
   return choice;
 }
 function showChoicePhrase(choice,pos=0){
+  // Beide richtingen tonen, niets vanzelf afspelen: de clip start pas op de
+  // ▶-knop in het richting-blokje (die tik is meteen het autoplay-gebaar).
+  playClipStop();
+  showChoicePhraseText(choice,pos);
+}
+function showChoicePhraseText(choice,pos=0){
   const id=phraseIdForChoice(choice,pos), e=id?phraseById(id):null, p=e&&e.id?selectedPhraseUnified(e):null;
   $('feedback').className='feedback';
   const pairHtml=id?phrasePairHtml(id):'';
@@ -1343,7 +1352,7 @@ function wireAnswerButton(btn,value){
   btn.addEventListener('pointerdown',()=>{if(locked||btn.disabled)return;clear();holdTimer=setTimeout(()=>{btn._heldPhrase=true;btn.classList.add('active');showChoicePhrase(value,answer.length);setTimeout(()=>btn.classList.remove('active'),260)},520)});
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,clear));
   btn.addEventListener('contextmenu',ev=>ev.preventDefault());
-  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}pick(value,btn)};
+  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}playClipStop();pick(value,btn)};
 }
 function openPhraseDetailFromGame(id){
   const e=phraseById(id);if(!e||!e.id)return;
@@ -1744,7 +1753,7 @@ document.addEventListener('pointerup',endPianoVSliderDrag);
 document.addEventListener('pointercancel',endPianoVSliderDrag);
 $('answerReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.showInkeySteps){ev.preventDefault();flashHelpButton(btn);const el=$('stepReveal');if(el&&!el.classList.contains('hidden'))clearInKeyStepReveal();else renderInKeySteps();return}if(btn.dataset.showChordSteps){ev.preventDefault();flashHelpButton(btn);showChordSteps();return}});
 $('stepReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('[data-inkey-step-pos]');if(btn)playInKeyStepPos(btn.dataset.inkeyStepPos,btn)});
-$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
+$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.playClip){const c=clipForPhraseId(btn.dataset.playClip);if(c){flashHelpButton(btn);playClipPlay(c)}return}if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
 $('phraseSearch')?.addEventListener('input',ev=>{phraseSearchTerm=ev.target.value||'';localStorage.setItem('cpt_phraseSearch',phraseSearchTerm);phraseDetailId='';localStorage.setItem('cpt_phraseDetailId','');renderPhraseLibrary()});
 function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function getSettingsExportText(){const data={version:'1.72',created:new Date().toISOString(),items:{}};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('cpt_'))data.items[k]=localStorage.getItem(k)}return JSON.stringify(data,null,2)}
@@ -1847,6 +1856,36 @@ function clipTickKnip(){
   $('clipEndHere').textContent='Eind hier'+(t?' · '+Segue.clock(t):'');
 }
 function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)}
+
+/* ---- Phrase-clips in de oefening ------------------------------------------
+   Hold op een antwoord speelt het echte fragment uit het Clip lab in plaats
+   van alleen de tekst. Tekst blijft het vangnet: offline, autoplay geblokkeerd,
+   fragment onspeelbaar, of bewust uitgezet in Settings. De keuze reist mee in
+   cpt_clipLab en synct dus tussen apparaten. */
+let playClipCtl=null;
+function phraseClipsOn(){return loadClipLab().phraseClips!==false&&navigator.onLine!==false&&!!window.Segue}
+function clipForPhraseId(id){
+  const m=String(id||'').match(/^int_(m2|M2|m3|M3|P4|TT|P5|m6|M6|m7|M7|P8)_(up|down)$/);
+  if(!m||!window.Segue)return null;
+  const lbl=m[1]+' '+(m[2]==='up'?'↑':'↓');
+  const cand=clipList().filter(c=>c.label===lbl);
+  if(!cand.length)return null;
+  // kortste eerst: een ingekort fragment is de betere illustratie dan een heel hoofdstuk
+  cand.sort((a,b)=>(a.end>a.start?a.end-a.start:1e9)-(b.end>b.start?b.end-b.start:1e9));
+  return cand[0];
+}
+function playClipStop(){
+  if(playClipCtl){try{playClipCtl.destroy()}catch(e){}playClipCtl=null}
+  const st=$('playClipStage');if(st){st.classList.remove('on');st.innerHTML=''}
+}
+function playClipPlay(clip,onFail){
+  stopAudio();                                 // synth en clip nooit tegelijk
+  if(playClipCtl){playClipCtl.setClips([clip]);playClipCtl.go(0);return}
+  const st=$('playClipStage');st.classList.add('on');st.innerHTML='<div></div>';
+  playClipCtl=Segue.play(st.firstChild,[clip],{
+    onError:function(){playClipStop();if(onFail)onFail()}
+  });
+}
 function clipPlayList(list,extra){
   if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
   clipExtra=extra||{};
@@ -2197,6 +2236,9 @@ $('clipAddBtn').onclick=()=>{
   clipPlay(clipList().length-1);renderClipLab();
   clipSay('Nieuwe video op '+iv.interval+' '+iv.richting+' — voorlopig 0:00-0:30, knip met Start/Eind hier.');
 };
+function renderPhraseClipsBtn(){const b=$('phraseClipsBtn');if(b)b.textContent=loadClipLab().phraseClips!==false?'🎬 Clips (default)':'📝 Text only'}
+$('phraseClipsBtn').onclick=()=>{const st=loadClipLab();st.phraseClips=st.phraseClips===false;saveClipLab();renderPhraseClipsBtn()};
+renderPhraseClipsBtn();
 $('clipProgPlay').onclick=()=>clipProgSpeel();
 $('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipProg()};
 $('clipPlayBtn').onclick=()=>clipPlay(clipIdx);
