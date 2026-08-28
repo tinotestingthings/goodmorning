@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.78</title>
+<title>ChordSprint v1.79</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -102,7 +102,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.78 · phrase clips in het spel</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.79 · clips in alle gamemodes</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -1865,9 +1865,13 @@ function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)
 let playClipCtl=null;
 function phraseClipsOn(){return loadClipLab().phraseClips!==false&&navigator.onLine!==false&&!!window.Segue}
 function clipForPhraseId(id){
-  const m=String(id||'').match(/^int_(m2|M2|m3|M3|P4|TT|P5|m6|M6|m7|M7|P8)_(up|down)$/);
-  if(!m||!window.Segue)return null;
-  const lbl=m[1]+' '+(m[2]==='up'?'↑':'↓');
+  // Niet alleen int_*: ook move_* en chord_* dragen een interval + richting in
+  // hun phrase-data (move_2 is een M2 omhoog), dus elk gamemode-antwoord wijst
+  // via de phrase naar hetzelfde fragmentlabel als de interval-oefening.
+  if(!window.Segue)return null;
+  const e=phraseById(String(id||''));
+  if(!e||!e.interval||!e.direction)return null;
+  const lbl=e.interval+' '+(e.direction==='up'?'↑':'↓');
   const cand=clipList().filter(c=>c.label===lbl);
   if(!cand.length)return null;
   // kortste eerst: een ingekort fragment is de betere illustratie dan een heel hoofdstuk
