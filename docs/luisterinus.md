@@ -1,5 +1,7 @@
 # Luisterinus — digest-item → NotebookLM-podcast
 
+Fase 4 (luister-UX: doorspelen, minder tikken, eerlijke voortgang) is gepland: `docs/luisterinus-ui.md`.
+
 Projectplan: artifact "Luisterinus" (21 aug 2026). Kort: één knop op de digest-kaart
 (triage-deck) zet een item in Supabase-wachtrij `podcast_queue`; een los script
 (fase 2/3, notebooklm-py) maakt er een Audio Overview van en zet de mp3 in de
