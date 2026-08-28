@@ -17,10 +17,11 @@
 import { currentLanguage, otherLanguage } from "./i18n.js";
 
 const DATA_URL = "data/birds.json";
-// Honden zijn een APARTE fetch, geen tweede blok in birds.json. Zo blijft een
-// kapotte of ontbrekende hondendataset een app die alleen vogels kent, in
-// plaats van een app die niet start.
+// Honden en stromingen zijn APARTE fetches, geen extra blokken in birds.json.
+// Zo blijft een kapot of ontbrekend uitbreidingsbestand een app met minder
+// kinds, in plaats van een app die niet start.
 const DOGS_URL = "data/dogs.json";
+const ARCH_URL = "data/arch.json";
 
 /** @type {Array<object>} */
 let birds = [];
@@ -53,15 +54,19 @@ async function fetchList(url) {
  * een app die helemaal niet start. Zelfde afweging als bij bird-photos.json.
  */
 export async function loadBirds() {
-  const [birdData, dogData] = await Promise.all([
+  const [birdData, dogData, archData] = await Promise.all([
     fetchList(DATA_URL),
     fetchList(DOGS_URL).catch((err) => {
-      console.warn(`[data] ${DOGS_URL} niet geladen, Spotinus toont alleen vogels`, err);
+      console.warn(`[data] ${DOGS_URL} niet geladen, Spotinus toont geen honden`, err);
+      return [];
+    }),
+    fetchList(ARCH_URL).catch((err) => {
+      console.warn(`[data] ${ARCH_URL} niet geladen, Spotinus toont geen bouwstijlen`, err);
       return [];
     }),
   ]);
 
-  birds = [...birdData, ...dogData];
+  birds = [...birdData, ...dogData, ...archData];
   // Pre-compute the search haystack once instead of rebuilding it per keystroke
   // for all 566 birds (the old code did the latter, un-debounced). Hier krijgt
   // elke soort ook zijn `id` en zijn `kind`: birds.json kent beide velden niet,

@@ -6,6 +6,21 @@ Newest first. One line per deploy to the live root.
 ## 2026-08-25 (v2026.08.25-1) — Bulk-verplaatsen van to-do's: banner op Today bij een volle dag, vaste knop in de agenda ('All')
 
 
+## 2026-08-25 (v2026.08.25-1) — Spotinus: 24 bouwstromingen
+
+Derde kind naast vogels en honden: architectuur. De stroming is de soort — 24
+handgeschreven stijlkaarten (tools/arch-styles.mjs: periode, herkenkenmerken,
+architecten, verhaal in twee talen, chronologisch van Romaans tot Superdutch) en
+per stroming tot acht gebouwenfoto's uit Wikidata P149, gerankt op bekendheid.
+Gebouwen met meerdere stijlen weert het buildscript (het Binnenhof was anders het
+gezicht van gotiek én Hollandse renaissance); didactische missers als de Nieuwe
+Kerk-als-neogotiek zijn via excludes gecureerd. In de app: schakelaar wordt
+Alles/Vogels/Honden/Stijlen, Periode-filter alleen bij stijlen, afleiders kiezen
+tijdgenoten (+3 zelfde era), detailkaart toont Periode/Herkenbaar aan/Architecten,
+en een seed-tegel "Bouwstijlen · tijdlijn" bladert chronologisch. De
+chronologie-check in de test ving meteen twee ordeningsfouten in mijn eigen
+lijst. 34 checks groen; /code-review medium zonder bevindingen.
+
 ## 2026-08-24 (v2026.08.24-2) — Spotinus: de rasgroepquiz gebruikt de kaart uit Bladeren
 
 De drie kaartjes in de rasgroepquiz waren losse foto's met een bijschrift; nu zijn het de

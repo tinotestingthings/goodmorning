@@ -1,0 +1,27 @@
+# Foto's die geen goede stijlfoto zijn. Eén Commons-bestandsnaam per regel,
+# precies zoals hij onder de foto in het contactvel staat.
+#
+#   node tools/build-arch.mjs sandbox/vogelspotinus --exclude tools/arch-photo-excludes.txt
+#
+# Gebouwen die bij meerdere stromingen horen weert het script al zelf; wat hier
+# staat zijn objecten die überhaupt geen gebouw zijn en dus niets leren over
+# een bouwstijl.
+
+# zendmast, geen gebouw (wederopbouw)
+20131110 Gerbrandytoren.jpg
+# monument, geen gebouw (wederopbouw)
+Overzicht voorzijde - Amsterdam - 20357041 - RCE.jpg
+# sluizencomplex, geen leesbaar gebouw (nieuwe bouwen)
+Lorentzsluizen Kornwerderzand.jpg
+
+# Stijltoewijzing van Wikidata is hier didactisch fout of misleidend:
+# de Nieuwe Kerk A'dam is hét schoolvoorbeeld van (laat)gotiek, geen neogotiek-gezicht
+Iglesia Nueva, Ámsterdam, Países Bajos, 2016-05-30, DD 10-12 HDR.jpg
+# het Concertgebouw is neorenaissance/eclectisch (Van Gendt), geen neoclassicisme-icoon
+Concertgebouw in Amsterdam April 2015.jpg
+# de nieuwe Sint-Bavo is een eclectische kathedraal met jugendstil-accenten, geen jugendstil-gezicht
+Haarlem Kathedraal Sint Bavo 06.jpg
+# het Olympisch Stadion is Jan Wils; Het Schip hoort het gezicht van de Amsterdamse School te zijn
+Olstadion.jpg
+# brug, geen gebouw (wederopbouw)
+Luchtopname Zeelandbrug, Bestanddeelnr 123-1014.jpg

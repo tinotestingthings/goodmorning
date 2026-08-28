@@ -79,6 +79,14 @@ function favoriteButton(bird) {
 function detailFields(bird) {
   const rows = [];
 
+  // Bouwstijlen: de kaart is hier een stijlkaart. Periode en kenmerken staan
+  // bovenaan omdat dat is wat je op straat gebruikt; het verhaal (fact) en de
+  // architecten volgen verderop via de bestaande rijen.
+  if (bird.period) rows.push(field(t("stylePeriod"), bird.period));
+  const features = bilingual(bird, "features");
+  if (features?.length) rows.push(field(t("styleFeatures"), features.join(" · ")));
+  if (bird.architects?.length) rows.push(field(t("styleArchitects"), bird.architects.join(", ")));
+
   // Origin and NL status are two separate facts, so they get two labelled
   // rows. Merging them meant the value repeated its own field label
   // ("HERKOMST" / "Herkomst: Siberië ...").

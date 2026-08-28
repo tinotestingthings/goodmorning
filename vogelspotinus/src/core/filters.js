@@ -33,6 +33,23 @@ export const FILTER_DEFINITIONS = [
     values: [
       { value: "bird", labelKey: "kindBird" },
       { value: "dog", labelKey: "kindDog" },
+      { value: "architecture", labelKey: "kindArchitecture" },
+    ],
+  },
+  {
+    // Alleen bouwstijlen dragen een era-tag, dus deze dimensie verschijnt
+    // vanzelf alleen daar (availableFilters kijkt naar de pool). De buckets
+    // zijn bewust grof: het gaat om "tijdgenoten herkennen", niet om jaartallen.
+    key: "era",
+    labelKey: "filterEra",
+    type: "single-multi",
+    source: "tag",
+    values: [
+      { value: "medieval", labelKey: "eraMedieval" },
+      { value: "early-modern", labelKey: "eraEarlyModern" },
+      { value: "s19", labelKey: "era19th" },
+      { value: "s1900", labelKey: "era1900" },
+      { value: "postwar", labelKey: "eraPostwar" },
     ],
   },
   {

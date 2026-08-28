@@ -23,6 +23,10 @@ function similarity(bird, candidate) {
   // "labrador of chihuahua?" precies de te makkelijke vraag waarvoor dit
   // module bestaat.
   if (!bird.tags?.family && bird.origin_en && candidate.origin_en === bird.origin_en) score += 3;
+  // Bouwstijlen: tijdgenoten zijn de verwarrende buren. Neogotiek naast
+  // neorenaissance is de vraag die je op straat ook echt hebt; neogotiek naast
+  // Superdutch is er geen.
+  if (bird.tags?.era && candidate.tags?.era === bird.tags.era) score += 3;
   if (bird.tags?.sizeBucket && candidate.tags?.sizeBucket === bird.tags.sizeBucket) score += 1;
   const colors = bird.tags?.colors ?? [];
   const otherColors = candidate.tags?.colors ?? [];

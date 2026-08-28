@@ -406,7 +406,77 @@ check("met geluidsvragen uit stelt de oefensessie er geen enkele", async () => {
   );
 });
 
-// --- 9. Niets in de app zoekt nog op de oude sleutel -------------------------
+// --- 9. Bouwstijlen -----------------------------------------------------------
+
+const arch = json("data/arch.json");
+const archPhotos = json("data/arch-photos.json");
+
+check(`${arch.length} bouwstijlen: ids, kind en era kloppen`, () => {
+  assert.ok(arch.length >= 20, `maar ${arch.length} stijlen`);
+  const eras = new Set(["medieval", "early-modern", "s19", "s1900", "postwar"]);
+  for (const a of arch) {
+    assert.match(a.id, /^arch:[a-z-]+$/, `vreemd id ${a.id}`);
+    assert.ok(!byId.has(a.id), `${a.id} botst met een vogel`);
+    assert.equal(a.tags?.kind, "architecture", a.id);
+    assert.ok(eras.has(a.tags?.era), `${a.id} heeft onbekende era ${a.tags?.era}`);
+    assert.equal(a.scientificName, null, a.id);
+    assert.equal(a.soundUrl, null, a.id);
+    assert.ok(a.dutchName && a.englishName, a.id);
+    assert.ok(a.period && a.startYear, `${a.id} mist periode`);
+    assert.ok(a.features_nl?.length >= 3 && a.features_en?.length >= 3, `${a.id} mist kenmerken`);
+    assert.ok(a.fact_nl && a.fact_en, `${a.id} mist verhaal`);
+  }
+  assert.equal(new Set(arch.map((a) => a.id)).size, arch.length, "dubbele stijl-ids");
+});
+
+check("de stijlen staan chronologisch — de tijdlijn is de cursus", () => {
+  const jaren = arch.map((a) => a.startYear);
+  const gesorteerd = [...jaren].sort((x, y) => x - y);
+  assert.deepEqual(jaren, gesorteerd, "arch.json is niet chronologisch geordend");
+});
+
+check("elke stijl heeft genoeg foto's voor een echte quiz", () => {
+  // De hoofdfoto plus minstens twee extra: met minder train je op de foto in
+  // plaats van op de stijl -- de les van de honden.
+  const dun = arch.filter((a) => {
+    const totaal = (a.imageThumbUrl ? 1 : 0) + (archPhotos[a.id]?.length ?? 0);
+    return totaal < 3;
+  });
+  assert.deepEqual(dun.map((a) => a.id), []);
+});
+
+check("stijlfoto's: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig", () => {
+  const archById = new Map(arch.map((a) => [a.id, a]));
+  const bestand = (u) =>
+    decodeURIComponent(String(u).split("/").pop().split("?")[0]).replace(/^\d+px-/, "");
+  for (const [id, lijst] of Object.entries(archPhotos)) {
+    const stijl = archById.get(id);
+    assert.ok(stijl, `foto's voor onbekende stijl ${id}`);
+    const hoofd = bestand(stijl.imageThumbUrl);
+    for (const p of lijst) {
+      assert.notEqual(bestand(p.u), hoofd, `${id}: hoofdfoto ook als extra`);
+      assert.ok(p.a, `${id}: foto zonder bronvermelding`);
+    }
+    assert.equal(new Set(lijst.map((p) => p.u)).size, lijst.length, `${id}: dubbele foto`);
+  }
+});
+
+check("afleiders voor een stijl zijn stijlen, het liefst tijdgenoten", () => {
+  const alles = [...birds, ...dogs, ...arch.map((a) => ({ ...a }))];
+  for (const stijl of arch.slice(0, 12)) {
+    const opties = pickDistractors(stijl, alles, 3);
+    const vreemd = opties.filter((o) => o.tags?.kind !== "architecture");
+    assert.deepEqual(vreemd.map((o) => o.id), [], `${stijl.id} kreeg een dier als afleider`);
+  }
+  // De era-term moet tijdgenoten naar voren duwen: bij een 19e-eeuwse stijl
+  // horen de topkandidaten ook 19e-eeuws te zijn (er zijn er 6, dus 3 lukt).
+  const neogotiek = arch.find((a) => a.id === "arch:neogotiek");
+  const opties = pickDistractors(neogotiek, alles, 3);
+  const zelfdeEra = opties.filter((o) => o.tags?.era === "s19").length;
+  assert.ok(zelfdeEra >= 2, `maar ${zelfdeEra} van 3 afleiders zijn tijdgenoten`);
+});
+
+// --- 10. Niets in de app zoekt nog op de oude sleutel -------------------------
 
 check("de identiteitsmodules noemen scientificName helemaal niet meer", () => {
   // Deze vijf sleutelen puur op identiteit: elke vermelding is een gemiste plek.

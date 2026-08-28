@@ -43,15 +43,26 @@ function popularDutchDogs() {
 }
 
 /**
+ * De stromingen in cursusvolgorde: chronologisch, zoals arch.json ze levert.
+ * De tijdlijn ís het verhaal, dus dit spel is een blader-tegel (naslagwerk in
+ * leesrichting), geen quiz -- vrij quizzen kan al via de Stijlen-schakelaar.
+ */
+function architectureTimeline() {
+  return allBirds()
+    .filter((s) => s.tags?.kind === "architecture")
+    .map((s) => s.id);
+}
+
+/**
  * De seed wordt bij het opstarten opgebouwd, ná het laden van de data -- de
- * hondenlijst komt namelijk uit de dataset zelf. Bump `version` als je de
- * inhoud wijzigt; applySeed() voegt een spel alleen toe als het id nog niet
- * bestaat, dus zonder bump verandert er bij bestaande installaties niets.
+ * honden- en stijlenlijst komen namelijk uit de dataset zelf. Bump `version`
+ * als je de inhoud wijzigt; applySeed() voegt een spel alleen toe als het id
+ * nog niet bestaat, dus zonder bump verandert er bij bestaande installaties niets.
  */
 export function buildSeed() {
   return {
-    // v4: honden erbij, dus een tweede seed-spel.
-    version: "4",
+    // v5: bouwstijlen erbij, dus een derde seed-spel.
+    version: "5",
     retire: ["griftpark-top20", "griftpark-all"],
     games: [
       {
@@ -61,6 +72,15 @@ export function buildSeed() {
         filters: {
           ...emptySelection(),
           specificIds: GRIFTPARK_COURSE.species.map(([sci]) => sci),
+        },
+      },
+      {
+        id: "stromingen-tijdlijn",
+        name: "Bouwstijlen · tijdlijn",
+        gameMode: "browse",
+        filters: {
+          ...emptySelection(),
+          specificIds: architectureTimeline(),
         },
       },
       {
