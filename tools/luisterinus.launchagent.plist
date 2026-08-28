@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Luisterinus fase 3: worker 2x per dag (07:30 en 17:30). Slaapt de Mac op dat
+     moment, dan draait launchd de gemiste run bij de eerstvolgende wake alsnog.
+     Installeren/bijwerken:
+       cp tools/luisterinus.launchagent.plist ~/Library/LaunchAgents/nl.tinus.luisterinus.plist
+       launchctl unload ~/Library/LaunchAgents/nl.tinus.luisterinus.plist 2>/dev/null; launchctl load ~/Library/LaunchAgents/nl.tinus.luisterinus.plist
+     Log: ~/Library/Logs/luisterinus.log -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>nl.tinus.luisterinus</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/martijnmensink/.pyenv/versions/3.10.13/bin/python3</string>
+    <string>/Users/martijnmensink/Code/goodmorning/tools/luisterinus-worker.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- notebooklm-CLI (subprocess in de worker) en afinfo moeten vindbaar zijn -->
+    <key>PATH</key><string>/Users/martijnmensink/.pyenv/versions/3.10.13/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>
+  <key>StandardErrorPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>
+</dict>
+</plist>

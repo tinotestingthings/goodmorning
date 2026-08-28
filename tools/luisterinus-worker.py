@@ -96,9 +96,12 @@ def q(s):
     return urllib.parse.quote(s, safe="")
 
 
+def iso_days_ago(days):
+    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+
 def fetch_requested():
-    since = (datetime.now(timezone.utc) - timedelta(days=DAYS)).isoformat()
-    return sb("GET", f"/rest/v1/{TABLE}?status=eq.requested&requested_at=gte.{q(since)}"
+    return sb("GET", f"/rest/v1/{TABLE}?status=eq.requested&requested_at=gte.{q(iso_days_ago(DAYS))}"
                      "&select=id,item_url,title&order=requested_at.asc") or []
 
 
@@ -125,6 +128,17 @@ def audio_seconds(path):
 
 
 # ---- NotebookLM ------------------------------------------------------------
+
+def keepalive():
+    # fase 3: cookies élke run verversen — óók bij een lege wachtrij, anders verloopt
+    # de login stil in weken zonder verzoeken. Best-effort; de preflight oordeelt.
+    try:
+        r = subprocess.run(["notebooklm", "auth", "refresh", "--quiet"], capture_output=True, text=True, timeout=120)
+        if r.returncode != 0:
+            print(f"keepalive-refresh gaf exit {r.returncode}: {((r.stderr or r.stdout) or '').strip()[:120]}", flush=True)
+    except Exception as e:
+        print(f"keepalive-refresh niet gelukt ({type(e).__name__})", flush=True)
+
 
 def preflight():
     try:
@@ -213,15 +227,45 @@ async def process(client, row):
         log(f"audio staat in de bucket maar status niet gezet ({str(e)[:160]}); volgende run maakt hem opnieuw")
 
 
+# ---- Opruimen (fase 3) -----------------------------------------------------
+# Rijen ouder dan het app-venster weg; daarna elk bucketbestand zonder rij
+# (verlopen afleveringen, in de app verwijderde rijen, oude testbestanden).
+# Alleen platte namen: de worker schrijft altijd `<id>.m4a` in de bucket-root;
+# mapjes (id=None in de listing) laten we staan.
+
+def cleanup():
+    # Eén dag achter het app/worker-venster: een rij die bij het ophalen nog nét
+    # binnen 14 dagen viel (of in een open app-lijst staat), wordt nooit in
+    # dezelfde adem verwijderd — verwerken duurt minuten, geen dag.
+    sb("DELETE", f"/rest/v1/{TABLE}?requested_at=lt.{q(iso_days_ago(DAYS + 1))}")
+    keep = {r["audio_path"] for r in (sb("GET", f"/rest/v1/{TABLE}?select=audio_path") or []) if r.get("audio_path")}
+    if not keep:  # CLAUDE.md-regel 2: "leeg" is nooit bewijs dat alles weg mag — sweep wacht op de volgende run met rijen
+        print("geen rijen met audio_path — bestandssweep overgeslagen", flush=True)
+        return
+    # ponytail: één pagina van 1000 is ruim boven het 14-dagenvenster (~30 bestanden); pagineren pas als dat ooit knelt
+    objs = sb("POST", f"/storage/v1/object/list/{BUCKET}",
+              json.dumps({"prefix": "", "limit": 1000}).encode(), {"Content-Type": "application/json"}) or []
+    for o in objs:
+        name = o.get("name")
+        if o.get("id") and name and name not in keep:
+            sb("DELETE", f"/storage/v1/object/{BUCKET}/" + urllib.parse.quote(name, safe="/"))
+            print(f"opgeruimd: {name}", flush=True)
+
+
 async def run_queue():
+    keepalive()
     rows = fetch_requested()
     if not rows:
         print("wachtrij leeg")
-        return
-    preflight()
-    async with NotebookLMClient.from_storage() as client:
-        for row in rows:
-            await process(client, row)
+    else:
+        preflight()
+        async with NotebookLMClient.from_storage() as client:
+            for row in rows:
+                await process(client, row)
+    try:  # best-effort, nooit de reden dat een run "mislukt"
+        cleanup()
+    except Exception as e:
+        print(f"opruimen niet gelukt (volgende run opnieuw): {str(e)[:160]}", flush=True)
 
 
 def locked_run():

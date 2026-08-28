@@ -141,7 +141,7 @@ exit 2 = afgebroken zonder rijen aan te raken (login verlopen → `notebooklm lo
 Tweede gelijktijdige run zegt "al bezig" en stopt (lockfile in de temp-map).
 Losse proef zonder Supabase: `python3 tools/luisterinus-worker.py --test-url <url> --out podcast.m4a`.
 
-**Per rij:** preflight `notebooklm auth check --test` → notebook aanmaken → `sources.add_url(wait=True)` →
+**Per rij:** preflight `notebooklm auth refresh --quiet` (keepalive, best-effort) + `auth check --test` → notebook aanmaken → `sources.add_url(wait=True)` →
 `generate_audio(language="en", audio_format=BRIEF)` → `wait_for_completion(timeout=900)` → `download_audio`
 (m4a) → notebook verwijderen (mag falen) → upload `digest-audio/<id>.m4a` (`audio/mp4`, upsert) →
 `PATCH status=ready, audio_path=<id>.m4a`.
@@ -160,11 +160,25 @@ audio_format=AudioFormat.BRIEF|DEEP_DIVE|CRITIQUE|DEBATE, audio_length=AudioLeng
 `is_complete/is_failed/is_rate_limited/error/error_code`; `client.artifacts.download_audio(id, path)`;
 `client.notebooks.delete(id)` (idempotent). `ArtifactStatus` zit niet in de top-level module.
 
-**Daarna (fase 3):** Cowork-taak 2×/dag die dit script draait; `notebooklm auth refresh --quiet` als keepalive;
-opruimen >14 dagen (bucket + rijen); rij in `Mijn Wiki/90 System/Automations.md`. Opslag: een Brief is ~5–10 MB,
-de deep-dive-proef was 32 MB; de gratis Supabase-bucket (1 GB) is met het 14-dagenvenster ruim genoeg.
+## Fase 3 — vanzelf draaien (28 aug 2026)
 
-## Opruimen (fase 3)
+Geen Cowork-taak maar een kale LaunchAgent (een agent-sessie opstarten om één
+Python-script te draaien is te zwaar): `tools/luisterinus.launchagent.plist`,
+2×/dag (07:30 en 17:30; slaapt de Mac, dan draait de gemiste run bij de
+eerstvolgende wake). Installeren/bijwerken: zie de kop van het plist-bestand.
+Log: `~/Library/Logs/luisterinus.log` — daar staat ook "NotebookLM-login
+verlopen — draai: notebooklm login" als de keepalive het niet meer redt.
+Rij hoort in `Mijn Wiki/90 System/Automations.md`. Opslag: een Brief is
+~5–10 MB, de deep-dive-proef was 32 MB; de gratis Supabase-bucket (1 GB) is
+met het 14-dagenvenster ruim genoeg.
 
-Bucketbestanden en wachtrijrijen ouder dan 14 dagen weggooien — doet het
-verwerkscript, niet de app.
+## Opruimen (fase 3, zit in de worker)
+
+Elke run, na de wachtrij, best-effort: rijen ouder dan 15 dagen weg (één dag
+achter het app-venster, zodat een rij die tijdens de run of in een open app nog
+nét zichtbaar was nooit in dezelfde adem verdwijnt), daarna elk bucketbestand
+in de root waar geen rij meer naar wijst (verlopen afleveringen, in de app
+verwijderde rijen, oude testbestanden). Is de keep-set leeg, dan slaat de sweep
+over ("leeg" is nooit bewijs dat alles weg mag — CLAUDE.md-regel 2). Mapjes
+blijven staan; de worker schrijft zelf altijd plat `<id>.m4a`. De keepalive
+(`auth refresh`) draait élke run, ook bij een lege wachtrij.
