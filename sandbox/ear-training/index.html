@@ -73,7 +73,14 @@
 .cChip.cLeeg{border-style:dashed}
 .cChip.cNu{border-color:var(--accent);background:var(--btn)}
 .cChip.cStap{flex:0 0 auto;padding:4px 10px}
-#clipWhere{margin:2px 0 0}
+#clipWhere{margin:6px 0 2px}
+#clipWhereMain{display:block;font-size:1.15rem;font-weight:800}
+#clipWhereSub{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
+#clipRuler .rSlot.rSpan{box-shadow:inset 0 4px 0 var(--accent)}
+#clipRuler .rSlot.rSpan.rHeeft{box-shadow:inset 0 4px 0 var(--accent),inset 0 -3px 0 var(--good)}
+.cChip.cKort{box-shadow:inset 0 -3px 0 var(--good)}
+.addrow input{flex:1;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-size:.85rem}
+.addrow .btn{flex:0 0 auto}
 .clipTest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .clipTest .small{flex:1;min-width:150px}
 #clipLog div{padding:3px 0;border-bottom:1px solid var(--line);font-size:.85rem;color:var(--muted)}
@@ -403,13 +410,14 @@
       <div class="label">Fragment</div>
       <div id="clipRuler"></div>
       <div id="clipChips"></div>
-      <p class="small" id="clipWhere"></p>
+      <div id="clipWhere"><b id="clipWhereMain"></b><span id="clipWhereSub"></span></div>
       <div id="clipStage"></div>
-      <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
       <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
+      <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
       <div class="split"><button class="btn ghost" id="clipRehang">Verhang naar…</button><button class="btn ghost" id="clipProgAdd">+ stap</button></div>
+      <div class="split addrow"><input id="clipAddUrl" placeholder="YouTube-link voor deze beweging" inputmode="url"><button class="btn ghost" id="clipAddBtn">+ video</button></div>
       <p class="small" id="clipMsg"></p>
-      <p class="small">De 24 hoofdstukken zijn nog hele hoofdstukken. Speel er een, en tik Start/Eind hier op het moment dat je wilt overhouden. Binnen dezelfde video springt de speler, dus reclame komt één keer; wisselen tussen omhoog en omlaag laadt opnieuw en kan weer een reclame kosten. 'Speler weg' begint sowieso opnieuw.</p>
+      <p class="small">Tik een chip om te spelen; Start/Eind hier knipt op de speeltijd. Reclame komt hooguit één keer per video.</p>
     </div>
     <div class="card">
       <div class="label">Progressie</div>
@@ -429,6 +437,7 @@
     </div>
     <div class="card">
       <div class="label">Alle fragmenten</div>
+      <p class="small" id="clipTrimCount"></p>
       <textarea id="clipText" spellcheck="false"></textarea>
       <div class="split"><button class="btn" id="clipSaveBtn">Bewaar</button><button class="btn ghost" id="clipResetBtn">Terug naar de hoofdstukken</button></div>
     </div>
@@ -1787,7 +1796,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={},clipVerhangen=false;
+let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null;
 const clipOut={};
 
 function clipDefaultText(){
@@ -1824,7 +1833,20 @@ function clipPhraseId(c){
   return m?('int_'+m[1]+'_'+(m[2]==='↑'?'up':'down')):null;
 }
 
-function clipStop(){if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}const st=$('clipStage');if(st){st.classList.remove('on');st.innerHTML=''}}
+function clipStop(){
+  if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}
+  clearInterval(clipTicker);clipTicker=null;
+  if($('clipStartHere')){$('clipStartHere').textContent='Start hier';$('clipEndHere').textContent='Eind hier'}
+  const st=$('clipStage');if(st){st.classList.remove('on');st.innerHTML=''}
+}
+/* Live speeltijd op de knipknoppen: dan is knippen richten in plaats van gokken. */
+function clipTickKnip(){
+  const t=clipCtl?clipCtl.time():0;
+  if(!$('clipStartHere'))return;
+  $('clipStartHere').textContent='Start hier'+(t?' · '+Segue.clock(t):'');
+  $('clipEndHere').textContent='Eind hier'+(t?' · '+Segue.clock(t):'');
+}
+function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)}
 function clipPlayList(list,extra){
   if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
   clipExtra=extra||{};
@@ -1833,7 +1855,7 @@ function clipPlayList(list,extra){
   // elke nieuwe iframe is voor YouTube een nieuwe kijksessie, en dus opnieuw
   // reclame vóór een fragment van twee seconden. Binnen dezelfde video springt
   // de motor nu; alleen bij een àndere video kost het weer een laadbeurt.
-  if(clipCtl){clipCtl.setClips(list);clipCtl.go(0);return clipCtl}
+  if(clipCtl){clipCtl.setClips(list);clipCtl.go(0);clipTickStart();return clipCtl}
   const stage=$('clipStage');stage.classList.add('on');stage.innerHTML='<div></div>';
   clipCtl=Segue.play(stage.firstChild,list,{
     onChange:(n,c)=>{if(clipExtra.onChange)clipExtra.onChange(n,c)},
@@ -1844,6 +1866,7 @@ function clipPlayList(list,extra){
       if(clipExtra.onError)clipExtra.onError(why,n);
     }
   });
+  clipTickStart();
   return clipCtl;
 }
 function clipPlay(i){
@@ -2028,6 +2051,7 @@ function renderClipLiniaal(){
     if(l.graad)klas.push('rIn');
     if(off!==0&&perBew[off])klas.push('rHeeft');
     if(off!==0&&off===hier)klas.push('rNu');
+    if(hier!==null&&off!==0&&off!==hier&&off>Math.min(0,hier)&&off<Math.max(0,hier))klas.push('rSpan');
     html+='<div class="'+klas.join(' ')+'"><span>'+(l.graad?l.graad:'')+'</span></div>';
   }
   el.innerHTML='<div class="rRow">'+html+'</div><div class="rLegend"><span>octaaf onder</span><span>1</span><span>octaaf boven</span></div>';
@@ -2036,10 +2060,14 @@ function renderClipChips(){
   const el=$('clipChips');
   if(!el)return;
   const perBew=clipPerBeweging(),hier=clipHuidigeOffset();
-  const rij=(richting,teken)=>intervalAll.map(iv=>{
+  const alle=clipList();
+  // De omlaag-rij loopt gespiegeld (P8 eerst): dan staat links=laag en midden=1,
+  // dezelfde richting als de liniaal erboven.
+  const rij=(richting,teken)=>(richting==='down'?intervalAll.slice().reverse():intervalAll).map(iv=>{
     const off=(richting==='down'?-1:1)*(intervalDefs[iv]?.semitones||0);
     const l=clipLanding(off),lijst=perBew[off];
-    const klas=['cChip',l.graad?'cIn':'cUit',lijst?'cHeeft':'cLeeg',off===hier?'cNu':''].join(' ');
+    const kort=lijst&&lijst.some(n=>{const f=alle[n];return f.end>f.start&&f.end-f.start<=20});
+    const klas=['cChip',l.graad?'cIn':'cUit',lijst?'cHeeft':'cLeeg',kort?'cKort':'',off===hier?'cNu':''].join(' ');
     return '<button type="button" class="'+klas+'" data-clipmove="'+off+'"><b>'+iv+teken+'</b><i>'+l.naam+(lijst&&lijst.length>1?' ·'+lijst.length:'')+'</i></button>';
   }).join('');
   // Fragmenten waarvan het label geen beweging is, blijven anders onbereikbaar:
@@ -2055,10 +2083,12 @@ function renderClipChips(){
 }
 function clipKiesBeweging(off){
   if(clipVerhangen){clipVerhangNaar(off);return}
+  clipDoel=off;
   const lijst=clipPerBeweging()[off];
   if(!lijst){
-    clipSay('Nog geen fragment op '+clipLandingText(off)+'.');
+    clipSay('Nog geen fragment op '+clipLandingText(off)+' — plak hieronder een YouTube-link.');
     renderClipLab();
+    const inp=$('clipAddUrl');if(inp)inp.focus();
     return;
   }
   // staat er al een van deze beweging? dan de volgende
@@ -2103,7 +2133,7 @@ function clipProgSpeel(){
   clipSay(reeks.length+' van de '+prog.length+' stappen hebben een fragment.');
   clipPlayList(reeks,{onChange:n=>{
     const c=reeks[n],off=clipOffsetVan(c);
-    if(off!==null){clipIdx=clips.indexOf(c);renderClipLiniaal();renderClipChips();$('clipWhere').textContent=clipLandingText(off)}
+    if(off!==null){clipIdx=clips.indexOf(c);renderClipLiniaal();renderClipChips();clipWhereRender()}
   }});
 }
 
@@ -2119,11 +2149,10 @@ function renderClipLab(){
   const st=loadClipLab(),clips=clipList();
   if(clipIdx>=clips.length)clipIdx=0;
   renderClipLiniaal();renderClipChips();renderClipProg();
-  const off=clipHuidigeOffset(),c=clips[clipIdx];
-  $('clipWhere').textContent=clipVerhangen
-    ?'Tik de beweging waar dit fragment voortaan bij hoort.'
-    :(off!==null?clipLandingText(off)+' · '+Segue.clock(c.start)+'–'+Segue.clock(c.end)
-                :(c?'fragment zonder beweging-label · '+Segue.clock(c.start)+'–'+Segue.clock(c.end):''));
+  clipWhereRender();
+  const met=clips.filter(x=>clipOffsetVan(x)!==null);
+  const kort=met.filter(x=>x.end>x.start&&x.end-x.start<=20);
+  $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (fragment ≤ 20 s telt als ingekort, groen streepje op de chip).':'';
   $('clipRehang').textContent=clipVerhangen?'Verhangen: tik een beweging':'Verhang naar…';
   $('clipText').value=st.text;
   $('clipTests').innerHTML=CLIP_TESTS.map(t=>
@@ -2134,12 +2163,40 @@ function renderClipLab(){
   document.querySelectorAll('[data-clipverdict]').forEach(b=>b.onclick=()=>clipNote('synth naast de video: '+(b.dataset.clipverdict==='wel'?'wél':'niet')+' gehoord'));
   renderClipLog();
 }
-function openClips(){clipVerhangen=false;clipsReturn=currentScreenName();showScreen('clips')}
+function clipWhereRender(){
+  const main=$('clipWhereMain'),subEl=$('clipWhereSub');
+  if(!main)return;
+  const c=clipList()[clipIdx],off=clipHuidigeOffset();
+  if(clipVerhangen){main.textContent='Tik de beweging waar dit fragment bij hoort';subEl.textContent='';return}
+  if(!c){main.textContent='';subEl.textContent='';return}
+  const dur=c.end>c.start?Math.round(c.end-c.start):0;
+  const tijd=Segue.clock(c.start)+'–'+Segue.clock(c.end)+(dur?' · '+dur+' s':'')+(dur>20?' · nog heel hoofdstuk':'');
+  if(off===null){main.textContent=c.label||'fragment';subEl.textContent='geen beweging-label · '+tijd;return}
+  const l=clipLanding(off),iv=clipIntervalVan(off);
+  main.textContent='1 → '+(l.graad?l.graad+' ('+l.roman+')':l.naam)+(off<0?' ↓':' ↑');
+  subEl.textContent=iv.interval+' '+(off<0?'omlaag':'omhoog')+(l.graad?'':' · buiten de toonladder')+' · '+tijd;
+}
+/* Verse lees bij het openen: een sync-pull van een ander apparaat schrijft
+   localStorage bij, maar de in-memory cache zou anders blijven staan. */
+function openClips(){clipState=null;clipVerhangen=false;clipsReturn=currentScreenName();showScreen('clips')}
 
 $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
-$('clipProgAdd').onclick=()=>{const off=clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
+$('clipProgAdd').onclick=()=>{const off=clipDoel!==null?clipDoel:clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
+$('clipAddBtn').onclick=()=>{
+  const id=Segue.videoId($('clipAddUrl').value);
+  if(!id)return clipSay('Geen YouTube-link herkend.');
+  const off=clipDoel!==null?clipDoel:clipHuidigeOffset();
+  const iv=off!==null?clipIntervalVan(off):null;
+  if(!iv)return clipSay('Tik eerst de chip van de beweging waar deze video bij hoort.');
+  const st=loadClipLab();
+  st.text=st.text.replace(/\s+$/,'')+'\nhttps://youtu.be/'+id+'\n0:00-0:30 '+iv.interval+' '+iv.richting;
+  saveClipLab();
+  $('clipAddUrl').value='';
+  clipPlay(clipList().length-1);renderClipLab();
+  clipSay('Nieuwe video op '+iv.interval+' '+iv.richting+' — voorlopig 0:00-0:30, knip met Start/Eind hier.');
+};
 $('clipProgPlay').onclick=()=>clipProgSpeel();
 $('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipProg()};
 $('clipPlayBtn').onclick=()=>clipPlay(clipIdx);
