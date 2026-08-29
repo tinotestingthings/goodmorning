@@ -1,4 +1,10 @@
-# Luisterinus fase 4 — luister-UX (plan, 28 aug 2026)
+# Luisterinus fase 4 — luister-UX (plan 28 aug, GEBOUWD & LIVE 29 aug 2026, v2026.08.29-3)
+
+Alles hieronder is gebouwd, incl. de optionele snelheidsknop. Review
+(`/code-review medium`, 8 bevindingen, 7 gefixt) + stub-harnas-test: doorspeel-
+keten, hervatten op 6 s, tik-race, positie-save bij sluiten, ⏸/▶-stand.
+Nog open: even proberen op telefoon/iPad (lockscreen-knoppen, echte
+doorspeel-run).
 
 Doel: van "lijst met een speler" naar "podcast-app-gevoel": afleveringen ná
 elkaar, minder tikken, eerlijke voortgang. Alleen `luisterinus/` (boot.js +
