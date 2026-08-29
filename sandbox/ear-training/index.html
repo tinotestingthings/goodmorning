@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.80</title>
+<title>ChordSprint v1.81</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -104,7 +104,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.80 · phrase-tekst bewerken in het spel</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.81 · majeur/mineur in het Clip lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -412,6 +412,7 @@
     <div class="top"><div><div class="logo">Clip lab</div><div class="version">Meetbank voor YouTube-fragmenten</div></div><button class="btn ghost" id="clipsBackBtn">Done</button></div>
     <div class="card">
       <div class="label">Fragment</div>
+      <button type="button" class="btn smallBtn" id="clipModeBtn"></button>
       <div id="clipRuler"></div>
       <div id="clipChips"></div>
       <div id="clipWhere"><b id="clipWhereMain"></b><span id="clipWhereSub"></span></div>
@@ -1832,7 +1833,9 @@ function clipDefaultText(){
    bij, en een cache zou die wijziging bij de volgende save weer overschrijven.
    Het bestand is een paar KB — parsen per aanroep kost hier niets. clipState
    blijft bestaan omdat clipReplaceLine er direct in schrijft; het wijst altijd
-   naar het object van de láátste loadClipLab. */
+   naar het object van de láátste loadClipLab. Daarom: tussen st=loadClipLab()
+   en saveClipLab() geen functies aanroepen die zelf loadClipLab doen (zoals
+   clipMode/clipList) — die verhangen clipState en de save mist je wijziging. */
 function loadClipLab(){
   let st=null;
   try{st=JSON.parse(localStorage.getItem('cpt_clipLab')||'null')}catch(e){}
@@ -1859,7 +1862,11 @@ function clipPhraseId(c){
   return iv?('int_'+iv.interval+'_'+(o<0?'down':'up')):null;
 }
 
-function renderClipSelect(){renderClipLiniaal();renderClipChips();clipWhereRender()}
+function renderClipSelect(){
+  renderClipLiniaal();renderClipChips();clipWhereRender();
+  const b=$('clipModeBtn');
+  if(b)b.textContent=clipMode()==='minor'?'🎼 Mineur — landingen in mineur':'🎼 Majeur — landingen in majeur';
+}
 function clipStop(){
   if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}
   clearInterval(clipTicker);clipTicker=null;
@@ -2084,13 +2091,19 @@ function clipIntervalVan(off){
   return iv?{interval:iv,richting:off<0?'↓':'↑'}:null;
 }
 // Waar komt deze beweging uit: graad, akkoordcijfer, en of hij in de toonladder valt.
+/* Toonsoort-lens van het lab: eenmaal getikt onthoudt cpt_clipLab de keuze
+   (synct mee); zonder keuze volgt hij Settings → Tonality. */
+function clipMode(){
+  const m=loadClipLab().mode;
+  return m==='minor'||m==='major'?m:(currentMode==='minor'?'minor':'major');
+}
 function clipLanding(off){
   const pc=((off%12)+12)%12;
-  const steps=scaleDefs[currentMode]?.steps||{};
+  const steps=scaleDefs[clipMode()]?.steps||{};
   const graad=Object.keys(steps).find(d=>steps[d]===pc)||null;
   // omhoog heet de tritonus ♯4, omlaag ♭5 — zelfde toets, andere richting
   const naam=(pc===6&&off>0)?'♯4':PC_NAAM[pc];
-  return {pc,naam,graad,roman:graad?scaleDefs[currentMode].romans[graad]:null,onder:off<0};
+  return {pc,naam,graad,roman:graad?scaleDefs[clipMode()].romans[graad]:null,onder:off<0};
 }
 function clipLandingText(off){
   const l=clipLanding(off),iv=clipIntervalVan(off);
@@ -2143,7 +2156,7 @@ function renderClipChips(){
     const l=clipLanding(off),lijst=perBew[off];
     const kort=lijst&&lijst.some(n=>{const f=alle[n];return f.end>f.start&&f.end-f.start<=20});
     const klas=['cChip',l.graad?'cIn':'cUit',lijst?'cHeeft':'cLeeg',kort?'cKort':'',off===hier?'cNu':''].join(' ');
-    return '<button type="button" class="'+klas+'" data-clipmove="'+off+'"><b>'+iv+teken+'</b><i>'+l.naam+(lijst&&lijst.length>1?' ·'+lijst.length:'')+'</i></button>';
+    return '<button type="button" class="'+klas+'" data-clipmove="'+off+'"><b>'+iv+teken+'</b><i>'+(l.graad||l.naam)+(lijst&&lijst.length>1?' ·'+lijst.length:'')+'</i></button>';
   }).join('');
   // Fragmenten waarvan het label geen beweging is, blijven anders onbereikbaar:
   // de chips hierboven kennen ze niet en een keuzelijst is er niet meer.
@@ -2224,8 +2237,7 @@ function renderClipLab(){
   if(!window.Segue)clipSay('De speler (../clipinus/segue.js) laadde niet — staat Clipinus al naast deze app?');
   const st=loadClipLab(),clips=clipList();
   if(clipIdx>=clips.length)clipIdx=0;
-  renderClipLiniaal();renderClipChips();renderClipProg();
-  clipWhereRender();
+  renderClipSelect();renderClipProg();
   const met=clips.filter(x=>clipOffsetVan(x)!==null);
   const kort=met.filter(x=>x.end>x.start&&x.end-x.start<=20);
   $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (fragment ≤ 20 s telt als ingekort, groen streepje op de chip).':'';
@@ -2256,6 +2268,7 @@ function openClips(){clipVerhangen=false;clipDoel=null;clipsReturn=currentScreen
 
 $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
+$('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
 $('clipProgAdd').onclick=()=>{const off=clipDoel!==null?clipDoel:clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
 $('clipAddBtn').onclick=()=>{
