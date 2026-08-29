@@ -27,10 +27,12 @@
     .embedded h1, .embedded .sub { display: none; }
     .embedded .scope { display: block; color: var(--muted); font-size: 0.82rem; margin: 0; }
     .embedded .head { margin-bottom: 8px; align-items: baseline; }
+    .headacts { display: flex; gap: 14px; flex-shrink: 0; }
     .row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 13px; margin-bottom: 8px; }
-    /* de kop is een knop over de volle breedte: klikbaar als een rij, maar ook
-       bereikbaar met toetsenbord en VoiceOver */
-    .rowhead { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    /* kop + directe ▶ naast elkaar; de kop blijft een echte knop (toetsenbord/VoiceOver) */
+    .rowtop { display: flex; align-items: center; gap: 8px; }
+    .rowhead { display: block; flex: 1; min-width: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .bigplay { flex-shrink: 0; border: 0; background: none; color: var(--blue); font-size: 1.35rem; line-height: 1; padding: 6px 8px; cursor: pointer; }
     .rowhead:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
     .row.done { opacity: 0.55; }
     .row.playing { border-color: var(--blue); }
@@ -74,7 +76,10 @@
       <p class="sub">Podcasts uit je digest — de laatste 14 dagen. Tik op een aflevering voor acties.</p>
       <p class="scope">Laatste 14 dagen</p>
     </div>
-    <button type="button" class="act" id="refresh">Ververs</button>
+    <div class="headacts">
+      <button type="button" class="act" id="playall">▶ Alles</button>
+      <button type="button" class="act" id="refresh">Ververs</button>
+    </div>
   </div>
   <p id="msg"></p>
   <div id="list"></div>
@@ -85,7 +90,7 @@
       <button type="button" class="act" id="askOk">Ja</button>
     </div>
   </dialog>
-  <div id="player"><div class="inner"><div class="prow"><div class="ptitle" id="ptitle"></div><button type="button" class="act" id="pclose" aria-label="Speler sluiten">×</button></div><audio id="audio" controls preload="none"></audio></div></div>
+  <div id="player"><div class="inner"><div class="prow"><div class="ptitle" id="ptitle"></div><button type="button" class="act" id="prate" aria-label="Afspeelsnelheid">1×</button><button type="button" class="act" id="pclose" aria-label="Speler sluiten">×</button></div><audio id="audio" controls preload="none"></audio></div></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="boot.js"></script>
 </body>

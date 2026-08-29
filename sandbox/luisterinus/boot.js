@@ -27,6 +27,18 @@
   var list, msg, player, ptitle, audio, ask, askText, askOk, askCancel;
   var loaded = false;      // één keer laden; latere auth-events laten een spelende speler met rust
   var playingId = null;    // id van de aflevering in de mini-speler
+  var rate = 1;            // afspeelsnelheid; bewaard in de store
+  var playSeq = 0;         // laatste play()-aanroep wint; oudere fetch-callbacks doen niets meer
+  var pendingSeek = 0;     // gewenste hervat-positie; één vaste canplay-listener voert hem uit
+
+  // Luisterposities + snelheid per apparaat (localStorage). Live en sandbox
+  // delen één origin, dus de sleutel volgt het pad — nooit "dd."/"sbx." hardcoden.
+  var STORE_KEY = (location.pathname.indexOf("/sandbox/") !== -1 ? "sbx" : "dd") + ".luisterinus";
+  function store() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; } }
+  function saveStore(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+  function savePos(id, t) { var s = store(); s.pos = s.pos || {}; s.pos[id] = Math.floor(t); saveStore(s); }
+  function clearPos(id) { var s = store(); if (s.pos && id in s.pos) { delete s.pos[id]; saveStore(s); } }
+  function posFor(id) { var s = store(); return (s.pos && s.pos[id]) || 0; }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -102,7 +114,31 @@
     if (rowEl) rowEl.classList.add("playing");
   }
 
+  // Hervat-seek via één vaste listener (boot: canplay) i.p.v. een listener per
+  // play(): een snelle wissel van aflevering kan dan nooit met een oude
+  // positie op de nieuwe audio seeken. Niet seeken zo goed als uitgeluisterd,
+  // of als er al gescrubd is.
+  function applySeek() {
+    if (pendingSeek > 5 && audio.duration && pendingSeek < audio.duration * 0.95 && audio.currentTime < 1) audio.currentTime = pendingSeek;
+    pendingSeek = 0;
+  }
+
+  // De ▶-rijknop toont en meldt (VoiceOver) de echte stand: ⏸ op de spelende rij.
+  function syncBigplay() {
+    var rows = list.children;
+    for (var i = 0; i < rows.length; i++) {
+      var bp = rows[i].querySelector && rows[i].querySelector(".bigplay");
+      if (!bp) continue;
+      var playing = rows[i].dataset.id === playingId && !audio.paused;
+      bp.textContent = playing ? "⏸" : "▶";
+      bp.setAttribute("aria-label", (playing ? "Pauzeren: " : "Afspelen: ") + ((rows[i]._row && rows[i]._row.title) || rows[i].dataset.id || ""));
+    }
+  }
+
   function clearPlaying() {
+    // Positie eerst: het pause-event komt async, ná playingId = null hieronder.
+    if (playingId && !audio.ended) savePos(playingId, audio.currentTime || 0);
+    playSeq++;   // een play() waarvan de fetch nog loopt, mag niet alsnog starten
     audio.pause();
     player.classList.remove("on");
     document.body.classList.remove("with-player");
@@ -111,9 +147,38 @@
     playingId = null;
   }
 
+  // Lockscreen/oordopjes: titel + bron zichtbaar, "volgende" springt door de
+  // ongehoorde lijst. Play/pauze regelt de browser zelf voor een audio-element.
+  function setMediaSession(row) {
+    if (!("mediaSession" in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: row.title || row.id,
+        artist: ["Luisterinus", domain(row.item_url)].filter(Boolean).join(" · ")
+      });
+    } catch (e) {}
+  }
+
+  // Volgende ongehoorde ready-aflevering in lijstvolgorde, ná afterEl
+  // (of vanaf boven bij null). De DOM is de volgorde-waarheid (reorder).
+  function nextUnheard(afterEl) {
+    var rows = list.children, seen = !afterEl;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i] === afterEl) { seen = true; continue; }
+      var r = rows[i]._row;
+      if (seen && r && r.status === "ready" && r.audio_path && !r.listened_at) return rows[i];
+    }
+    return null;
+  }
+
   // ---- acties ----
   function play(row, rowEl, fail) {
+    var seq = ++playSeq;
     run(SB.storage.from("digest-audio").createSignedUrl(row.audio_path, 3600), function (res) {
+      if (seq !== playSeq) return;   // intussen is iets anders gestart of gesloten: laatste wint
+      // Een Ververs tijdens de fetch heeft de lijst herbouwd: verse rij opzoeken.
+      rowEl = rowElFor(row.id) || rowEl;
+      row = rowEl._row || row;
       var url = res && res.data && res.data.signedUrl;
       if (!url) { fail("Audio niet bereikbaar"); return; }
       setPlaying(row.id, rowEl);
@@ -121,6 +186,11 @@
       player.classList.add("on");
       document.body.classList.add("with-player");
       audio.src = url;
+      setMediaSession(row);
+      // Halfweg gestopt? Verder waar je was. Zelfde src = geen load-events,
+      // dan direct; anders doet de vaste canplay-listener het.
+      pendingSeek = posFor(row.id);
+      if (audio.readyState >= 1) applySeek();
       var p = audio.play();
       // iOS start niet vanuit een callback ná een netwerkronde (de tik telt dan
       // niet meer als gebruikersactie) — dan is de speler er wel, met controls.
@@ -217,12 +287,35 @@
     var meta = [domain(row.item_url), dateStr(row.requested_at), duration(row.duration_s)].filter(Boolean).join(" · ");
     head.appendChild(el("div", "meta", meta));
     if (row.status === "failed") head.appendChild(el("div", "status failed", "Mislukt — bron niet importeerbaar"));
-    else if (row.status !== "ready") head.appendChild(el("div", "status", "In de maak…"));
+    else if (row.status !== "ready") {
+      // Eerlijke voortgang: de worker draait buiten de app om, dus na een dag
+      // wachten is "In de maak…" een leugen — zeg dan wat er echt aan de hand is.
+      var reqAt = row.requested_at ? new Date(row.requested_at) : null;
+      var days = reqAt ? Math.floor((Date.now() - reqAt.getTime()) / 86400000) : 0;
+      head.appendChild(el("div", "status", reqAt && days >= 1
+        ? "Wacht al " + (days === 1 ? "een dag" : days + " dagen") + " — de worker heeft nog niet gedraaid"
+        : "In de maak…" + (reqAt ? " (sinds " + reqAt.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) + ")" : "")));
+    }
     head.addEventListener("click", function () {
       var open = rowEl.classList.toggle("open");
       head.setAttribute("aria-expanded", open ? "true" : "false");
     });
-    rowEl.appendChild(head);
+
+    // Ready-rijen krijgen een directe ▶ naast de kop: één tik i.p.v. uitklappen
+    // + Afspelen. Op de spelende rij is dezelfde knop pauze/verder.
+    var top = el("div", "rowtop");
+    top.appendChild(head);
+    if (row.status === "ready" && row.audio_path) {
+      var bp = el("button", "bigplay", "▶");
+      bp.type = "button";
+      bp.setAttribute("aria-label", "Afspelen: " + (row.title || row.id));
+      bp.addEventListener("click", function () {
+        if (row.id === playingId && audio.src) { if (audio.paused) audio.play(); else audio.pause(); }
+        else play(row, rowEl, setMsg);
+      });
+      top.appendChild(bp);
+    }
+    rowEl.appendChild(top);
 
     rowEl.appendChild(el("div", "acts"));
     renderActs(row, rowEl);
@@ -255,6 +348,13 @@
       list.appendChild(renderRow(row, rowEl));
     });
     reorder();
+    syncBigplay();   // verse knoppen: ⏸ terugzetten op de spelende rij
+    // Posities van verdwenen afleveringen (verwijderd of >14 dagen) opruimen.
+    var s = store();
+    if (s.pos) {
+      Object.keys(s.pos).forEach(function (id) { if (!rowElFor(id)) delete s.pos[id]; });
+      saveStore(s);
+    }
   }
 
   function load(then) {
@@ -296,13 +396,35 @@
     askOk = document.getElementById("askOk");
     askCancel = document.getElementById("askCancel");
 
-    // Uitgeluisterd = gehoord, automatisch. De rij wordt op id opgezocht, dus
-    // een verversing tussendoor kan dit niet naar de verkeerde rij sturen.
+    // Uitgeluisterd = gehoord, automatisch — en dan dóór met de volgende
+    // ongehoorde (podcast-app-gedrag). De volgende wordt opgezocht vóór
+    // setListened, want die reorder()t de lijst. De rij wordt op id opgezocht,
+    // dus een verversing tussendoor kan dit niet naar de verkeerde rij sturen.
     audio.addEventListener("ended", function () {
       var rowEl = playingId && rowElFor(playingId);
-      var row = rowEl && rowEl._row;
-      if (row && !row.listened_at) setListened(row, rowEl, true, setMsg);
+      if (!rowEl) return;
+      var row = rowEl._row;
+      clearPos(row.id);
+      var next = nextUnheard(rowEl);
+      if (!row.listened_at) setListened(row, rowEl, true, setMsg);
+      if (next) play(next._row, next, setMsg);
     });
+    // Luisterpositie bijhouden: grofweg elke 5 s, plus exact bij pauze.
+    var lastSavedPos = 0;
+    audio.addEventListener("timeupdate", function () {
+      if (!playingId) return;
+      var t = audio.currentTime || 0;
+      if (Math.abs(t - lastSavedPos) < 5) return;
+      lastSavedPos = t;
+      savePos(playingId, t);
+    });
+    audio.addEventListener("pause", function () {
+      if (playingId && !audio.ended) savePos(playingId, audio.currentTime || 0);
+    });
+    audio.addEventListener("canplay", applySeek);
+    audio.addEventListener("play", syncBigplay);
+    audio.addEventListener("pause", syncBigplay);
+    audio.addEventListener("ended", syncBigplay);
     // Verlopen signed URL of een bestand dat het opruimscript al weg heeft:
     // niet in stilte blijven hangen.
     audio.addEventListener("error", function () {
@@ -316,10 +438,43 @@
     document.getElementById("refresh").addEventListener("click", refresh);
     document.getElementById("pclose").addEventListener("click", clearPlaying);
 
+    // "▶ Alles": bovenste ongehoorde starten; de rest volgt via auto-advance.
+    document.getElementById("playall").addEventListener("click", function () {
+      var first = nextUnheard(null);
+      if (first) play(first._row, first, setMsg);
+      else setMsg("Geen ongehoorde afleveringen.");
+    });
+
+    // Snelheid: 1× → 1,25× → 1,5×; bewaard per apparaat, toegepast in play().
+    var rateBtn = document.getElementById("prate");
+    rate = Number(store().rate) || 1;
+    function applyRate() {
+      audio.defaultPlaybackRate = rate;
+      audio.playbackRate = rate;
+      rateBtn.textContent = String(rate).replace(".", ",") + "×";
+    }
+    rateBtn.addEventListener("click", function () {
+      rate = rate >= 1.5 ? 1 : rate + 0.25;
+      var s = store(); s.rate = rate; saveStore(s);
+      applyRate();
+    });
+    applyRate();
+
+    if ("mediaSession" in navigator) {
+      try {
+        navigator.mediaSession.setActionHandler("nexttrack", function () {
+          var next = nextUnheard(playingId && rowElFor(playingId));
+          if (next) play(next._row, next, setMsg);
+        });
+      } catch (e) {}
+    }
+
     SB.auth.onAuthStateChange(function (event, session) {
       if (!session) {                 // uitgelogd: lijst weg, zodat een volgende login opnieuw laadt
+        if (playingId && !audio.ended) savePos(playingId, audio.currentTime || 0);
         loaded = false;
         playingId = null;
+        playSeq++;
         audio.pause();
         player.classList.remove("on");
         document.body.classList.remove("with-player");
