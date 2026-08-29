@@ -24,6 +24,12 @@ const codeOf = (f) =>
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/gm, "");
 
+/** Commons-bestandsnaam uit een foto-URL, thumb-prefix eraf -- zodat een
+ *  hoofdfoto en zijn thumb-variant als dezelfde foto tellen. Gedeeld door de
+ *  fotochecks van honden, stijlen en straatobjecten. */
+const bestand = (u) =>
+  decodeURIComponent(String(u).split("/").pop().split("?")[0]).replace(/^\d+px-/, "");
+
 let checks = 0;
 const check = (label, fn) => {
   fn();
@@ -115,7 +121,7 @@ globalThis.localStorage = {
   removeItem: (k) => store.delete(k),
 };
 
-const { loadGames, allGames } = await import(`${APP}/src/core/games.js`);
+const { loadGames, allGames, applySeed } = await import(`${APP}/src/core/games.js`);
 loadGames();
 const [spel] = allGames();
 
@@ -208,8 +214,6 @@ check("extra hondenfoto's horen bij een bestaand ras en zijn geen dubbele hoofdf
   // photoVariants() dedupliceert op URL en ziet het verschil tussen een
   // Special:FilePath-link en een thumb-URL niet; dan zou dezelfde foto twee
   // keer in de rotatie zitten en de quiz "meerdere foto's" beloven die er niet zijn.
-  const bestand = (u) =>
-    decodeURIComponent(String(u).split("/").pop().split("?")[0]).replace(/^\d+px-/, "");
   const dubbel = [];
   for (const [id, lijst] of Object.entries(dogPhotos)) {
     const hoofd = bestand(dogById.get(id).imageThumbUrl);
@@ -447,8 +451,6 @@ check("elke stijl heeft genoeg foto's voor een echte quiz", () => {
 
 check("stijlfoto's: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig", () => {
   const archById = new Map(arch.map((a) => [a.id, a]));
-  const bestand = (u) =>
-    decodeURIComponent(String(u).split("/").pop().split("?")[0]).replace(/^\d+px-/, "");
   for (const [id, lijst] of Object.entries(archPhotos)) {
     const stijl = archById.get(id);
     assert.ok(stijl, `foto's voor onbekende stijl ${id}`);
@@ -474,6 +476,114 @@ check("afleiders voor een stijl zijn stijlen, het liefst tijdgenoten", () => {
   const opties = pickDistractors(neogotiek, alles, 3);
   const zelfdeEra = opties.filter((o) => o.tags?.era === "s19").length;
   assert.ok(zelfdeEra >= 2, `maar ${zelfdeEra} van 3 afleiders zijn tijdgenoten`);
+});
+
+// --- 9b. Straatarcheologie ----------------------------------------------------
+
+const street = json("data/street.json");
+const streetPhotos = json("data/street-photos.json");
+const { matchesGuess } = await import(`${APP}/src/core/birds.js`);
+
+check(`${street.length} straatobjecten: ids, kind, groep en teksten kloppen`, () => {
+  assert.ok(street.length >= 20, `maar ${street.length} objecten`);
+  const groepen = new Set(["str-grond", "str-gevel", "str-paal", "str-straat"]);
+  const andereIds = new Set([...dogs, ...arch].map((s) => s.id));
+  for (const s of street) {
+    assert.match(s.id, /^street:[a-z-]+$/, `vreemd id ${s.id}`);
+    assert.ok(!byId.has(s.id) && !andereIds.has(s.id), `${s.id} botst met een andere soort`);
+    assert.equal(s.tags?.kind, "street", s.id);
+    assert.ok(groepen.has(s.tags?.family), `${s.id} heeft onbekende groep ${s.tags?.family}`);
+    // De groep leunt op het generieke familie-pad in populateFamilyValues():
+    // zonder deze twee namen staat er een kale sleutel als "str-paal" in de UI.
+    assert.ok(s.familyNameNl && s.familyNameEn, `${s.id} mist groepslabels`);
+    assert.equal(s.scientificName, null, s.id);
+    assert.equal(s.soundUrl, null, s.id);
+    assert.ok(s.dutchName && s.englishName, s.id);
+    assert.ok(s.period, `${s.id} mist periode`);
+    assert.ok(s.features_nl?.length >= 3 && s.features_en?.length >= 3, `${s.id} mist kenmerken`);
+    assert.ok(s.fact_nl && s.fact_en, `${s.id} mist verhaal`);
+  }
+  assert.equal(new Set(street.map((s) => s.id)).size, street.length, "dubbele object-ids");
+});
+
+check("elk straatobject heeft genoeg foto's voor een echte quiz", () => {
+  // Hoofdfoto plus minstens twee extra: met minder train je op de foto in
+  // plaats van op het object -- de les van de honden.
+  const dun = street.filter((s) => {
+    const totaal = (s.imageThumbUrl ? 1 : 0) + (streetPhotos[s.id]?.length ?? 0);
+    return totaal < 3;
+  });
+  assert.deepEqual(dun.map((s) => s.id), []);
+});
+
+check("straatfoto's: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig", () => {
+  const streetById = new Map(street.map((s) => [s.id, s]));
+  for (const [id, lijst] of Object.entries(streetPhotos)) {
+    const obj = streetById.get(id);
+    assert.ok(obj, `foto's voor onbekend object ${id}`);
+    const hoofd = bestand(obj.imageThumbUrl);
+    for (const p of lijst) {
+      assert.notEqual(bestand(p.u), hoofd, `${id}: hoofdfoto ook als extra`);
+      assert.ok(p.a, `${id}: foto zonder bronvermelding`);
+    }
+    assert.equal(new Set(lijst.map((p) => p.u)).size, lijst.length, `${id}: dubbele foto`);
+  }
+});
+
+check("afleiders voor een straatobject zijn straatobjecten, het liefst groepsgenoten", () => {
+  const alles = [...birds, ...dogs, ...arch, ...street.map((s) => ({ ...s }))];
+  for (const obj of street.slice(0, 12)) {
+    const opties = pickDistractors(obj, alles, 3);
+    const vreemd = opties.filter((o) => o.tags?.kind !== "street");
+    assert.deepEqual(vreemd.map((o) => o.id), [], `${obj.id} kreeg een dier als afleider`);
+  }
+  // De groep werkt als familie (+4): bij een paal horen palen als topkandidaten.
+  // str-paal heeft 5 leden, dus het venster (count+2) bevat minstens 4 palen en
+  // kunnen er nooit minder dan 2 van de 3 gekozen worden.
+  const grenspaal = street.find((s) => s.id === "street:grenspaal");
+  const opties = pickDistractors(grenspaal, alles, 3);
+  const zelfdeGroep = opties.filter((o) => o.tags?.family === "str-paal").length;
+  assert.ok(zelfdeGroep >= 2, `maar ${zelfdeGroep} van 3 afleiders zijn palen`);
+});
+
+check("het alias tussen haakjes telt als goed antwoord in de typ-quiz", () => {
+  // "Stolperstein (struikelsteen)" toont het woord struikelsteen op de kaart;
+  // wie dat typt mag geen fout krijgen. De Wikipedia-disambiguator "(vogel)"
+  // blijft juist géén naam -- anders was "vogel" overal een goed antwoord.
+  const stolper = street.find((s) => s.id === "street:stolperstein");
+  assert.ok(matchesGuess(stolper, "struikelsteen"), "struikelsteen werd fout gerekend");
+  assert.ok(matchesGuess(stolper, "Stolperstein"), "de hoofdnaam zelf moet ook blijven werken");
+  const reclame = street.find((s) => s.id === "street:muurreclame");
+  assert.ok(matchesGuess(reclame, "spookreclame"), "spookreclame werd fout gerekend");
+  const metDisambiguator = birds.find((b) => /\((vogel|dier|geslacht)\)\s*$/.test(b.dutchName ?? ""));
+  assert.ok(metDisambiguator, "geen vogel met (vogel)-disambiguator meer in de data?");
+  assert.ok(!matchesGuess(metDisambiguator, "vogel"), '"vogel" telt ineens als naam');
+});
+
+check("een seed met een lege soortenlijst wordt niet vastgelegd", () => {
+  // Faalt street.json op de éne boot waarop seed v6 wordt toegepast, dan zou
+  // het spel met specificIds [] worden opgeslagen -- en een leeg
+  // specificIds-spel matcht álles -- terwijl de versiecheck herstel op elke
+  // volgende boot blokkeert. applySeed hoort zo'n halve seed te weigeren én
+  // de versie niet te markeren, zodat de volgende boot het opnieuw probeert.
+  const voorGames = JSON.stringify(allGames().map((g) => g.id));
+  applySeed({
+    version: "9998",
+    games: [
+      { id: "kapotte-seed", name: "Kapot", gameMode: "browse",
+        filters: { specificIds: [] } },
+    ],
+  });
+  assert.ok(!allGames().some((g) => g.id === "kapotte-seed"), "het lege spel is toch opgeslagen");
+  assert.equal(JSON.stringify(allGames().map((g) => g.id)), voorGames);
+  applySeed({
+    version: "9999",
+    games: [
+      { id: "hele-seed", name: "Heel", gameMode: "browse",
+        filters: { specificIds: ["street:werfkelder"] } },
+    ],
+  });
+  assert.ok(allGames().some((g) => g.id === "hele-seed"), "een gevulde seed hoort gewoon te landen");
 });
 
 // --- 10. Niets in de app zoekt nog op de oude sleutel -------------------------

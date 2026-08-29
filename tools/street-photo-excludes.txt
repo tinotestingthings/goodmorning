@@ -1,0 +1,147 @@
+# Curatie voor tools/build-street.mjs: bestandsnamen (Commons, met spaties),
+# één per regel; alles achter # is commentaar. Draai daarna:
+#   node tools/build-street.mjs sandbox/vogelspotinus --exclude tools/street-photo-excludes.txt
+
+# werfkelder
+Champignonkwekerij, SFA022805456.jpg            # interieur champignonkwekerij, geen straatbeeld
+thumbnail.jpg                                   # nietszeggend bestand
+
+# stolperstein
+Gunter Demnig Utrecht Nieuwegracht 8-4-2010.jpg # de kunstenaar aan het werk, niet de steen
+
+# voetenschraper — museumstukken en moderne spullen, geen straatbeeld
+Austin L. Davison, Cast Iron Foot Scraper, 1937, NGA 23953.jpg  # tekening
+Foot Scraper MET 130507.jpg                     # los museumstuk
+Boot scraper (AM 615274-1).jpg                  # los museumstuk
+Betancuria village - FV-30-Calle de Roberto Roldán - Museo Arqueológico 16 ies.jpg  # museum
+Gumboots cleaner, Lincoln University Campus, New Zealand.jpg    # moderne laarzenreiniger
+
+# verzekeringsplaatje — losse museumstukken
+Badge, insurance (AM 1970.106-2).jpg
+Badge, insurance (AM 1970.106-3).jpg
+
+# eerste-steen
+Interieur schip, middenpad, zerk 1622 Johannes Petrus - Kubaard - 20354011 - RCE.jpg  # grafzerk
+
+# peilmerk
+AHN2 Bellamybuurt deviation from NAP datum.png  # hoogtekaart, geen object
+De peilstok van het A.P., BK-AM-76.jpg          # museumstuk
+Door H.Olland & Zoon vervaardigd, meetinstrument.jpg  # instrument
+Deltawerke-Oosterschelde-Sturmflutwehr Pegel.jpg      # peilschaal stormvloedkering
+
+# amsterdammertje
+2023 Amsterdam, KNSM-eiland, woonschepen Levantkade (13).jpg  # woonschepen centraal
+Administratiegebouw zuigelingenafdeling noordgevel - Amsterdam - 20014845 - RCE.jpg  # gebouw
+
+# schamppaal
+Brievenbus (31316702385).jpg                    # dit is een brievenbus
+F32468.jpeg                                     # ongewis depotbeeld
+Hoek zonder Schampsteen.JPG                     # toont juist het ontbreken
+
+# paddenstoel
+Fraaie koraalzwam 2.jpg                         # een echte zwam
+
+# rolpaal
+Korenmolen, anno 1832, onttakeld 1953 - Maarssen - 20143984 - RCE.jpg  # molen
+
+# plaskrul
+10-12-1951 09900 Straatveger (4072258928).jpg   # straatveger centraal
+Die verschrikkelijke Ah tas - Eerste Marnixplantsoen.jpg  # AH-tas
+Amsterdam, Oudezijds Voorburgwal, gele watertaxi met brug 206 en plaskrul (op de kade) (4094443454).jpg  # watertaxi centraal
+
+# telefooncel
+1981 Europese Top Maastricht, Stadskantoor (9).jpg  # persfoto, cel bijzaak
+British phone box on the Rotte.jpg              # Britse cel, verkeerd leerbeeld
+Exterieur ACHTERSTE PERRON - Amersfoort - 20310354 - RCE.jpg  # perron-overzicht
+HUA-155988-Gezicht op het N.S.-station Amersfoort te Amersfoort.jpg  # stationsgezicht
+
+# deurklopper
+Chinese tuin Het Verborgen Rijk van Ming in de (Hortus Haren Groningen) 06-04-2026. (actm.) 15.jpg  # Chinese tuin
+
+# stadspomp
+Voorgevel 26-35 - Utrecht - 20235038 - RCE.jpg  # gevelrij, pomp onvindbaar
+Exterieur OVERZICHT BINNENTUIN VAN HET HOFJE - Utrecht - 20339807 - RCE.jpg  # hofje-overzicht
+
+# hijsbalk — hele panden in beeld, de balk verdrinkt
+Exterieur OVERZICHT - Hengelo - 20297198 - RCE.jpg
+Gevels - Groningen - 20093546 - RCE.jpg
+Aanzicht - Coevorden - 20046936 - RCE.jpg
+
+# --- Tweede ronde (visuele check contactvel, 29 aug) ---
+
+# putdeksel
+DuneaWassenaar.JPG                              # bovengrondse afsluiterzuil, geen deksel
+
+# voetenschraper (NGA-tekeningen vangt BAD_NAME nu op patroon)
+Leslie George Dunlop - The Goldfish Seller.jpg  # schilderij
+
+# gevelsteen
+Gevelsteen - Utrecht - 20235913 - RCE.jpg       # Heineken-tegeltableau, verwart met muurreclame
+Gevelsteen - Utrecht - 20236464 - RCE.jpg       # trapgevel van veraf, steen onvindbaar
+
+# muuranker — Utrechtse RCE-reeks: reproducties en ankers-op-afstand
+Exterieur GEVEL MET MUURANKER - Utrecht - 20303564 - RCE.jpg  # straatgezicht, anker onvindbaar
+HUA-31299-Afbeelding van een muuranker afkomstig van een van de gebouwen van de Rijksmunt aan de Neude te Utrecht.jpg  # tekening met tekstkader
+Museum muuranker (XVIa) afkomstig uit de gevel van een huis in de Potterstraat 4 - Utrecht - 20237301 - RCE.jpg  # rasterreproductie
+Muuranker - Utrecht - 20237019 - RCE.jpg        # vrijwel zwart beeld
+Muuranker voorgevel - Utrecht - 20454894 - RCE.jpg  # anker piepklein naast deur
+
+# hijsbalk
+Amersfoort.Muurhuizen.237.jpg                   # balk onvindbaar
+Hijsbalken - 's-Gravenhage - 20279784 - RCE.jpg # betonnen viaduct
+Kap en hijsbalk - Deventer - 20055487 - RCE.jpg # kapconstructie binnen
+
+# pothuis
+Haarlem Vleeshal1.jpg                           # hele Vleeshal: verwart met bouwstijlenkaart
+
+# gaper — Rijksmuseum-serie: drie keer hetzelfde object
+Gaper in de vorm van morenkop met uitgestoken tong 06.jpg
+
+# peilmerk
+Nap reference waterlooplein2.jpg                # dubbel met waterlooplein.jpg
+
+# deurklopper
+BreestraatLeidenReuvens.JPG                     # gedenkreliëf, geen klopper
+
+# amsterdammertje
+Durgerdam 2017 12.jpg                           # zwart-wit gestreepte paal, geen amsterdammertje
+Overzicht Rokin - Amsterdam - 20329989 - RCE.jpg  # dubbel met 20329973
+
+# schamppaal
+2025-06 - La Habana 43.jpg                      # Havana, Cuba
+
+# paddenstoel
+A.N.W.B. Wegwijzer,gietijzer - Arnhem - 20025664 - RCE.jpg  # gietijzeren wegwijzer, geen paddenstoel
+Ede - 2013 - panoramio (20).jpg                 # zandweg, paddenstoel ver weg
+Kruispunt Meddoseweg-Lemmenesweg in Meddo.jpg   # kruispunt, paddenstoel klein
+
+# rolpaal
+Exterieur overzicht voorzijde met rolpaal - Annerveenschekanaal - 20322711 - RCE.jpg  # herenhuis domineert
+Het Jagertje Onderdendam.jpg                    # beeldje, geen rolpaal
+
+# stadspomp
+18297-Pieterskerk.JPG                           # kerk, pomp onvindbaar
+
+# plaskrul
+Amsterdam - Oudezijds Voorburgwal - Oudekerksplein - View East.jpg  # pleinoverzicht
+Dubbele Krul op de Brouwersgracht foto 3.jpg    # abstracte close-up van het staal
+Sexmuseum Amsterdam 05.jpg                      # museumstuk
+
+# brievenbus
+2024-06-06 Industriepark DRU in Ulft ZvD 24.jpg # te donker
+
+# telefooncel
+DIA40242 Spijkenisse Marrewijklaan 1970.jpg     # parkeerplaats, cel ver weg
+Old phonecel.JPG                                # donker interieurdetail
+Old telephonebooth with clock at IJmuiden pic2.JPG  # Britse cel
+Stadswinkel phone booth, Oosterflank, Rotterdam (2022) 01.jpg  # binnenruimte
+
+# --- Derde ronde ---
+Scraper for Shoes No 354 Pascal Iron Works (1861).jpg  # catalogusgravure
+Nap reference2.jpg                              # derde foto van dezelfde Waterlooplein-zuil
+Telefooncel met verbrijzelde ruit in de Grote Hou, NL-HlmNHA 54020941.JPG  # vandalisme-archiefbeeld
+
+# --- Vierde ronde (na de spreidings-fix verschoof de selectie) ---
+20140415 Kerk2 Dieren.jpg                       # kerkportaal, steen onvindbaar
+Exterieur IJZEREN URINOIR - Ransdorp - 20291128 - RCE.jpg  # urinoir-huisje, geen krul
+11-28-1952 11168 Brouwersgracht (4071498013).jpg  # archief-straatbeeld, krul bijzaak

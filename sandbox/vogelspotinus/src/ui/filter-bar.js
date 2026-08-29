@@ -67,7 +67,10 @@ export function renderKindSwitch(container, selection, onChange) {
     }
   }
 
-  container.classList.add("segmented");
+  // segmented-kind: met vijf knoppen (Alles + 4 categorieën) past de rij niet
+  // meer op een smalle telefoon; deze variant scrollt horizontaal in plaats
+  // van te wrappen (de "bekende spanning" uit docs/spotinus-architectuur.md).
+  container.classList.add("segmented", "segmented-kind");
   container.setAttribute("role", "group");
   container.setAttribute("aria-label", filterLabel(def));
   container.replaceChildren(...buttons.map((b) => b.button));

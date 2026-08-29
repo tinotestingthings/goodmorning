@@ -92,6 +92,15 @@ export function applySeed({ version, games: seededGames, retire = [] }) {
   const seenVersion = read(KEYS.seededDefaults, null);
   if (seenVersion === version) return;
 
+  // Elk seed-spel is een specificIds-spel, opgebouwd uit de zojuist geladen
+  // datasets. Een lege lijst betekent dus: die dataset laadde deze boot niet
+  // (street.json viel bv. net weg; loadBirds vangt dat stil af). Dan niets
+  // doen en de versie NIET markeren -- de volgende boot probeert het gewoon
+  // opnieuw. Zonder deze guard werd het lege spel permanent: lege
+  // specificIds vallen in matchesFilters terug op "alles", en de
+  // versiecheck hierboven blokkeerde elk herstel.
+  if (seededGames.some((g) => (g.filters?.specificIds ?? []).length === 0)) return;
+
   if (seenVersion !== null) {
     for (const id of retire) {
       games = games.filter((g) => g.id !== id);

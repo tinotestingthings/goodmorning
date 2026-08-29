@@ -34,6 +34,7 @@ export const FILTER_DEFINITIONS = [
       { value: "bird", labelKey: "kindBird" },
       { value: "dog", labelKey: "kindDog" },
       { value: "architecture", labelKey: "kindArchitecture" },
+      { value: "street", labelKey: "kindStreet" },
     ],
   },
   {
