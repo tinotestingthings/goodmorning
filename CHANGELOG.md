@@ -1,6 +1,9 @@
 # Changelog
 
 Newest first. One line per deploy to the live root.
+
+## 2026-08-29 (v2026.08.29-3) — Luisterinus fase 4: alles na elkaar afspelen (auto-advance, ▶ Alles, lockscreen-bediening), directe ▶ per rij, hervatten waar je was, snelheid 1×/1,25×/1,5×, eerlijke wachtstatus
+
 ## 2026-08-29 (v2026.08.29-2) — ChordSprint v1.81: majeur/mineur-schakelaar boven de liniaal in het Clip lab (keuze synct mee via cpt_clipLab)
 ## 2026-08-29 (v2026.08.29-1) — ChordSprint v1.80 live: Clip lab (meetbank + liniaal van twee octaven, eigen video's per interval) en phrase-clips in alle gamemodes — ▶ Clip en ✎ per richting in de onthulling, tekst als vangnet, toggle in Settings. Engine (clipinus/segue.js): springen i.p.v. herladen tegen reclame, en de ready-race gefixt. Incl. 8 review-fixes
 ## 2026-08-28 (v2026.08.28-1) — Clipinus live: YouTube-fragmenten achter elkaar (eigen engine, links uitwisselbaar met segue.video). Tegel in Utilities. In de sandbox erbovenop: het Clip lab in ChordSprint, een meetbank voor fragmenten
