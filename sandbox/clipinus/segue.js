@@ -151,21 +151,31 @@
     opts = opts || {};
     var i = 0, player = null, timer = null, ended = false, dead = false, switched = 0;
     var loaded = null, seeking = false;   // welke video staat er, en zoekt hij nog
+    var ready = false, queued = null;     // vóór onReady kan de speler nog niets
 
     function fail(why) { if (opts.onError) opts.onError(why, i, clips[i]); }
 
     function go(n) {
-      if (dead || !player) return;
+      if (dead) return;
       i = Math.min(Math.max(n, 0), clips.length - 1);
       ended = false;
       var c = clips[i];
       switched = Date.now();
       seeking = true;
-      // Zelfde video? Dan springen in plaats van herladen. Elke loadVideoById is
-      // voor YouTube een nieuwe kijksessie en levert dus een nieuwe reclame op —
-      // een reeks fragmenten uit één video hoort één keer reclame te kosten, niet
-      // per fragment. Let op: na seekTo vervalt endSeconds, dus de tik hieronder
-      // is dan de enige schaar. Die was het toch al.
+      // Vóór onReady bestaan seekTo/loadVideoById nog niet op het YT-object:
+      // onthoud het doel en laat onReady het inlossen. Direct aanroepen zou een
+      // TypeError geven én loaded naar een nooit geladen video laten wijzen.
+      if (!player || !ready) { queued = i; if (opts.onChange) opts.onChange(i, c); return; }
+      playAt(c);
+      if (opts.onChange) opts.onChange(i, c);
+    }
+
+    // Zelfde video? Dan springen in plaats van herladen. Elke loadVideoById is
+    // voor YouTube een nieuwe kijksessie en levert dus een nieuwe reclame op —
+    // een reeks fragmenten uit één video hoort één keer reclame te kosten, niet
+    // per fragment. Let op: na seekTo vervalt endSeconds, dus de tik in tick()
+    // is dan de enige schaar. Die was het toch al.
+    function playAt(c) {
       if (loaded === c.id) {
         player.seekTo(c.start, true);
         player.playVideo();
@@ -173,7 +183,6 @@
         player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
         loaded = c.id;
       }
-      if (opts.onChange) opts.onChange(i, c);
     }
 
     function advance() {
@@ -203,20 +212,25 @@
 
     loadApi().catch(function () { if (!dead) fail("api"); return null; }).then(function (YT) {
       if (dead || !YT) return;
+      // Vastleggen wat er ECHT geladen wordt: clips kan vóór onReady al
+      // verwisseld zijn via setClips, en dan zou loaded liegen.
+      var first = clips[0];
       player = new YT.Player(el, {
-        videoId: clips[0].id,
+        videoId: first.id,
         playerVars: {
-          start: Math.round(clips[0].start),
-          end: clips[0].end > clips[0].start ? Math.round(clips[0].end) : undefined,
+          start: Math.round(first.start),
+          end: first.end > first.start ? Math.round(first.end) : undefined,
           autoplay: opts.autoplay === false ? 0 : 1,
           rel: 0, playsinline: 1
         },
         events: {
           onReady: function () {
             if (dead) return;
-            loaded = clips[0].id;
+            ready = true;
+            loaded = first.id;
             timer = setInterval(tick, 250);
-            if (opts.onChange) opts.onChange(0, clips[0]);
+            if (queued !== null) { var q = queued; queued = null; playAt(clips[q]); }
+            else if (opts.onChange) opts.onChange(0, clips[0]);
           },
           // Vangnet als de tik de cut mist. Vlak na een wissel niet: dan is dit
           // het late einde van de vórige clip en zou het er een overslaan.

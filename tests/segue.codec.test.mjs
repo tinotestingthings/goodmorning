@@ -150,6 +150,14 @@ const voor = made.loads.length;
 ctl2.setClips([{ id: "bbbbbbbbbbb", start: 40, end: 44, label: "los" }]);
 ctl2.go(0);
 check("setClips + zelfde video = springen", [made.seeks[made.seeks.length - 1], made.loads.length], [40, voor]);
+console.log("\nsprong vóór ready");
+const ctl3 = S.play({}, [{ id: "ccccccccccc", start: 9, end: 12, label: "x" }], {});
+ctl3.setClips([{ id: "ccccccccccc", start: 50, end: 55, label: "y" }]);
+ctl3.go(0);                                  // de speler bestaat nog niet eens
+await wait(60);
+check("ready lost het doel in via een sprong", made.seeks.includes(50), true);
+ctl3.destroy();
+
 ctl.destroy(); ctl2.destroy();
 check("destroy ruimt op", made.dead, true);
 
