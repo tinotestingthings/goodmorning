@@ -150,19 +150,39 @@
     if (!el || !clips || !clips.length) return null;
     opts = opts || {};
     var i = 0, player = null, timer = null, ended = false, dead = false, switched = 0;
+    var loaded = null, seeking = false;   // welke video staat er, en zoekt hij nog
+    var ready = false, queued = null;     // vóór onReady kan de speler nog niets
 
     function fail(why) { if (opts.onError) opts.onError(why, i, clips[i]); }
 
     function go(n) {
-      if (dead || !player) return;
+      if (dead) return;
       i = Math.min(Math.max(n, 0), clips.length - 1);
       ended = false;
       var c = clips[i];
       switched = Date.now();
-      // ponytail: altijd herladen — seekTo binnen dezelfde video zou vloeiender
-      // zijn, doe dat pas als opeenvolgende clips uit één video hinderlijk haperen.
-      player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
+      seeking = true;
+      // Vóór onReady bestaan seekTo/loadVideoById nog niet op het YT-object:
+      // onthoud het doel en laat onReady het inlossen. Direct aanroepen zou een
+      // TypeError geven én loaded naar een nooit geladen video laten wijzen.
+      if (!player || !ready) { queued = i; if (opts.onChange) opts.onChange(i, c); return; }
+      playAt(c);
       if (opts.onChange) opts.onChange(i, c);
+    }
+
+    // Zelfde video? Dan springen in plaats van herladen. Elke loadVideoById is
+    // voor YouTube een nieuwe kijksessie en levert dus een nieuwe reclame op —
+    // een reeks fragmenten uit één video hoort één keer reclame te kosten, niet
+    // per fragment. Let op: na seekTo vervalt endSeconds, dus de tik in tick()
+    // is dan de enige schaar. Die was het toch al.
+    function playAt(c) {
+      if (loaded === c.id) {
+        player.seekTo(c.start, true);
+        player.playVideo();
+      } else {
+        player.loadVideoById({ videoId: c.id, startSeconds: c.start, endSeconds: c.end > c.start ? c.end : undefined });
+        loaded = c.id;
+      }
     }
 
     function advance() {
@@ -178,24 +198,39 @@
     function tick() {
       if (!player || !player.getCurrentTime || player.getPlayerState() !== 1) return;
       var c = clips[i];
-      if (c && c.end > c.start && player.getCurrentTime() >= c.end - 0.15) advance();
+      if (!c) return;
+      var t = player.getCurrentTime();
+      // Vlak na een sprong meldt de speler nog de óude positie. Die zou hier als
+      // "eind bereikt" tellen en het fragment meteen overslaan; wachten tot hij
+      // in de buurt van het nieuwe begin is (keyframes kunnen ~2 s vroeg landen).
+      if (seeking) {
+        if ((t >= c.start - 3 && t < c.end) || Date.now() - switched > 5000) seeking = false;
+        return;
+      }
+      if (c.end > c.start && t >= c.end - 0.15) advance();
     }
 
     loadApi().catch(function () { if (!dead) fail("api"); return null; }).then(function (YT) {
       if (dead || !YT) return;
+      // Vastleggen wat er ECHT geladen wordt: clips kan vóór onReady al
+      // verwisseld zijn via setClips, en dan zou loaded liegen.
+      var first = clips[0];
       player = new YT.Player(el, {
-        videoId: clips[0].id,
+        videoId: first.id,
         playerVars: {
-          start: Math.round(clips[0].start),
-          end: clips[0].end > clips[0].start ? Math.round(clips[0].end) : undefined,
+          start: Math.round(first.start),
+          end: first.end > first.start ? Math.round(first.end) : undefined,
           autoplay: opts.autoplay === false ? 0 : 1,
           rel: 0, playsinline: 1
         },
         events: {
           onReady: function () {
             if (dead) return;
+            ready = true;
+            loaded = first.id;
             timer = setInterval(tick, 250);
-            if (opts.onChange) opts.onChange(0, clips[0]);
+            if (queued !== null) { var q = queued; queued = null; playAt(clips[q]); }
+            else if (opts.onChange) opts.onChange(0, clips[0]);
           },
           // Vangnet als de tik de cut mist. Vlak na een wissel niet: dan is dit
           // het late einde van de vórige clip en zou het er een overslaan.
@@ -216,6 +251,9 @@
       pause: function () { try { player.pauseVideo(); } catch (e) {} },
       resume: function () { try { player.playVideo(); } catch (e) {} },
       index: function () { return i; },
+      // Een ander rijtje op dezelfde speler: scheelt een nieuwe iframe, en
+      // daarmee opnieuw reclame, zolang het dezelfde video is.
+      setClips: function (list) { if (list && list.length) { clips = list; i = 0; ended = false; } },
       time: function () { try { return player.getCurrentTime() || 0; } catch (e) { return 0; } },
       destroy: function () {
         dead = true;
