@@ -195,17 +195,48 @@ def save_index(row, key, ns, index, jobs_done=None):
        body={"data": data}, headers={"Prefer": "return=minimal"})
 
 
-def watch(key, ns):
-    """Reageert binnen enkele seconden op de knop 'Maak fragment' in de app."""
-    print("kijkt mee op %s — druk in het Clip lab op 'Maak fragment'. Ctrl-C om te stoppen." % ns.rstrip(":"))
+def watch(key, namespaces):
+    """Reageert binnen enkele seconden op de knop 'Maak fragment' in de app.
+
+    Kijkt naar álle opgegeven omgevingen tegelijk (standaard live én sandbox),
+    zodat er na een promote geen vlag omgezet hoeft te worden.
+    """
+    print("kijkt mee op %s — druk in het Clip lab op 'Maak fragment'. Ctrl-C om te stoppen."
+          % ", ".join(n.rstrip(":") for n in namespaces))
     beat = [0.0]
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         while True:
+          for ns in namespaces:
             try:
                 row = fetch_row(key, ns)
                 lab = json.loads(row["data"][ns + "cpt_clipLab"])
                 jobs = json.loads(lab.get("jobs") or "[]")
+                weg = [j[1:] for j in jobs if isinstance(j, str) and j.startswith("-")]
+                # alleen echt werk doen: anders blijft een blijvende opdracht elke
+                # ronde opnieuw schrijven zolang de app hem nog niet heeft opgeruimd
+                _st0 = read_helper(row["data"], ns)
+                weg = [pid for pid in weg if pid in (_st0.get("snips") or {})]
+                if weg:
+                    st = _st0
+                    snips = st.get("snips") or {}
+                    for pid in weg:
+                        meta = snips.pop(pid, None)
+                        if meta and meta.get("obj"):
+                            try:
+                                sb("DELETE", "/storage/v1/object/"
+                                   + urllib.parse.quote(BUCKET + "/" + meta["obj"], safe="/"), key)
+                            except Exception:
+                                pass
+                        print("x  %s verwijderd" % pid)
+                    st["snips"] = snips
+                    st["beat"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+                    fresh = fetch_row(key, ns)
+                    data = dict(fresh["data"])
+                    data[helper_key(ns)] = json.dumps(st)
+                    sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])),
+                       key, body={"data": data}, headers={"Prefer": "return=minimal"})
+                jobs = [j for j in jobs if not (isinstance(j, str) and j.startswith("-"))]
                 if jobs:
                     clips = {c["pid"]: c for c in parse_clips(lab.get("text", ""))}
                     have = (read_helper(row["data"], ns).get("snips") or {})
@@ -227,6 +258,8 @@ def watch(key, ns):
                         print("   klaar — de app pikt het binnen een paar seconden op\n")
             except KeyboardInterrupt:
                 raise
+            except SystemExit:                      # deze omgeving heeft nog geen lab
+                continue
             except Exception as e:                  # netwerk hikt: gewoon doorgaan
                 print("   (even geen verbinding: %s)" % e)
             # teken van leven, zodat de app niet "je Mac knipt…" beweert terwijl
@@ -244,7 +277,7 @@ def watch(key, ns):
                        key, body={"data": data}, headers={"Prefer": "return=minimal"})
                 except Exception:
                     pass
-            time.sleep(3)
+          time.sleep(3)
 
 
 def main():
@@ -264,7 +297,7 @@ def main():
     key = service_key()
     if args.watch:
         try:
-            watch(key, ns)
+            watch(key, [ns] if args.sandbox else ["dd:", "sbx:"])
         except KeyboardInterrupt:
             print("\ngestopt")
         return

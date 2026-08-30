@@ -10,7 +10,8 @@
      Meekijken:
        tail -f /tmp/chordsprint-clips.log
 
-     Let op 1: --sandbox eraf halen zodra ChordSprint live draait.
+     Zonder --sandbox kijkt hij naar live én sandbox tegelijk, dus na een
+     promote hoeft er niets omgezet te worden.
      Let op 2: de service-sleutel moet in ~/.config/goodmorning/goodmorning.env
      staan (chmod 600). De gewone symlink ~/Code/secrets/goodmorning.env wijst
      naar iCloud Drive, en daar mag een launchd-agent van macOS niet lezen
@@ -24,7 +25,6 @@
     <string>/usr/bin/python3</string>
     <string>/Users/martijnmensink/Code/goodmorning/tools/chordsprint-snippets.py</string>
     <string>--watch</string>
-    <string>--sandbox</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>

@@ -1830,7 +1830,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null;
+let clipState=null,clipCtl=null,clipIdx=0,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null,clipStatusTimer=null;
 
 function clipDefaultText(){
   if(!window.Segue)return '';        // zonder de speler is er ook geen klok
@@ -2009,6 +2009,11 @@ function clipHelperVerversen(cb){
         const o=typeof raw==='string'?JSON.parse(raw):raw;
         clipHelperState={beat:Date.parse(o.beat)||0,snips:o.snips||{}};
         localStorage.setItem('clipSnipsCache',JSON.stringify(clipHelperState.snips));
+        // afgehandelde verwijderopdrachten opruimen: het fragment is weg van de
+        // server, dus de opdracht heeft zijn werk gedaan
+        const open=clipJobs();
+        const rest=open.filter(j=>!(typeof j==='string'&&j.startsWith('-')&&!clipHelperState.snips[j.slice(1)]));
+        if(rest.length!==open.length)updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
       }catch(e){}
     }
     if(cb)cb();
@@ -2429,7 +2434,6 @@ function clipWhereRender(){
    je naar een oud antwoord — precies waarom het lab beweerde dat de Mac niet
    luisterde terwijl hij gewoon draaide. Bij openen verversen, en daarna elke
    20 s zolang het lab open is. */
-let clipStatusTimer=null;
 function clipStatusVerversen(aan){
   clearInterval(clipStatusTimer);clipStatusTimer=null;
   if(!aan)return;
@@ -2443,12 +2447,22 @@ $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
 $('clipMakeBtn').onclick=()=>clipMakeFragment();
 $('clipRecBtn').onclick=()=>clipRecToggle();
-$('clipRecDelBtn').onclick=()=>{const d=clipRecDoel();if(!d)return;recDel(d.pid).then(()=>{
-  clipRecSet.delete(d.pid);
-  const snips=clipSnips();delete snips[d.pid];
-  localStorage.setItem('clipSnipsCache',JSON.stringify(snips));
-  clipResultPid=null;renderClipSelect();clipSay('Fragment van '+d.naam+' verwijderd. Knip opnieuw wanneer je wilt.');
-})};
+$('clipRecDelBtn').onclick=()=>{
+  const d=clipRecDoel();
+  if(!d)return;
+  const opServer=snipHas(d.pid);
+  const jobs=clipJobs().filter(j=>j!==d.pid&&j!=='-'+d.pid);
+  if(opServer)jobs.push('-'+d.pid);   // opdracht aan de helper: weg uit index én bucket
+  recDel(d.pid).then(()=>{
+    clipRecSet.delete(d.pid);
+    const snips=clipSnips();delete snips[d.pid];
+    if(clipHelperState.snips)delete clipHelperState.snips[d.pid];
+    localStorage.setItem('clipSnipsCache',JSON.stringify(snips));
+    updateClipLab(st=>{st.jobs=JSON.stringify(jobs)});
+    clipResultPid=null;renderClipSelect();
+    clipSay('Fragment van '+d.naam+' verwijderd'+(opServer?' (ook op je Mac)':'')+'. Knip opnieuw wanneer je wilt.');
+  });
+};
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
 $('clipProgAdd').onclick=()=>{const off=clipDoel!==null?clipDoel:clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
@@ -2491,6 +2505,11 @@ $('clipResetBtn').onclick=()=>{
 document.body.dataset.theme=localStorage.getItem('cpt_theme')||'clean';
 const savedCurrent=JSON.parse(localStorage.getItem('cpt_currentConfig')||'null');if(savedCurrent&&currentPresetId==='custom')setConfig(savedCurrent);else applyPreset(currentPresetId,false);
 renderAll();newProgression(false);
+// Ook buiten het Clip lab moet de oefening weten welke fragmenten klaarstaan;
+// zonder dit ziet een tweede apparaat alleen tekst tot je het lab opent.
+// Moet hier staan: CLIP_HELPER_KEY en clipHelperState zijn const/let en dus
+// niet bruikbaar vóór hun eigen regel.
+clipHelperVerversen(()=>{if(currentScreenName()==='practice'&&typeof lastReveal==='function')lastReveal()});
 </script>
 </body>
 </html>
