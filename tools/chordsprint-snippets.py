@@ -183,6 +183,7 @@ def save_index(row, key, ns, index, jobs_done):
 def watch(key, ns):
     """Reageert binnen enkele seconden op de knop 'Maak fragment' in de app."""
     print("kijkt mee op %s — druk in het Clip lab op 'Maak fragment'. Ctrl-C om te stoppen." % ns.rstrip(":"))
+    beat = [0.0]
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         while True:
@@ -211,6 +212,19 @@ def watch(key, ns):
                 raise
             except Exception as e:                  # netwerk hikt: gewoon doorgaan
                 print("   (even geen verbinding: %s)" % e)
+            # teken van leven, zodat de app niet "je Mac knipt…" beweert terwijl
+            # er niets luistert. Hooguit één schrijfactie per 20 s.
+            now = time.time()
+            if now - beat[0] > 20:
+                beat[0] = now
+                try:
+                    fresh = fetch_row(key, ns)
+                    data = dict(fresh["data"])
+                    data[ns + "cpt_clipHelper"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+                    sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])),
+                       key, body={"data": data}, headers={"Prefer": "return=minimal"})
+                except Exception:
+                    pass
             time.sleep(3)
 
 
