@@ -4,8 +4,8 @@
   "type": "task",
   "title": "Battlefield 6 — helicopter flying practice goal",
   "note": "I play Battlefield 6 on mouse and keyboard — I should get better at flying helicopters.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -14,8 +14,8 @@
   "type": "task",
   "title": "Weekend and gym routine — scheduling for after-work suggestions",
   "note": "Goal: add my weekend free-ness and gym routines to the second brain, so I can get suggestions for what to do after work.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -24,8 +24,8 @@
   "type": "task",
   "title": "Fix invalid recipe tag names",
   "note": "Some ingredient tags used across the 32 recipe notes filed in `20 Sources` on 2026-07-13 contain spaces, which aren't valid Obsidian tags — e.g. `parmezaanse kaas`, `griekse yoghurt`, `crème fraîche`, `ras el hanout`, `rode wijn`, `italiaanse kruiden`, `groene peper`, `haver fraîche`, `gedroogde paddenstoel`, `bruine suiker`, `baking soda`.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -34,8 +34,8 @@
   "type": "task",
   "title": "I should definitely use NotebookLM more in my daily routines",
   "note": "Idea: start actually using [NotebookLM](https://notebooklm.google.com/) more as part of my daily routines.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -44,8 +44,8 @@
   "type": "task",
   "title": "Eat more during work afternoons",
   "note": "I need to eat more during work after lunch, around 14:30 or 15:30. I keep forgetting.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -54,7 +54,6 @@
   "type": "task",
   "title": "Fill in real resources for \"Work compliance topics\"",
   "note": "Fill in real resources/content for the \"Work compliance topics\" note (ISO 27001, ISO 27701, EU AI Act, GDPR) — currently just placeholder topic names with no actual content.",
-  "state": "todo",
   "subtasks": [
    {
     "text": "Add gdpr",
@@ -65,6 +64,7 @@
     "done": false
    }
   ],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -73,8 +73,8 @@
   "type": "task",
   "title": "Voetspieroefeningen overwegen",
   "note": "Spieren in voet regelmatig klachten, vermoedelijk te slap/te weinig kracht. Aandachtspunt: voetspieroefeningen / krachtopbouw overwegen.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -83,8 +83,8 @@
   "type": "task",
   "title": "Vaker staand werken",
   "note": "Vaker staand werken achter bureau i.p.v. zitten. Reden: te veel zitten is slecht (houding, doorbloeding, energie).",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -93,8 +93,8 @@
   "type": "task",
   "title": "Walk more",
   "note": "I need to walk more — probably go for a proper walk at least 2 times a week.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -103,8 +103,8 @@
   "type": "task",
   "title": "Europese Commissie richtsnoeren transparantieverplichtingen AI Act (art. 50) — doornemen",
   "note": "Van de goodmorning-triage als taak gemarkeerd (in plaats van bewaren als bron): de definitieve/concept-status van deze richtsnoeren op de EC-pagina verifiëren en de watermarking-/disclosure-verplichtingen tegen de eigen compliance-praktijk leggen, met het oog op de toepassing vanaf 2 augustus 2026.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -113,8 +113,8 @@
   "type": "task",
   "title": "Always have food with me for ~15:00 on workdays",
   "note": "I need to make sure I always have food with me for like 15:00 on workdays.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -123,8 +123,8 @@
   "type": "task",
   "title": "Piano - learn Familiar",
   "note": "Learn to play *Familiar* on piano.",
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -133,8 +133,8 @@
   "type": "task",
   "title": "Mo eten geven",
   "note": "Mo eten geven",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -143,8 +143,8 @@
   "type": "task",
   "title": "Put holidays, birthdays and all non-work items in calendar",
   "note": "Put holidays, birthdays and all non-work items in calender.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -153,8 +153,8 @@
   "type": "task",
   "title": "Learn more about Git and Github",
   "note": null,
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -163,8 +163,8 @@
   "type": "task",
   "title": "Learning tool maken voor mezelf voor coden. Git etc",
   "note": null,
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -173,8 +173,8 @@
   "type": "task",
   "title": "Rotate the GitHub PAT before 18 September 2026",
   "note": "The fine-grained personal access token `tinotestingthings-token` that the daily digest uses to push `feed.json` **expires Friday 18 September 2026**. Created 20 July 2026. Do this in the week of 11 September so there's slack.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -183,8 +183,8 @@
   "type": "task",
   "title": "Unbroken kijken over jappenkampen",
   "note": null,
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -193,8 +193,8 @@
   "type": "task",
   "title": "WC kitten",
   "note": null,
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -203,8 +203,8 @@
   "type": "task",
   "title": "Testbacklog 19aug",
   "note": null,
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -213,8 +213,8 @@
   "type": "task",
   "title": "Google koopt de complete bedrijfsdata van het failliete Spirit Airlines voor $10 miljoen — als AI-trainingsmateriaal",
   "note": "Google heeft een faillissementsveiling gewonnen om de data van de ter ziele gegane Amerikaanse prijsvechter **Spirit Airlines** te kopen voor **$10 miljoen** (Mercor bood $7,5 miljoen; de biedingen begonnen rond $5 miljoen). Het gaat om een opmerkelijk complete dwarsdoorsnede van een bedrijf: circa **100 miljoen e-mails**, **500 miljoen Microsoft Teams-chats**, **30 miljoen regels code**, **3,4 miljoen loonstrookrecords** en werknemersgegevens die teruggaan tot **1986**, plus finance-, operations- en revenue-managementdata, prijsmodellen, boekingscurves, vluchtgedrag, wifi- en inflight-verkopen en restitutiehistorie. Axios en Skift braken het verhaal rond 17 augustus, CNN volgde op 18 augustus, en op 20 augustus meldde SiliconANGLE dat de deal alsnog kan stranden.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -223,8 +223,8 @@
   "type": "task",
   "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
   "note": "OpenAI heeft op 19 augustus 2026 bij een selecte groep zakelijke klanten een systeem in preview gezet dat het **Private Safety Processing** noemt. De belofte: patronen van misbruik herkennen over meerdere, samenhangende interacties heen, zonder de zero-data-retention-garantie (ZDR) op te geven die grote zakelijke afnemers eisen. In plaats van prompts en antwoorden op te slaan stuurt het systeem naar OpenAI alleen een strak afgebakend \"safety signal\" terug; de onderliggende inhoud blijft op infrastructuur van de klant, of ligt bij OpenAI versleuteld met sleutels die de klant beheert. Een bredere uitrol en een technische white paper staan voor september gepland.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -233,8 +233,8 @@
   "type": "task",
   "title": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse ministerie van Justitie over kinderprivacy",
   "note": "Het Amerikaanse ministerie van Justitie heeft op 21 augustus 2026 een schikking van 400 miljoen dollar bereikt met TikTok en moederbedrijf ByteDance, waarmee de rechtszaak uit 2024 over schending van de kinderprivacywet COPPA (Children's Online Privacy Protection Act) wordt afgesloten. Het DOJ noemt het een van de grootste bedragen ooit geïnd in een COPPA-zaak. De betaling is opgesplitst: 300 miljoen direct, de resterende 100 miljoen zodra een rechter een eerder consent decree tegen voorganger Musical.ly formeel intrekt. Nederlandse privacybronnen (Privacynieuws.nl, Security.NL) pikten het bericht op 22 augustus op.",
-  "state": "todo",
   "subtasks": [],
+  "state": "todo",
   "source": "vault",
   "recurrence": null
  },
@@ -243,8 +243,8 @@
   "type": "project",
   "title": "Cooking — improving recipes",
   "note": "Goal: start and improve recipes based on current ones, using the second brain.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -253,8 +253,8 @@
   "type": "project",
   "title": "Project: a daily \"things to do everyday\" hub site",
   "note": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -263,8 +263,8 @@
   "type": "project",
   "title": "Finance and markets — learning interest",
   "note": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
-  "state": "idea",
   "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -273,7 +273,6 @@
   "type": "project",
   "title": "Personal productivity as mental health management",
   "note": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
-  "state": "idea",
   "subtasks": [
    {
     "text": "Welke wetenschap achter vitamines is er",
@@ -284,6 +283,7 @@
     "done": false
    }
   ],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -292,8 +292,8 @@
   "type": "project",
   "title": "Work compliance topics — resources to gather",
   "note": "Topics to add work-relevant resources on:",
-  "state": "idea",
   "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -302,8 +302,8 @@
   "type": "project",
   "title": "Project: Cookie Scanner Applicatie",
   "note": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostnamen, cookie-looptijden) gescheiden van interpretatie.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -312,8 +312,8 @@
   "type": "project",
   "title": "Team verbetering — idee",
   "note": "Idee over hoe we ons team kunnen verbeteren:",
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -322,8 +322,8 @@
   "type": "project",
   "title": "Daily digest app — instructions & Claude Code build prompt",
   "note": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed). Decisions made 2026-07-15:",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -332,7 +332,6 @@
   "type": "project",
   "title": "Goodmorning app improvements",
   "note": "Hub project for improvements to the goodmorning app. Per Tinus's instruction (app note, 2026-07-27): \"Make a Project with 'Goodmorning app improvements'. If I put notes here that are improvements to the app, add them as subtasks.\" Future app-improvement notes get added here as subtasks.",
-  "state": "active",
   "subtasks": [
    {
     "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
@@ -435,6 +434,7 @@
     "done": true
    }
   ],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -443,8 +443,8 @@
   "type": "project",
   "title": "Learn pistol squats",
   "note": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
-  "state": "idea",
   "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -453,8 +453,8 @@
   "type": "project",
   "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
   "note": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
-  "state": "idea",
   "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -463,8 +463,8 @@
   "type": "project",
   "title": "Backlog list type — build spec",
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Fleshes out the \"New Backlog list type\" subtask into scope, data model, and build steps.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -473,8 +473,8 @@
   "type": "project",
   "title": "Sandbox → live promotion — safety spec",
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after the 2026-08-04 incident where promoting the sandbox build to live blanked the calendar and work planning, and after finding the same root cause behind the stale \"SBX\" title and the mislabeled reset button. This is a proposal — the immediate hotfixes (title, reset-button guard) are already shipped; the durable refactor below needs Tinus's go-ahead.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -483,8 +483,8 @@
   "type": "project",
   "title": "Vogelspotinus — integration & backup spec",
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus's 2026-08-10 chat instruction to bring **Vogelspotinus** (his bird-name learning PWA) into the goodmorning app \"just like the other utility apps\" (Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs), and to draft the Supabase progress-backup leg for it.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -493,8 +493,8 @@
   "type": "project",
   "title": "Visit every park in Utrecht.",
   "note": null,
-  "state": "idea",
   "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  },
@@ -503,8 +503,8 @@
   "type": "project",
   "title": "Event Tracker — integration & backup spec",
   "note": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other utility apps (Kangaroo, WijnWijs, NoteSprint, ChordSprint, Vogelspotinus), including Supabase persistence and a daily-digest backup leg.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -513,8 +513,8 @@
   "type": "project",
   "title": "Een AI app waarmee je mallen voor kleding kan maken.",
   "note": null,
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -523,8 +523,8 @@
   "type": "project",
   "title": "Ecosystem explainer — script & storyboard (Remotion)",
   "note": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Korte explainer-video voor in een presentatie, over hoe kennis het systeem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.",
-  "state": "done",
   "subtasks": [],
+  "state": "done",
   "source": "vault",
   "recurrence": null
  },
@@ -533,8 +533,8 @@
   "type": "project",
   "title": "VOF opzeggen",
   "note": "<!-- app-subtasks:start -->",
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -543,8 +543,8 @@
   "type": "project",
   "title": "Be better with Claude",
   "note": "<!-- app-subtasks:start -->",
-  "state": "active",
   "subtasks": [],
+  "state": "active",
   "source": "vault",
   "recurrence": null
  },
@@ -553,8 +553,18 @@
   "type": "project",
   "title": "Optimize productivity workflow",
   "note": null,
-  "state": "active",
   "subtasks": [],
+  "state": "active",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
+  "id": "2026-08-30-mountainbiken",
+  "type": "project",
+  "title": "Mountainbiken?",
+  "note": null,
+  "subtasks": [],
+  "state": "idea",
   "source": "vault",
   "recurrence": null
  }
