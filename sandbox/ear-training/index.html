@@ -1988,7 +1988,32 @@ recRefresh();
    in dezelfde IndexedDB als de mic-opnames en spelen hem af — daarna werkt het
    ook offline. Eén keer ophalen per beweging; daarna komt hij uit de kast. */
 const CLIP_BUCKET='chordsprint-clips';
-function clipSnips(){try{return JSON.parse(localStorage.getItem('cpt_clipSnips')||'null')||{}}catch(e){return {}}}
+/* Alles wat de knip-helper maakt staat in <ns>helper — bewust BUITEN de
+   cpt_-sleutels, want pushNow() in boot.js wist die op de server en zet er
+   alleen de lokale kopie van de app terug. Zou de index daar staan, dan
+   verdwenen je geknipte fragmenten zodra je iets in het lab bewaarde.
+   Lokaal houden we een kopie onder een sleutel die de sync niet kent, zodat
+   het ook offline werkt. */
+const CLIP_HELPER_KEY=(location.pathname.indexOf('/sandbox/')!==-1?'sbx:':'dd:')+'helper';
+let clipHelperState={beat:0,snips:null};
+function clipSnips(){
+  if(clipHelperState.snips)return clipHelperState.snips;
+  try{return JSON.parse(localStorage.getItem('clipSnipsCache')||'null')||{}}catch(e){return {}}
+}
+function clipHelperVerversen(cb){
+  if(!window.GM_ROW){if(cb)cb();return}
+  window.GM_ROW(d=>{
+    const raw=d&&d[CLIP_HELPER_KEY];
+    if(raw){
+      try{
+        const o=typeof raw==='string'?JSON.parse(raw):raw;
+        clipHelperState={beat:Date.parse(o.beat)||0,snips:o.snips||{}};
+        localStorage.setItem('clipSnipsCache',JSON.stringify(clipHelperState.snips));
+      }catch(e){}
+    }
+    if(cb)cb();
+  });
+}
 function snipHas(pid){return !!clipSnips()[pid]}
 async function snipBlob(pid){
   const cached=await recGet(pid).catch(()=>null);
@@ -2316,10 +2341,7 @@ async function clipRecToggle(){
 function clipJobs(){try{return JSON.parse(loadClipLab().jobs||'[]')}catch(e){return []}}
 /* De helper op de Mac schrijft elke ~20 s een teken van leven. Zonder dat is
    "je Mac knipt…" een leugen: dan luistert er niets en gebeurt er niks. */
-function clipHelperLevend(){
-  const t=Date.parse(localStorage.getItem('cpt_clipHelper')||'');
-  return !!t && (Date.now()-t) < 90000;
-}
+function clipHelperLevend(){return (Date.now()-clipHelperState.beat) < 90000}
 const HELPER_CMD='python3 tools/chordsprint-snippets.py --watch'+(location.pathname.indexOf('/sandbox/')!==-1?' --sandbox':'');
 function clipMakeMsg(t){const el=$('clipMakeMsg');if(el)el.textContent=t||''}
 function clipMakeFragment(){
@@ -2339,13 +2361,15 @@ function clipWachtOpFragment(pid,naam){
   let n=0;
   const iv=setInterval(()=>{
     n++;
-    if(window.GM_PULL)window.GM_PULL();
-    if(snipHas(pid)){
+    clipHelperVerversen(()=>{
+      if(!snipHas(pid))return;
       clearInterval(iv);
+      // de helper raakt cpt_clipLab niet aan; de app haalt zijn eigen aanvraag weg
+      const rest=clipJobs().filter(j=>j!==pid);
+      updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
       clipMakeMsg('Klaar: '+naam+' staat er als audio — de oefening speelt hem nu zonder reclame.');
       renderClipSelect();
-      return;
-    }
+    });
     // De aanvraag blijft in de wachtrij staan, dus "later" is een geldig antwoord.
     if(n===3)clipMakeMsg(clipHelperLevend()
       ? 'Je Mac is ermee bezig…'
@@ -2409,7 +2433,7 @@ let clipStatusTimer=null;
 function clipStatusVerversen(aan){
   clearInterval(clipStatusTimer);clipStatusTimer=null;
   if(!aan)return;
-  const doe=()=>{if(window.GM_PULL)window.GM_PULL(()=>renderClipSelect())};
+  const doe=()=>clipHelperVerversen(()=>renderClipSelect());
   doe();
   clipStatusTimer=setInterval(doe,20000);
 }
@@ -2422,7 +2446,7 @@ $('clipRecBtn').onclick=()=>clipRecToggle();
 $('clipRecDelBtn').onclick=()=>{const d=clipRecDoel();if(!d)return;recDel(d.pid).then(()=>{
   clipRecSet.delete(d.pid);
   const snips=clipSnips();delete snips[d.pid];
-  localStorage.setItem('cpt_clipSnips',JSON.stringify(snips));
+  localStorage.setItem('clipSnipsCache',JSON.stringify(snips));
   clipResultPid=null;renderClipSelect();clipSay('Fragment van '+d.naam+' verwijderd. Knip opnieuw wanneer je wilt.');
 })};
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};

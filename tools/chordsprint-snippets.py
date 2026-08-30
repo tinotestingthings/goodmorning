@@ -155,27 +155,39 @@ def process(clip, tmp, key, ns):
             key, body={"expiresIn": 31536000})
     print("   %.0f KB geüpload" % (path.stat().st_size / 1024))
     return {"obj": obj, "url": SUPABASE_URL + "/storage/v1" + sg["signedURL"],
+            "start": round(clip["start"], 1), "end": round(clip["end"], 1),
             "dur": round(clip["end"] - clip["start"], 1), "size": path.stat().st_size}
 
 
-def save_index(row, key, ns, index, jobs_done):
-    """Index bijwerken en afgehandelde aanvragen weghalen — in één schrijfactie."""
+def helper_key(ns):
+    """Onze eigen sleutel, bewust BUITEN de cpt_-ruimte van de app.
+
+    boot.js wist bij elke push al zijn cpt_-sleutels op de server en zet er
+    alleen de lokale kopie terug. Stond de index daar, dan verdween hij zodra
+    de gebruiker iets in het lab bewaarde. De app leest deze sleutel apart uit.
+    """
+    return ns + "helper"
+
+
+def read_helper(data, ns):
+    try:
+        raw = data.get(helper_key(ns))
+        return json.loads(raw) if isinstance(raw, str) else (raw or {})
+    except ValueError:
+        return {}
+
+
+def save_index(row, key, ns, index, jobs_done=None):
+    """Index bijwerken in onze eigen sleutel; cpt_clipLab raken we niet aan —
+    de app haalt zijn eigen aanvraag weg zodra hij de snipper ziet."""
     fresh = fetch_row(key, ns)                      # verse rij: de app schrijft ook
     data = dict(fresh["data"])
-    try:
-        cur = json.loads(data.get(ns + "cpt_clipSnips") or "{}")
-    except ValueError:
-        cur = {}
-    cur.update(index)
-    data[ns + "cpt_clipSnips"] = json.dumps(cur)
-    if jobs_done:
-        lab = json.loads(data.get(ns + "cpt_clipLab") or "{}")
-        try:
-            jobs = json.loads(lab.get("jobs") or "[]")
-        except ValueError:
-            jobs = []
-        lab["jobs"] = json.dumps([j for j in jobs if j not in jobs_done])
-        data[ns + "cpt_clipLab"] = json.dumps(lab)
+    st = read_helper(data, ns)
+    snips = st.get("snips") or {}
+    snips.update(index)
+    st["snips"] = snips
+    st["beat"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+    data[helper_key(ns)] = json.dumps(st)
     sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])), key,
        body={"data": data}, headers={"Prefer": "return=minimal"})
 
@@ -193,20 +205,22 @@ def watch(key, ns):
                 jobs = json.loads(lab.get("jobs") or "[]")
                 if jobs:
                     clips = {c["pid"]: c for c in parse_clips(lab.get("text", ""))}
-                    index, done = {}, []
+                    have = (read_helper(row["data"], ns).get("snips") or {})
+                    index = {}
                     for pid in jobs:
                         c = clips.get(pid)
                         if not c:
-                            print("!  %s staat niet (meer) in de lijst — aanvraag weggehaald" % pid)
-                            done.append(pid)
                             continue
+                        al = have.get(pid)
+                        if al and abs((al.get("start") or -1) - round(c["start"], 1)) < 0.05 \
+                               and abs((al.get("end") or -1) - round(c["end"], 1)) < 0.05:
+                            continue                # staat er al met dezelfde tijden
                         print("-> %s  %.1f-%.1fs" % (pid, c["start"], c["end"]))
                         item = process(c, tmp, key, ns)
                         if item:
                             index[pid] = item
-                            done.append(pid)
-                    if index or done:
-                        save_index(row, key, ns, index, done)
+                    if index:
+                        save_index(row, key, ns, index)
                         print("   klaar — de app pikt het binnen een paar seconden op\n")
             except KeyboardInterrupt:
                 raise
@@ -220,7 +234,9 @@ def watch(key, ns):
                 try:
                     fresh = fetch_row(key, ns)
                     data = dict(fresh["data"])
-                    data[ns + "cpt_clipHelper"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+                    st = read_helper(data, ns)
+                    st["beat"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+                    data[helper_key(ns)] = json.dumps(st)
                     sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])),
                        key, body={"data": data}, headers={"Prefer": "return=minimal"})
                 except Exception:
@@ -272,7 +288,7 @@ def main():
             item = process(c, tmp, key, ns)
             if item:
                 index[c["pid"]] = item
-    save_index(row, key, ns, index, list(index))
+    save_index(row, key, ns, index)
     print("\nklaar: %d snippers in bucket %s, index in %scpt_clipSnips" % (len(index), BUCKET, ns))
     print("Open ChordSprint opnieuw (of wissel van tab) om ze op te halen.")
     print("De links zijn een jaar geldig; opnieuw draaien vernieuwt ze.")
