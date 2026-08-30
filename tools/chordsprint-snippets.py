@@ -29,6 +29,9 @@ SUPABASE_URL = "https://bobltktjohhnoqhnxslf.supabase.co"
 TABLE = "chordsprint_state"
 BUCKET = "chordsprint-clips"
 SECRETS_FILES = [
+    # Eerst een pad buiten iCloud: launchd-agenten mogen niet in Mobile Documents
+    # lezen (macOS TCC), en de gewone symlink wijst daar wél naartoe.
+    Path.home() / ".config/goodmorning/goodmorning.env",
     Path.home() / "Code/secrets/goodmorning.env",
     Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/Mijn Wiki/.secrets.nosync/goodmorning.env",
 ]

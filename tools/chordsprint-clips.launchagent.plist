@@ -10,7 +10,11 @@
      Meekijken:
        tail -f /tmp/chordsprint-clips.log
 
-     Let op: --sandbox eraf halen zodra ChordSprint live draait. -->
+     Let op 1: --sandbox eraf halen zodra ChordSprint live draait.
+     Let op 2: de service-sleutel moet in ~/.config/goodmorning/goodmorning.env
+     staan (chmod 600). De gewone symlink ~/Code/secrets/goodmorning.env wijst
+     naar iCloud Drive, en daar mag een launchd-agent van macOS niet lezen
+     (TCC) — dat levert 'PermissionError: Operation not permitted'. -->
 <plist version="1.0">
 <dict>
   <key>Label</key>
