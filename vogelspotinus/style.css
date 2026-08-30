@@ -1138,6 +1138,19 @@ button.secondary.playing {
   color: var(--accent-contrast);
 }
 
+/* De categorie-schakelaar: vijf knoppen wrappen lelijk in een afgeronde pil,
+   dus deze variant is compacter en scrolt horizontaal zodra hij alsnog niet
+   past (na .segmented button, want gelijke specificiteit: volgorde beslist). */
+.segmented-kind {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.segmented-kind button {
+  padding-inline: var(--space-2);
+}
+
 @media (hover: hover) {
   .segmented button:hover:not(.active) {
     background: var(--surface-sunken);

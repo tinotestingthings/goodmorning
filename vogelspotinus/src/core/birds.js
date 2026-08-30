@@ -22,6 +22,7 @@ const DATA_URL = "data/birds.json";
 // kinds, in plaats van een app die niet start.
 const DOGS_URL = "data/dogs.json";
 const ARCH_URL = "data/arch.json";
+const STREET_URL = "data/street.json";
 
 /** @type {Array<object>} */
 let birds = [];
@@ -45,28 +46,30 @@ async function fetchList(url) {
 }
 
 /**
- * Alle soorten inlezen: vogels verplicht, honden als het lukt.
+ * Alle soorten inlezen: vogels verplicht, de uitbreidingen als het lukt.
  *
- * De twee bestanden gaan tegelijk de deur uit maar hebben een verschillend
+ * De bestanden gaan tegelijk de deur uit maar hebben een verschillend
  * gewicht. Vogels zijn de app: valt dat bestand om, dan hoort het foutscherm
- * met een retry-knop te verschijnen. Honden zijn een uitbreiding: valt die om,
- * dan is Spotinus even alleen een vogel-app -- dat is een betere uitkomst dan
- * een app die helemaal niet start. Zelfde afweging als bij bird-photos.json.
+ * met een retry-knop te verschijnen. De rest is uitbreiding: valt er een om,
+ * dan is Spotinus even een app met minder categorieën -- dat is een betere
+ * uitkomst dan een app die helemaal niet start. Zelfde afweging als bij
+ * bird-photos.json.
  */
+const optioneel = (url, zonder) =>
+  fetchList(url).catch((err) => {
+    console.warn(`[data] ${url} niet geladen, Spotinus toont geen ${zonder}`, err);
+    return [];
+  });
+
 export async function loadBirds() {
-  const [birdData, dogData, archData] = await Promise.all([
+  const [birdData, dogData, archData, streetData] = await Promise.all([
     fetchList(DATA_URL),
-    fetchList(DOGS_URL).catch((err) => {
-      console.warn(`[data] ${DOGS_URL} niet geladen, Spotinus toont geen honden`, err);
-      return [];
-    }),
-    fetchList(ARCH_URL).catch((err) => {
-      console.warn(`[data] ${ARCH_URL} niet geladen, Spotinus toont geen bouwstijlen`, err);
-      return [];
-    }),
+    optioneel(DOGS_URL, "honden"),
+    optioneel(ARCH_URL, "bouwstijlen"),
+    optioneel(STREET_URL, "straatobjecten"),
   ]);
 
-  birds = [...birdData, ...dogData, ...archData];
+  birds = [...birdData, ...dogData, ...archData, ...streetData];
   // Pre-compute the search haystack once instead of rebuilding it per keystroke
   // for all 566 birds (the old code did the latter, un-debounced). Hier krijgt
   // elke soort ook zijn `id` en zijn `kind`: birds.json kent beide velden niet,
@@ -154,7 +157,13 @@ export function normalizeGuess(str) {
 export function matchesGuess(bird, guess) {
   const needle = normalizeGuess(guess);
   if (!needle) return false;
-  return [bird.englishName, dutchName(bird), bird.scientificName]
+  // Haakjes in de Nederlandse naam zijn bij straatobjecten een alias dat de
+  // kaart zelf toont ("Stolperstein (struikelsteen)") -- dat woord moet als
+  // antwoord gelden, anders rekent de typ-quiz fout wat hij zelf leert.
+  // Wikipedia-disambiguators zijn juist geen naam; die kent dutchName() al.
+  const alias = /\(([^)]+)\)/.exec(bird.dutchName ?? "")?.[1]?.trim();
+  const aliasName = alias && !/^(vogel|dier|geslacht)$/i.test(alias) ? alias : null;
+  return [bird.englishName, dutchName(bird), bird.scientificName, aliasName]
     .filter(Boolean)
     .some((candidate) => normalizeGuess(candidate) === needle);
 }

@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-30 (v2026.08.30-1) — Spotinus: straatarcheologie — vierde categorie met 24 Utrechtse straatobjecten (werfkelders, gevelstenen, Stolpersteine, lantaarnconsoles, schamppalen …) in vier groepen, met verhaal, herkenpunten en 5–8 foto's per object; blader-tegel 'Straatarcheologie · Utrecht'. Incl. 8 review-fixes (seed-race bij een mislukte dataload, alias tussen haakjes telt nu als goed typ-antwoord)
+
 ## 2026-08-30 — Event tracker catalogus: De Manager + nagesprek (LHC, 4 sep), “Neem iemand mee” bij de Bioscoop 10-Daagse, Dune 3 premium-voorverkoop
 
 Wekelijkse catalogusronde. Nieuw: **De Manager + Nagesprek** — eenmalige vertoning in het Louis Hartlooper Complex op vrijdag 4 september 19:00, ingeleid en nabesproken door NRC-columnist Japke-d. Bouma. Gewijzigd: **Bioscoop 10-Daagse 2026** heeft er een landelijke “Neem iemand mee”-actie bij (21 t/m 24 september, tweede kaartje gratis, thema “Film beleef je samen”) en **Dune: Part Three** kreeg een change-regel voor de Amerikaanse premium-voorverkoop van 18 augustus (IMAX 70mm, Dolby, fan screenings); de Nederlandse releasedatum van 16 december blijft staan, NL-voorverkoop nog dicht — volgende check verzet naar 15 september. Kinepolis Utrecht blijft “Warning” (client-rendered, niet leesbaar). Cache gebumpt naar v75 (live en sandbox).

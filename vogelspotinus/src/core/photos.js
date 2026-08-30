@@ -13,7 +13,12 @@
 
 import { allBirds, photoUrl } from "./birds.js";
 
-const DATA_URLS = ["data/bird-photos.json", "data/dog-photos.json", "data/arch-photos.json"];
+const DATA_URLS = [
+  "data/bird-photos.json",
+  "data/dog-photos.json",
+  "data/arch-photos.json",
+  "data/street-photos.json",
+];
 
 /** @type {Record<string, Array<{u: string, a: string}>>} gesleuteld op soort-id */
 let extra = {};

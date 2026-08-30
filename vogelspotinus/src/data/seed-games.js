@@ -43,13 +43,15 @@ function popularDutchDogs() {
 }
 
 /**
- * De stromingen in cursusvolgorde: chronologisch, zoals arch.json ze levert.
- * De tijdlijn ís het verhaal, dus dit spel is een blader-tegel (naslagwerk in
- * leesrichting), geen quiz -- vrij quizzen kan al via de Stijlen-schakelaar.
+ * Alle ids van één kind, in datasetvolgorde -- voor blader-tegels waarvan de
+ * volgorde in de data de cursus ís: de stijlen staan chronologisch (de
+ * tijdlijn is het verhaal), de straatobjecten per groep (onder je voeten,
+ * gevel, palen, op straat). Naslagwerk dus, geen quiz -- vrij quizzen kan al
+ * via de kind-schakelaar.
  */
-function architectureTimeline() {
+function idsVanKind(kind) {
   return allBirds()
-    .filter((s) => s.tags?.kind === "architecture")
+    .filter((s) => s.tags?.kind === kind)
     .map((s) => s.id);
 }
 
@@ -61,8 +63,8 @@ function architectureTimeline() {
  */
 export function buildSeed() {
   return {
-    // v5: bouwstijlen erbij, dus een derde seed-spel.
-    version: "5",
+    // v6: straatarcheologie erbij, dus een vierde seed-spel.
+    version: "6",
     retire: ["griftpark-top20", "griftpark-all"],
     games: [
       {
@@ -80,7 +82,16 @@ export function buildSeed() {
         gameMode: "browse",
         filters: {
           ...emptySelection(),
-          specificIds: architectureTimeline(),
+          specificIds: idsVanKind("architecture"),
+        },
+      },
+      {
+        id: "straat-utrecht",
+        name: "Straatarcheologie · Utrecht",
+        gameMode: "browse",
+        filters: {
+          ...emptySelection(),
+          specificIds: idsVanKind("street"),
         },
       },
       {
