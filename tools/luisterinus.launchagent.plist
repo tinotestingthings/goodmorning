@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Luisterinus fase 3: worker 2x per dag (07:30 en 17:30). Slaapt de Mac op dat
+<!-- Luisterinus fase 3: worker 2x per dag (08:00 en 16:30). Slaapt de Mac op dat
      moment, dan draait launchd de gemiste run bij de eerstvolgende wake alsnog.
      Installeren/bijwerken:
        cp tools/luisterinus.launchagent.plist ~/Library/LaunchAgents/nl.tinus.luisterinus.plist
@@ -21,8 +21,8 @@
   </dict>
   <key>StartCalendarInterval</key>
   <array>
-    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
-    <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
   </array>
   <key>StandardOutPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>
   <key>StandardErrorPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>

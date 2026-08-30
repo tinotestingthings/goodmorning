@@ -166,7 +166,7 @@ audio_format=AudioFormat.BRIEF|DEEP_DIVE|CRITIQUE|DEBATE, audio_length=AudioLeng
 
 Geen Cowork-taak maar een kale LaunchAgent (een agent-sessie opstarten om één
 Python-script te draaien is te zwaar): `tools/luisterinus.launchagent.plist`,
-2×/dag (07:30 en 17:30; slaapt de Mac, dan draait de gemiste run bij de
+2×/dag (08:00 en 16:30; slaapt de Mac, dan draait de gemiste run bij de
 eerstvolgende wake). Installeren/bijwerken: zie de kop van het plist-bestand.
 Log: `~/Library/Logs/luisterinus.log` — daar staat ook "NotebookLM-login
 verlopen — draai: notebooklm login" als de keepalive het niet meer redt.
