@@ -174,10 +174,16 @@ def main():
                 print("   overgeslagen (yt-dlp/ffmpeg gaf een fout): " + str(e))
                 continue
             obj = "%s/%s.m4a" % (ns.rstrip(":"), c["pid"])
-            sb("POST", "/storage/v1/object/" + urllib.parse.quote(obj, safe="/"), key,
+            sb("POST", "/storage/v1/object/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"), key,
                body=path.read_bytes(), raw=True,
                headers={"Content-Type": "audio/mp4", "x-upsert": "true"})
-            index[c["pid"]] = {"obj": obj, "dur": round(c["end"] - c["start"], 1), "size": path.stat().st_size}
+            # Signed URL van een jaar, gemaakt met de service-sleutel: dan heeft de
+            # app geen leesrecht op de bucket nodig (geen RLS-policy, geen SQL).
+            sg = sb("POST", "/storage/v1/object/sign/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"),
+                    key, body={"expiresIn": 31536000})
+            url = SUPABASE_URL + "/storage/v1" + sg["signedURL"]
+            index[c["pid"]] = {"obj": obj, "url": url, "dur": round(c["end"] - c["start"], 1),
+                               "size": path.stat().st_size}
             print("   %.0f KB geüpload" % (path.stat().st_size / 1024))
 
     data = dict(row["data"])
@@ -186,6 +192,7 @@ def main():
        body={"data": data}, headers={"Prefer": "return=minimal"})
     print("\nklaar: %d snippers in bucket %s, index in %scpt_clipSnips" % (len(index), BUCKET, ns))
     print("Open ChordSprint opnieuw (of wissel van tab) om ze op te halen.")
+    print("De links zijn een jaar geldig; opnieuw draaien vernieuwt ze.")
 
 
 if __name__ == "__main__":

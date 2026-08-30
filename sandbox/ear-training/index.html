@@ -1931,10 +1931,21 @@ async function snipBlob(pid){
   const cached=await recGet(pid).catch(()=>null);
   if(cached&&cached.blob)return cached.blob;
   const meta=clipSnips()[pid];
-  if(!meta||!meta.obj||!window.GM_SB)return null;
-  const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
-  if(!data||!data.signedUrl)return null;
-  const blob=await fetch(data.signedUrl).then(r=>r.ok?r.blob():null);
+  if(!meta)return null;
+  // Het knipscript zet er een signed URL van een jaar bij; dan hoeft de app zelf
+  // geen leesrecht op de bucket te hebben. Verlopen of ouder formaat: alsnog
+  // zelf een korte URL vragen via de ingelogde sessie.
+  let url=meta.url||null;
+  if(!url&&meta.obj&&window.GM_SB){
+    const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
+    url=data&&data.signedUrl;
+  }
+  if(!url)return null;
+  let blob=await fetch(url).then(r=>r.ok?r.blob():null).catch(()=>null);
+  if(!blob&&meta.obj&&window.GM_SB){                     // link verlopen? één keer verversen
+    const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
+    if(data&&data.signedUrl)blob=await fetch(data.signedUrl).then(r=>r.ok?r.blob():null).catch(()=>null);
+  }
   if(blob)await recPut(pid,{blob,mime:blob.type||'audio/mp4',dur:meta.dur,made:Date.now(),src:'snip'}).catch(()=>{});
   return blob;
 }
