@@ -2,6 +2,10 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-08-30 — Event tracker catalogus: De Manager + nagesprek (LHC, 4 sep), “Neem iemand mee” bij de Bioscoop 10-Daagse, Dune 3 premium-voorverkoop
+
+Wekelijkse catalogusronde. Nieuw: **De Manager + Nagesprek** — eenmalige vertoning in het Louis Hartlooper Complex op vrijdag 4 september 19:00, ingeleid en nabesproken door NRC-columnist Japke-d. Bouma. Gewijzigd: **Bioscoop 10-Daagse 2026** heeft er een landelijke “Neem iemand mee”-actie bij (21 t/m 24 september, tweede kaartje gratis, thema “Film beleef je samen”) en **Dune: Part Three** kreeg een change-regel voor de Amerikaanse premium-voorverkoop van 18 augustus (IMAX 70mm, Dolby, fan screenings); de Nederlandse releasedatum van 16 december blijft staan, NL-voorverkoop nog dicht — volgende check verzet naar 15 september. Kinepolis Utrecht blijft “Warning” (client-rendered, niet leesbaar). Cache gebumpt naar v75 (live en sandbox).
+
 ## 2026-08-29 (v2026.08.29-3) — Luisterinus fase 4: alles na elkaar afspelen (auto-advance, ▶ Alles, lockscreen-bediening), directe ▶ per rij, hervatten waar je was, snelheid 1×/1,25×/1,5×, eerlijke wachtstatus
 
 ## 2026-08-29 (v2026.08.29-2) — ChordSprint v1.81: majeur/mineur-schakelaar boven de liniaal in het Clip lab (keuze synct mee via cpt_clipLab)
