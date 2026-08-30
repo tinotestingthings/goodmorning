@@ -1,6 +1,8 @@
 # Changelog
 
 Newest first. One line per deploy to the live root.
+## 2026-08-30 (v2026.08.30-2) — ChordSprint v1.84: eigen geknipte fragmenten in plaats van YouTube-clips. Clip lab is een knip-editor (vrij afspelen, Start/Eind met −1s/+1s, knipbalk, Beluister knip, en je fragment als audiospeler); ✂️ Maak fragment laat je Mac het stuk knippen (yt-dlp+ffmpeg) en in de privébucket zetten. In de oefening is YouTube helemaal weg: eigen audio zonder reclame, ook offline, of anders de tekst-phrase. Incl. 3 review-fixes
+
 
 ## 2026-08-30 (v2026.08.30-1) — Spotinus: straatarcheologie — vierde categorie met 24 Utrechtse straatobjecten (werfkelders, gevelstenen, Stolpersteine, lantaarnconsoles, schamppalen …) in vier groepen, met verhaal, herkenpunten en 5–8 foto's per object; blader-tegel 'Straatarcheologie · Utrecht'. Incl. 8 review-fixes (seed-race bij een mislukte dataload, alias tussen haakjes telt nu als goed typ-antwoord)
 

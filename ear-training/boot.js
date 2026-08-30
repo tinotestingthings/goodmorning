@@ -29,6 +29,21 @@
       })
     : null;
 
+  // De app-code leent deze client voor de privébucket met geknipte fragmenten,
+  // en GM_PULL om te wachten tot de Mac een net aangevraagd fragment klaarzet.
+  window.GM_SB = SB;
+  window.GM_PULL = function (cb) { pull(cb); };
+  // Rechtstreeks de rij lezen. Nodig voor sleutels die NIET van de app zijn:
+  // pushNow() wist bij elke push al zijn eigen sleutels op de server en zet
+  // alleen zijn lokale kopie terug, dus wat de knip-helper schrijft zou
+  // verdwijnen zodra de app iets bewaart. Die staat daarom buiten cpt_.
+  window.GM_ROW = function (cb) {
+    if (!SB || !userId) { cb(null); return; }
+    SB.from(TABLE).select("data").eq("user_id", userId).then(
+      function (r) { cb(r && r.data && r.data.length ? r.data[0].data : null); },
+      function () { cb(null); });
+  };
+
   var userId = null, lastPushed = null, pushTimer = null, ready = false, ran = false;
 
   var proto = (window.Storage && window.Storage.prototype) || Object.getPrototypeOf(localStorage);

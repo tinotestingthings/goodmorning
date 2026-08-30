@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.81</title>
+<title>ChordSprint v1.84</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -51,9 +51,9 @@
 /* v1.76 NoteSprint-like vertical mini-piano range control */
 .miniPianoStage{display:grid;grid-template-columns:minmax(0,1fr)52px;gap:9px;align-items:stretch;margin:6px auto 8px}.miniPianoStage .miniPiano{margin:0;height:156px}.pianoVSlider{position:relative;height:156px;min-width:50px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--btn) 64%,transparent);display:flex;align-items:center;justify-content:center;padding:18px 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}.pianoVTrack{position:relative;width:16px;height:100%;border-radius:999px;background:color-mix(in srgb,var(--line) 80%,var(--card));box-shadow:inset 0 0 0 1px var(--line)}.pianoVFill{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,var(--line))}.pianoVThumb{position:absolute;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:999px;background:var(--accent);border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);color:white;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;line-height:1}.pianoVLabel{position:absolute;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.03em;pointer-events:none}.pianoVLabel.top{top:4px}.pianoVLabel.bottom{bottom:4px}.pianoSliderRow,.pianoRange{display:none!important}@media(max-width:460px){.miniPianoStage{grid-template-columns:minmax(0,1fr)48px;gap:7px}.miniPianoStage .miniPiano{height:148px}.pianoVSlider{height:148px;min-width:46px;padding:18px 8px}.pianoVThumb{width:32px;height:32px}.miniPianoBox{padding:10px 8px}}
 
-#clipStage,#playClipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
-#clipStage.on,#playClipStage.on{display:block}
-#clipStage iframe,#playClipStage iframe{width:100%;height:100%;border:0;display:block}
+#clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+#clipStage.on{display:block}
+#clipStage iframe{width:100%;height:100%;border:0;display:block}
 #clipRuler .rRow{display:flex;gap:1px;margin:8px 0 2px}
 #clipRuler .rSlot{flex:1;height:26px;border-radius:3px;background:var(--btn);display:flex;align-items:flex-end;justify-content:center}
 #clipRuler .rSlot span{font-size:9px;line-height:12px;color:var(--muted)}
@@ -74,6 +74,16 @@
 .cChip.cNu{border-color:var(--accent);background:var(--btn)}
 .cChip.cStap{flex:0 0 auto;padding:4px 10px}
 #clipWhere{margin:6px 0 2px}
+#clipResult{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+#clipResult.on{display:block}
+#clipResult audio{width:100%;height:38px;margin:6px 0}
+#clipTrimBar{position:relative;height:12px;border-radius:6px;background:var(--btn);margin:10px 0 2px;overflow:hidden}
+#clipTrimBar .tSel{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:6px}
+#clipTrimBar .tHead{position:absolute;top:0;bottom:0;width:2px;background:var(--text)}
+.trimRow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.trimRow .tLab{width:42px;color:var(--muted);font-size:.8rem}
+.trimRow .tVal{width:62px;font-weight:700;font-variant-numeric:tabular-nums}
+.trimRow .btn{padding:5px 9px;font-size:.8rem;flex:0 0 auto}
 .phraseClipBtn{margin-top:6px;margin-right:6px}
 #playClipMsg{margin:6px 0 0}
 #playClipMsg:empty{display:none}
@@ -86,8 +96,6 @@
 .addrow .btn{flex:0 0 auto}
 .clipTest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .clipTest .small{flex:1;min-width:150px}
-#clipLog div{padding:3px 0;border-bottom:1px solid var(--line);font-size:.85rem;color:var(--muted)}
-#clipLog div:last-child{border-bottom:0}
 </style>
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste, overschrijft :root hierboven -->
 </head>
@@ -104,7 +112,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.81 · majeur/mineur in het Clip lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.84 · Maak fragment, YouTube alleen in het lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -115,7 +123,7 @@
         <button class="btn playActionBtn" id="newBtn" aria-label="Skip to new round">Skip</button>
       </div>
       <div class="metaBar"><span>Mode <b id="modeLabel">Medium</b></span><span>Key <b id="keyLabel">?</b></span><span>Next <b id="nextLabel">1</b>/<b id="targetLen">3</b></span></div>
-      <div id="feedback" class="feedback"></div><div id="playClipStage"></div><p class="small" id="playClipMsg"></p><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
+      <div id="feedback" class="feedback"></div><p class="small" id="playClipMsg"></p><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
     </div>
     <div class="card choiceCard"><div class="choiceHead"><div class="label"><span id="chooseKind">Choose chord</span> <span id="chooseNumber">1</span></div><div class="choiceActions"><button class="btn smallBtn hidden" id="inKeyAnswerBaseBtn">Base: Previous</button><button class="btn smallBtn" id="playModeBtn">🔊 Chords</button></div></div><div class="choiceGrid" id="choiceGrid"></div><p class="small" id="choiceHint">Wrong clicks flash red. Hold an answer to preview your phrase.</p></div>
   </section>
@@ -192,7 +200,7 @@
         <div class="settingsSection"><div class="label">Current config</div><div class="split"><button class="btn primary" id="saveConfigBtn">Save as gamemode</button><button class="btn" id="resetBuiltinsBtn">Restore default presets</button></div><p class="small">Saving stores the current practice type, tonality, length, key mode, direction, variety and options as a homepage gamemode.</p></div>
         <div class="settingsSection"><div class="label">Load / reorder gamemodes</div><div class="presetManage" id="presetManage"></div><p class="small">Tap a gamemode to load its settings, then tweak them in Practice or Sound and save as a new gamemode. Use ↑/↓ to reorder.</p></div>
         <div class="settingsSection hidden" id="allMistakesSection"><div class="label">All mistake stats</div><div class="targetStatsBox" id="targetStatsBox"></div><p class="small">Shows the weakest items first. These also feed the Mistakes gamemode.</p></div>
-        <div class="settingsSection"><div class="label">Phrase clips</div><button class="btn" id="phraseClipsBtn"></button><p class="small">Hold on an answer plays the matching YouTube clip from the Clip lab. Text only (or offline): the written phrases, as before.</p></div>
+        <div class="settingsSection"><div class="label">Phrase clips</div><button class="btn" id="phraseClipsBtn"></button><p class="small">Hold on an answer plays your own cut fragment (no ads, works offline). Text only: the written phrases, as before. YouTube itself only appears in the Clip lab.</p></div>
         <div class="settingsSection"><div class="label">Backup</div><div class="exportImportBox"><button class="btn" id="exportSettingsBtn">Export settings</button><button class="btn" id="importSettingsBtn">Import settings</button></div><p class="small">Scope: exports/imports local presets, phrases, stats, sound, theme and settings. Export/import opens a confirmation popup first.</p></div>
         <div class="dangerZone"><div class="label">Reset</div><button class="btn ghost wide" id="resetScoreBtn">Reset score only</button><p class="small">Scope: resets score, streak, attempts and accuracy. It does not change mistakes, theme, presets, phrases, tonality, key mode, direction, selected degrees or variety settings.</p></div>
       </div>
@@ -409,7 +417,7 @@
   </section>
 
   <section id="clipsScreen" class="screen">
-    <div class="top"><div><div class="logo">Clip lab</div><div class="version">Meetbank voor YouTube-fragmenten</div></div><button class="btn ghost" id="clipsBackBtn">Done</button></div>
+    <div class="top"><div><div class="logo">Clip lab</div><div class="version">Knip je eigen fragmenten</div></div><button class="btn ghost" id="clipsBackBtn">Done</button></div>
     <div class="card">
       <div class="label">Fragment</div>
       <button type="button" class="btn smallBtn" id="clipModeBtn"></button>
@@ -417,28 +425,32 @@
       <div id="clipChips"></div>
       <div id="clipWhere"><b id="clipWhereMain"></b><span id="clipWhereSub"></span></div>
       <div id="clipStage"></div>
-      <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
-      <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
-      <div class="split"><button class="btn ghost" id="clipRehang">Verhang naar…</button><button class="btn ghost" id="clipProgAdd">+ stap</button></div>
-      <div class="split addrow"><input id="clipAddUrl" placeholder="YouTube-link voor deze beweging" inputmode="url"><button class="btn ghost" id="clipAddBtn">+ video</button></div>
+      <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn primary" id="clipMakeBtn">✂️ Maak fragment</button></div>
+      <div id="clipTrimBar"></div>
+      <div class="trimRow"><span class="tLab">Start</span><b class="tVal" id="clipTrimStart">—</b><button class="btn" data-nudge="start,-1">−1s</button><button class="btn" data-nudge="start,1">+1s</button><button class="btn" id="clipStartHere">nu</button></div>
+      <div class="trimRow"><span class="tLab">Eind</span><b class="tVal" id="clipTrimEnd">—</b><button class="btn" data-nudge="end,-1">−1s</button><button class="btn" data-nudge="end,1">+1s</button><button class="btn" id="clipEndHere">nu</button></div>
+      <div class="split"><button class="btn" id="clipPreviewBtn">▶ Beluister knip</button><span class="small" id="clipTrimInfo"></span></div>
+      <div id="clipResult">
+        <div class="label">Je fragment</div>
+        <audio id="clipResultAudio" controls preload="none"></audio>
+        <div class="split"><span class="small" id="clipResultInfo"></span><button class="btn ghost" id="clipRecDelBtn">Fragment weg</button></div>
+      </div>
+      <p class="small" id="clipMakeMsg"></p>
+      <p class="small" id="clipHelperStatus"></p>
       <p class="small" id="clipMsg"></p>
-      <p class="small">Tik een chip om te spelen; Start/Eind hier knipt op de speeltijd. Reclame komt hooguit één keer per video.</p>
+      <p class="small">▶ Speel loopt vrij door: spoelen en pauzeren doe je gewoon in de speler zelf. Tik "nu" op het juiste moment, schaaf bij met −1s/+1s, controleer met Beluister knip en tik dan Maak fragment.</p>
+    </div>
+    <div class="card">
+      <div class="label">Deze beweging anders invullen</div>
+      <div class="split addrow"><input id="clipAddUrl" placeholder="YouTube-link voor deze beweging" inputmode="url"><button class="btn ghost" id="clipAddBtn">+ video</button></div>
+      <div class="split"><button class="btn ghost" id="clipRehang">Hoort bij een ander interval…</button><button class="btn ghost" id="clipRecBtn">🎙 Zelf opnemen</button></div>
+      <p class="small">Een eigen video voor dit interval, het fragment aan een ander interval hangen, of het via de microfoon opnemen.</p>
     </div>
     <div class="card">
       <div class="label">Progressie</div>
       <div id="clipProg"></div>
-      <div class="split"><button class="btn primary" id="clipProgPlay">▶ Speel reeks</button><button class="btn ghost" id="clipProgClear">Leeg</button></div>
-      <p class="small">Stappen achter elkaar afgespeeld. Zelfde video = springen, dus geen reclame tussen de stappen.</p>
-    </div>
-    <div class="card">
-      <div class="label">Proeven</div>
-      <div id="clipTests"></div>
-      <p class="small">Zes metingen die samen bepalen of echte opnames iets toevoegen aan de frases. Uitkomsten gaan in het logboek en synchroniseren mee: meten op de telefoon, teruglezen op de laptop.</p>
-    </div>
-    <div class="card">
-      <div class="label">Logboek</div>
-      <div id="clipLog"></div>
-      <button class="btn ghost" id="clipClearLog" style="margin-top:10px">Logboek wissen</button>
+      <div class="split"><button class="btn primary" id="clipProgPlay">▶ Speel reeks</button><button class="btn" id="clipProgAdd">+ stap</button><button class="btn ghost" id="clipProgClear">Leeg</button></div>
+      <p class="small">Bewegingen achter elkaar horen: kies een chip hierboven en tik "+ stap".</p>
     </div>
     <div class="card">
       <div class="label">Alle fragmenten</div>
@@ -544,7 +556,7 @@ function loadPresets(){try{const saved=JSON.parse(localStorage.getItem('cpt_pres
 function savePresets(){localStorage.setItem('cpt_presets',JSON.stringify(presets))}
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function currentScreenName(){const active=document.querySelector('.screen.active');return active?active.id.replace('Screen',''):'home'}
-function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name!=='practice'&&typeof playClipStop==='function')playClipStop();if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name!=='practice'&&typeof playClipStop==='function')playClipStop();if(typeof clipStatusVerversen==='function')clipStatusVerversen(name==='clips');if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
 function openHelp(){helpReturn=currentScreenName();showScreen('help')}
 function openPhrases(){phraseReturn=currentScreenName();showScreen('phrases')}
 function openPlayground(){playgroundReturn=currentScreenName();showScreen('playground')}
@@ -1088,7 +1100,7 @@ function renderChoices(){
 }
 function clearFeedback(){$('feedback').textContent='';$('feedback').className='feedback';$('answerReveal').textContent='';clearInKeyStepReveal();$('nextBox').classList.add('hidden')}
 function newProgression(autoPlay=true){
-  stopAudio();playClipStop();const keyMode=$('keyMode').value;key=keyMode==='random'?majorKeys[Math.floor(Math.random()*majorKeys.length)]:'C';syncPianoViewToKey(false);answer=[];locked=false;pianoWrongMidiHits=[];clearFeedback();
+  stopAudio();const keyMode=$('keyMode').value;key=keyMode==='random'?majorKeys[Math.floor(Math.random()*majorKeys.length)]:'C';syncPianoViewToKey(false);answer=[];locked=false;pianoWrongMidiHits=[];clearFeedback();
   if(isMistakeMode()){
     const pool=weakTargets();
     if(!pool.length){currentMistakeItem=null;practiceType='intervals';currentMode='major';currentInterval='P4';currentIntervalDirection='up';currentIntervalTarget=tonicMidi()+intervalDefs.P4.semitones;current=[currentInterval];currentRoots=[currentIntervalTarget];$('keyLabel').textContent='Mistakes';$('givenText').textContent='No mistakes yet · try a normal mode first';renderDots();$('feedback').innerHTML='<div class="mistakeEmpty">No mistakes saved yet. Use another gamemode first; wrong answers will feed this mode.</div>';return}
@@ -1144,9 +1156,8 @@ function midiToFreq(m){return 440*Math.pow(2,(m-69)/12)}
 function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.62;highPass=audioCtx.createBiquadFilter();highPass.type='highpass';highPass.frequency.value=38;toneFilter=audioCtx.createBiquadFilter();toneFilter.type='lowpass';toneFilter.frequency.value=12500;toneFilter.Q.value=.35;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=18;compressor.ratio.value=2.2;compressor.attack.value=.002;compressor.release.value=.18;reverbDelay=audioCtx.createDelay(.45);reverbDelay.delayTime.value=.033;reverbFeedback=audioCtx.createGain();reverbFeedback.gain.value=.045;highPass.connect(toneFilter);toneFilter.connect(compressor);compressor.connect(masterGain);toneFilter.connect(reverbDelay);reverbDelay.connect(reverbFeedback);reverbFeedback.connect(reverbDelay);reverbDelay.connect(masterGain);masterGain.connect(audioCtx.destination)}
 function stopSynth(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[]}
 // Elke synth-start gaat via stopAudio, dus dit is de ene plek die borgt dat
-// synth en clip elkaar afwisselen — Replay(-slower) incluis. playClipPlay zelf
-// gebruikt stopSynth, anders zou hij zijn eigen speler slopen vóór hergebruik.
-function stopAudio(){stopSynth();if(typeof playClipStop==='function')playClipStop()}
+// synth en fragment elkaar afwisselen — Replay(-slower) incluis.
+function stopAudio(){stopSynth();if(typeof playClipPause==='function')playClipPause();if(typeof playRecStop==='function')playRecStop()}
 function connectThroughFilter(node,filterFreq=null){if(filterFreq){const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=filterFreq;f.Q.value=.45;node.connect(f);f.connect(highPass);return f}node.connect(highPass);return node}
 function pianoVoice(freq,start,dur,gain,detune,harmonic,type='triangle',attack=.004,decay=.08,sustain=.08,filterFreq=null){const g=audioCtx.createGain(),o=audioCtx.createOscillator();const harmonicBoost=harmonic<=1?tw('body'):tw('sparkle');gain*=tw('volume')*harmonicBoost;dur*=tw('decay');attack*=tw('attack');decay*=tw('attack');detune*=tw('width');if(filterFreq)filterFreq*=tw('brightness');o.type=type;o.frequency.value=freq*harmonic;o.detune.value=detune;g.gain.setValueAtTime(.00001,start);g.gain.exponentialRampToValueAtTime(Math.max(gain,.00002),start+attack);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain,.00002),start+decay);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain*.42,.00002),start+Math.min(dur*.55,dur-.04));g.gain.exponentialRampToValueAtTime(.00001,start+dur);o.connect(g);connectThroughFilter(g,filterFreq);o.start(start);o.stop(start+dur+.08);activeAudioNodes.push(o)}
 // Hammer level ≈0.8x the gain of the note it sits under: the .012 this used to default to
@@ -1281,7 +1292,10 @@ function phraseBoxHtml(id,idx=0){
   const p=selectedPhraseUnified(e)||{};
   if(!p.title)return '';
   const label=phraseDirectionLabel(e,idx);
-  const clipBtn=phraseClipsOn()&&clipForPhraseId(id)?`<button class="btn smallBtn phraseClipBtn" data-play-clip="${htmlEscape(id)}">▶ Clip</button>`:'';
+  // Alleen eigen audio in de oefening: YouTube (en dus reclame) leeft nog
+  // uitsluitend in het Clip lab. Geen fragment? Dan gewoon de tekst-phrase.
+  const rp=loadClipLab().phraseClips!==false?recPidFor(id):null;
+  const clipBtn=rp&&(clipRecSet.has(rp)||snipHas(rp))?`<button class="btn smallBtn phraseClipBtn" data-play-rec="${htmlEscape(rp)}">▶ Fragment</button>`:'';
   const editBtn=`<button class="btn smallBtn phraseClipBtn" data-edit-phrase="${htmlEscape(id)}" aria-label="Edit phrase text">✎</button>`;
   return `<div class="phraseHintBox" data-hint-id="${htmlEscape(id)}">${label?`<span class="phraseHintBoxLabel">${htmlEscape(label)}</span>`:''}<b>${phraseTitleHtml(id,p)}</b><small>${htmlEscape(normalizeNotationText(p.cue||''))}</small>${clipBtn}${editBtn}</div>`;
 }
@@ -1362,7 +1376,7 @@ function wireAnswerButton(btn,value){
   btn.addEventListener('pointerdown',()=>{if(locked||btn.disabled)return;clear();holdTimer=setTimeout(()=>{btn._heldPhrase=true;btn.classList.add('active');showChoicePhrase(value,answer.length);setTimeout(()=>btn.classList.remove('active'),260)},520)});
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,clear));
   btn.addEventListener('contextmenu',ev=>ev.preventDefault());
-  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}playClipStop();pick(value,btn)};
+  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}playClipPause();playRecStop();pick(value,btn)};
 }
 function openPhraseDetailFromGame(id){
   const e=phraseById(id);if(!e||!e.id)return;
@@ -1764,7 +1778,7 @@ document.addEventListener('pointerup',endPianoVSliderDrag);
 document.addEventListener('pointercancel',endPianoVSliderDrag);
 $('answerReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.showInkeySteps){ev.preventDefault();flashHelpButton(btn);const el=$('stepReveal');if(el&&!el.classList.contains('hidden'))clearInKeyStepReveal();else renderInKeySteps();return}if(btn.dataset.showChordSteps){ev.preventDefault();flashHelpButton(btn);showChordSteps();return}});
 $('stepReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('[data-inkey-step-pos]');if(btn)playInKeyStepPos(btn.dataset.inkeyStepPos,btn)});
-$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.playClip){const c=clipForPhraseId(btn.dataset.playClip);if(c){flashHelpButton(btn);playClipPlay(c)}return}if(btn.dataset.editPhrase){editPhrase(btn.dataset.editPhrase);return}if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
+$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.playRec){flashHelpButton(btn);playRec(btn.dataset.playRec);return}if(btn.dataset.editPhrase){editPhrase(btn.dataset.editPhrase);return}if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
 $('phraseSearch')?.addEventListener('input',ev=>{phraseSearchTerm=ev.target.value||'';localStorage.setItem('cpt_phraseSearch',phraseSearchTerm);phraseDetailId='';localStorage.setItem('cpt_phraseDetailId','');renderPhraseLibrary()});
 function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function getSettingsExportText(){const data={version:'1.72',created:new Date().toISOString(),items:{}};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('cpt_'))data.items[k]=localStorage.getItem(k)}return JSON.stringify(data,null,2)}
@@ -1816,8 +1830,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipBusy=false,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null;
-const clipOut={};
+let clipState=null,clipCtl=null,clipIdx=0,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null,clipStatusTimer=null;
 
 function clipDefaultText(){
   if(!window.Segue)return '';        // zonder de speler is er ook geen klok
@@ -1841,18 +1854,16 @@ function loadClipLab(){
   try{st=JSON.parse(localStorage.getItem('cpt_clipLab')||'null')}catch(e){}
   if(!st||typeof st!=='object')st={};
   if(typeof st.text!=='string'||!st.text.trim())st.text=clipDefaultText();
-  if(!Array.isArray(st.log))st.log=[];
   clipState=st;
   return st;
 }
 function saveClipLab(){try{localStorage.setItem('cpt_clipLab',JSON.stringify(clipState))}catch(e){}}
+/* Veilig schrijven: doe álle leeswerk vóór de aanroep, muteer binnen fn. Wie
+   tussen loadClipLab() en saveClipLab() nog iets leest dat zelf loadClipLab
+   aanroept, gooit zijn eigen wijziging weg — dat is hier twee keer gebeurd. */
+function updateClipLab(fn){const st=loadClipLab();fn(st);saveClipLab();return st}
 function clipList(){return window.Segue?Segue.parseText(loadClipLab().text).clips:[]}
 function clipSay(t){const el=$('clipMsg');if(el)el.textContent=t||''}
-function clipNote(line){
-  const st=loadClipLab(),d=new Date(),p=n=>('0'+n).slice(-2);
-  st.log.unshift(p(d.getDate())+'-'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes())+' · '+line);
-  st.log=st.log.slice(0,40);saveClipLab();renderClipLog();
-}
 /* "m3 ↑" (ook mét annotatie erachter) -> het phrase-id van dat interval.
    Bouwt op clipOffsetVan: één plek die labels leest, overal dezelfde uitkomst. */
 function clipPhraseId(c){
@@ -1862,12 +1873,69 @@ function clipPhraseId(c){
   return iv?('int_'+iv.interval+'_'+(o<0?'down':'up')):null;
 }
 
+/* Laat zien wat je verandert: de balk toont het gekozen bereik met een venster
+   van 10 s eromheen, plus waar de speler nu staat. */
+function renderClipTrim(){
+  const bar=$('clipTrimBar');
+  if(!bar)return;
+  const c=clipHuidige();
+  if(!c){bar.innerHTML='';$('clipTrimStart').textContent='—';$('clipTrimEnd').textContent='—';$('clipTrimInfo').textContent='';return}
+  $('clipTrimStart').textContent=Segue.clock(c.start);
+  $('clipTrimEnd').textContent=Segue.clock(c.end);
+  const dur=Math.max(0,Math.round(c.end-c.start));
+  $('clipTrimInfo').textContent=dur+' s'+(dur>20?' — nog lang':'');
+  const a=Math.max(0,c.start-10),b=c.end+10,span=Math.max(1,b-a);
+  const t=clipCtl?clipCtl.time():0;
+  const head=(t>=a&&t<=b)?'<div class="tHead" style="left:'+((t-a)/span*100)+'%"></div>':'';
+  bar.innerHTML='<div class="tSel" style="left:'+((c.start-a)/span*100)+'%;width:'+((c.end-c.start)/span*100)+'%"></div>'+head;
+}
+function clipNudge(which,delta){
+  const c=clipHuidige();
+  if(!c)return clipSay('Kies eerst een beweging.');
+  if(which==='start')c.start=Math.max(0,Math.min(c.start+delta,c.end-1));
+  else c.end=Math.max(c.start+1,c.end+delta);
+  clipReplaceLine(clipIdx,c);saveClipLab();renderClipSelect();
+  clipSay('Knip: '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+' ('+Math.round(c.end-c.start)+' s)');
+}
+/* De gemaakte clip zelf laten horen én zien: een gewone audiospeler met het
+   opgehaalde bestand, zodat je kunt terugluisteren en scrubben zonder YouTube. */
+let clipResultUrl=null,clipResultPid=null;
+function renderClipResult(){
+  const box=$('clipResult');
+  if(!box)return;
+  const d=clipRecDoel();
+  const heeft=d&&(clipRecSet.has(d.pid)||snipHas(d.pid));
+  if(!heeft){
+    box.classList.remove('on');clipResultPid=null;
+    if(clipResultUrl){URL.revokeObjectURL(clipResultUrl);clipResultUrl=null}
+    return;
+  }
+  box.classList.add('on');
+  if(clipResultPid===d.pid)return;                 // al geladen
+  clipResultPid=d.pid;
+  $('clipResultInfo').textContent='ophalen…';
+  snipBlob(d.pid).then(blob=>{
+    if(clipResultPid!==d.pid)return;               // ondertussen iets anders gekozen
+    if(!blob){$('clipResultInfo').textContent='niet op te halen';return}
+    if(clipResultUrl)URL.revokeObjectURL(clipResultUrl);
+    clipResultUrl=URL.createObjectURL(blob);
+    const a=$('clipResultAudio');
+    a.src=clipResultUrl;
+    a.onloadedmetadata=()=>{$('clipResultInfo').textContent=(Math.round(a.duration*10)/10)+' s · '+Math.round(blob.size/1024)+' KB'};
+    $('clipResultInfo').textContent=Math.round(blob.size/1024)+' KB';
+  }).catch(()=>{$('clipResultInfo').textContent='niet op te halen'});
+}
 function renderClipSelect(){
-  renderClipLiniaal();renderClipChips();clipWhereRender();
+  renderClipLiniaal();renderClipChips();clipWhereRender();renderClipTrim();renderClipResult();
   const b=$('clipModeBtn');
   if(b)b.textContent=clipMode()==='minor'?'🎼 Mineur — landingen in mineur':'🎼 Majeur — landingen in majeur';
+  const pb=$('clipPlayBtn');
+  if(pb)pb.textContent=clipCtl?'⏹ Stop':'▶ Speel';
+  renderClipRecKnoppen();
 }
 function clipStop(){
+  if(typeof clipRecKlaar==='function')clipRecKlaar();
+  if(typeof playRecStop==='function')playRecStop();
   if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}
   clearInterval(clipTicker);clipTicker=null;
   if($('clipStartHere')){$('clipStartHere').textContent='Start hier';$('clipEndHere').textContent='Eind hier'}
@@ -1877,8 +1945,9 @@ function clipStop(){
 function clipTickKnip(){
   const t=clipCtl?clipCtl.time():0;
   if(!$('clipStartHere'))return;
-  $('clipStartHere').textContent='Start hier'+(t?' · '+Segue.clock(t):'');
-  $('clipEndHere').textContent='Eind hier'+(t?' · '+Segue.clock(t):'');
+  $('clipStartHere').textContent=t?'nu · '+Segue.clock(t):'nu';
+  $('clipEndHere').textContent=t?'nu · '+Segue.clock(t):'nu';
+  renderClipTrim();
 }
 function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)}
 
@@ -1887,8 +1956,104 @@ function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)
    van alleen de tekst. Tekst blijft het vangnet: offline, autoplay geblokkeerd,
    fragment onspeelbaar, of bewust uitgezet in Settings. De keuze reist mee in
    cpt_clipLab en synct dus tussen apparaten. */
-let playClipCtl=null,lastReveal=null;
-function phraseClipsOn(){return loadClipLab().phraseClips!==false&&navigator.onLine!==false&&!!window.Segue}
+let lastReveal=null,clipRec=null,recAudio=null;
+const clipRecSet=new Set();          // welke int-pids een eigen opname hebben
+
+/* ---- Eigen mini-opnames -----------------------------------------------------
+   Het antwoord op de reclame: één keer het YouTube-fragment afspelen terwijl de
+   microfoon meeluistert (~5 s, ±40 KB audio), daarna speelt de oefening de
+   opname — geen iframe, geen reclame, ook offline. Opslag in IndexedDB, met een
+   eigen databank per omgeving (zelfde origin als live, dus 'sbx-'/'dd-' ernaast
+   zou data delen). Sleutels zijn interval-pids (int_m3_up), dus één opname
+   bedient alle gamemodes, net als de clips. */
+function recDB(){return new Promise((res,rej)=>{
+  const r=indexedDB.open((location.pathname.indexOf('/sandbox/')!==-1?'sbx':'dd')+'-cpt-recs',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('recs');
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
+})}
+function recTx(mode,fn){return recDB().then(db=>new Promise((res,rej)=>{
+  const t=db.transaction('recs',mode),q=fn(t.objectStore('recs'));
+  t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);
+}))}
+const recPut=(pid,v)=>recTx('readwrite',st=>st.put(v,pid));
+const recGet=pid=>recTx('readonly',st=>st.get(pid));
+const recDel=pid=>recTx('readwrite',st=>st.delete(pid));
+function recRefresh(){return recTx('readonly',st=>st.getAllKeys()).then(ks=>{clipRecSet.clear();(ks||[]).forEach(k=>clipRecSet.add(k))}).catch(()=>{})}
+recRefresh();
+
+/* ---- Snippers uit de bucket -------------------------------------------------
+   tools/chordsprint-snippets.py knipt op de Mac (yt-dlp+ffmpeg, geen microfoon,
+   geen reclame) en zet per beweging een m4a in de privébucket, plus een index in
+   cpt_clipSnips. Hier halen we die op met de ingelogde sessie, cachen het blob
+   in dezelfde IndexedDB als de mic-opnames en spelen hem af — daarna werkt het
+   ook offline. Eén keer ophalen per beweging; daarna komt hij uit de kast. */
+const CLIP_BUCKET='chordsprint-clips';
+/* Alles wat de knip-helper maakt staat in <ns>helper — bewust BUITEN de
+   cpt_-sleutels, want pushNow() in boot.js wist die op de server en zet er
+   alleen de lokale kopie van de app terug. Zou de index daar staan, dan
+   verdwenen je geknipte fragmenten zodra je iets in het lab bewaarde.
+   Lokaal houden we een kopie onder een sleutel die de sync niet kent, zodat
+   het ook offline werkt. */
+const CLIP_HELPER_KEY=(location.pathname.indexOf('/sandbox/')!==-1?'sbx:':'dd:')+'helper';
+let clipHelperState={beat:0,snips:null};
+function clipSnips(){
+  if(clipHelperState.snips)return clipHelperState.snips;
+  try{return JSON.parse(localStorage.getItem('clipSnipsCache')||'null')||{}}catch(e){return {}}
+}
+function clipHelperVerversen(cb){
+  if(!window.GM_ROW){if(cb)cb();return}
+  window.GM_ROW(d=>{
+    const raw=d&&d[CLIP_HELPER_KEY];
+    if(raw){
+      try{
+        const o=typeof raw==='string'?JSON.parse(raw):raw;
+        clipHelperState={beat:Date.parse(o.beat)||0,snips:o.snips||{}};
+        localStorage.setItem('clipSnipsCache',JSON.stringify(clipHelperState.snips));
+        // afgehandelde verwijderopdrachten opruimen: het fragment is weg van de
+        // server, dus de opdracht heeft zijn werk gedaan
+        const open=clipJobs();
+        const rest=open.filter(j=>!(typeof j==='string'&&j.startsWith('-')&&!clipHelperState.snips[j.slice(1)]));
+        if(rest.length!==open.length)updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
+      }catch(e){}
+    }
+    if(cb)cb();
+  });
+}
+function snipHas(pid){return !!clipSnips()[pid]}
+async function snipBlob(pid){
+  const cached=await recGet(pid).catch(()=>null);
+  if(cached&&cached.blob)return cached.blob;
+  const meta=clipSnips()[pid];
+  if(!meta)return null;
+  // Het knipscript zet er een signed URL van een jaar bij; dan hoeft de app zelf
+  // geen leesrecht op de bucket te hebben. Verlopen of ouder formaat: alsnog
+  // zelf een korte URL vragen via de ingelogde sessie.
+  let url=meta.url||null;
+  if(!url&&meta.obj&&window.GM_SB){
+    const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
+    url=data&&data.signedUrl;
+  }
+  if(!url)return null;
+  let blob=await fetch(url).then(r=>r.ok?r.blob():null).catch(()=>null);
+  if(!blob&&meta.obj&&window.GM_SB){                     // link verlopen? één keer verversen
+    const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
+    if(data&&data.signedUrl)blob=await fetch(data.signedUrl).then(r=>r.ok?r.blob():null).catch(()=>null);
+  }
+  if(blob)await recPut(pid,{blob,mime:blob.type||'audio/mp4',dur:meta.dur,made:Date.now(),src:'snip'}).catch(()=>{});
+  return blob;
+}
+function recPidFor(id){const e=phraseById(String(id||''));return e&&e.interval&&e.direction?'int_'+e.interval+'_'+e.direction:null}
+function playRecStop(){if(recAudio){try{recAudio.pause()}catch(e){}recAudio=null}}
+function playRec(pid){
+  stopSynth();playClipPause();playRecStop();
+  snipBlob(pid).then(blob=>{
+    if(!blob)return playClipMsg('Fragment nog niet opgehaald — ben je offline?');
+    recAudio=new Audio(URL.createObjectURL(blob));
+    recAudio.onended=()=>{if(recAudio)URL.revokeObjectURL(recAudio.src)};
+    recAudio.play().catch(()=>playClipMsg('Afspelen geblokkeerd — tik nog eens.'));
+  }).catch(()=>playClipMsg('Fragment niet leesbaar.'));
+}
+function phraseClipsOn(){return loadClipLab().phraseClips!==false}
 function clipForPhraseId(id){
   // Niet alleen int_*: ook move_* en chord_* dragen een interval + richting in
   // hun phrase-data (move_2 is een M2 omhoog), dus elk gamemode-antwoord wijst
@@ -1903,26 +2068,9 @@ function clipForPhraseId(id){
   cand.sort((a,b)=>(a.end>a.start?a.end-a.start:1e9)-(b.end>b.start?b.end-b.start:1e9));
   return cand[0];
 }
-function playClipStop(){
-  if(playClipCtl){try{playClipCtl.destroy()}catch(e){}playClipCtl=null}
-  const st=$('playClipStage');if(st){st.classList.remove('on');st.innerHTML=''}
-  playClipMsg('');
-}
+function playClipPause(){playClipMsg('')}     // niets meer om te pauzeren: geen iframe in de oefening
+function playClipStop(){playClipMsg('')}
 function playClipMsg(t){const m=$('playClipMsg');if(m)m.textContent=t||''}
-function playClipPlay(clip){
-  stopSynth();   // niet stopAudio: die zou de eigen speler slopen vóór hergebruik
-  if(playClipCtl){playClipCtl.setClips([clip]);playClipCtl.go(0);playClipMsg('');return}
-  const st=$('playClipStage');st.classList.add('on');st.innerHTML='<div></div>';
-  playClipMsg('');
-  playClipCtl=Segue.play(st.firstChild,[clip],{
-    onError:function(why){
-      playClipStop();
-      playClipMsg(why==='autoplay'?'Afspelen geblokkeerd — tik nog een keer op ▶ Clip.'
-        :why==='api'?'De YouTube-speler laadt niet; de tekst hierboven is je vangnet.'
-        :'Deze video speelt hier niet (verwijderd of niet insluitbaar).');
-    }
-  });
-}
 function clipPlayList(list,extra){
   if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
   clipExtra=extra||{};
@@ -1946,105 +2094,26 @@ function clipPlayList(list,extra){
   clipTickStart();
   return clipCtl;
 }
-function clipPlay(i){
+/* Vrij afspelen: eind op 0 betekent voor de motor "tot het eind van de video",
+   dus de app knipt niets af en jij houdt de bediening van YouTube zelf —
+   spoelen, pauzeren, terug. Precies wat je nodig hebt om het juiste moment te
+   zoeken. Alleen 'Beluister knip' speelt het bereik met de schaar erop. */
+function clipPlay(i,metKnip){
   const clips=clipList();
   if(!clips.length){clipSay('Geen fragmenten.');return null}
   clipIdx=Math.min(Math.max(i,0),clips.length-1);clipSay('');
-  return clipPlayList([clips[clipIdx]]);
+  const c=clips[clipIdx];
+  return clipPlayList([metKnip?c:{id:c.id,start:c.start,end:0,label:c.label}]);
+}
+function clipPreview(){
+  const c=clipHuidige();
+  if(!c)return clipSay('Kies eerst een beweging.');
+  clipStop();                       // koud starten, anders hoor je de staart nog
+  clipPlay(clipIdx,true);
+  clipSay('Speelt precies '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+'.');
 }
 
-function clipPause(ms){return new Promise(r=>setTimeout(r,ms))}
 function clipPoll(fn,ms){return new Promise(r=>{const t0=Date.now();const iv=setInterval(()=>{let v=null;try{v=fn()}catch(e){}if(v!==null&&v!==undefined&&v!==false){clearInterval(iv);r(v)}else if(Date.now()-t0>(ms||20000)){clearInterval(iv);r(null)}},100)})}
-/* Wacht tot de speeltijd echt loopt. Terug: hoe lang dat duurde en wáár hij
-   stond toen hij ging lopen — dat laatste is de landing die proef 2 meet. */
-function clipMoving(ctl,c,ms){
-  return new Promise(r=>{
-    if(!ctl)return r(null);
-    const t0=Date.now();let last=null;
-    const iv=setInterval(()=>{
-      const t=ctl.time();
-      // Alleen tijden in het venster van de clip tellen: vóór de speler er is
-      // meldt time() 0, en vlak na een sprong nog de oude positie — beide zouden
-      // anders als landing doorgaan en de meting vervuilen.
-      if(t&&(!c||(t>=c.start-4&&t<=c.end+2))){
-        if(last!==null&&t>last+0.05){clearInterval(iv);r({wachtte:(Date.now()-t0)/1000,landde:last});return}
-        last=t;
-      }
-      if(Date.now()-t0>(ms||25000)){clearInterval(iv);r(null)}
-    },100);
-  });
-}
-const clipOffset=(x,c)=>x?((x.landde-c.start>=0?'+':'')+(x.landde-c.start).toFixed(1)+' s'):'?';
-const clipHuidige=()=>clipList()[clipIdx]||null;
-
-const CLIP_TESTS=[
- {id:'speelt',naam:'1 · Speelt het?',uitleg:'hoe lang tot er geluid is',run:async()=>{
-   const c=clipHuidige();
-   if(!c)return 'geen fragment gekozen';
-   clipStop();                     // koud starten: dat is wat deze proef meet
-   const r=await clipMoving(clipPlay(clipIdx),c);
-   return r?'speelde na '+r.wachtte.toFixed(1)+' s':'kwam niet op gang — tik zelf op de speler';
- }},
- {id:'landt',naam:'2 · Landt het?',uitleg:'de eerste sprong is keyframe-grof, de tweede niet',run:async()=>{
-   const c=clipHuidige();
-   if(!c)return 'geen fragment gekozen';
-   clipStop();                     // 1e keer koud, 2e keer gebufferd — dat is de proef
-   const a=await clipMoving(clipPlay(clipIdx),c);
-   await clipPause(800);
-   const b=await clipMoving(clipPlay(clipIdx),c);
-   return 'gevraagd '+Segue.clock(c.start)+' · 1e keer '+clipOffset(a,c)+', 2e keer '+clipOffset(b,c);
- }},
- {id:'herhaal',naam:'3 · Herhalen',uitleg:'3× hetzelfde fragment achter elkaar',run:async()=>{
-   const c=clipHuidige();
-   if(!c)return 'geen fragment gekozen';
-   const ctl=clipPlay(clipIdx),spots=[];
-   for(let n=0;n<3;n++){
-     if(n)ctl.go(0);
-     const r=await clipMoving(ctl,c);
-     spots.push(r?r.landde-c.start:NaN);
-     await clipPause(500);
-   }
-   return 'afwijking per beurt: '+spots.map(s=>isNaN(s)?'—':(s>=0?'+':'')+s.toFixed(1)+' s').join(' · ');
- }},
- {id:'synth',naam:'4 · Naast de synth',uitleg:'video, dan de synth — hoor je die nog?',run:async()=>{
-   const c=clipHuidige();
-   if(!c)return 'geen fragment gekozen';
-   const pid=clipPhraseId(c);
-   if(!pid)return 'dit fragment heeft geen interval-label zoals "m3 ↑"';
-   const ctl=clipPlay(clipIdx);
-   if(!await clipMoving(ctl,c))return 'video kwam niet op gang';
-   await clipPoll(()=>ctl.time()>=c.end-0.4,(c.end-c.start+25)*1000);
-   ctl.pause();await clipPause(400);playPhraseInterval(pid);
-   return 'synth speelde ná de video — zeg hiernaast of je hem hoorde';
- }},
- {id:'schakel',naam:'5 · Doorschakelen',uitleg:'hoe groot is het gat tussen twee fragmenten',run:async()=>{
-   const clips=clipList();
-   if(clips.length<2||!clips[clipIdx])return 'minstens twee fragmenten nodig';
-   const a=clips[clipIdx],b=clips[(clipIdx+1)%clips.length];
-   let t0=0;
-   const ctl=clipPlayList([a,b],{onChange:n=>{if(n===1)t0=Date.now()}});
-   if(!await clipMoving(ctl,a))return 'eerste fragment kwam niet op gang';
-   if(!await clipPoll(()=>t0||null,(a.end-a.start+30)*1000))return 'schakelde niet door';
-   const ok=await clipPoll(()=>{const t=ctl.time();return t>=b.start-1&&t<=b.end+3?t:null},30000);
-   return ok?'gat: '+((Date.now()-t0)/1000).toFixed(1)+' s':'tweede fragment kwam niet op gang';
- }},
- {id:'stuk',naam:'6 · Wat gaat er stuk?',uitleg:'kapot video-id: komt de melding door?',run:async()=>{
-   let why=null;
-   clipPlayList([{id:'aaaaaaaaaaa',start:0,end:5,label:'kapot'}],{onError:w=>{why=w}});
-   const r=await clipPoll(()=>why,20000);
-   return r?'gemeld als "'+r+'" — de melding kwam door':'geen melding binnen 20 s';
- }}
-];
-
-async function runClipTest(id){
-  const t=CLIP_TESTS.find(x=>x.id===id);
-  if(!t||clipBusy)return;
-  clipBusy=true;clipOut[id]='bezig…';renderClipLab();
-  let res;
-  try{res=await t.run()}catch(e){res='fout: '+((e&&e.message)||e)}
-  clipBusy=false;clipOut[id]=res;renderClipLab();clipNote(t.naam+' — '+res);
-}
-
 /* Alleen de regel van dít fragment herschrijven, zodat je eigen commentaar en
    volgorde in het tekstvak blijven staan. Het regelnummer komt uit parseText
    zelf (clip.line), dus hier wordt niets nageteld. */
@@ -2066,7 +2135,7 @@ function clipEdge(which){
   if(c.end<=c.start)c.end=c.start+3;        // een lege knip is geen knip
   clipReplaceLine(clipIdx,c);saveClipLab();renderClipLab();
   // meld wat er staat, niet waar je tikte: een te korte knip is net opgerekt
-  clipSay((which==='start'?'Start':'Eind')+' op '+Segue.clock(which==='start'?c.start:c.end)+' gezet.');
+  clipSay('Knip: '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+' ('+Math.round(c.end-c.start)+' s)');
 }
 
 /* ---- De liniaal: twee octaven met de 1 in het midden -----------------------
@@ -2122,6 +2191,7 @@ function clipPerBeweging(){
   clipList().forEach((c,i)=>{const o=clipOffsetVan(c);if(o!==null)(uit[o]=uit[o]||[]).push(i)});
   return uit;
 }
+const clipHuidige=()=>clipList()[clipIdx]||null;
 function clipHuidigeOffset(){
   const c=clipList()[clipIdx];
   return c?clipOffsetVan(c):null;
@@ -2226,12 +2296,115 @@ function clipProgSpeel(){
   }});
 }
 
-function renderClipLog(){
-  const el=$('clipLog');
-  if(!el)return;
-  const log=loadClipLab().log;
-  el.innerHTML=log.length?log.map(l=>'<div>'+htmlEscape(l)+'</div>').join(''):'<p class="small">Nog niets gemeten.</p>';
+/* Welke beweging is het doel van een opname, en welk fragment hoort erbij. */
+function clipRecDoel(){
+  const off=clipDoel!==null?clipDoel:clipHuidigeOffset();
+  const iv=off!==null?clipIntervalVan(off):null;
+  if(!iv)return null;
+  const idx=(clipPerBeweging()[off]||[])[0];
+  // pid in het phrase-formaat (up/down), niet met het pijltje — daar zoekt de oefening op
+  return {pid:'int_'+iv.interval+'_'+(off<0?'down':'up'), naam:iv.interval+' '+iv.richting, idx, off};
 }
+function clipRecKlaar(){if(clipRec&&clipRec.state!=='inactive'){try{clipRec.stop()}catch(e){}}}
+async function clipRecToggle(){
+  if(clipRec){clipRecKlaar();return}     // handmatig eerder stoppen
+  const doel=clipRecDoel();
+  if(!doel)return clipSay('Tik eerst de chip van een beweging.');
+  if(doel.idx===undefined)return clipSay('Geen fragment op '+doel.naam+' om mee te spelen.');
+  const c=clipList()[doel.idx];
+  let stream;
+  try{
+    // muziekstand: geen echo-onderdrukking of ruisfilter, die slopen het signaal
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  }catch(e){return clipSay('Geen microfoon-toegang ('+(e&&e.name||e)+').')}
+  const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
+  try{clipRec=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:64000}:{audioBitsPerSecond:64000})}
+  catch(e){stream.getTracks().forEach(t=>t.stop());return clipSay('Opnemen kan niet in deze browser.')}
+  const chunks=[],t0=Date.now();
+  clipRec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  clipRec.onstop=()=>{
+    stream.getTracks().forEach(t=>t.stop());
+    const blob=new Blob(chunks,{type:clipRec.mimeType||mime||'audio/webm'});
+    clipRec=null;
+    if(clipCtl)clipCtl.pause();
+    if(blob.size<2000){clipSay('Opname te kort of leeg — niets bewaard.');renderClipSelect();return}
+    recPut(doel.pid,{blob,mime:blob.type,dur:Math.round((Date.now()-t0)/100)/10,made:Date.now()})
+      .then(()=>{clipRecSet.add(doel.pid);renderClipSelect();clipSay('Opname bewaard ('+(Math.round((Date.now()-t0)/100)/10)+' s) — de oefening speelt nu déze, zonder reclame en ook offline.');0})
+      .catch(()=>{clipSay('Opslaan mislukte.');renderClipSelect()});
+  };
+  clipRec.start();
+  renderClipSelect();
+  clipSay('🎙 Opname loopt — het fragment speelt mee. Stopt vanzelf op de eindtijd.');
+  const ctl=clipPlay(doel.idx);
+  // ponytail: de mic hoort ook de reclame als die er is; dan gewoon opnieuw opnemen
+  clipPoll(()=>{const t=ctl&&ctl.time();return t&&t>=c.end-0.2?true:null},(c.end-c.start+45)*1000)
+    .then(()=>clipRecKlaar());
+}
+/* "Maak fragment": de knip-aanvraag gaat mee met de gewone sync, de helper op
+   de Mac (tools/chordsprint-snippets.py --watch) knipt hem binnen enkele
+   seconden en zet de audio klaar. Hier wachten we daarop en verversen we. */
+function clipJobs(){try{return JSON.parse(loadClipLab().jobs||'[]')}catch(e){return []}}
+/* De helper op de Mac schrijft elke ~20 s een teken van leven. Zonder dat is
+   "je Mac knipt…" een leugen: dan luistert er niets en gebeurt er niks. */
+function clipHelperLevend(){return (Date.now()-clipHelperState.beat) < 90000}
+const HELPER_CMD='python3 tools/chordsprint-snippets.py --watch'+(location.pathname.indexOf('/sandbox/')!==-1?' --sandbox':'');
+function clipMakeMsg(t){const el=$('clipMakeMsg');if(el)el.textContent=t||''}
+function clipMakeFragment(){
+  const doel=clipRecDoel();
+  if(!doel)return clipMakeMsg('Tik eerst de chip van een beweging.');
+  if(doel.idx===undefined)return clipMakeMsg('Geen fragment op '+doel.naam+' om te knippen.');
+  const c=clipList()[doel.idx];
+  if(c.end-c.start>30)return clipMakeMsg('Eerst inkorten: '+Math.round(c.end-c.start)+' s is te lang voor een fragment.');
+  const jobs=clipJobs().filter(j=>j!==doel.pid);   // eerst lezen…
+  jobs.push(doel.pid);
+  updateClipLab(st=>{st.jobs=JSON.stringify(jobs)}); // …dan pas schrijven
+  clipMakeMsg('Aangevraagd: '+doel.naam+' ('+Math.round(c.end-c.start)+' s). Even kijken of je Mac meeluistert…');
+  renderClipSelect();
+  clipWachtOpFragment(doel.pid,doel.naam);
+}
+function clipWachtOpFragment(pid,naam){
+  let n=0;
+  const iv=setInterval(()=>{
+    n++;
+    clipHelperVerversen(()=>{
+      if(!snipHas(pid))return;
+      clearInterval(iv);
+      // de helper raakt cpt_clipLab niet aan; de app haalt zijn eigen aanvraag weg
+      const rest=clipJobs().filter(j=>j!==pid);
+      updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
+      clipMakeMsg('Klaar: '+naam+' staat er als audio — de oefening speelt hem nu zonder reclame.');
+      renderClipSelect();
+    });
+    // De aanvraag blijft in de wachtrij staan, dus "later" is een geldig antwoord.
+    if(n===3)clipMakeMsg(clipHelperLevend()
+      ? 'Je Mac is ermee bezig…'
+      : 'In de wachtrij — dit wordt geknipt zodra je Mac aanstaat met de helper.');
+    if(n>40){                                  // 2 minuten
+      clearInterval(iv);
+      clipMakeMsg(clipHelperLevend()
+        ? 'De helper draait maar levert niets — kijk in dat venster of er een foutmelding staat.'
+        : 'Blijft in de wachtrij tot je Mac meeluistert:  '+HELPER_CMD);
+    }
+  },3000);
+}
+function renderClipRecKnoppen(){
+  const b=$('clipRecBtn');if(!b)return;
+  const doel=clipRecDoel(),heeft=doel&&clipRecSet.has(doel.pid);
+  b.textContent=clipRec?'⏹ Stop opname':(heeft?'🎙 Opnieuw opnemen':'🎙 Zelf opnemen');
+  const klaar=doel&&(clipRecSet.has(doel.pid)||snipHas(doel.pid));
+  const wacht=doel&&clipJobs().indexOf(doel.pid)>=0;
+  const mk=$('clipMakeBtn');
+  if(mk){
+    const levend=clipHelperLevend();
+    mk.textContent=wacht?'⏳ Wordt geknipt…':(klaar?'✂️ Opnieuw knippen':'✂️ Maak fragment');
+    mk.disabled=!!wacht;
+    mk.title=levend?'Je Mac luistert mee':'Je Mac luistert niet: '+HELPER_CMD;
+    const hs=$('clipHelperStatus');
+    if(hs)hs.textContent=levend?'Mac: luistert mee':'Mac: uit — aanvragen blijven in de wachtrij';
+  }
+  // de gemaakte clip heeft nu zijn eigen speler; alleen 'weg' blijft een knop
+}
+
 function renderClipLab(){
   if(!$('clipsScreen'))return;
   if(!window.Segue)clipSay('De speler (../clipinus/segue.js) laadde niet — staat Clipinus al naast deze app?');
@@ -2240,16 +2413,9 @@ function renderClipLab(){
   renderClipSelect();renderClipProg();
   const met=clips.filter(x=>clipOffsetVan(x)!==null);
   const kort=met.filter(x=>x.end>x.start&&x.end-x.start<=20);
-  $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (fragment ≤ 20 s telt als ingekort, groen streepje op de chip).':'';
-  $('clipRehang').textContent=clipVerhangen?'Verhangen: tik een beweging':'Verhang naar…';
+  $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (≤ 20 s, groen streepje) · Fragmenten klaar: '+new Set([...clipRecSet,...Object.keys(clipSnips())]).size+' van 24 — die spelen in de oefening zónder reclame.':'';
+  $('clipRehang').textContent=clipVerhangen?'Tik nu de beweging waar het bij hoort':'Hoort bij een ander interval…';
   $('clipText').value=st.text;
-  $('clipTests').innerHTML=CLIP_TESTS.map(t=>
-    '<div class="clipTest"><button class="btn" data-cliptest="'+t.id+'"'+(clipBusy?' disabled':'')+'>'+htmlEscape(t.naam)+'</button>'+
-    (t.id==='synth'?'<button class="btn ghost smallBtn" data-clipverdict="wel">Wel gehoord</button><button class="btn ghost smallBtn" data-clipverdict="niet">Niet gehoord</button>':'')+
-    '<span class="small">'+htmlEscape(clipOut[t.id]||t.uitleg)+'</span></div>').join('');
-  document.querySelectorAll('[data-cliptest]').forEach(b=>b.onclick=()=>runClipTest(b.dataset.cliptest));
-  document.querySelectorAll('[data-clipverdict]').forEach(b=>b.onclick=()=>clipNote('synth naast de video: '+(b.dataset.clipverdict==='wel'?'wél':'niet')+' gehoord'));
-  renderClipLog();
 }
 function clipWhereRender(){
   const main=$('clipWhereMain'),subEl=$('clipWhereSub');
@@ -2264,10 +2430,39 @@ function clipWhereRender(){
   main.textContent='1 → '+(l.graad?l.graad+' ('+l.roman+')':l.naam)+(off<0?' ↓':' ↑');
   subEl.textContent=iv.interval+' '+(off<0?'omlaag':'omhoog')+(l.graad?'':' · buiten de toonladder')+' · '+tijd;
 }
+/* De hartslag staat in de gesynchroniseerde staat, dus zonder verse pull kijk
+   je naar een oud antwoord — precies waarom het lab beweerde dat de Mac niet
+   luisterde terwijl hij gewoon draaide. Bij openen verversen, en daarna elke
+   20 s zolang het lab open is. */
+function clipStatusVerversen(aan){
+  clearInterval(clipStatusTimer);clipStatusTimer=null;
+  if(!aan)return;
+  const doe=()=>clipHelperVerversen(()=>renderClipSelect());
+  doe();
+  clipStatusTimer=setInterval(doe,20000);
+}
 function openClips(){clipVerhangen=false;clipDoel=null;clipsReturn=currentScreenName();showScreen('clips')}
 
 $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
+$('clipMakeBtn').onclick=()=>clipMakeFragment();
+$('clipRecBtn').onclick=()=>clipRecToggle();
+$('clipRecDelBtn').onclick=()=>{
+  const d=clipRecDoel();
+  if(!d)return;
+  const opServer=snipHas(d.pid);
+  const jobs=clipJobs().filter(j=>j!==d.pid&&j!=='-'+d.pid);
+  if(opServer)jobs.push('-'+d.pid);   // opdracht aan de helper: weg uit index én bucket
+  recDel(d.pid).then(()=>{
+    clipRecSet.delete(d.pid);
+    const snips=clipSnips();delete snips[d.pid];
+    if(clipHelperState.snips)delete clipHelperState.snips[d.pid];
+    localStorage.setItem('clipSnipsCache',JSON.stringify(snips));
+    updateClipLab(st=>{st.jobs=JSON.stringify(jobs)});
+    clipResultPid=null;renderClipSelect();
+    clipSay('Fragment van '+d.naam+' verwijderd'+(opServer?' (ook op je Mac)':'')+'. Knip opnieuw wanneer je wilt.');
+  });
+};
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
 $('clipProgAdd').onclick=()=>{const off=clipDoel!==null?clipDoel:clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};
@@ -2292,8 +2487,11 @@ $('phraseClipsBtn').onclick=()=>{const st=loadClipLab();st.phraseClips=st.phrase
 renderPhraseClipsBtn();
 $('clipProgPlay').onclick=()=>clipProgSpeel();
 $('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipProg()};
-$('clipPlayBtn').onclick=()=>clipPlay(clipIdx);
-$('clipStopBtn').onclick=()=>{clipStop();clipSay('Speler weg.')};
+// Eén knop: spelen als er niets speelt, anders stoppen (en de speler opruimen,
+// want een levende iframe is bij YouTube een lopende kijksessie).
+$('clipPlayBtn').onclick=()=>{if(clipCtl){clipStop();clipSay('')}else clipPlay(clipIdx);renderClipSelect()};
+$('clipPreviewBtn').onclick=()=>clipPreview();
+document.querySelectorAll('[data-nudge]').forEach(b=>b.onclick=()=>{const [w,d]=b.dataset.nudge.split(',');clipNudge(w,+d)});
 $('clipStartHere').onclick=()=>clipEdge('start');
 $('clipEndHere').onclick=()=>clipEdge('end');
 $('clipSaveBtn').onclick=()=>{loadClipLab().text=$('clipText').value;saveClipLab();renderClipLab();clipSay('Bewaard.')};
@@ -2303,11 +2501,15 @@ $('clipResetBtn').onclick=()=>{
   b.dataset.armed='';b.textContent='Terug naar de hoofdstukken';
   loadClipLab().text=clipDefaultText();saveClipLab();renderClipLab();clipSay('Terug naar de hoofdstukken.');
 };
-$('clipClearLog').onclick=()=>{loadClipLab().log=[];saveClipLab();renderClipLog()};
 
 document.body.dataset.theme=localStorage.getItem('cpt_theme')||'clean';
 const savedCurrent=JSON.parse(localStorage.getItem('cpt_currentConfig')||'null');if(savedCurrent&&currentPresetId==='custom')setConfig(savedCurrent);else applyPreset(currentPresetId,false);
 renderAll();newProgression(false);
+// Ook buiten het Clip lab moet de oefening weten welke fragmenten klaarstaan;
+// zonder dit ziet een tweede apparaat alleen tekst tot je het lab opent.
+// Moet hier staan: CLIP_HELPER_KEY en clipHelperState zijn const/let en dus
+// niet bruikbaar vóór hun eigen regel.
+clipHelperVerversen(()=>{if(currentScreenName()==='practice'&&typeof lastReveal==='function')lastReveal()});
 </script>
 </body>
 </html>
