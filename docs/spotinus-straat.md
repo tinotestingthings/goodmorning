@@ -1,7 +1,7 @@
 # Spotinus — straatarcheologie ("wat is dat ding?")
 
-Gebouwd 29 aug 2026, in de sandbox. Vierde categorie naast vogels, honden en
-bouwstijlen: de kleine straatobjecten waar je dagelijks langs loopt zonder te
+Gebouwd 29 aug 2026. **Status: LIVE sinds 30 aug (v2026.08.30-1).** Vierde
+categorie naast vogels, honden en bouwstijlen: de kleine straatobjecten waar je dagelijks langs loopt zonder te
 weten dat ze een naam en een verhaal hebben. **Scope: voor nu alleen Utrecht**
 — waar een Utrechtse Commons-categorie bestaat (werfkelders, gevelstenen,
 Stolpersteine, muurankers, lantaarnconsoles, stadspompen) staat die voorop;
