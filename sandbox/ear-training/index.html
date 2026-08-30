@@ -74,6 +74,16 @@
 .cChip.cNu{border-color:var(--accent);background:var(--btn)}
 .cChip.cStap{flex:0 0 auto;padding:4px 10px}
 #clipWhere{margin:6px 0 2px}
+#clipResult{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+#clipResult.on{display:block}
+#clipResult audio{width:100%;height:38px;margin:6px 0}
+#clipTrimBar{position:relative;height:12px;border-radius:6px;background:var(--btn);margin:10px 0 2px;overflow:hidden}
+#clipTrimBar .tSel{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:6px}
+#clipTrimBar .tHead{position:absolute;top:0;bottom:0;width:2px;background:var(--text)}
+.trimRow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.trimRow .tLab{width:42px;color:var(--muted);font-size:.8rem}
+.trimRow .tVal{width:62px;font-weight:700;font-variant-numeric:tabular-nums}
+.trimRow .btn{padding:5px 9px;font-size:.8rem;flex:0 0 auto}
 .phraseClipBtn{margin-top:6px;margin-right:6px}
 #playClipMsg{margin:6px 0 0}
 #playClipMsg:empty{display:none}
@@ -416,11 +426,18 @@
       <div id="clipWhere"><b id="clipWhereMain"></b><span id="clipWhereSub"></span></div>
       <div id="clipStage"></div>
       <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn primary" id="clipMakeBtn">✂️ Maak fragment</button></div>
-      <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
-      <div class="split"><button class="btn ghost" id="clipRecPlayBtn">▶ Fragment</button><button class="btn ghost" id="clipRecDelBtn">Fragment weg</button></div>
+      <div id="clipTrimBar"></div>
+      <div class="trimRow"><span class="tLab">Start</span><b class="tVal" id="clipTrimStart">—</b><button class="btn" data-nudge="start,-1">−1s</button><button class="btn" data-nudge="start,1">+1s</button><button class="btn" id="clipStartHere">nu</button></div>
+      <div class="trimRow"><span class="tLab">Eind</span><b class="tVal" id="clipTrimEnd">—</b><button class="btn" data-nudge="end,-1">−1s</button><button class="btn" data-nudge="end,1">+1s</button><button class="btn" id="clipEndHere">nu</button></div>
+      <div class="split"><button class="btn" id="clipPreviewBtn">▶ Beluister knip</button><span class="small" id="clipTrimInfo"></span></div>
+      <div id="clipResult">
+        <div class="label">Je fragment</div>
+        <audio id="clipResultAudio" controls preload="none"></audio>
+        <div class="split"><span class="small" id="clipResultInfo"></span><button class="btn ghost" id="clipRecDelBtn">Fragment weg</button></div>
+      </div>
       <p class="small" id="clipMakeMsg"></p>
       <p class="small" id="clipMsg"></p>
-      <p class="small">Kies een chip, knip met Start/Eind hier, en tik Maak fragment. Daarna speelt de oefening je eigen audio — zonder reclame.</p>
+      <p class="small">▶ Speel loopt vrij door: spoelen en pauzeren doe je gewoon in de speler zelf. Tik "nu" op het juiste moment, schaaf bij met −1s/+1s, controleer met Beluister knip en tik dan Maak fragment.</p>
     </div>
     <div class="card">
       <div class="label">Deze beweging anders invullen</div>
@@ -1855,8 +1872,60 @@ function clipPhraseId(c){
   return iv?('int_'+iv.interval+'_'+(o<0?'down':'up')):null;
 }
 
+/* Laat zien wat je verandert: de balk toont het gekozen bereik met een venster
+   van 10 s eromheen, plus waar de speler nu staat. */
+function renderClipTrim(){
+  const bar=$('clipTrimBar');
+  if(!bar)return;
+  const c=clipHuidige();
+  if(!c){bar.innerHTML='';$('clipTrimStart').textContent='—';$('clipTrimEnd').textContent='—';$('clipTrimInfo').textContent='';return}
+  $('clipTrimStart').textContent=Segue.clock(c.start);
+  $('clipTrimEnd').textContent=Segue.clock(c.end);
+  const dur=Math.max(0,Math.round(c.end-c.start));
+  $('clipTrimInfo').textContent=dur+' s'+(dur>20?' — nog lang':'');
+  const a=Math.max(0,c.start-10),b=c.end+10,span=Math.max(1,b-a);
+  const t=clipCtl?clipCtl.time():0;
+  const head=(t>=a&&t<=b)?'<div class="tHead" style="left:'+((t-a)/span*100)+'%"></div>':'';
+  bar.innerHTML='<div class="tSel" style="left:'+((c.start-a)/span*100)+'%;width:'+((c.end-c.start)/span*100)+'%"></div>'+head;
+}
+function clipNudge(which,delta){
+  const c=clipHuidige();
+  if(!c)return clipSay('Kies eerst een beweging.');
+  if(which==='start')c.start=Math.max(0,Math.min(c.start+delta,c.end-1));
+  else c.end=Math.max(c.start+1,c.end+delta);
+  clipReplaceLine(clipIdx,c);saveClipLab();renderClipSelect();
+  clipSay('Knip: '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+' ('+Math.round(c.end-c.start)+' s)');
+}
+/* De gemaakte clip zelf laten horen én zien: een gewone audiospeler met het
+   opgehaalde bestand, zodat je kunt terugluisteren en scrubben zonder YouTube. */
+let clipResultUrl=null,clipResultPid=null;
+function renderClipResult(){
+  const box=$('clipResult');
+  if(!box)return;
+  const d=clipRecDoel();
+  const heeft=d&&(clipRecSet.has(d.pid)||snipHas(d.pid));
+  if(!heeft){
+    box.classList.remove('on');clipResultPid=null;
+    if(clipResultUrl){URL.revokeObjectURL(clipResultUrl);clipResultUrl=null}
+    return;
+  }
+  box.classList.add('on');
+  if(clipResultPid===d.pid)return;                 // al geladen
+  clipResultPid=d.pid;
+  $('clipResultInfo').textContent='ophalen…';
+  snipBlob(d.pid).then(blob=>{
+    if(clipResultPid!==d.pid)return;               // ondertussen iets anders gekozen
+    if(!blob){$('clipResultInfo').textContent='niet op te halen';return}
+    if(clipResultUrl)URL.revokeObjectURL(clipResultUrl);
+    clipResultUrl=URL.createObjectURL(blob);
+    const a=$('clipResultAudio');
+    a.src=clipResultUrl;
+    a.onloadedmetadata=()=>{$('clipResultInfo').textContent=(Math.round(a.duration*10)/10)+' s · '+Math.round(blob.size/1024)+' KB'};
+    $('clipResultInfo').textContent=Math.round(blob.size/1024)+' KB';
+  }).catch(()=>{$('clipResultInfo').textContent='niet op te halen'});
+}
 function renderClipSelect(){
-  renderClipLiniaal();renderClipChips();clipWhereRender();
+  renderClipLiniaal();renderClipChips();clipWhereRender();renderClipTrim();renderClipResult();
   const b=$('clipModeBtn');
   if(b)b.textContent=clipMode()==='minor'?'🎼 Mineur — landingen in mineur':'🎼 Majeur — landingen in majeur';
   const pb=$('clipPlayBtn');
@@ -1875,8 +1944,9 @@ function clipStop(){
 function clipTickKnip(){
   const t=clipCtl?clipCtl.time():0;
   if(!$('clipStartHere'))return;
-  $('clipStartHere').textContent='Start hier'+(t?' · '+Segue.clock(t):'');
-  $('clipEndHere').textContent='Eind hier'+(t?' · '+Segue.clock(t):'');
+  $('clipStartHere').textContent=t?'nu · '+Segue.clock(t):'nu';
+  $('clipEndHere').textContent=t?'nu · '+Segue.clock(t):'nu';
+  renderClipTrim();
 }
 function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)}
 
@@ -1993,14 +2063,38 @@ function clipPlayList(list,extra){
   clipTickStart();
   return clipCtl;
 }
-function clipPlay(i){
+/* Vrij afspelen: eind op 0 betekent voor de motor "tot het eind van de video",
+   dus de app knipt niets af en jij houdt de bediening van YouTube zelf —
+   spoelen, pauzeren, terug. Precies wat je nodig hebt om het juiste moment te
+   zoeken. Alleen 'Beluister knip' speelt het bereik met de schaar erop. */
+function clipPlay(i,metKnip){
   const clips=clipList();
   if(!clips.length){clipSay('Geen fragmenten.');return null}
   clipIdx=Math.min(Math.max(i,0),clips.length-1);clipSay('');
-  return clipPlayList([clips[clipIdx]]);
+  const c=clips[clipIdx];
+  return clipPlayList([metKnip?c:{id:c.id,start:c.start,end:0,label:c.label}]);
+}
+function clipPreview(){
+  const c=clipHuidige();
+  if(!c)return clipSay('Kies eerst een beweging.');
+  clipStop();                       // koud starten, anders hoor je de staart nog
+  clipPlay(clipIdx,true);
+  clipSay('Speelt precies '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+'.');
 }
 
 function clipPoll(fn,ms){return new Promise(r=>{const t0=Date.now();const iv=setInterval(()=>{let v=null;try{v=fn()}catch(e){}if(v!==null&&v!==undefined&&v!==false){clearInterval(iv);r(v)}else if(Date.now()-t0>(ms||20000)){clearInterval(iv);r(null)}},100)})}
+/* Alleen de regel van dít fragment herschrijven, zodat je eigen commentaar en
+   volgorde in het tekstvak blijven staan. Het regelnummer komt uit parseText
+   zelf (clip.line), dus hier wordt niets nageteld. */
+function clipReplaceLine(idx,c){
+  const src=clipList()[idx];
+  if(!src||typeof src.line!=='number')return;
+  const lines=loadClipLab().text.split('\n');
+  const parts=String(lines[src.line]||'').trim().split(/\s+/);
+  const head=Segue.videoId(parts[0])?parts[0]+' ':'';
+  lines[src.line]=head+Segue.clock(c.start)+'-'+Segue.clock(c.end)+(c.label?' '+c.label:'');
+  clipState.text=lines.join('\n');
+}
 function clipEdge(which){
   if(!clipCtl)return clipSay('Speel eerst een fragment.');
   const c=clipList()[clipIdx];
@@ -2010,7 +2104,7 @@ function clipEdge(which){
   if(c.end<=c.start)c.end=c.start+3;        // een lege knip is geen knip
   clipReplaceLine(clipIdx,c);saveClipLab();renderClipLab();
   // meld wat er staat, niet waar je tikte: een te korte knip is net opgerekt
-  clipSay((which==='start'?'Start':'Eind')+' op '+Segue.clock(which==='start'?c.start:c.end)+' gezet.');
+  clipSay('Knip: '+Segue.clock(c.start)+'–'+Segue.clock(c.end)+' ('+Math.round(c.end-c.start)+' s)');
 }
 
 /* ---- De liniaal: twee octaven met de 1 in het midden -----------------------
@@ -2066,6 +2160,7 @@ function clipPerBeweging(){
   clipList().forEach((c,i)=>{const o=clipOffsetVan(c);if(o!==null)(uit[o]=uit[o]||[]).push(i)});
   return uit;
 }
+const clipHuidige=()=>clipList()[clipIdx]||null;
 function clipHuidigeOffset(){
   const c=clipList()[clipIdx];
   return c?clipOffsetVan(c):null;
@@ -2274,8 +2369,7 @@ function renderClipRecKnoppen(){
     mk.title=levend?'Je Mac luistert mee':'Je Mac luistert niet: '+HELPER_CMD;
     mk.style.opacity=levend?'':'0.75';
   }
-  $('clipRecPlayBtn').style.display=klaar?'':'none';
-  $('clipRecDelBtn').style.display=klaar?'':'none';
+  // de gemaakte clip heeft nu zijn eigen speler; alleen 'weg' blijft een knop
 }
 
 function renderClipLab(){
@@ -2309,12 +2403,11 @@ $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
 $('clipMakeBtn').onclick=()=>clipMakeFragment();
 $('clipRecBtn').onclick=()=>clipRecToggle();
-$('clipRecPlayBtn').onclick=()=>{const d=clipRecDoel();if(d&&clipRecSet.has(d.pid))playRec(d.pid)};
 $('clipRecDelBtn').onclick=()=>{const d=clipRecDoel();if(!d)return;recDel(d.pid).then(()=>{
   clipRecSet.delete(d.pid);
   const snips=clipSnips();delete snips[d.pid];
   localStorage.setItem('cpt_clipSnips',JSON.stringify(snips));
-  renderClipSelect();clipSay('Fragment van '+d.naam+' verwijderd. Knip opnieuw wanneer je wilt.');
+  clipResultPid=null;renderClipSelect();clipSay('Fragment van '+d.naam+' verwijderd. Knip opnieuw wanneer je wilt.');
 })};
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
@@ -2343,6 +2436,8 @@ $('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipPr
 // Eén knop: spelen als er niets speelt, anders stoppen (en de speler opruimen,
 // want een levende iframe is bij YouTube een lopende kijksessie).
 $('clipPlayBtn').onclick=()=>{if(clipCtl){clipStop();clipSay('')}else clipPlay(clipIdx);renderClipSelect()};
+$('clipPreviewBtn').onclick=()=>clipPreview();
+document.querySelectorAll('[data-nudge]').forEach(b=>b.onclick=()=>{const [w,d]=b.dataset.nudge.split(',');clipNudge(w,+d)});
 $('clipStartHere').onclick=()=>clipEdge('start');
 $('clipEndHere').onclick=()=>clipEdge('end');
 $('clipSaveBtn').onclick=()=>{loadClipLab().text=$('clipText').value;saveClipLab();renderClipLab();clipSay('Bewaard.')};
