@@ -7,6 +7,7 @@ alleen de audiostream, ffmpeg knipt exact op de tijden uit jouw fragmentenlijst.
     python3 tools/chordsprint-snippets.py --sandbox  # sandbox (sbx:)
     python3 tools/chordsprint-snippets.py --only int_m3_up,int_P4_down
     python3 tools/chordsprint-snippets.py --dry-run
+    python3 tools/chordsprint-snippets.py --watch      # blijft draaien: knipt wat de app vraagt
 
 Bron van waarheid is jouw eigen fragmententekst: die staat in Supabase-tabel
 `chordsprint_state` onder de sleutel `<ns>cpt_clipLab`, precies zoals je hem in
@@ -21,7 +22,7 @@ Let op: dit downloadt van YouTube, wat tegen hun voorwaarden is. Alles blijft
 privé — besloten bucket, alleen jouw account, niets publiek.
 """
 
-import argparse, json, os, re, shutil, subprocess, sys, tempfile, urllib.error, urllib.parse, urllib.request
+import argparse, json, os, re, shutil, subprocess, sys, tempfile, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 
 SUPABASE_URL = "https://bobltktjohhnoqhnxslf.supabase.co"
@@ -131,11 +132,95 @@ def cut(clip, tmp, verbose=False):
     return dst
 
 
+def fetch_row(key, ns):
+    rows = sb("GET", "/rest/v1/%s?select=user_id,data" % TABLE, key)
+    rows = [r for r in rows if isinstance(r.get("data"), dict) and (ns + "cpt_clipLab") in r["data"]]
+    if not rows:
+        raise SystemExit("geen rij met %scpt_clipLab in %s — open het Clip lab eerst" % (ns, TABLE))
+    return rows[0]
+
+
+def process(clip, tmp, key, ns):
+    """Knippen, uploaden, ondertekenen. Terug: index-item of None bij een fout."""
+    try:
+        path = cut(clip, tmp)
+    except subprocess.CalledProcessError as e:
+        print("   overgeslagen (yt-dlp/ffmpeg gaf een fout): " + str(e))
+        return None
+    obj = "%s/%s.m4a" % (ns.rstrip(":"), clip["pid"])
+    sb("POST", "/storage/v1/object/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"), key,
+       body=path.read_bytes(), raw=True,
+       headers={"Content-Type": "audio/mp4", "x-upsert": "true"})
+    sg = sb("POST", "/storage/v1/object/sign/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"),
+            key, body={"expiresIn": 31536000})
+    print("   %.0f KB geüpload" % (path.stat().st_size / 1024))
+    return {"obj": obj, "url": SUPABASE_URL + "/storage/v1" + sg["signedURL"],
+            "dur": round(clip["end"] - clip["start"], 1), "size": path.stat().st_size}
+
+
+def save_index(row, key, ns, index, jobs_done):
+    """Index bijwerken en afgehandelde aanvragen weghalen — in één schrijfactie."""
+    fresh = fetch_row(key, ns)                      # verse rij: de app schrijft ook
+    data = dict(fresh["data"])
+    try:
+        cur = json.loads(data.get(ns + "cpt_clipSnips") or "{}")
+    except ValueError:
+        cur = {}
+    cur.update(index)
+    data[ns + "cpt_clipSnips"] = json.dumps(cur)
+    if jobs_done:
+        lab = json.loads(data.get(ns + "cpt_clipLab") or "{}")
+        try:
+            jobs = json.loads(lab.get("jobs") or "[]")
+        except ValueError:
+            jobs = []
+        lab["jobs"] = json.dumps([j for j in jobs if j not in jobs_done])
+        data[ns + "cpt_clipLab"] = json.dumps(lab)
+    sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])), key,
+       body={"data": data}, headers={"Prefer": "return=minimal"})
+
+
+def watch(key, ns):
+    """Reageert binnen enkele seconden op de knop 'Maak fragment' in de app."""
+    print("kijkt mee op %s — druk in het Clip lab op 'Maak fragment'. Ctrl-C om te stoppen." % ns.rstrip(":"))
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        while True:
+            try:
+                row = fetch_row(key, ns)
+                lab = json.loads(row["data"][ns + "cpt_clipLab"])
+                jobs = json.loads(lab.get("jobs") or "[]")
+                if jobs:
+                    clips = {c["pid"]: c for c in parse_clips(lab.get("text", ""))}
+                    index, done = {}, []
+                    for pid in jobs:
+                        c = clips.get(pid)
+                        if not c:
+                            print("!  %s staat niet (meer) in de lijst — aanvraag weggehaald" % pid)
+                            done.append(pid)
+                            continue
+                        print("-> %s  %.1f-%.1fs" % (pid, c["start"], c["end"]))
+                        item = process(c, tmp, key, ns)
+                        if item:
+                            index[pid] = item
+                            done.append(pid)
+                    if index or done:
+                        save_index(row, key, ns, index, done)
+                        print("   klaar — de app pikt het binnen een paar seconden op\n")
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:                  # netwerk hikt: gewoon doorgaan
+                print("   (even geen verbinding: %s)" % e)
+            time.sleep(3)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sandbox", action="store_true", help="sbx:-sleutels i.p.v. dd:")
     ap.add_argument("--only", help="komma-lijst van pids (int_m3_up,...)")
     ap.add_argument("--dry-run", action="store_true", help="alleen tonen wat er geknipt zou worden")
+    ap.add_argument("--watch", action="store_true",
+                    help="blijf draaien en knip wat de app aanvraagt (knop 'Maak fragment')")
     args = ap.parse_args()
     ns = "sbx:" if args.sandbox else "dd:"
 
@@ -144,11 +229,13 @@ def main():
             raise SystemExit(tool + " ontbreekt — installeer met: brew install yt-dlp ffmpeg")
 
     key = service_key()
-    rows = sb("GET", "/rest/v1/%s?select=user_id,data" % TABLE, key)
-    rows = [r for r in rows if isinstance(r.get("data"), dict) and (ns + "cpt_clipLab") in r["data"]]
-    if not rows:
-        raise SystemExit("geen rij met %scpt_clipLab in %s — open het Clip lab eerst" % (ns, TABLE))
-    row = rows[0]
+    if args.watch:
+        try:
+            watch(key, ns)
+        except KeyboardInterrupt:
+            print("\ngestopt")
+        return
+    row = fetch_row(key, ns)
     lab = json.loads(row["data"][ns + "cpt_clipLab"])
     clips = parse_clips(lab.get("text", ""))
     if args.only:
@@ -168,28 +255,10 @@ def main():
         tmp = Path(td)
         for c in clips:
             print("-> " + c["pid"])
-            try:
-                path = cut(c, tmp)
-            except subprocess.CalledProcessError as e:
-                print("   overgeslagen (yt-dlp/ffmpeg gaf een fout): " + str(e))
-                continue
-            obj = "%s/%s.m4a" % (ns.rstrip(":"), c["pid"])
-            sb("POST", "/storage/v1/object/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"), key,
-               body=path.read_bytes(), raw=True,
-               headers={"Content-Type": "audio/mp4", "x-upsert": "true"})
-            # Signed URL van een jaar, gemaakt met de service-sleutel: dan heeft de
-            # app geen leesrecht op de bucket nodig (geen RLS-policy, geen SQL).
-            sg = sb("POST", "/storage/v1/object/sign/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"),
-                    key, body={"expiresIn": 31536000})
-            url = SUPABASE_URL + "/storage/v1" + sg["signedURL"]
-            index[c["pid"]] = {"obj": obj, "url": url, "dur": round(c["end"] - c["start"], 1),
-                               "size": path.stat().st_size}
-            print("   %.0f KB geüpload" % (path.stat().st_size / 1024))
-
-    data = dict(row["data"])
-    data[ns + "cpt_clipSnips"] = json.dumps(index)
-    sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(row["user_id"])), key,
-       body={"data": data}, headers={"Prefer": "return=minimal"})
+            item = process(c, tmp, key, ns)
+            if item:
+                index[c["pid"]] = item
+    save_index(row, key, ns, index, list(index))
     print("\nklaar: %d snippers in bucket %s, index in %scpt_clipSnips" % (len(index), BUCKET, ns))
     print("Open ChordSprint opnieuw (of wissel van tab) om ze op te halen.")
     print("De links zijn een jaar geldig; opnieuw draaien vernieuwt ze.")

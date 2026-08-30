@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.83</title>
+<title>ChordSprint v1.84</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -51,9 +51,9 @@
 /* v1.76 NoteSprint-like vertical mini-piano range control */
 .miniPianoStage{display:grid;grid-template-columns:minmax(0,1fr)52px;gap:9px;align-items:stretch;margin:6px auto 8px}.miniPianoStage .miniPiano{margin:0;height:156px}.pianoVSlider{position:relative;height:156px;min-width:50px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--btn) 64%,transparent);display:flex;align-items:center;justify-content:center;padding:18px 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}.pianoVTrack{position:relative;width:16px;height:100%;border-radius:999px;background:color-mix(in srgb,var(--line) 80%,var(--card));box-shadow:inset 0 0 0 1px var(--line)}.pianoVFill{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,var(--line))}.pianoVThumb{position:absolute;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:999px;background:var(--accent);border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);color:white;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;line-height:1}.pianoVLabel{position:absolute;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.03em;pointer-events:none}.pianoVLabel.top{top:4px}.pianoVLabel.bottom{bottom:4px}.pianoSliderRow,.pianoRange{display:none!important}@media(max-width:460px){.miniPianoStage{grid-template-columns:minmax(0,1fr)48px;gap:7px}.miniPianoStage .miniPiano{height:148px}.pianoVSlider{height:148px;min-width:46px;padding:18px 8px}.pianoVThumb{width:32px;height:32px}.miniPianoBox{padding:10px 8px}}
 
-#clipStage,#playClipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
-#clipStage.on,#playClipStage.on{display:block}
-#clipStage iframe,#playClipStage iframe{width:100%;height:100%;border:0;display:block}
+#clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+#clipStage.on{display:block}
+#clipStage iframe{width:100%;height:100%;border:0;display:block}
 #clipRuler .rRow{display:flex;gap:1px;margin:8px 0 2px}
 #clipRuler .rSlot{flex:1;height:26px;border-radius:3px;background:var(--btn);display:flex;align-items:flex-end;justify-content:center}
 #clipRuler .rSlot span{font-size:9px;line-height:12px;color:var(--muted)}
@@ -104,7 +104,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.83 · geknipte fragmenten uit de bucket</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.84 · Maak fragment, YouTube alleen in het lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -115,7 +115,7 @@
         <button class="btn playActionBtn" id="newBtn" aria-label="Skip to new round">Skip</button>
       </div>
       <div class="metaBar"><span>Mode <b id="modeLabel">Medium</b></span><span>Key <b id="keyLabel">?</b></span><span>Next <b id="nextLabel">1</b>/<b id="targetLen">3</b></span></div>
-      <div id="feedback" class="feedback"></div><div id="playClipStage"></div><p class="small" id="playClipMsg"></p><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
+      <div id="feedback" class="feedback"></div><p class="small" id="playClipMsg"></p><div id="answerReveal" class="answerReveal"></div><div id="stepReveal" class="inKeyStepReveal hidden"></div><div id="nextBox" class="nextBox hidden"><button class="btn good" id="nextBtn">Next →</button></div>
     </div>
     <div class="card choiceCard"><div class="choiceHead"><div class="label"><span id="chooseKind">Choose chord</span> <span id="chooseNumber">1</span></div><div class="choiceActions"><button class="btn smallBtn hidden" id="inKeyAnswerBaseBtn">Base: Previous</button><button class="btn smallBtn" id="playModeBtn">🔊 Chords</button></div></div><div class="choiceGrid" id="choiceGrid"></div><p class="small" id="choiceHint">Wrong clicks flash red. Hold an answer to preview your phrase.</p></div>
   </section>
@@ -192,7 +192,7 @@
         <div class="settingsSection"><div class="label">Current config</div><div class="split"><button class="btn primary" id="saveConfigBtn">Save as gamemode</button><button class="btn" id="resetBuiltinsBtn">Restore default presets</button></div><p class="small">Saving stores the current practice type, tonality, length, key mode, direction, variety and options as a homepage gamemode.</p></div>
         <div class="settingsSection"><div class="label">Load / reorder gamemodes</div><div class="presetManage" id="presetManage"></div><p class="small">Tap a gamemode to load its settings, then tweak them in Practice or Sound and save as a new gamemode. Use ↑/↓ to reorder.</p></div>
         <div class="settingsSection hidden" id="allMistakesSection"><div class="label">All mistake stats</div><div class="targetStatsBox" id="targetStatsBox"></div><p class="small">Shows the weakest items first. These also feed the Mistakes gamemode.</p></div>
-        <div class="settingsSection"><div class="label">Phrase clips</div><button class="btn" id="phraseClipsBtn"></button><p class="small">Hold on an answer plays the matching YouTube clip from the Clip lab. Text only (or offline): the written phrases, as before.</p></div>
+        <div class="settingsSection"><div class="label">Phrase clips</div><button class="btn" id="phraseClipsBtn"></button><p class="small">Hold on an answer plays your own cut fragment (no ads, works offline). Text only: the written phrases, as before. YouTube itself only appears in the Clip lab.</p></div>
         <div class="settingsSection"><div class="label">Backup</div><div class="exportImportBox"><button class="btn" id="exportSettingsBtn">Export settings</button><button class="btn" id="importSettingsBtn">Import settings</button></div><p class="small">Scope: exports/imports local presets, phrases, stats, sound, theme and settings. Export/import opens a confirmation popup first.</p></div>
         <div class="dangerZone"><div class="label">Reset</div><button class="btn ghost wide" id="resetScoreBtn">Reset score only</button><p class="small">Scope: resets score, streak, attempts and accuracy. It does not change mistakes, theme, presets, phrases, tonality, key mode, direction, selected degrees or variety settings.</p></div>
       </div>
@@ -419,7 +419,9 @@
       <div id="clipStage"></div>
       <div class="split"><button class="btn" id="clipStartHere">Start hier</button><button class="btn" id="clipEndHere">Eind hier</button></div>
       <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn ghost" id="clipStopBtn">Speler weg</button></div>
-      <div class="split"><button class="btn" id="clipRecBtn">🎙 Opname</button><button class="btn ghost" id="clipRecPlayBtn">▶ Opname</button><button class="btn ghost" id="clipRecDelBtn">Opname weg</button></div>
+      <div class="split"><button class="btn primary" id="clipMakeBtn">✂️ Maak fragment</button><button class="btn ghost" id="clipRecPlayBtn">▶ Fragment</button><button class="btn ghost" id="clipRecDelBtn">Fragment weg</button></div>
+      <p class="small" id="clipMakeMsg"></p>
+      <details><summary class="small">Liever met de microfoon opnemen</summary><div class="split"><button class="btn ghost" id="clipRecBtn">🎙 Opname</button></div></details>
       <div class="split"><button class="btn ghost" id="clipRehang">Verhang naar…</button><button class="btn ghost" id="clipProgAdd">+ stap</button></div>
       <div class="split addrow"><input id="clipAddUrl" placeholder="YouTube-link voor deze beweging" inputmode="url"><button class="btn ghost" id="clipAddBtn">+ video</button></div>
       <p class="small" id="clipMsg"></p>
@@ -1145,8 +1147,7 @@ function midiToFreq(m){return 440*Math.pow(2,(m-69)/12)}
 function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.62;highPass=audioCtx.createBiquadFilter();highPass.type='highpass';highPass.frequency.value=38;toneFilter=audioCtx.createBiquadFilter();toneFilter.type='lowpass';toneFilter.frequency.value=12500;toneFilter.Q.value=.35;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=18;compressor.ratio.value=2.2;compressor.attack.value=.002;compressor.release.value=.18;reverbDelay=audioCtx.createDelay(.45);reverbDelay.delayTime.value=.033;reverbFeedback=audioCtx.createGain();reverbFeedback.gain.value=.045;highPass.connect(toneFilter);toneFilter.connect(compressor);compressor.connect(masterGain);toneFilter.connect(reverbDelay);reverbDelay.connect(reverbFeedback);reverbFeedback.connect(reverbDelay);reverbDelay.connect(masterGain);masterGain.connect(audioCtx.destination)}
 function stopSynth(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[]}
 // Elke synth-start gaat via stopAudio, dus dit is de ene plek die borgt dat
-// synth en clip elkaar afwisselen — Replay(-slower) incluis. playClipPlay zelf
-// gebruikt stopSynth, anders zou hij zijn eigen speler slopen vóór hergebruik.
+// synth en fragment elkaar afwisselen — Replay(-slower) incluis.
 function stopAudio(){stopSynth();if(typeof playClipPause==='function')playClipPause();if(typeof playRecStop==='function')playRecStop()}
 function connectThroughFilter(node,filterFreq=null){if(filterFreq){const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=filterFreq;f.Q.value=.45;node.connect(f);f.connect(highPass);return f}node.connect(highPass);return node}
 function pianoVoice(freq,start,dur,gain,detune,harmonic,type='triangle',attack=.004,decay=.08,sustain=.08,filterFreq=null){const g=audioCtx.createGain(),o=audioCtx.createOscillator();const harmonicBoost=harmonic<=1?tw('body'):tw('sparkle');gain*=tw('volume')*harmonicBoost;dur*=tw('decay');attack*=tw('attack');decay*=tw('attack');detune*=tw('width');if(filterFreq)filterFreq*=tw('brightness');o.type=type;o.frequency.value=freq*harmonic;o.detune.value=detune;g.gain.setValueAtTime(.00001,start);g.gain.exponentialRampToValueAtTime(Math.max(gain,.00002),start+attack);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain,.00002),start+decay);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain*.42,.00002),start+Math.min(dur*.55,dur-.04));g.gain.exponentialRampToValueAtTime(.00001,start+dur);o.connect(g);connectThroughFilter(g,filterFreq);o.start(start);o.stop(start+dur+.08);activeAudioNodes.push(o)}
@@ -1282,9 +1283,10 @@ function phraseBoxHtml(id,idx=0){
   const p=selectedPhraseUnified(e)||{};
   if(!p.title)return '';
   const label=phraseDirectionLabel(e,idx);
+  // Alleen eigen audio in de oefening: YouTube (en dus reclame) leeft nog
+  // uitsluitend in het Clip lab. Geen fragment? Dan gewoon de tekst-phrase.
   const rp=loadClipLab().phraseClips!==false?recPidFor(id):null;
-  const clipBtn=rp&&(clipRecSet.has(rp)||snipHas(rp))?`<button class="btn smallBtn phraseClipBtn" data-play-rec="${htmlEscape(rp)}">▶ Fragment</button>`
-    :(phraseClipsOn()&&clipForPhraseId(id)?`<button class="btn smallBtn phraseClipBtn" data-play-clip="${htmlEscape(id)}">▶ Clip</button>`:'');
+  const clipBtn=rp&&(clipRecSet.has(rp)||snipHas(rp))?`<button class="btn smallBtn phraseClipBtn" data-play-rec="${htmlEscape(rp)}">▶ Fragment</button>`:'';
   const editBtn=`<button class="btn smallBtn phraseClipBtn" data-edit-phrase="${htmlEscape(id)}" aria-label="Edit phrase text">✎</button>`;
   return `<div class="phraseHintBox" data-hint-id="${htmlEscape(id)}">${label?`<span class="phraseHintBoxLabel">${htmlEscape(label)}</span>`:''}<b>${phraseTitleHtml(id,p)}</b><small>${htmlEscape(normalizeNotationText(p.cue||''))}</small>${clipBtn}${editBtn}</div>`;
 }
@@ -1767,7 +1769,7 @@ document.addEventListener('pointerup',endPianoVSliderDrag);
 document.addEventListener('pointercancel',endPianoVSliderDrag);
 $('answerReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.showInkeySteps){ev.preventDefault();flashHelpButton(btn);const el=$('stepReveal');if(el&&!el.classList.contains('hidden'))clearInKeyStepReveal();else renderInKeySteps();return}if(btn.dataset.showChordSteps){ev.preventDefault();flashHelpButton(btn);showChordSteps();return}});
 $('stepReveal')?.addEventListener('click',ev=>{const btn=ev.target.closest('[data-inkey-step-pos]');if(btn)playInKeyStepPos(btn.dataset.inkeyStepPos,btn)});
-$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.playRec){flashHelpButton(btn);playRec(btn.dataset.playRec);return}if(btn.dataset.playClip){const c=clipForPhraseId(btn.dataset.playClip);if(c){flashHelpButton(btn);playClipPlay(c)}return}if(btn.dataset.editPhrase){editPhrase(btn.dataset.editPhrase);return}if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
+$('feedback')?.addEventListener('click',ev=>{const btn=ev.target.closest('button');if(!btn)return;if(btn.dataset.playRec){flashHelpButton(btn);playRec(btn.dataset.playRec);return}if(btn.dataset.editPhrase){editPhrase(btn.dataset.editPhrase);return}if(btn.dataset.replaySlow){flashHelpButton(btn);playSlow();return}if(btn.dataset.showInkeyHint){flashHelpButton(btn);revealInKeyHint();return}if(btn.dataset.inkeyStay){flashHelpButton(btn);resetInKeyProgressForCurrentLevel();$('feedback').className='feedback good';$('feedback').innerHTML='Staying on this level. Keep drilling.';return}if(btn.dataset.inkeyLevelNext){flashHelpButton(btn);applyInKeyLadder(btn.dataset.inkeyLevelNext);newProgression(true);return}if(btn.dataset.showPhrase){flashHelpButton(btn);revealWrongPhrase(btn.dataset.showPhrase);return}if(btn.dataset.changePhrase){flashHelpButton(btn);openPhraseDetailFromGame(btn.dataset.changePhrase);return}});
 $('phraseSearch')?.addEventListener('input',ev=>{phraseSearchTerm=ev.target.value||'';localStorage.setItem('cpt_phraseSearch',phraseSearchTerm);phraseDetailId='';localStorage.setItem('cpt_phraseDetailId','');renderPhraseLibrary()});
 function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function getSettingsExportText(){const data={version:'1.72',created:new Date().toISOString(),items:{}};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('cpt_'))data.items[k]=localStorage.getItem(k)}return JSON.stringify(data,null,2)}
@@ -1849,6 +1851,10 @@ function loadClipLab(){
   return st;
 }
 function saveClipLab(){try{localStorage.setItem('cpt_clipLab',JSON.stringify(clipState))}catch(e){}}
+/* Veilig schrijven: doe álle leeswerk vóór de aanroep, muteer binnen fn. Wie
+   tussen loadClipLab() en saveClipLab() nog iets leest dat zelf loadClipLab
+   aanroept, gooit zijn eigen wijziging weg — dat is hier twee keer gebeurd. */
+function updateClipLab(fn){const st=loadClipLab();fn(st);saveClipLab();return st}
 function clipList(){return window.Segue?Segue.parseText(loadClipLab().text).clips:[]}
 function clipSay(t){const el=$('clipMsg');if(el)el.textContent=t||''}
 function clipNote(line){
@@ -1893,7 +1899,7 @@ function clipTickStart(){if(!clipTicker)clipTicker=setInterval(clipTickKnip,500)
    van alleen de tekst. Tekst blijft het vangnet: offline, autoplay geblokkeerd,
    fragment onspeelbaar, of bewust uitgezet in Settings. De keuze reist mee in
    cpt_clipLab en synct dus tussen apparaten. */
-let playClipCtl=null,lastReveal=null,clipRec=null,recAudio=null;
+let lastReveal=null,clipRec=null,recAudio=null;
 const clipRecSet=new Set();          // welke int-pids een eigen opname hebben
 
 /* ---- Eigen mini-opnames -----------------------------------------------------
@@ -1960,7 +1966,7 @@ function playRec(pid){
     recAudio.play().catch(()=>playClipMsg('Afspelen geblokkeerd — tik nog eens.'));
   }).catch(()=>playClipMsg('Fragment niet leesbaar.'));
 }
-function phraseClipsOn(){return loadClipLab().phraseClips!==false&&navigator.onLine!==false&&!!window.Segue}
+function phraseClipsOn(){return loadClipLab().phraseClips!==false}
 function clipForPhraseId(id){
   // Niet alleen int_*: ook move_* en chord_* dragen een interval + richting in
   // hun phrase-data (move_2 is een M2 omhoog), dus elk gamemode-antwoord wijst
@@ -1975,11 +1981,8 @@ function clipForPhraseId(id){
   cand.sort((a,b)=>(a.end>a.start?a.end-a.start:1e9)-(b.end>b.start?b.end-b.start:1e9));
   return cand[0];
 }
-function playClipStop(){
-  if(playClipCtl){try{playClipCtl.destroy()}catch(e){}playClipCtl=null}
-  const st=$('playClipStage');if(st){st.classList.remove('on');st.innerHTML=''}
-  playClipMsg('');
-}
+function playClipPause(){playClipMsg('')}     // niets meer om te pauzeren: geen iframe in de oefening
+function playClipStop(){playClipMsg('')}
 /* Pauzeren houdt de iframe in leven: elke gesloopte speler is bij YouTube een
    nieuwe kijksessie en dus een nieuwe reclamekans. Slopen alleen bij het
    verlaten van het oefenscherm. */
@@ -1989,20 +1992,6 @@ function playClipPause(){
   playClipMsg('');
 }
 function playClipMsg(t){const m=$('playClipMsg');if(m)m.textContent=t||''}
-function playClipPlay(clip){
-  stopSynth();playRecStop();   // niet stopAudio: die zou de eigen speler pauzeren
-  if(playClipCtl){$('playClipStage').classList.add('on');playClipCtl.setClips([clip]);playClipCtl.go(0);playClipMsg('');return}
-  const st=$('playClipStage');st.classList.add('on');st.innerHTML='<div></div>';
-  playClipMsg('');
-  playClipCtl=Segue.play(st.firstChild,[clip],{
-    onError:function(why){
-      playClipStop();
-      playClipMsg(why==='autoplay'?'Afspelen geblokkeerd — tik nog een keer op ▶ Clip.'
-        :why==='api'?'De YouTube-speler laadt niet; de tekst hierboven is je vangnet.'
-        :'Deze video speelt hier niet (verwijderd of niet insluitbaar).');
-    }
-  });
-}
 function clipPlayList(list,extra){
   if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
   clipExtra=extra||{};
@@ -2350,12 +2339,51 @@ async function clipRecToggle(){
   clipPoll(()=>{const t=ctl&&ctl.time();return t&&t>=c.end-0.2?true:null},(c.end-c.start+45)*1000)
     .then(()=>clipRecKlaar());
 }
+/* "Maak fragment": de knip-aanvraag gaat mee met de gewone sync, de helper op
+   de Mac (tools/chordsprint-snippets.py --watch) knipt hem binnen enkele
+   seconden en zet de audio klaar. Hier wachten we daarop en verversen we. */
+function clipJobs(){try{return JSON.parse(loadClipLab().jobs||'[]')}catch(e){return []}}
+function clipMakeMsg(t){const el=$('clipMakeMsg');if(el)el.textContent=t||''}
+function clipMakeFragment(){
+  const doel=clipRecDoel();
+  if(!doel)return clipMakeMsg('Tik eerst de chip van een beweging.');
+  if(doel.idx===undefined)return clipMakeMsg('Geen fragment op '+doel.naam+' om te knippen.');
+  const c=clipList()[doel.idx];
+  if(c.end-c.start>30)return clipMakeMsg('Eerst inkorten: '+Math.round(c.end-c.start)+' s is te lang voor een fragment.');
+  const jobs=clipJobs().filter(j=>j!==doel.pid);   // eerst lezen…
+  jobs.push(doel.pid);
+  updateClipLab(st=>{st.jobs=JSON.stringify(jobs)}); // …dan pas schrijven
+  clipMakeMsg('Aangevraagd — je Mac knipt '+doel.naam+' ('+Math.round(c.end-c.start)+' s)…');
+  renderClipSelect();
+  clipWachtOpFragment(doel.pid,doel.naam);
+}
+function clipWachtOpFragment(pid,naam){
+  let n=0;
+  const iv=setInterval(()=>{
+    n++;
+    if(window.GM_PULL)window.GM_PULL();
+    if(snipHas(pid)){
+      clearInterval(iv);
+      clipMakeMsg('Klaar: '+naam+' staat er als audio — de oefening speelt hem nu zonder reclame.');
+      renderClipSelect();
+      return;
+    }
+    if(n>40){                                  // 2 minuten
+      clearInterval(iv);
+      clipMakeMsg('Nog niets binnen. Draait de helper? (tools/chordsprint-snippets.py --watch)');
+    }
+  },3000);
+}
 function renderClipRecKnoppen(){
   const b=$('clipRecBtn');if(!b)return;
   const doel=clipRecDoel(),heeft=doel&&clipRecSet.has(doel.pid);
   b.textContent=clipRec?'⏹ Stop opname':(heeft?'🎙 Opnieuw opnemen':'🎙 Opname');
-  $('clipRecPlayBtn').style.display=heeft?'':'none';
-  $('clipRecDelBtn').style.display=heeft?'':'none';
+  const klaar=doel&&(clipRecSet.has(doel.pid)||snipHas(doel.pid));
+  const wacht=doel&&clipJobs().indexOf(doel.pid)>=0;
+  const mk=$('clipMakeBtn');
+  if(mk){mk.textContent=wacht?'⏳ Wordt geknipt…':(klaar?'✂️ Opnieuw knippen':'✂️ Maak fragment');mk.disabled=!!wacht}
+  $('clipRecPlayBtn').style.display=klaar?'':'none';
+  $('clipRecDelBtn').style.display=klaar?'':'none';
 }
 
 function renderClipLog(){
@@ -2400,9 +2428,15 @@ function openClips(){clipVerhangen=false;clipDoel=null;clipsReturn=currentScreen
 
 $('homeClipsBtn').onclick=()=>openClips();
 $('clipsBackBtn').onclick=()=>showScreen(clipsReturn||'home');
+$('clipMakeBtn').onclick=()=>clipMakeFragment();
 $('clipRecBtn').onclick=()=>clipRecToggle();
 $('clipRecPlayBtn').onclick=()=>{const d=clipRecDoel();if(d&&clipRecSet.has(d.pid))playRec(d.pid)};
-$('clipRecDelBtn').onclick=()=>{const d=clipRecDoel();if(!d)return;recDel(d.pid).then(()=>{clipRecSet.delete(d.pid);renderClipSelect();clipSay('Opname van '+d.naam+' verwijderd.')})};
+$('clipRecDelBtn').onclick=()=>{const d=clipRecDoel();if(!d)return;recDel(d.pid).then(()=>{
+  clipRecSet.delete(d.pid);
+  const snips=clipSnips();delete snips[d.pid];
+  localStorage.setItem('cpt_clipSnips',JSON.stringify(snips));
+  renderClipSelect();clipSay('Fragment van '+d.naam+' verwijderd. Knip opnieuw wanneer je wilt.');
+})};
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};
 $('clipRehang').onclick=()=>{clipVerhangen=!clipVerhangen;renderClipLab()};
 $('clipProgAdd').onclick=()=>{const off=clipDoel!==null?clipDoel:clipHuidigeOffset();if(off===null)return clipSay('Kies eerst een beweging.');clipProgLijst().push(off);saveClipLab();renderClipProg();clipSay('Stap toegevoegd.')};

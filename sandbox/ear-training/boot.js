@@ -29,8 +29,10 @@
       })
     : null;
 
-  // De app-code leent deze client voor de privébucket met geknipte fragmenten.
+  // De app-code leent deze client voor de privébucket met geknipte fragmenten,
+  // en GM_PULL om te wachten tot de Mac een net aangevraagd fragment klaarzet.
   window.GM_SB = SB;
+  window.GM_PULL = function (cb) { pull(cb); };
 
   var userId = null, lastPushed = null, pushTimer = null, ready = false, ran = false;
 
