@@ -28,13 +28,22 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from notebooklm import AudioFormat, AudioLength, NotebookLMClient
+# notebooklm importeren kost ~2,5 s; bij een lege ronde (elke 15 min) slaan we dat
+# over. load_notebooklm() vult deze namen zodra er werk is.
+AudioFormat = AudioLength = NotebookLMClient = None
+
+
+def load_notebooklm():
+    global AudioFormat, AudioLength, NotebookLMClient
+    from notebooklm import AudioFormat, AudioLength, NotebookLMClient
+
 
 SUPABASE_URL = "https://bobltktjohhnoqhnxslf.supabase.co"
 TABLE = "podcast_queue"
@@ -46,6 +55,21 @@ GEN_TIMEOUT = 900      # s — een Audio Overview duurt 3–10 min
 LOCK = Path(tempfile.gettempdir()) / "luisterinus-worker.lock"
 
 KEY = None  # service_role; pas gelezen in wachtrij-modus (de --test-url-proef heeft hem niet nodig)
+
+
+def due(name, seconds):
+    """True (en stempel verzet) als deze taak weer aan de beurt is. Houdt een
+    ronde-elke-15-minuten goedkoop: geen refresh richting Google en geen
+    opruimquery's als er niets te doen is. Stempels in de temp-map: na een
+    herstart één extra ronde, en dat is precies goed."""
+    f = Path(tempfile.gettempdir()) / ("luisterinus-" + name + ".stamp")
+    try:
+        if f.exists() and time.time() - f.stat().st_mtime < seconds:
+            return False
+        f.touch()
+    except OSError:
+        pass
+    return True
 
 
 class RunAborted(Exception):
@@ -253,19 +277,21 @@ def cleanup():
 
 
 async def run_queue():
-    keepalive()
     rows = fetch_requested()
-    if not rows:
-        print("wachtrij leeg")
-    else:
+    if rows:
+        keepalive()
+        load_notebooklm()
         preflight()
         async with NotebookLMClient.from_storage() as client:
             for row in rows:
                 await process(client, row)
-    try:  # best-effort, nooit de reden dat een run "mislukt"
-        cleanup()
-    except Exception as e:
-        print(f"opruimen niet gelukt (volgende run opnieuw): {str(e)[:160]}", flush=True)
+    elif due("keepalive", 12 * 3600):
+        keepalive()   # geen werk: login hooguit 2x per dag vers houden, niet elke ronde
+    if due("cleanup", 24 * 3600):
+        try:  # best-effort, nooit de reden dat een run "mislukt"
+            cleanup()
+        except Exception as e:
+            print(f"opruimen niet gelukt (volgende run opnieuw): {str(e)[:160]}", flush=True)
 
 
 def locked_run():
@@ -287,6 +313,7 @@ def locked_run():
 
 
 async def run_test(url, out):
+    load_notebooklm()
     async with NotebookLMClient.from_storage() as client:
         await make_podcast(client, "Luisterinus proef", url, Path(out), lambda m: print(m, flush=True))
 

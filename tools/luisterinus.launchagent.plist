@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Luisterinus fase 3: worker 2x per dag (08:00 en 16:30). Slaapt de Mac op dat
-     moment, dan draait launchd de gemiste run bij de eerstvolgende wake alsnog.
+<!-- Luisterinus fase 3: worker kijkt elk kwartier of er iets in de wachtrij staat,
+     zodat een knopdruk op de telefoon binnen ~15 min een podcast oplevert i.p.v.
+     tot de volgende vaste tijd te wachten. Een lege ronde kost ~0,5 s (de zware
+     NotebookLM-import wordt overgeslagen; login-refresh 2x/dag, opruimen 1x/dag).
+     Slaapt de Mac, dan gebeurt er niets tot hij wakker is — launchd draait de
+     gemiste ronde meteen bij het openklappen. Zelf wakker laten worden kan met:
+       sudo pmset repeat wake MTWRFSU 07:55:00
      Installeren/bijwerken:
        cp tools/luisterinus.launchagent.plist ~/Library/LaunchAgents/nl.tinus.luisterinus.plist
        launchctl unload ~/Library/LaunchAgents/nl.tinus.luisterinus.plist 2>/dev/null; launchctl load ~/Library/LaunchAgents/nl.tinus.luisterinus.plist
@@ -19,11 +24,8 @@
     <!-- notebooklm-CLI (subprocess in de worker) en afinfo moeten vindbaar zijn -->
     <key>PATH</key><string>/Users/martijnmensink/.pyenv/versions/3.10.13/bin:/usr/bin:/bin</string>
   </dict>
-  <key>StartCalendarInterval</key>
-  <array>
-    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
-    <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
-  </array>
+  <key>StartInterval</key><integer>900</integer>
+  <key>RunAtLoad</key><true/>
   <key>StandardOutPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>
   <key>StandardErrorPath</key><string>/Users/martijnmensink/Library/Logs/luisterinus.log</string>
 </dict>

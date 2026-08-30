@@ -165,9 +165,20 @@ audio_format=AudioFormat.BRIEF|DEEP_DIVE|CRITIQUE|DEBATE, audio_length=AudioLeng
 ## Fase 3 — vanzelf draaien (28 aug 2026)
 
 Geen Cowork-taak maar een kale LaunchAgent (een agent-sessie opstarten om één
-Python-script te draaien is te zwaar): `tools/luisterinus.launchagent.plist`,
-2×/dag (08:00 en 16:30; slaapt de Mac, dan draait de gemiste run bij de
-eerstvolgende wake). Installeren/bijwerken: zie de kop van het plist-bestand.
+Python-script te draaien is te zwaar): `tools/luisterinus.launchagent.plist`.
+Sinds 30 aug **elk kwartier** (`StartInterval` 900 + `RunAtLoad`) in plaats van
+twee vaste tijden: een knopdruk op de telefoon levert dan binnen ~15 minuten een
+podcast op. Dat kan omdat een lege ronde ~0,5 s kost — de NotebookLM-import
+(2,5 s) gebeurt pas als er werk is, en `due()` remt de login-refresh (2x/dag) en
+het opruimen (1x/dag) af met stempelbestanden in de temp-map.
+
+Slaapt de Mac, dan gebeurt er niets tot hij wakker is; launchd draait de gemiste
+ronde meteen bij het openklappen. Wie de Mac zelf wakker wil laten worden:
+`sudo pmset repeat wake MTWRFSU 07:55:00` (werkt uit slaap, aan de stroom; een
+uitgeschakelde Apple Silicon-Mac aanzetten lukt daarmee niet).
+
+Installeren/bijwerken: zie de kop van het plist-bestand — Claude kan het niet
+zelf (`launchctl` is geblokkeerd in auto mode), dus Tinus draait dat commando.
 Log: `~/Library/Logs/luisterinus.log` — daar staat ook "NotebookLM-login
 verlopen — draai: notebooklm login" als de keepalive het niet meer redt.
 Rij hoort in `Mijn Wiki/90 System/Automations.md`. Opslag: een Brief is
