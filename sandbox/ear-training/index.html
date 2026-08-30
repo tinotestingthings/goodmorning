@@ -1983,14 +1983,6 @@ function clipForPhraseId(id){
 }
 function playClipPause(){playClipMsg('')}     // niets meer om te pauzeren: geen iframe in de oefening
 function playClipStop(){playClipMsg('')}
-/* Pauzeren houdt de iframe in leven: elke gesloopte speler is bij YouTube een
-   nieuwe kijksessie en dus een nieuwe reclamekans. Slopen alleen bij het
-   verlaten van het oefenscherm. */
-function playClipPause(){
-  if(playClipCtl){try{playClipCtl.pause()}catch(e){}}
-  const st=$('playClipStage');if(st)st.classList.remove('on');
-  playClipMsg('');
-}
 function playClipMsg(t){const m=$('playClipMsg');if(m)m.textContent=t||''}
 function clipPlayList(list,extra){
   if(!window.Segue){clipSay('De speler (../clipinus/segue.js) laadde niet.');return null}
