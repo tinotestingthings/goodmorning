@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Laat de knip-helper altijd meeluisteren, zodat "Maak fragment" ook vanaf je
+     telefoon werkt zonder dat je eerst een terminal opent.
+
+     Installeren:
+       cp tools/chordsprint-clips.launchagent.plist ~/Library/LaunchAgents/nl.tinus.chordsprint-clips.plist
+       launchctl load ~/Library/LaunchAgents/nl.tinus.chordsprint-clips.plist
+     Stoppen:
+       launchctl unload ~/Library/LaunchAgents/nl.tinus.chordsprint-clips.plist
+     Meekijken:
+       tail -f /tmp/chordsprint-clips.log
+
+     Let op: --sandbox eraf halen zodra ChordSprint live draait. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>nl.tinus.chordsprint-clips</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/martijnmensink/Code/goodmorning/tools/chordsprint-snippets.py</string>
+    <string>--watch</string>
+    <string>--sandbox</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- yt-dlp en ffmpeg staan in Homebrew; launchd erft je shell-PATH niet -->
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/tmp/chordsprint-clips.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/chordsprint-clips.log</string>
+</dict>
+</plist>

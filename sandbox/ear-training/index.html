@@ -436,6 +436,7 @@
         <div class="split"><span class="small" id="clipResultInfo"></span><button class="btn ghost" id="clipRecDelBtn">Fragment weg</button></div>
       </div>
       <p class="small" id="clipMakeMsg"></p>
+      <p class="small" id="clipHelperStatus"></p>
       <p class="small" id="clipMsg"></p>
       <p class="small">▶ Speel loopt vrij door: spoelen en pauzeren doe je gewoon in de speler zelf. Tik "nu" op het juiste moment, schaaf bij met −1s/+1s, controleer met Beluister knip en tik dan Maak fragment.</p>
     </div>
@@ -555,7 +556,7 @@ function loadPresets(){try{const saved=JSON.parse(localStorage.getItem('cpt_pres
 function savePresets(){localStorage.setItem('cpt_presets',JSON.stringify(presets))}
 function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function currentScreenName(){const active=document.querySelector('.screen.active');return active?active.id.replace('Screen',''):'home'}
-function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name!=='practice'&&typeof playClipStop==='function')playClipStop();if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(name+'Screen').classList.add('active');if(name!=='settings'&&name!=='help'&&name!=='phrases'&&name!=='playground'&&name!=='clips')lastScreen=name;renderHomeModes();renderSettings();renderTargetStats();if(name==='phrases'&&typeof renderPhraseLibrary==='function')renderPhraseLibrary();if(name==='playground'&&typeof renderPlayground==='function')renderPlayground();if(name!=='clips'&&typeof clipStop==='function')clipStop();if(name!=='practice'&&typeof playClipStop==='function')playClipStop();if(typeof clipStatusVerversen==='function')clipStatusVerversen(name==='clips');if(name==='clips'&&typeof renderClipLab==='function')renderClipLab()}
 function openHelp(){helpReturn=currentScreenName();showScreen('help')}
 function openPhrases(){phraseReturn=currentScreenName();showScreen('phrases')}
 function openPlayground(){playgroundReturn=currentScreenName();showScreen('playground')}
@@ -2330,9 +2331,7 @@ function clipMakeFragment(){
   const jobs=clipJobs().filter(j=>j!==doel.pid);   // eerst lezen…
   jobs.push(doel.pid);
   updateClipLab(st=>{st.jobs=JSON.stringify(jobs)}); // …dan pas schrijven
-  clipMakeMsg(clipHelperLevend()
-    ? 'Aangevraagd — je Mac knipt '+doel.naam+' ('+Math.round(c.end-c.start)+' s)…'
-    : 'Aangevraagd, maar je Mac luistert nu niet. Start op je Mac:  '+HELPER_CMD);
+  clipMakeMsg('Aangevraagd: '+doel.naam+' ('+Math.round(c.end-c.start)+' s). Even kijken of je Mac meeluistert…');
   renderClipSelect();
   clipWachtOpFragment(doel.pid,doel.naam);
 }
@@ -2347,11 +2346,15 @@ function clipWachtOpFragment(pid,naam){
       renderClipSelect();
       return;
     }
+    // De aanvraag blijft in de wachtrij staan, dus "later" is een geldig antwoord.
+    if(n===3)clipMakeMsg(clipHelperLevend()
+      ? 'Je Mac is ermee bezig…'
+      : 'In de wachtrij — dit wordt geknipt zodra je Mac aanstaat met de helper.');
     if(n>40){                                  // 2 minuten
       clearInterval(iv);
       clipMakeMsg(clipHelperLevend()
-        ? 'Nog niets binnen terwijl de helper wél draait — kijk in dat venster of er een foutmelding staat.'
-        : 'Er luistert niets. Start op je Mac:  '+HELPER_CMD);
+        ? 'De helper draait maar levert niets — kijk in dat venster of er een foutmelding staat.'
+        : 'Blijft in de wachtrij tot je Mac meeluistert:  '+HELPER_CMD);
     }
   },3000);
 }
@@ -2367,7 +2370,8 @@ function renderClipRecKnoppen(){
     mk.textContent=wacht?'⏳ Wordt geknipt…':(klaar?'✂️ Opnieuw knippen':'✂️ Maak fragment');
     mk.disabled=!!wacht;
     mk.title=levend?'Je Mac luistert mee':'Je Mac luistert niet: '+HELPER_CMD;
-    mk.style.opacity=levend?'':'0.75';
+    const hs=$('clipHelperStatus');
+    if(hs)hs.textContent=levend?'Mac: luistert mee':'Mac: uit — aanvragen blijven in de wachtrij';
   }
   // de gemaakte clip heeft nu zijn eigen speler; alleen 'weg' blijft een knop
 }
@@ -2396,6 +2400,18 @@ function clipWhereRender(){
   const l=clipLanding(off),iv=clipIntervalVan(off);
   main.textContent='1 → '+(l.graad?l.graad+' ('+l.roman+')':l.naam)+(off<0?' ↓':' ↑');
   subEl.textContent=iv.interval+' '+(off<0?'omlaag':'omhoog')+(l.graad?'':' · buiten de toonladder')+' · '+tijd;
+}
+/* De hartslag staat in de gesynchroniseerde staat, dus zonder verse pull kijk
+   je naar een oud antwoord — precies waarom het lab beweerde dat de Mac niet
+   luisterde terwijl hij gewoon draaide. Bij openen verversen, en daarna elke
+   20 s zolang het lab open is. */
+let clipStatusTimer=null;
+function clipStatusVerversen(aan){
+  clearInterval(clipStatusTimer);clipStatusTimer=null;
+  if(!aan)return;
+  const doe=()=>{if(window.GM_PULL)window.GM_PULL(()=>renderClipSelect())};
+  doe();
+  clipStatusTimer=setInterval(doe,20000);
 }
 function openClips(){clipVerhangen=false;clipDoel=null;clipsReturn=currentScreenName();showScreen('clips')}
 
