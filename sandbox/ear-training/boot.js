@@ -29,6 +29,9 @@
       })
     : null;
 
+  // De app-code leent deze client voor de privébucket met geknipte fragmenten.
+  window.GM_SB = SB;
+
   var userId = null, lastPushed = null, pushTimer = null, ready = false, ran = false;
 
   var proto = (window.Storage && window.Storage.prototype) || Object.getPrototypeOf(localStorage);

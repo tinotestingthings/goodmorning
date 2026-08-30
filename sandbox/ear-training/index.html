@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.82</title>
+<title>ChordSprint v1.83</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -104,7 +104,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.82 · eigen opnames, reclamevrij oefenen</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.83 · geknipte fragmenten uit de bucket</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -1283,7 +1283,7 @@ function phraseBoxHtml(id,idx=0){
   if(!p.title)return '';
   const label=phraseDirectionLabel(e,idx);
   const rp=loadClipLab().phraseClips!==false?recPidFor(id):null;
-  const clipBtn=rp&&clipRecSet.has(rp)?`<button class="btn smallBtn phraseClipBtn" data-play-rec="${htmlEscape(rp)}">▶ Opname</button>`
+  const clipBtn=rp&&(clipRecSet.has(rp)||snipHas(rp))?`<button class="btn smallBtn phraseClipBtn" data-play-rec="${htmlEscape(rp)}">▶ Fragment</button>`
     :(phraseClipsOn()&&clipForPhraseId(id)?`<button class="btn smallBtn phraseClipBtn" data-play-clip="${htmlEscape(id)}">▶ Clip</button>`:'');
   const editBtn=`<button class="btn smallBtn phraseClipBtn" data-edit-phrase="${htmlEscape(id)}" aria-label="Edit phrase text">✎</button>`;
   return `<div class="phraseHintBox" data-hint-id="${htmlEscape(id)}">${label?`<span class="phraseHintBoxLabel">${htmlEscape(label)}</span>`:''}<b>${phraseTitleHtml(id,p)}</b><small>${htmlEscape(normalizeNotationText(p.cue||''))}</small>${clipBtn}${editBtn}</div>`;
@@ -1918,16 +1918,36 @@ const recDel=pid=>recTx('readwrite',st=>st.delete(pid));
 function recRefresh(){return recTx('readonly',st=>st.getAllKeys()).then(ks=>{clipRecSet.clear();(ks||[]).forEach(k=>clipRecSet.add(k))}).catch(()=>{})}
 recRefresh();
 
+/* ---- Snippers uit de bucket -------------------------------------------------
+   tools/chordsprint-snippets.py knipt op de Mac (yt-dlp+ffmpeg, geen microfoon,
+   geen reclame) en zet per beweging een m4a in de privébucket, plus een index in
+   cpt_clipSnips. Hier halen we die op met de ingelogde sessie, cachen het blob
+   in dezelfde IndexedDB als de mic-opnames en spelen hem af — daarna werkt het
+   ook offline. Eén keer ophalen per beweging; daarna komt hij uit de kast. */
+const CLIP_BUCKET='chordsprint-clips';
+function clipSnips(){try{return JSON.parse(localStorage.getItem('cpt_clipSnips')||'null')||{}}catch(e){return {}}}
+function snipHas(pid){return !!clipSnips()[pid]}
+async function snipBlob(pid){
+  const cached=await recGet(pid).catch(()=>null);
+  if(cached&&cached.blob)return cached.blob;
+  const meta=clipSnips()[pid];
+  if(!meta||!meta.obj||!window.GM_SB)return null;
+  const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
+  if(!data||!data.signedUrl)return null;
+  const blob=await fetch(data.signedUrl).then(r=>r.ok?r.blob():null);
+  if(blob)await recPut(pid,{blob,mime:blob.type||'audio/mp4',dur:meta.dur,made:Date.now(),src:'snip'}).catch(()=>{});
+  return blob;
+}
 function recPidFor(id){const e=phraseById(String(id||''));return e&&e.interval&&e.direction?'int_'+e.interval+'_'+e.direction:null}
 function playRecStop(){if(recAudio){try{recAudio.pause()}catch(e){}recAudio=null}}
 function playRec(pid){
   stopSynth();playClipPause();playRecStop();
-  recGet(pid).then(v=>{
-    if(!v||!v.blob)return playClipMsg('Opname niet gevonden.');
-    recAudio=new Audio(URL.createObjectURL(v.blob));
+  snipBlob(pid).then(blob=>{
+    if(!blob)return playClipMsg('Fragment nog niet opgehaald — ben je offline?');
+    recAudio=new Audio(URL.createObjectURL(blob));
     recAudio.onended=()=>{if(recAudio)URL.revokeObjectURL(recAudio.src)};
     recAudio.play().catch(()=>playClipMsg('Afspelen geblokkeerd — tik nog eens.'));
-  }).catch(()=>playClipMsg('Opname niet leesbaar.'));
+  }).catch(()=>playClipMsg('Fragment niet leesbaar.'));
 }
 function phraseClipsOn(){return loadClipLab().phraseClips!==false&&navigator.onLine!==false&&!!window.Segue}
 function clipForPhraseId(id){
@@ -2341,7 +2361,7 @@ function renderClipLab(){
   renderClipSelect();renderClipProg();
   const met=clips.filter(x=>clipOffsetVan(x)!==null);
   const kort=met.filter(x=>x.end>x.start&&x.end-x.start<=20);
-  $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (≤ 20 s, groen streepje) · Opnames: '+clipRecSet.size+' van 24 — een opname speelt in de oefening zónder reclame.':'';
+  $('clipTrimCount').textContent=met.length?'Ingekort: '+kort.length+' van '+met.length+' (≤ 20 s, groen streepje) · Fragmenten klaar: '+new Set([...clipRecSet,...Object.keys(clipSnips())]).size+' van 24 — die spelen in de oefening zónder reclame.':'';
   $('clipRehang').textContent=clipVerhangen?'Verhangen: tik een beweging':'Verhang naar…';
   $('clipText').value=st.text;
   $('clipTests').innerHTML=CLIP_TESTS.map(t=>
