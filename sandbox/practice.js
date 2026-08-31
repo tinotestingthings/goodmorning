@@ -169,8 +169,15 @@
       if (hash !== "practice" && !frameWrap.hidden) showGrid();
     });
 
-    // Always land on the grid — that is the point of the launcher.
-    if (window.App && App.onShow) App.onShow("practice", showGrid);
+    // Bij binnenkomst op de grid landen doet de hashchange hierboven al: die
+    // blankt de iframe zodra je de tab verlaat, dus je komt altijd op de grid
+    // terug. Deze onShow-luisteraar mag dus NOOIT meer showGrid() aanroepen.
+    // Waarom (bug 2026-08-31: "Kangaroo/ChordSprint sluit vanzelf af"):
+    // applyRoute() vuurt de show-luisteraars bij ELKE App.go(App.getRoute()),
+    // en dat is de manier waarop agendasync (60s-poll), items.js en capture.js
+    // "hertekenen" — geen navigatie. Een binnenkomende sync gooide zo midden
+    // in een oefening de iframe op about:blank. Alleen de badge verversen.
+    if (window.App && App.onShow) App.onShow("practice", refreshPodcastBadge);
   }
 
   init();

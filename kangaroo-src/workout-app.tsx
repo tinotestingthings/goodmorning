@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type VoiceStyle = "Calm coach" | "Focused coach" | "Soft notification";
 type ExerciseMode = "sets" | "hold" | "interval";
-type Muscle = "Shoulders" | "Chest" | "Biceps" | "Triceps" | "Core" | "Upper Back" | "Lower Back" | "Glutes" | "Quads" | "Hamstrings" | "Knees" | "Shins" | "Calves";
+type Muscle = "Shoulders" | "Chest" | "Biceps" | "Triceps" | "Core" | "Upper Back" | "Lower Back" | "Hips" | "Glutes" | "Quads" | "Hamstrings" | "Knees" | "Shins" | "Calves";
 
 type Exercise = {
   id: string;
@@ -37,7 +37,7 @@ type CardioEntry = { id: string; activity: CardioActivity; minutes: number; date
 type WorkoutSession = { id: string; workoutId: string; workoutName: string; date: string; completed: number; skipped: number };
 type ActiveSession = { workoutId: string; exerciseIndex: number; completedIds: string[]; skippedIds: string[] };
 
-const muscles: Muscle[] = ["Shoulders", "Chest", "Biceps", "Triceps", "Core", "Upper Back", "Lower Back", "Glutes", "Quads", "Hamstrings", "Knees", "Shins", "Calves"];
+const muscles: Muscle[] = ["Shoulders", "Chest", "Biceps", "Triceps", "Core", "Upper Back", "Lower Back", "Hips", "Glutes", "Quads", "Hamstrings", "Knees", "Shins", "Calves"];
 
 const localDateValue = (value = new Date()) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2,"0")}-${String(value.getDate()).padStart(2,"0")}`;
 const storedDateValue = (value: string) => {
@@ -97,6 +97,15 @@ const muscleMasks: MuscleMask[] = [
     mirror([[350,291],[330,298],[319,329],[319,390],[328,431],[350,448],[358,410],[356,327]],414),
     [[363,297],[402,296],[404,329],[361,330]],[[362,335],[404,334],[404,369],[361,369]],[[361,375],[404,374],[404,408],[360,408]],[[360,414],[405,413],[404,446],[359,446]],
     mirror([[363,297],[402,296],[404,329],[361,330]],414),mirror([[362,335],[404,334],[404,369],[361,369]],414),mirror([[361,375],[404,374],[404,408],[360,408]],414),mirror([[360,414],[405,413],[404,446],[359,446]],414),
+  ]},
+  // Hips = hip flexors + abductors (glute medius/TFL) + adductors: the band
+  // between the waist and the thighs. Front view only — on the back figure the
+  // glutes already cover this area, and the panel list works from either side.
+  { muscle:"Hips", polygons:[
+    [[303,470],[322,452],[348,453],[359,475],[354,516],[337,545],[315,539],[300,508]],
+    [[363,459],[406,459],[407,506],[398,547],[375,549],[362,512]],
+    mirror([[303,470],[322,452],[348,453],[359,475],[354,516],[337,545],[315,539],[300,508]],414),
+    mirror([[363,459],[406,459],[407,506],[398,547],[375,549],[362,512]],414),
   ]},
   { muscle:"Upper Back", polygons:[
     [[974,151],[1026,176],[1078,151],[1097,194],[1060,246],[1026,330],[991,246],[955,194]],
@@ -189,6 +198,85 @@ function Icon({ name }: { name: string }) {
     body: <><circle cx="12" cy="5" r="2"/><path d="M9 9h6l2 4M9 9l-2 4M10 9l-1 5 1 7M14 9l1 5-1 7"/></>, list: <><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></>,
   };
   return <svg className="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
+}
+
+// Form check per muscle group, behind the (?) buttons: how to isolate the muscle
+// and how to tell you are actually doing the movement right. Deliberately keyed
+// on the muscle group and not on the exercise — the exercises are self-made and
+// renamed freely, the fourteen muscle groups are fixed.
+const formChecks: Record<Muscle, { isolate: string; check: string }> = {
+  "Shoulders": {
+    isolate: "Lateral raise, thumbs slightly up, arms about 20–30° in front of your body.",
+    check: "Stand with your back against a wall: the back of your head and your shoulder blades stay on the wall for the whole rep. Shoulders creeping up to your ears means the traps took over — go lighter.",
+  },
+  "Chest": {
+    isolate: "Single-arm floor press or a band press — one side at a time hides nothing.",
+    check: "You should feel it across the breastbone, not in the front of the shoulder. Keep the shoulder blades pinned back and down; if the shoulder rolls forward at the bottom, shorten the range.",
+  },
+  "Biceps": {
+    isolate: "Seated incline curl: the arm hangs behind your body so the shoulder cannot help.",
+    check: "Back against the wall, elbows against your ribs. If the elbow drifts forward or your back arches off the wall, it is a swing and not a curl.",
+  },
+  "Triceps": {
+    isolate: "Overhead single-arm extension.",
+    check: "Only the forearm moves — the upper arm stays still next to your ear. Burn in the back of the arm is right, a pinch in the elbow joint is not.",
+  },
+  "Core": {
+    isolate: "Dead bug: opposite arm and leg, slowly, on your back.",
+    check: "Lie down with one hand under your lower back — the pressure on that hand must not change while the limbs move. For a plank, check in a mirror: ears, hips and heels in one line, ribs pulled down, no sag.",
+  },
+  "Upper Back": {
+    isolate: "Prone Y-and-T raise, or a face pull.",
+    check: "Start every pull with the shoulder blades, not the hands. Chin lightly tucked; if you feel it in your neck instead of between the shoulder blades, the load is too heavy.",
+  },
+  "Lower Back": {
+    isolate: "Bird dog, or a hip hinge holding a broomstick along your spine.",
+    check: "The broomstick must touch the back of your head, your upper back and your tailbone during the whole hinge. Losing contact = you are rounding your back instead of hinging at the hip.",
+  },
+  "Hips": {
+    isolate: "Side-lying hip abduction for the side of the hip, standing marches for the hip flexors, a couch stretch for the front.",
+    check: "Stand on one leg for 30 seconds in front of a mirror: the pelvis stays level and the knee does not fall inward. If your hip drops on the free-leg side, the standing hip is the weak link.",
+  },
+  "Glutes": {
+    isolate: "Single-leg glute bridge.",
+    check: "Push the hips all the way up without arching your lower back — squeeze the glute, do not lift with the lumbar spine. Hamstring cramping means your heels are too far away; slide them closer to your seat.",
+  },
+  "Quads": {
+    isolate: "Wall sit, or a step-up with a slow lowering phase.",
+    check: "Wall squat: back flat against the wall, feet about one foot forward, sit until the thighs are parallel. The knees track over the feet and the heels stay down. Heels lifting usually means tight calves, not weak quads.",
+  },
+  "Hamstrings": {
+    isolate: "Assisted Nordic curl, or a single-leg Romanian deadlift.",
+    check: "Bend at the hip, not the lower back: knees soft, hips travel backwards, stretch felt in the back of the thigh. If your lower back complains first, you are bending the spine.",
+  },
+  "Knees": {
+    isolate: "Terminal knee extension with a band, or a slow step-down from a low step.",
+    check: "Step down in front of a mirror: the knee stays over the second toe and does not collapse inward. If it does collapse, train Hips and Glutes before adding load here.",
+  },
+  "Shins": {
+    isolate: "Toe raise — heels on the floor, lift the forefoot — or walking on your heels.",
+    check: "Sit with the leg straight and pull your toes towards your knee: you should feel a burn on the front of the shin. No burn means you are only swinging the ankle instead of loading the muscle.",
+  },
+  "Calves": {
+    isolate: "Single-leg calf raise off a step — bent knee loads the soleus, straight knee the gastrocnemius.",
+    check: "Rise all the way onto the ball of your foot without rolling out to the little toe, then lower slowly into a full stretch below the step. Fewer than about 20 clean single-leg reps is the thing to work on.",
+  },
+};
+
+function FormCheck({ targets, label }: { targets: Muscle[]; label?: string }) {
+  const [open, setOpen] = useState(false);
+  const rows = Array.from(new Set(targets)).filter((muscle) => formChecks[muscle]);
+  if (!rows.length) return null;
+  return <span className="form-check">
+    <button type="button" className={`form-check-button ${open ? "open" : ""}`} aria-expanded={open} aria-label={`Form check for ${label || rows.join(", ")}`} title="How do I know I am doing this right?" onClick={() => setOpen((value) => !value)}>?</button>
+    {open && <span className="form-check-panel" role="note">
+      {rows.map((muscle) => <span key={muscle} className="form-check-row">
+        {rows.length > 1 && <strong>{muscle}</strong>}
+        <span><em>Isolate</em> {formChecks[muscle].isolate}</span>
+        <span><em>Check</em> {formChecks[muscle].check}</span>
+      </span>)}
+    </span>}
+  </span>;
 }
 
 const describeExercise = (exercise: Exercise) => {
@@ -454,6 +542,17 @@ export default function WorkoutApp() {
   };
   const updateActiveWorkout = (patch: Partial<Workout>) => setWorkouts((items) => items.map((workout) => workout.id === activeWorkoutId ? { ...workout, ...patch } : workout));
 
+  // Volgorde van de spiergroepenlijst: bovenaan wat het langst geleden getraind
+  // is, dus bovenaan staat wat je in principe als eerste zou moeten doen.
+  // Nooit getraind telt als het langst geleden. De vaste anatomische volgorde
+  // blijft staan waar hij hoort: in de oefening-editor.
+  const trainedAt = (muscle: Muscle) => {
+    const value = history[muscle]; if (!value) return 0;           // 0 = 1970: ouder dan elke echte datum
+    const time = new Date(value).getTime();
+    return Number.isFinite(time) ? time : 0;                       // en een kapotte datum ook
+  };
+  const sortedMuscles = useMemo(() => [...muscles].sort((a,b) => trainedAt(a) - trainedAt(b)),[history]);
+
   const formatLastTrained = (muscle: Muscle) => {
     const value = history[muscle]; if (!value) return "Not trained yet";
     const days = calendarDaysSince(value);
@@ -505,7 +604,7 @@ export default function WorkoutApp() {
             <div className="body-view-labels" aria-hidden="true"><span>Front</span><span>Back</span></div>
           </div>
         </div>
-        <aside className="muscle-panel"><div className="all-muscles"><h3>Cardio</h3><div ref={cardioRowRef} className={`body-list-item ${selectedBodyTarget === "Cardio" ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget("Cardio")}><i className={getRecoveryStatus(latestCardio?.date)}/><span><strong>Cardio</strong><small>{latestCardio ? `${latestCardio.activity} · ${describeDate(latestCardio.date)}` : "No cardio logged yet"}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === "Cardio" && <div className="inline-tracking-panel"><span className={`status-badge ${getRecoveryStatus(latestCardio?.date)}`}>{recoveryLabels[getRecoveryStatus(latestCardio?.date)]}</span><h2>Cardio</h2><p>Log a walk, bike ride, or run with the date you did it.</p><div className="tracking-form"><div className="field-group"><label>Activity</label><select value={cardioActivity} onChange={(event) => { const activity = event.target.value as CardioActivity; setCardioActivity(activity); setCardioMinutes((value) => Math.max(value,cardioMinimum(activity))); }}><option value="Walking">Walking (30+ minutes)</option><option value="Biking">Biking (40+ minutes)</option><option value="Running">Running</option></select></div><div className="field-group"><label>Minutes</label><input type="number" min={cardioMinimum(cardioActivity)} value={cardioMinutes} onChange={(event) => setCardioMinutes(Math.max(cardioMinimum(cardioActivity),Number(event.target.value)))}/></div><div className="field-group date-field"><label>Date</label><div><input type="date" max={localDateValue()} value={cardioDate} onChange={(event) => setCardioDate(event.target.value)}/><button onClick={() => setCardioDate(localDateValue())}>Today</button></div></div></div><button className="primary-button" onClick={addCardioEntry}><Icon name="plus"/> Add cardio activity</button>{sortedCardioEntries.length > 0 && <div className="cardio-history"><h4>Recent cardio</h4>{sortedCardioEntries.slice(0,6).map((entry) => <div key={entry.id}><span><strong>{entry.activity}</strong><small>{entry.minutes} min · {describeDate(entry.date)}</small></span><button className="mini-icon danger" onClick={() => setCardioEntries((entries) => entries.filter((item) => item.id !== entry.id))} aria-label={`Delete ${entry.activity} entry`}><Icon name="trash"/></button></div>)}</div>}</div>}</div><h3>Muscle groups</h3>{muscles.map((muscle) => <div key={muscle} ref={(node) => { muscleRowRefs.current[muscle] = node; }} className={`body-list-item ${selectedBodyTarget === muscle ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget(muscle)}><i className={recoveryClass(muscle)}/><span><strong>{muscle}</strong><small>{formatLastTrained(muscle)}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === muscle && <div className="inline-tracking-panel"><span className={`status-badge ${recoveryClass(muscle)}`}>{recoveryLabels[recoveryClass(muscle)]}</span><h2>{muscle}</h2><p>{formatLastTrained(muscle)}</p><div className="field-group date-field"><label>Training date</label><div><input type="date" max={localDateValue()} value={muscleDateDraft} onChange={(event) => setMuscleDateDraft(event.target.value)}/><button onClick={() => setMuscleDateDraft(localDateValue())}>Today</button></div></div><div className="muscle-actions"><button className="primary-button" onClick={() => saveMuscleDate(muscle)}><Icon name="check"/> {history[muscle] ? "Update training date" : "Mark trained"}</button><button className="secondary-button" onClick={() => { setHistory((previous) => { const next = { ...previous }; delete next[muscle]; return next; }); setMuscleDateDraft(localDateValue()); }}>Clear history</button></div></div>}</div>)}</div></aside>
+        <aside className="muscle-panel"><div className="all-muscles"><h3>Cardio</h3><div ref={cardioRowRef} className={`body-list-item ${selectedBodyTarget === "Cardio" ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget("Cardio")}><i className={getRecoveryStatus(latestCardio?.date)}/><span><strong>Cardio</strong><small>{latestCardio ? `${latestCardio.activity} · ${describeDate(latestCardio.date)}` : "No cardio logged yet"}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === "Cardio" && <div className="inline-tracking-panel"><span className={`status-badge ${getRecoveryStatus(latestCardio?.date)}`}>{recoveryLabels[getRecoveryStatus(latestCardio?.date)]}</span><h2>Cardio</h2><p>Log a walk, bike ride, or run with the date you did it.</p><div className="tracking-form"><div className="field-group"><label>Activity</label><select value={cardioActivity} onChange={(event) => { const activity = event.target.value as CardioActivity; setCardioActivity(activity); setCardioMinutes((value) => Math.max(value,cardioMinimum(activity))); }}><option value="Walking">Walking (30+ minutes)</option><option value="Biking">Biking (40+ minutes)</option><option value="Running">Running</option></select></div><div className="field-group"><label>Minutes</label><input type="number" min={cardioMinimum(cardioActivity)} value={cardioMinutes} onChange={(event) => setCardioMinutes(Math.max(cardioMinimum(cardioActivity),Number(event.target.value)))}/></div><div className="field-group date-field"><label>Date</label><div><input type="date" max={localDateValue()} value={cardioDate} onChange={(event) => setCardioDate(event.target.value)}/><button onClick={() => setCardioDate(localDateValue())}>Today</button></div></div></div><button className="primary-button" onClick={addCardioEntry}><Icon name="plus"/> Add cardio activity</button>{sortedCardioEntries.length > 0 && <div className="cardio-history"><h4>Recent cardio</h4>{sortedCardioEntries.slice(0,6).map((entry) => <div key={entry.id}><span><strong>{entry.activity}</strong><small>{entry.minutes} min · {describeDate(entry.date)}</small></span><button className="mini-icon danger" onClick={() => setCardioEntries((entries) => entries.filter((item) => item.id !== entry.id))} aria-label={`Delete ${entry.activity} entry`}><Icon name="trash"/></button></div>)}</div>}</div>}</div><h3>Muscle groups</h3>{sortedMuscles.map((muscle) => <div key={muscle} ref={(node) => { muscleRowRefs.current[muscle] = node; }} className={`body-list-item ${selectedBodyTarget === muscle ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget(muscle)}><i className={recoveryClass(muscle)}/><span><strong>{muscle}</strong><small>{formatLastTrained(muscle)}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === muscle && <div className="inline-tracking-panel"><span className={`status-badge ${recoveryClass(muscle)}`}>{recoveryLabels[recoveryClass(muscle)]}</span><h2>{muscle}<FormCheck targets={[muscle]} label={muscle}/></h2><p>{formatLastTrained(muscle)}</p><div className="field-group date-field"><label>Training date</label><div><input type="date" max={localDateValue()} value={muscleDateDraft} onChange={(event) => setMuscleDateDraft(event.target.value)}/><button onClick={() => setMuscleDateDraft(localDateValue())}>Today</button></div></div><div className="muscle-actions"><button className="primary-button" onClick={() => saveMuscleDate(muscle)}><Icon name="check"/> {history[muscle] ? "Update training date" : "Mark trained"}</button><button className="secondary-button" onClick={() => { setHistory((previous) => { const next = { ...previous }; delete next[muscle]; return next; }); setMuscleDateDraft(localDateValue()); }}>Clear history</button></div></div>}</div>)}</div></aside>
       </div>
     </section>}
 
@@ -528,7 +627,7 @@ export default function WorkoutApp() {
 
           {current && <aside ref={coachCardRef} className={`coach-card ${coachFullscreen ? "is-fullscreen" : ""}`} aria-live="polite">
             <div className="coach-top"><span className="coach-label">{started ? "NOW TRAINING" : "READY WHEN YOU ARE"}</span><div className="coach-top-actions"><span>{exerciseIndex + 1} / {activeWorkout.exercises.length}</span><button className="fullscreen-button" onClick={toggleCoachFullscreen} aria-label={coachFullscreen ? "Exit fullscreen timer" : "Open timer fullscreen"} title={coachFullscreen ? "Exit fullscreen" : "Fullscreen timer"}><Icon name={coachFullscreen ? "collapse" : "expand"}/></button></div></div>
-            <h3>{current.name}</h3><p>{describeExercise(current)}</p>
+            <h3>{current.name}</h3><p>{describeExercise(current)}<FormCheck key={current.id} targets={current.muscles} label={current.name}/></p>
             {current.mode === "hold" && <div className="timer"><strong>{String(Math.floor(secondsLeft / 60)).padStart(2,"0")}:{String(secondsLeft % 60).padStart(2,"0")}</strong><span>{current.alternating ? `${currentSet % 2 === 0 ? "LEFT" : "RIGHT"} SIDE · HOLD ${currentSet + 1} OF ${current.sets}` : `HOLD ${currentSet + 1} OF ${current.sets}`}</span></div>}
             {current.mode === "interval" && <div className="timer interval-timer"><strong>{String(Math.floor(secondsLeft / 60)).padStart(2,"0")}:{String(secondsLeft % 60).padStart(2,"0")}</strong><span>ROUND {currentSet + 1} OF {current.sets} · {phase.toUpperCase()} {phase === "run" ? current.runSpeed : current.walkSpeed} KM/H</span><div className="round-dots">{Array.from({ length: current.sets }, (_, index) => <i key={index} className={index < currentSet ? "complete" : index === currentSet ? "current" : ""}>{index < currentSet ? <Icon name="check"/> : index + 1}</i>)}</div><small>Each round is one run plus one walk.</small></div>}
             {current.mode === "sets" && <div className="set-tracker"><div className="set-count"><strong>{current.target}</strong><span>{current.unit} · set {Math.min(currentSet + 1, current.sets)} of {current.sets}</span></div><div className="set-dots">{Array.from({ length: current.sets }, (_, index) => <span key={index} className={index < currentSet ? "complete" : index === currentSet ? "current" : ""}>{index < currentSet ? <Icon name="check"/> : index + 1}</span>)}</div></div>}

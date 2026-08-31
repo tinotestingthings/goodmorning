@@ -6,7 +6,7 @@
 // wiste de activate van de één de offline-shell van de ander bij elke bump.
 var IS_SANDBOX = self.registration.scope.indexOf("/sandbox/") !== -1;
 var CACHE_PREFIX = (IS_SANDBOX ? "sbx" : "dd") + "-shell-";
-var CACHE_NAME = CACHE_PREFIX + "v75";
+var CACHE_NAME = CACHE_PREFIX + "v76";
 var LEGACY_PREFIX = "dd-sandbox-shell-";   // de oude gedeelde naam; alleen live ruimt hem op
 
 var SHELL_FILES = [
