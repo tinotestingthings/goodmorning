@@ -157,9 +157,49 @@ def process(clip, tmp, key, ns):
     sg = sb("POST", "/storage/v1/object/sign/" + urllib.parse.quote(BUCKET + "/" + obj, safe="/"),
             key, body={"expiresIn": 31536000})
     print("   %.0f KB geüpload" % (path.stat().st_size / 1024))
-    return {"obj": obj, "url": SUPABASE_URL + "/storage/v1" + sg["signedURL"],
+    item = {"obj": obj, "url": SUPABASE_URL + "/storage/v1" + sg["signedURL"],
             "start": round(clip["start"], 1), "end": round(clip["end"], 1),
             "dur": round(clip["end"] - clip["start"], 1), "size": path.stat().st_size}
+    # Het kenmerk van de aanvraag terugschrijven: daaraan ziet de app dat dít haar
+    # knip is en niet de regel die er al stond.
+    if clip.get("req"):
+        item["req"] = clip["req"]
+    return item
+
+
+def job_to_clip(job, clips):
+    """Eén opdracht uit de wachtrij naar een knipopdracht.
+
+    De app stuurt de tijden mee, zodat er precies geknipt wordt wat er in het lab
+    op het scherm stond — ook als er meerdere fragmenten op dezelfde beweging
+    staan. Oudere opdrachten in de wachtrij zijn nog een kale pid: die zoeken we
+    op in de tekst. None = overslaan.
+    """
+    if isinstance(job, dict):
+        try:
+            c = {"pid": job["pid"], "video": job["video"],
+                 "start": float(job["start"]), "end": float(job["end"]),
+                 "req": job.get("req")}
+        except (KeyError, TypeError, ValueError):
+            return None
+        return c if c["pid"] and c["video"] and c["end"] > c["start"] else None
+    return clips.get(job)
+
+
+def selftest():
+    clips = {"int_m3_up": {"pid": "int_m3_up", "video": "PhDIm_2qS5s", "start": 10, "end": 13}}
+    assert job_to_clip("int_m3_up", clips)["video"] == "PhDIm_2qS5s"
+    assert job_to_clip("int_P5_down", clips) is None
+    j = {"pid": "int_m3_up", "video": "BBB", "start": 20, "end": 23.5}
+    assert job_to_clip(j, clips) == {"pid": "int_m3_up", "video": "BBB",
+                                     "start": 20.0, "end": 23.5, "req": None}
+    assert job_to_clip({"pid": "x", "video": "B", "start": 5, "end": 5}, clips) is None
+    assert job_to_clip({"pid": "x", "start": 1, "end": 2}, clips) is None
+    assert job_to_clip({"pid": "x", "video": "B", "start": "a", "end": 2}, clips) is None
+    assert job_to_clip({"pid": "x", "video": "B", "start": 1, "end": 2, "req": "77"}, clips)["req"] == "77"
+    assert [c["pid"] for c in parse_clips(
+        "https://youtu.be/PhDIm_2qS5s\n0:10-0:13 m3 \u2191\n0:40-0:59 m3 \u2191")] == ["int_m3_up"]
+    print("selftest ok")
 
 
 def helper_key(ns):
@@ -203,7 +243,11 @@ def watch(key, namespaces):
     """
     print("kijkt mee op %s — druk in het Clip lab op 'Maak fragment'. Ctrl-C om te stoppen."
           % ", ".join(n.rstrip(":") for n in namespaces))
-    beat = [0.0]
+    beat = {}
+    # Een knip die blijft mislukken (video weg, netwerk stuk) zou anders elke drie
+    # seconden opnieuw een hele download proberen — en de knop in de app blijft
+    # ondertussen op "wordt geknipt" staan. Na drie pogingen laten liggen.
+    mislukt = {}
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         while True:
@@ -236,23 +280,38 @@ def watch(key, namespaces):
                     data[helper_key(ns)] = json.dumps(st)
                     sb("PATCH", "/rest/v1/%s?user_id=eq.%s" % (TABLE, urllib.parse.quote(fresh["user_id"])),
                        key, body={"data": data}, headers={"Prefer": "return=minimal"})
+                    # verder werken met wat er nu staat: anders ziet de knip-tak
+                    # hieronder het net verwijderde fragment nog en slaat hij een
+                    # nieuwe knip met dezelfde tijden over
+                    row = {"user_id": fresh["user_id"], "data": data}
                 jobs = [j for j in jobs if not (isinstance(j, str) and j.startswith("-"))]
                 if jobs:
                     clips = {c["pid"]: c for c in parse_clips(lab.get("text", ""))}
                     have = (read_helper(row["data"], ns).get("snips") or {})
                     index = {}
-                    for pid in jobs:
-                        c = clips.get(pid)
+                    for job in jobs:
+                        c = job_to_clip(job, clips)
                         if not c:
                             continue
+                        pid = c["pid"]
                         al = have.get(pid)
                         if al and abs((al.get("start") or -1) - round(c["start"], 1)) < 0.05 \
-                               and abs((al.get("end") or -1) - round(c["end"], 1)) < 0.05:
-                            continue                # staat er al met dezelfde tijden
+                               and abs((al.get("end") or -1) - round(c["end"], 1)) < 0.05 \
+                               and al.get("req") == c.get("req"):
+                            continue                # deze aanvraag is al uitgevoerd
+                        stempel = (ns, pid, round(c["start"], 1), round(c["end"], 1), c.get("req"))
+                        if mislukt.get(stempel, 0) >= 3:
+                            continue
                         print("-> %s  %.1f-%.1fs" % (pid, c["start"], c["end"]))
                         item = process(c, tmp, key, ns)
                         if item:
                             index[pid] = item
+                            mislukt.pop(stempel, None)
+                        else:
+                            mislukt[stempel] = mislukt.get(stempel, 0) + 1
+                            if mislukt[stempel] >= 3:
+                                print("   %s blijft mislukken — overgeslagen. Trek de aanvraag in "
+                                      "met 'Aanvraag intrekken' in het Clip lab." % pid)
                     if index:
                         save_index(row, key, ns, index)
                         print("   klaar — de app pikt het binnen een paar seconden op\n")
@@ -262,11 +321,14 @@ def watch(key, namespaces):
                 continue
             except Exception as e:                  # netwerk hikt: gewoon doorgaan
                 print("   (even geen verbinding: %s)" % e)
-            # teken van leven, zodat de app niet "je Mac knipt…" beweert terwijl
-            # er niets luistert. Hooguit één schrijfactie per 20 s.
+            # Teken van leven, zodat de app niet "je Mac knipt…" beweert terwijl er
+            # niets luistert. De app rekent tot 90 s als levend, dus 45 s is ruim —
+            # en elke schrijfactie minder is er één die niet met de app kan botsen.
+            # Per omgeving bijhouden: met één gedeelde teller kreeg alleen de eerste
+            # namespace ooit een hartslag en meldde de sandbox voor altijd "Mac: uit".
             now = time.time()
-            if now - beat[0] > 20:
-                beat[0] = now
+            if now - beat.get(ns, 0.0) > 45:
+                beat[ns] = now
                 try:
                     fresh = fetch_row(key, ns)
                     data = dict(fresh["data"])
@@ -287,7 +349,11 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="alleen tonen wat er geknipt zou worden")
     ap.add_argument("--watch", action="store_true",
                     help="blijf draaien en knip wat de app aanvraagt (knop 'Maak fragment')")
+    ap.add_argument("--selftest", action="store_true", help="de wachtrij-logica nalopen, zonder netwerk")
     args = ap.parse_args()
+    if args.selftest:
+        selftest()
+        return
     ns = "sbx:" if args.sandbox else "dd:"
 
     for tool in ("yt-dlp", "ffmpeg"):

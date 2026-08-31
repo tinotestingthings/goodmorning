@@ -23,6 +23,8 @@
   <key>ProgramArguments</key>
   <array>
     <string>/usr/bin/python3</string>
+    <!-- -u: anders blijft de uitvoer in de buffer hangen en is het logbestand leeg -->
+    <string>-u</string>
     <string>/Users/martijnmensink/Code/goodmorning/tools/chordsprint-snippets.py</string>
     <string>--watch</string>
   </array>

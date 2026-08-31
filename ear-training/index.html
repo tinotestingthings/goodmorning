@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.84</title>
+<title>ChordSprint v1.85</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -14,7 +14,7 @@
 [data-theme="clean"]{--bg:#f7f7f8;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--good:#16a34a;--btn:#f3f4f6;--shadow:0 8px 22px rgba(0,0,0,.08)}
 [data-theme="gameboy"]{--bg:#9bbc0f;--card:#8bac0f;--text:#0f380f;--muted:#306230;--line:#0f380f;--accent:#0f380f;--good:#306230;--bad:#8b1e1e;--btn:#c4d650;--shadow:none;--radius:8px;--font:"Courier New",monospace}
 [data-theme="night"]{--bg:#0b1020;--card:#151b2e;--text:#f8fafc;--muted:#94a3b8;--line:#26324d;--accent:#60a5fa;--good:#34d399;--bad:#fb7185;--btn:#1f2a44;--btnText:#f8fafc;--shadow:0 18px 32px rgba(0,0,0,.35)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overscroll-behavior:none}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-touch-callout:none}.btn,.dot{user-select:none;-webkit-user-select:none;touch-action:manipulation;outline:none}.btn:focus:not(:focus-visible),.dot:focus:not(:focus-visible){outline:none}.btn:focus-visible,.dot:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}.app{max-width:720px;margin:0 auto;padding:18px 14px 30px}.screen{display:none}.screen.active{display:block}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.topActions{display:flex;gap:8px;align-items:center}.logo{font-size:24px;font-weight:950;letter-spacing:-.03em}.version{font-size:12px;color:var(--muted);font-weight:800}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:12px 0}.hero{padding:22px 16px;text-align:center}.hero h1{margin:0 0 6px;font-size:36px;letter-spacing:-.05em}.hero p{margin:0;color:var(--muted);font-weight:750}.bigEmoji{display:none}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.btn,select,input{appearance:none;border:1px solid var(--line);background:var(--btn);color:var(--btnText);border-radius:16px;padding:13px 14px;font-weight:900;font-size:15px;min-height:48px}.btn{cursor:pointer;transition:.08s transform,.12s opacity,.12s background,.12s border-color}.btn:active{transform:scale(.98)}.btn.primary{background:var(--accent);border-color:var(--accent);color:white}.btn.good,.btn.active{background:var(--good);border-color:var(--good);color:white}.btn.bad{background:var(--bad);border-color:var(--bad);color:white}.btn.ghost{background:transparent;color:var(--text)}.btn.smallBtn{min-height:36px;padding:8px 10px;border-radius:12px;font-size:13px}.btn:disabled{opacity:.45;cursor:not-allowed}.wide{width:100%}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.statsMini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--btn);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}.stat b{display:block;font-size:17px;line-height:1}.stat span{font-size:10px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em}.homeStats{position:absolute;right:14px;top:14px;display:flex;gap:6px;justify-content:flex-end;margin:0}.homeMiniStat{background:color-mix(in srgb,var(--btn) 82%,transparent);border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;color:var(--muted)}.homeMiniStat b{color:var(--text);font-size:12px}.hero{position:relative}.hero #startBtn{margin-top:16px}.label{font-size:12px;color:var(--muted);font-weight:950;margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}.small{font-size:13px;color:var(--muted);line-height:1.45}.pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:var(--btn);font-size:13px;font-weight:900;color:var(--muted)}.modeGrid{display:grid;gap:8px}.modeCard{text-align:left;padding:10px}.modeCard b{display:block;font-size:14px}.modeCard span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.modeCard.active{outline:3px solid color-mix(in srgb,var(--accent) 25%,transparent)}.defaultPresetGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}.defaultPresetBtn{min-height:34px;padding:7px 5px;border-radius:12px;font-size:12px;text-align:center}.defaultPresetBtn b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.moreModes{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 45%,transparent);border-radius:16px;margin:8px 0;overflow:hidden}.moreModes summary{cursor:pointer;list-style:none;padding:9px 11px;font-size:12px;font-weight:950;color:var(--muted);display:flex;justify-content:space-between;align-items:center}.moreModes summary::-webkit-details-marker{display:none}.moreModes summary:after{content:"⌄"}.moreModes[open] summary:after{content:"⌃"}.moreModesBody{padding:0 9px 9px}.customModeList{display:grid;gap:6px;margin-top:8px}.subLabel{font-size:11px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 6px}.advancedPractice{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 48%,transparent);border-radius:18px;margin-top:12px;overflow:hidden}.advancedPractice summary{cursor:pointer;list-style:none;padding:13px 14px;font-weight:950;display:flex;align-items:center;justify-content:space-between;gap:10px}.advancedPractice summary::-webkit-details-marker{display:none}.advancedPractice summary:after{content:"⌄";font-size:18px;color:var(--muted)}.advancedPractice[open] summary:after{content:"⌃"}.advancedPracticeBody{padding:0 12px 12px}.progressTrack{padding:18px 4px 6px}.dots{display:flex;align-items:center;gap:0;justify-content:center}.dotWrap{display:flex;align-items:center}.dot{width:58px;height:58px;border:2px solid var(--line);background:var(--btn);border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:18px}.dot.given,.dot.filled{background:var(--good);border-color:var(--good);color:white}.dot.current{outline:4px solid color-mix(in srgb,var(--accent) 28%,transparent)}.dot.playable{cursor:pointer;transition:.08s transform,.12s outline,.12s filter}.dot.playable:active{transform:scale(.96)}.dot.audition{outline:4px solid color-mix(in srgb,var(--accent) 45%,transparent);filter:brightness(1.05)}.line{width:28px;height:3px;background:var(--line)}.givenText{text-align:center;color:var(--muted);font-weight:850;margin-top:10px}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.playCard{padding:14px}.progressShell{display:block}.playActions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.playActionBtn{min-height:56px;padding:12px 14px;border-radius:18px;font-size:17px}.choiceHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.choiceHead .label{margin:0}.choiceHead .btn{white-space:nowrap}.choiceActions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.metaBar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:11px;font-weight:850;opacity:.72}.metaBar b{color:var(--text)}.choicePhraseTitle{font-weight:950}.choicePhrasePreview{display:inline-block;text-align:left;background:color-mix(in srgb,var(--btn) 78%,transparent);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:8px;color:var(--text)}.choicePhrasePreview b{display:block}.choicePhrasePreview small{display:block;color:var(--muted);font-weight:850;margin-top:3px}.choiceGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choiceGrid .btn{font-size:22px;min-height:58px}.choiceGrid .btn.flashBad{background:var(--bad);border-color:var(--bad);color:white}.choiceGrid .btn.flashGood{background:var(--good);border-color:var(--good);color:white}.feedback{min-height:26px;font-weight:950;text-align:center;margin-top:12px}.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}.answerReveal{text-align:center;font-weight:900;margin-top:8px}.settingsSection{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.settingsSection:first-child{border-top:0;margin-top:0;padding-top:0}.settingsTabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:5}.settingsTabs .btn{min-height:42px;padding:9px 8px;border-radius:13px;font-size:13px}.settingsPanel{display:none}.settingsPanel.active{display:block}.settingsPanelIntro{background:color-mix(in srgb,var(--btn) 70%,transparent);border:1px solid var(--line);border-radius:16px;padding:11px 12px;margin-bottom:12px}.settingsPanelIntro b{display:block;font-size:15px}.settingsPanelIntro span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.themebar,.optionPad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.optionPad{grid-template-columns:repeat(3,1fr)}#soundPad{grid-template-columns:repeat(3,1fr)}.togglePad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.togglePad .btn{font-size:18px}.presetManage{display:grid;gap:8px}.presetRow{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--btn);border-radius:16px;padding:8px;cursor:pointer;transition:.08s transform,.12s border-color,.12s background}.presetRow:active{transform:scale(.99)}.presetRow.active{border-color:var(--accent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent)}.presetRow b{font-size:15px}.presetRow span{display:block;font-size:12px;color:var(--muted);font-weight:800}.dangerZone{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}.soundList{display:grid;gap:8px}.soundGroup{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 60%,transparent);border-radius:18px;padding:10px}.soundRow{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center;margin:10px 0}.soundRow label{font-size:13px;font-weight:900;color:var(--text)}.soundRow small{display:block;color:var(--muted);font-weight:750;margin-top:2px}.soundRow input[type=range]{width:100%;padding:0;min-height:28px}.soundValue{font-size:12px;color:var(--muted);font-weight:950;text-align:right}.soundToggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.hidden{display:none}.nextBox{text-align:center}.nextBox .btn{margin-top:10px}.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.helpIntro{font-size:15px;line-height:1.5;color:var(--muted);font-weight:700}.helpGrid{display:grid;gap:10px}.helpRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);background:var(--btn);border-radius:18px;padding:12px}.phraseRow{grid-template-columns:1fr auto auto}.phraseActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.helpRow b{display:block;font-size:16px}.helpRow span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.soundButtons{display:flex;gap:8px;flex-wrap:wrap}.soundButtons .btn{min-height:42px;padding:9px 10px;border-radius:13px}.solfegeBtn b{display:block;font-size:16px}.solfegeBtn span{display:block;font-size:11px;color:var(--muted);font-weight:900}.helpNote{padding:11px 12px;border-left:4px solid var(--accent);background:color-mix(in srgb,var(--btn) 65%,transparent);border-radius:14px;color:var(--text);font-size:14px;line-height:1.45}.helpMiniTitle{font-weight:950;margin:12px 0 8px}.helpExample{font-family:var(--font);font-weight:950}.helpExample small{display:block;font-family:var(--font);font-weight:800;color:var(--muted);margin-top:3px}.formula{font-weight:950;background:var(--btn);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:inline-block;margin:4px 0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overscroll-behavior:none}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-touch-callout:none}.btn,.dot{user-select:none;-webkit-user-select:none;touch-action:manipulation;outline:none}.btn:focus:not(:focus-visible),.dot:focus:not(:focus-visible){outline:none}.btn:focus-visible,.dot:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}.app{max-width:720px;margin:0 auto;padding:18px 14px 30px}.screen{display:none}.screen.active{display:block}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.topActions{display:flex;gap:8px;align-items:center}.logo{font-size:24px;font-weight:950;letter-spacing:-.03em}.version{font-size:12px;color:var(--muted);font-weight:800}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:12px 0}.hero{padding:22px 16px;text-align:center}.hero h1{margin:0 0 6px;font-size:36px;letter-spacing:-.05em}.hero p{margin:0;color:var(--muted);font-weight:750}.bigEmoji{display:none}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.btn,select,input{appearance:none;border:1px solid var(--line);background:var(--btn);color:var(--btnText);border-radius:16px;padding:13px 14px;font-weight:900;font-size:15px;min-height:48px}.btn{cursor:pointer;transition:.08s transform,.12s opacity,.12s background,.12s border-color}.btn:active{transform:scale(.98)}.btn.primary{background:var(--accent);border-color:var(--accent);color:white}.btn.good,.btn.active{background:var(--good);border-color:var(--good);color:white}.btn.bad{background:var(--bad);border-color:var(--bad);color:white}.btn.ghost{background:transparent;color:var(--text)}.btn.smallBtn{min-height:36px;padding:8px 10px;border-radius:12px;font-size:13px}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.answered{opacity:.45}.wide{width:100%}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.statsMini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--btn);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}.stat b{display:block;font-size:17px;line-height:1}.stat span{font-size:10px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em}.homeStats{position:absolute;right:14px;top:14px;display:flex;gap:6px;justify-content:flex-end;margin:0}.homeMiniStat{background:color-mix(in srgb,var(--btn) 82%,transparent);border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;color:var(--muted)}.homeMiniStat b{color:var(--text);font-size:12px}.hero{position:relative}.hero #startBtn{margin-top:16px}.label{font-size:12px;color:var(--muted);font-weight:950;margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}.small{font-size:13px;color:var(--muted);line-height:1.45}.pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:var(--btn);font-size:13px;font-weight:900;color:var(--muted)}.modeGrid{display:grid;gap:8px}.modeCard{text-align:left;padding:10px}.modeCard b{display:block;font-size:14px}.modeCard span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.modeCard.active{outline:3px solid color-mix(in srgb,var(--accent) 25%,transparent)}.defaultPresetGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}.defaultPresetBtn{min-height:34px;padding:7px 5px;border-radius:12px;font-size:12px;text-align:center}.defaultPresetBtn b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.moreModes{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 45%,transparent);border-radius:16px;margin:8px 0;overflow:hidden}.moreModes summary{cursor:pointer;list-style:none;padding:9px 11px;font-size:12px;font-weight:950;color:var(--muted);display:flex;justify-content:space-between;align-items:center}.moreModes summary::-webkit-details-marker{display:none}.moreModes summary:after{content:"⌄"}.moreModes[open] summary:after{content:"⌃"}.moreModesBody{padding:0 9px 9px}.customModeList{display:grid;gap:6px;margin-top:8px}.subLabel{font-size:11px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 6px}.advancedPractice{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 48%,transparent);border-radius:18px;margin-top:12px;overflow:hidden}.advancedPractice summary{cursor:pointer;list-style:none;padding:13px 14px;font-weight:950;display:flex;align-items:center;justify-content:space-between;gap:10px}.advancedPractice summary::-webkit-details-marker{display:none}.advancedPractice summary:after{content:"⌄";font-size:18px;color:var(--muted)}.advancedPractice[open] summary:after{content:"⌃"}.advancedPracticeBody{padding:0 12px 12px}.progressTrack{padding:18px 4px 6px}.dots{display:flex;align-items:center;gap:0;justify-content:center}.dotWrap{display:flex;align-items:center}.dot{width:58px;height:58px;border:2px solid var(--line);background:var(--btn);border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:18px}.dot.given,.dot.filled{background:var(--good);border-color:var(--good);color:white}.dot.current{outline:4px solid color-mix(in srgb,var(--accent) 28%,transparent)}.dot.playable{cursor:pointer;transition:.08s transform,.12s outline,.12s filter}.dot.playable:active{transform:scale(.96)}.dot.audition{outline:4px solid color-mix(in srgb,var(--accent) 45%,transparent);filter:brightness(1.05)}.line{width:28px;height:3px;background:var(--line)}.givenText{text-align:center;color:var(--muted);font-weight:850;margin-top:10px}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.playCard{padding:14px}.progressShell{display:block}.playActions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.playActionBtn{min-height:56px;padding:12px 14px;border-radius:18px;font-size:17px}.choiceHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.choiceHead .label{margin:0}.choiceHead .btn{white-space:nowrap}.choiceActions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.metaBar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:11px;font-weight:850;opacity:.72}.metaBar b{color:var(--text)}.choicePhraseTitle{font-weight:950}.choicePhrasePreview{display:inline-block;text-align:left;background:color-mix(in srgb,var(--btn) 78%,transparent);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:8px;color:var(--text)}.choicePhrasePreview b{display:block}.choicePhrasePreview small{display:block;color:var(--muted);font-weight:850;margin-top:3px}.choiceGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choiceGrid .btn{font-size:22px;min-height:58px}.choiceGrid .btn.flashBad{background:var(--bad);border-color:var(--bad);color:white}.choiceGrid .btn.flashGood{background:var(--good);border-color:var(--good);color:white}.feedback{min-height:26px;font-weight:950;text-align:center;margin-top:12px}.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}.answerReveal{text-align:center;font-weight:900;margin-top:8px}.settingsSection{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.settingsSection:first-child{border-top:0;margin-top:0;padding-top:0}.settingsTabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:5}.settingsTabs .btn{min-height:42px;padding:9px 8px;border-radius:13px;font-size:13px}.settingsPanel{display:none}.settingsPanel.active{display:block}.settingsPanelIntro{background:color-mix(in srgb,var(--btn) 70%,transparent);border:1px solid var(--line);border-radius:16px;padding:11px 12px;margin-bottom:12px}.settingsPanelIntro b{display:block;font-size:15px}.settingsPanelIntro span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.themebar,.optionPad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.optionPad{grid-template-columns:repeat(3,1fr)}#soundPad{grid-template-columns:repeat(3,1fr)}.togglePad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.togglePad .btn{font-size:18px}.presetManage{display:grid;gap:8px}.presetRow{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--btn);border-radius:16px;padding:8px;cursor:pointer;transition:.08s transform,.12s border-color,.12s background}.presetRow:active{transform:scale(.99)}.presetRow.active{border-color:var(--accent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent)}.presetRow b{font-size:15px}.presetRow span{display:block;font-size:12px;color:var(--muted);font-weight:800}.dangerZone{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}.soundList{display:grid;gap:8px}.soundGroup{border:1px solid var(--line);background:color-mix(in srgb,var(--btn) 60%,transparent);border-radius:18px;padding:10px}.soundRow{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center;margin:10px 0}.soundRow label{font-size:13px;font-weight:900;color:var(--text)}.soundRow small{display:block;color:var(--muted);font-weight:750;margin-top:2px}.soundRow input[type=range]{width:100%;padding:0;min-height:28px}.soundValue{font-size:12px;color:var(--muted);font-weight:950;text-align:right}.soundToggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.hidden{display:none}.nextBox{text-align:center}.nextBox .btn{margin-top:10px}.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.helpIntro{font-size:15px;line-height:1.5;color:var(--muted);font-weight:700}.helpGrid{display:grid;gap:10px}.helpRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);background:var(--btn);border-radius:18px;padding:12px}.phraseRow{grid-template-columns:1fr auto auto}.phraseActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.helpRow b{display:block;font-size:16px}.helpRow span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.soundButtons{display:flex;gap:8px;flex-wrap:wrap}.soundButtons .btn{min-height:42px;padding:9px 10px;border-radius:13px}.solfegeBtn b{display:block;font-size:16px}.solfegeBtn span{display:block;font-size:11px;color:var(--muted);font-weight:900}.helpNote{padding:11px 12px;border-left:4px solid var(--accent);background:color-mix(in srgb,var(--btn) 65%,transparent);border-radius:14px;color:var(--text);font-size:14px;line-height:1.45}.helpMiniTitle{font-weight:950;margin:12px 0 8px}.helpExample{font-family:var(--font);font-weight:950}.helpExample small{display:block;font-family:var(--font);font-weight:800;color:var(--muted);margin-top:3px}.formula{font-weight:950;background:var(--btn);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:inline-block;margin:4px 0}
 .phraseTools{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}.phraseTabs,.phraseLang{display:grid;gap:8px}.phraseTabs{grid-template-columns:repeat(4,1fr)}.phraseLang{grid-template-columns:repeat(3,1fr)}.phraseCard{border:1px solid var(--line);background:var(--btn);border-radius:18px;padding:12px;display:grid;gap:10px}.phraseCardTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.phraseCardTop b{font-size:16px}.phraseCardTop span{display:block;font-size:12px;color:var(--muted);font-weight:850;margin-top:3px}.phraseExamples{display:grid;gap:6px}.phraseExampleLine{background:color-mix(in srgb,var(--card) 55%,transparent);border:1px solid var(--line);border-radius:13px;padding:8px 10px;font-size:13px;font-weight:850}.phraseExampleLine small{display:block;color:var(--muted);font-weight:800;margin-top:2px}.phraseCardActions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.phraseCardActions .btn{min-height:38px;padding:8px 8px;font-size:12px;border-radius:12px}.phraseMeta{font-size:12px;color:var(--muted);font-weight:850;line-height:1.35}.phrasePersonal{border-left:4px solid var(--accent)}
 .quad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quad .btn{padding-left:8px;padding-right:8px}.phraseMenuIntro{background:color-mix(in srgb,var(--btn) 70%,transparent);border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:12px}.phraseDirection{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.phraseOverviewGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.phraseNavCard{display:block;text-align:left;border:1px solid var(--line);background:var(--btn);border-radius:18px;padding:13px 12px;min-height:82px}.phraseNavCard b{display:block;font-size:18px}.phraseNavCard span{display:block;color:var(--muted);font-size:12px;font-weight:850;margin-top:3px;line-height:1.3}.phraseNavMeta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.phraseNavMeta .pill{font-size:10px;padding:4px 7px;background:color-mix(in srgb,var(--card) 62%,transparent)}.phraseNavCard.active{outline:4px solid color-mix(in srgb,var(--accent) 25%,transparent)}.phraseDetailHead{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-bottom:10px}.phraseDetailTitle b{display:block;font-size:20px}.phraseDetailTitle span{display:block;font-size:12px;color:var(--muted);font-weight:850;margin-top:2px}.phraseOptionList{display:grid;gap:8px;margin-top:8px}.phraseOption{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 55%,transparent);border-radius:14px;padding:8px}.phraseEmoji{display:inline-block;min-width:1.3em;text-align:center;margin-right:4px}.phraseCardActions .emojiBtn{min-width:48px}.phraseOption.chosen{border-color:var(--good);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--good) 20%,transparent)}.phraseOption b{display:block;font-size:13px}.phraseOption small{display:block;font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}.phraseOptions summary{cursor:pointer;font-weight:950;color:var(--text);padding:8px 0}
 @media(max-width:460px){.phraseCardActions{grid-template-columns:repeat(2,1fr)}.phraseTabs .btn,.phraseLang .btn{font-size:12px;padding:9px 6px;min-height:40px}.phraseOption{grid-template-columns:1fr auto auto}.phraseOption .editChoice{grid-column:2/4}}
@@ -112,7 +112,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.84 · Maak fragment, YouTube alleen in het lab</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.85 · Phrases oproepen tijdens en na de ronde</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -1053,7 +1053,7 @@ function renderDots(){
     if($('chooseKind'))$('chooseKind').textContent='Choose interval';
     if($('choiceHint'))$('choiceHint').textContent='Wrong clicks flash red. You can replay the root or target tone by tapping the circles.';
     const items=['Root',answer[0]?intervalDefs[answer[0]].short:'?'];
-    items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[0]&&i===1?'filled ':'')+(i===1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play root tone':'Play target tone';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play interval root tone':'Play interval target tone');d.onclick=()=>playDot(i,d);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
+    items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[0]&&i===1?'filled ':'')+(i===1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play root tone':'Play target tone';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play interval root tone':'Play interval target tone');d.onclick=()=>playDot(i,d);wireDotHold(d,i);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
     renderChoices();return;
   }
   if(practiceType==='moves'){
@@ -1061,7 +1061,7 @@ function renderDots(){
     if($('chooseKind'))$('chooseKind').textContent='Choose scale tone';
     if($('choiceHint'))$('choiceHint').textContent='Every question starts on 1. Tap the circles to replay 1 or the hidden target tone.';
     const items=['1',answer[0]?scaleMoveLabel(answer[0]):'?'];
-    items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[0]&&i===1?'filled ':'')+(i===1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play scale tone 1':'Play target scale tone';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play scale tone 1':'Play target scale tone');d.onclick=()=>playDot(i,d);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
+    items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[0]&&i===1?'filled ':'')+(i===1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play scale tone 1':'Play target scale tone';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play scale tone 1':'Play target scale tone');d.onclick=()=>playDot(i,d);wireDotHold(d,i);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
     renderChoices();return;
   }
   if(practiceType==='inkey'){
@@ -1071,18 +1071,18 @@ function renderDots(){
     if($('chooseKind'))$('chooseKind').textContent=inKeyPianoMode?'Choose note':(inKeyAnswerBase==='first'?'Choose degree from first':'Choose movement');
     if($('choiceHint'))$('choiceHint').textContent=inKeyPianoMode?'Hear the line, then tap the next target note on the piano.':(inKeyAnswerBase==='first'?'Base First: answer with Roman degrees from the first note, e.g. I, II, III.':'Hear the line, then answer each movement from the previous note.');
     const labels=(currentInKeySeqLabels&&currentInKeySeqLabels.length)?currentInKeySeqLabels:[currentInKeyStart,currentInKeyTarget];
-    labels.forEach((lab,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const revealed=i===0||i<=answer.length;const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':revealed&&i>0?'filled seqDone ':'seqPending ')+(i===answer.length+1&&!locked?'current':'');d.textContent=revealed?lab:'?';d.title=i===0?'Play start scale degree':'Play this scale degree';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',`Play in-key tone ${i+1}`);d.onclick=()=>playDot(i,d);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<labels.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
+    labels.forEach((lab,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const revealed=i===0||i<=answer.length;const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':revealed&&i>0?'filled seqDone ':'seqPending ')+(i===answer.length+1&&!locked?'current':'');d.textContent=revealed?lab:'?';d.title=i===0?'Play start scale degree':'Play this scale degree';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',`Play in-key tone ${i+1}`);d.onclick=()=>playDot(i,d);wireDotHold(d,i);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<labels.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});
     updateInKeyCoach();renderChoices();return;
   }
-  const len=isMistakeMode()?current.length:+$('lengthSelect').value;$('targetLen').textContent=len;$('nextLabel').textContent=Math.min(answer.length+1,len);$('chooseNumber').textContent=Math.min(answer.length+1,len);if($('chooseKind'))$('chooseKind').textContent='Choose chord';if($('choiceHint'))$('choiceHint').textContent='Wrong clicks flash red. The answer is not revealed until the full progression is complete.';const items=[tonicLabel(),...Array.from({length:len},(_,i)=>answer[i]?labelForDegree(answer[i]):'?')];items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[i-1]?'filled ':'')+(i===answer.length+1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play given tonic chord':'Play this chord again';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play given tonic chord':`Play chord position ${i}`);d.onclick=()=>playDot(i,d);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});renderChoices()
+  const len=isMistakeMode()?current.length:+$('lengthSelect').value;$('targetLen').textContent=len;$('nextLabel').textContent=Math.min(answer.length+1,len);$('chooseNumber').textContent=Math.min(answer.length+1,len);if($('chooseKind'))$('chooseKind').textContent='Choose chord';if($('choiceHint'))$('choiceHint').textContent='Wrong clicks flash red. The answer is not revealed until the full progression is complete.';const items=[tonicLabel(),...Array.from({length:len},(_,i)=>answer[i]?labelForDegree(answer[i]):'?')];items.forEach((v,i)=>{const wrap=document.createElement('div');wrap.className='dotWrap';const d=document.createElement('div');d.className='dot playable '+(i===0?'given ':answer[i-1]?'filled ':'')+(i===answer.length+1&&!locked?'current':'');d.textContent=v;d.title=i===0?'Play given tonic chord':'Play this chord again';d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',i===0?'Play given tonic chord':`Play chord position ${i}`);d.onclick=()=>playDot(i,d);wireDotHold(d,i);d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playDot(i,d)}};wrap.appendChild(d);if(i<items.length-1){const l=document.createElement('div');l.className='line';wrap.appendChild(l)}box.appendChild(wrap)});renderChoices()
 }
 function renderChoices(){
   const box=$('choiceGrid');box.innerHTML='';box.classList.remove('pianoChoiceGrid');
   if(practiceType==='intervals'){
-    (isMistakeMode()?intervalAll:getIntervalSet()).forEach(id=>{const def=intervalDefs[id];const b=document.createElement('button');b.className='btn';b.innerHTML=`${def.short}<br><span style="font-size:10px;font-weight:800">${def.name}</span>`;b.disabled=locked;wireAnswerButton(b,id);box.appendChild(b)});return;
+    (isMistakeMode()?intervalAll:getIntervalSet()).forEach(id=>{const def=intervalDefs[id];const b=document.createElement('button');b.className='btn';b.innerHTML=`${def.short}<br><span style="font-size:10px;font-weight:800">${def.name}</span>`;b.classList.toggle('answered',locked);wireAnswerButton(b,id);box.appendChild(b)});return;
   }
   if(practiceType==='moves'){
-    (isMistakeMode()?scaleMoveAll:getScaleMoveSet()).forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${scaleMoveLabel(m)}<br><span style="font-size:10px;font-weight:800">from 1</span>`;b.disabled=locked;wireAnswerButton(b,m);box.appendChild(b)});return;
+    (isMistakeMode()?scaleMoveAll:getScaleMoveSet()).forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${scaleMoveLabel(m)}<br><span style="font-size:10px;font-weight:800">from 1</span>`;b.classList.toggle('answered',locked);wireAnswerButton(b,m);box.appendChild(b)});return;
   }
   if(practiceType==='inkey'){
     if(inKeyPianoMode){
@@ -1092,11 +1092,11 @@ function renderChoices(){
       return;
     }
     if(inKeyAnswerBase==='first'){
-      inKeyAnswerChoicesForBase().forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${relativeRomanForOffset(m)}<br><span style="font-size:10px;font-weight:800">${relativeRomanLongForOffset(m).split(' · ')[1]}</span>`;b.disabled=locked;wireAnswerButton(b,m);box.appendChild(b)});return;
+      inKeyAnswerChoicesForBase().forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${relativeRomanForOffset(m)}<br><span style="font-size:10px;font-weight:800">${relativeRomanLongForOffset(m).split(' · ')[1]}</span>`;b.classList.toggle('answered',locked);wireAnswerButton(b,m);box.appendChild(b)});return;
     }
-    (isMistakeMode()?inKeyMoveAll:getInKeyMoveSet()).forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${inKeyMoveLabel(m)}<br><span style="font-size:10px;font-weight:800">from previous</span>`;b.disabled=locked;wireAnswerButton(b,m);box.appendChild(b)});return;
+    (isMistakeMode()?inKeyMoveAll:getInKeyMoveSet()).forEach(m=>{const b=document.createElement('button');b.className='btn';b.innerHTML=`${inKeyMoveLabel(m)}<br><span style="font-size:10px;font-weight:800">from previous</span>`;b.classList.toggle('answered',locked);wireAnswerButton(b,m);box.appendChild(b)});return;
   }
-  (isMistakeMode()?degreeAll:getSet()).forEach(d=>{const b=document.createElement('button');b.className='btn';b.textContent=labelForDegree(d);b.disabled=locked;wireAnswerButton(b,d);box.appendChild(b)})
+  (isMistakeMode()?degreeAll:getSet()).forEach(d=>{const b=document.createElement('button');b.className='btn';b.textContent=labelForDegree(d);b.classList.toggle('answered',locked);wireAnswerButton(b,d);box.appendChild(b)})
 }
 function clearFeedback(){$('feedback').textContent='';$('feedback').className='feedback';$('answerReveal').textContent='';clearInKeyStepReveal();$('nextBox').classList.add('hidden')}
 function newProgression(autoPlay=true){
@@ -1370,13 +1370,47 @@ function showChoicePhraseText(choice,pos=0){
     $('feedback').innerHTML=`<div class="choicePhraseTitle">No phrase set for ${htmlEscape(choiceLabel(choice))}</div>${id?`<div class="hintActions"><button class="btn smallBtn" data-change-phrase="${htmlEscape(id)}">Add phrase</button></div>`:''}`;
   }
 }
+/* Positie waarvoor de phrase geldt. Bij akkoorden bepaalt de positie de richting
+   (omhoog of omlaag), en na het laatste akkoord wijst answer.length buiten de reeks —
+   dan telt de laatste positie, anders zou de richting op een gok uitkomen. */
+function phrasePos(){return Math.min(answer.length,Math.max(0,current.length-1))}
 function wireAnswerButton(btn,value){
   let holdTimer=null;
   const clear=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
-  btn.addEventListener('pointerdown',()=>{if(locked||btn.disabled)return;clear();holdTimer=setTimeout(()=>{btn._heldPhrase=true;btn.classList.add('active');showChoicePhrase(value,answer.length);setTimeout(()=>btn.classList.remove('active'),260)},520)});
+  // Ingedrukt houden blijft óók werken als de ronde al gespeeld is: de knop wordt
+  // daarvoor niet meer disabled (dan stuurt de browser geen pointerdown), alleen
+  // de gewone tik doet niets meer.
+  btn.addEventListener('pointerdown',()=>{if(btn.disabled)return;clear();holdTimer=setTimeout(()=>{btn._heldPhrase=true;btn.classList.add('active');showChoicePhrase(value,phrasePos());setTimeout(()=>btn.classList.remove('active'),260)},520)});
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,clear));
   btn.addEventListener('contextmenu',ev=>ev.preventDefault());
-  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}playClipPause();playRecStop();pick(value,btn)};
+  btn.onclick=()=>{if(btn._heldPhrase){btn._heldPhrase=false;return}if(locked)return;playClipPause();playRecStop();pick(value,btn)};
+}
+/* Welk antwoord hoort bij bolletje i (0 = het gegeven begin)? Ook als het nog een
+   '?' is: dat is precies de hint die je wilt kunnen oproepen. */
+function dotAnswer(i){
+  if(i<1)return null;
+  if(practiceType==='intervals')return currentInterval;
+  if(practiceType==='moves')return currentScaleMove;
+  if(practiceType==='inkey')return (currentInKeySeqMoves||[])[i-1];
+  return current[i-1];
+}
+/* Ingedrukt houden op een bolletje toont de phrases van dát moment — vóór en na
+   het raden. Tikken blijft gewoon de toon afspelen. */
+function wireDotHold(d,i){
+  if(i<1)return;
+  let t=null;
+  const clear=()=>{if(t){clearTimeout(t);t=null}};
+  d.addEventListener('pointerdown',()=>{clear();t=setTimeout(()=>{
+    d._held=true;
+    const v=dotAnswer(i);
+    if(v===null||v===undefined||v==='')return;
+    d.classList.add('audition');setTimeout(()=>d.classList.remove('audition'),260);
+    showChoicePhrase(v,i-1);
+  },520)});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>d.addEventListener(ev,clear));
+  d.addEventListener('contextmenu',ev=>ev.preventDefault());
+  const tik=d.onclick;
+  d.onclick=()=>{if(d._held){d._held=false;return}tik()};
 }
 function openPhraseDetailFromGame(id){
   const e=phraseById(id);if(!e||!e.id)return;
@@ -1482,7 +1516,7 @@ function pick(r,btn){
     if(answer.length<currentInKeySeqMoves.length){updateCurrentInKeyStep();$('feedback').textContent='Correct — next move';$('feedback').className='feedback good';renderDots();setTimeout(()=>{if(!locked&&$('feedback'))$('feedback').textContent=''},650);return}
     registerInKeyLadderResult(true);locked=true;$('feedback').className='feedback good';$('feedback').innerHTML='Correct line'+inKeyLevelPromptHtml();stats.attempts++;stats.correct++;stats.score+=10+stats.streak;stats.streak++;saveStats();updateStats();renderDots();$('answerReveal').innerHTML=`${htmlEscape(inKeySequenceSummary())} = ${htmlEscape(inKeyAnswerBase==='first'?inKeyFirstRelativeSummary():inKeyMovementSummary())} (${htmlEscape(currentMode)}) <div class="hintActions"><button class="btn smallBtn" data-show-inkey-steps="1">See steps</button></div>`;$('nextBox').classList.remove('hidden');return;
   }
-  const pos=answer.length,ok=r===current[pos];if(!ok){recordTarget(current[pos],pos,false);btn.classList.add('flashBad');showWrongFeedback(current[pos],pos);setTimeout(()=>btn.classList.remove('flashBad'),520);stats.score=Math.max(0,stats.score-1);stats.streak=0;saveStats();updateStats();return}recordTarget(r,pos,true);btn.classList.add('flashGood');answer.push(r);$('feedback').textContent=answer.length===current.length?'Correct progression':'Correct — next chord';$('feedback').className='feedback good';renderDots();if(answer.length===current.length){locked=true;stats.attempts++;stats.correct++;stats.score+=10+stats.streak;stats.streak++;saveStats();updateStats();$('answerReveal').innerHTML=`${htmlEscape([tonicLabel(),...current.map(d=>labelForDegree(d))].join(' → '))}<div class="hintActions"><button class="btn smallBtn" data-show-chord-steps="1">See steps</button></div>`;$('nextBox').classList.remove('hidden')}else setTimeout(()=>{$('feedback').textContent=''},650)
+  const pos=answer.length,ok=r===current[pos];if(!ok){recordTarget(current[pos],pos,false);btn.classList.add('flashBad');showWrongFeedback(current[pos],pos);setTimeout(()=>btn.classList.remove('flashBad'),520);stats.score=Math.max(0,stats.score-1);stats.streak=0;saveStats();updateStats();return}recordTarget(r,pos,true);btn.classList.add('flashGood');answer.push(r);$('feedback').textContent=answer.length===current.length?'Correct progression':'Correct — next chord';$('feedback').className='feedback good';if(answer.length===current.length)locked=true;renderDots();if(locked){stats.attempts++;stats.correct++;stats.score+=10+stats.streak;stats.streak++;saveStats();updateStats();$('answerReveal').innerHTML=`${htmlEscape([tonicLabel(),...current.map(d=>labelForDegree(d))].join(' → '))}<div class="hintActions"><button class="btn smallBtn" data-show-chord-steps="1">See steps</button></div>`;$('nextBox').classList.remove('hidden')}else setTimeout(()=>{$('feedback').textContent=''},650)
 }
 function resetScore(){stats={score:0,streak:0,best:0,attempts:0,correct:0};saveStats();updateStats();renderTargetStats();renderMistakesPanel();clearFeedback();renderDots()}
 function saveCurrentAsPreset(){let name=prompt('Name this gamemode:', 'Custom '+(presets.filter(p=>!p.builtin).length+1));if(!name)return;name=name.trim();if(!name)return;const c=getCurrentConfig();presets.push({id:uid(),name,builtin:false,...c});savePresets();applyPreset(presets[presets.length-1].id,false);showScreen('home')}
@@ -1904,25 +1938,38 @@ function renderClipResult(){
   const box=$('clipResult');
   if(!box)return;
   const d=clipRecDoel();
-  const heeft=d&&(clipRecSet.has(d.pid)||snipHas(d.pid));
+  const mic=!!d&&clipRecSet.has(d.pid);
+  // Een lopende knipaanvraag verbergt het fragment niet: staat je Mac uit, dan
+  // blijft die aanvraag hangen en speelt de oefening ondertussen gewoon de knip
+  // die er al ligt. Wel benoemen dat dit de vórige is.
+  const wacht=!!d&&clipWachtKnip(d.pid)&&!mic;
+  const heeft=d&&(mic||snipHas(d.pid));
   if(!heeft){
     box.classList.remove('on');clipResultPid=null;
     if(clipResultUrl){URL.revokeObjectURL(clipResultUrl);clipResultUrl=null}
     return;
   }
   box.classList.add('on');
-  if(clipResultPid===d.pid)return;                 // al geladen
-  clipResultPid=d.pid;
+  // Sleutel op tijden en niet alleen op de beweging: anders blijft na opnieuw
+  // knippen de oude opname in de speler staan.
+  const sleutel=d.pid+'|'+snipStamp(d.pid)+'|'+(mic?'mic':'')+(wacht?'|wacht':'');
+  if(clipResultPid===sleutel)return;               // al geladen
+  clipResultPid=sleutel;
   $('clipResultInfo').textContent='ophalen…';
   snipBlob(d.pid).then(blob=>{
-    if(clipResultPid!==d.pid)return;               // ondertussen iets anders gekozen
+    if(clipResultPid!==sleutel)return;             // ondertussen iets anders gekozen
     if(!blob){$('clipResultInfo').textContent='niet op te halen';return}
     if(clipResultUrl)URL.revokeObjectURL(clipResultUrl);
     clipResultUrl=URL.createObjectURL(blob);
     const a=$('clipResultAudio');
     a.src=clipResultUrl;
-    a.onloadedmetadata=()=>{$('clipResultInfo').textContent=(Math.round(a.duration*10)/10)+' s · '+Math.round(blob.size/1024)+' KB'};
-    $('clipResultInfo').textContent=Math.round(blob.size/1024)+' KB';
+    // Alleen het bereik van de knip tonen als je die ook hóórt: bij een eigen
+    // mic-opname horen die tijden bij een ander bestand.
+    const m=mic?null:clipSnips()[d.pid];
+    const kop=mic?'je eigen opname · ':(wacht?'vorige knip · ':'')
+      +(m&&m.start!=null?Segue.clock(m.start)+'–'+Segue.clock(m.end)+' · ':'');
+    a.onloadedmetadata=()=>{$('clipResultInfo').textContent=kop+(Math.round(a.duration*10)/10)+' s · '+Math.round(blob.size/1024)+' KB'};
+    $('clipResultInfo').textContent=kop+Math.round(blob.size/1024)+' KB';
   }).catch(()=>{$('clipResultInfo').textContent='niet op te halen'});
 }
 function renderClipSelect(){
@@ -1978,7 +2025,15 @@ function recTx(mode,fn){return recDB().then(db=>new Promise((res,rej)=>{
 const recPut=(pid,v)=>recTx('readwrite',st=>st.put(v,pid));
 const recGet=pid=>recTx('readonly',st=>st.get(pid));
 const recDel=pid=>recTx('readwrite',st=>st.delete(pid));
-function recRefresh(){return recTx('readonly',st=>st.getAllKeys()).then(ks=>{clipRecSet.clear();(ks||[]).forEach(k=>clipRecSet.add(k))}).catch(()=>{})}
+/* Alleen éigen mic-opnames tellen als eigen opname. De gecachete snippers van de
+   helper liggen in dezelfde kast, maar horen bij de index — stonden ze hierin, dan
+   bood de app een allang verwijderd fragment nog aan. */
+function recRefresh(){return recDB().then(db=>new Promise((res,rej)=>{
+  const t=db.transaction('recs','readonly'),q=t.objectStore('recs').openCursor();
+  clipRecSet.clear();
+  q.onsuccess=()=>{const c=q.result;if(!c)return;if(!c.value||c.value.src!=='snip')clipRecSet.add(c.key);c.continue()};
+  t.oncomplete=()=>res();t.onerror=()=>rej(t.error);
+})).catch(()=>{})}
 recRefresh();
 
 /* ---- Snippers uit de bucket -------------------------------------------------
@@ -1996,10 +2051,29 @@ const CLIP_BUCKET='chordsprint-clips';
    het ook offline werkt. */
 const CLIP_HELPER_KEY=(location.pathname.indexOf('/sandbox/')!==-1?'sbx:':'dd:')+'helper';
 let clipHelperState={beat:0,snips:null};
-function clipSnips(){
+// De index zoals hij van de server komt. Wie hem wijzigt moet deze hebben, niet
+// de gefilterde weergave hieronder.
+function clipSnipsRauw(){
   if(clipHelperState.snips)return clipHelperState.snips;
   try{return JSON.parse(localStorage.getItem('clipSnipsCache')||'null')||{}}catch(e){return {}}
 }
+function clipSnips(){
+  const alles=clipSnipsRauw();
+  /* Een verwijderd fragment staat op de server nog in de index tot de helper de
+     opdracht heeft uitgevoerd. Zonder deze filter dook het bij de eerstvolgende
+     verversing weer op — en met de Mac uit bleef het staan. */
+  const weg=clipJobs().filter(j=>typeof j==='string'&&j.charAt(0)==='-').map(j=>j.slice(1));
+  if(!weg.length)return alles;
+  const uit={};for(const k in alles)if(weg.indexOf(k)<0)uit[k]=alles[k];
+  return uit;
+}
+// De knip-opdracht draagt de tijden mee (zie clipMakeFragment); oudere opdrachten
+// in de wachtrij zijn nog gewoon een pid.
+function jobPid(j){return typeof j==='string'?j:(j&&j.pid)||''}
+// Ligt er nog een knipaanvraag voor deze beweging? Dan is wat er in de index staat
+// de vórige knip, en die als "je fragment" tonen leest als "er gebeurt niks".
+function clipWachtKnip(pid){return clipJobs().some(j=>jobPid(j)===pid)}
+function snipStamp(pid){const m=clipSnipsRauw()[pid];return m?m.start+'-'+m.end+'-'+(m.size||0)+'-'+(m.req||''):''}
 function clipHelperVerversen(cb){
   if(!window.GM_ROW){if(cb)cb();return}
   window.GM_ROW(d=>{
@@ -2009,10 +2083,17 @@ function clipHelperVerversen(cb){
         const o=typeof raw==='string'?JSON.parse(raw):raw;
         clipHelperState={beat:Date.parse(o.beat)||0,snips:o.snips||{}};
         localStorage.setItem('clipSnipsCache',JSON.stringify(clipHelperState.snips));
-        // afgehandelde verwijderopdrachten opruimen: het fragment is weg van de
-        // server, dus de opdracht heeft zijn werk gedaan
+        /* Afgehandelde opdrachten opruimen. Een verwijderopdracht is klaar zodra het
+           fragment van de server weg is; een knipopdracht zodra de index het kenmerk
+           van die aanvraag draagt. Zonder dat laatste bleef een geknipte aanvraag in
+           de wachtrij staan en zei de knop voor altijd "⏳ Wordt geknipt…". */
+        const snips=clipHelperState.snips;
         const open=clipJobs();
-        const rest=open.filter(j=>!(typeof j==='string'&&j.startsWith('-')&&!clipHelperState.snips[j.slice(1)]));
+        const rest=open.filter(j=>{
+          if(typeof j==='string')return j.charAt(0)==='-'?!!snips[j.slice(1)]:!snips[j];
+          const m=snips[jobPid(j)];
+          return !(m&&m.req===j.req);
+        });
         if(rest.length!==open.length)updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
       }catch(e){}
     }
@@ -2021,10 +2102,19 @@ function clipHelperVerversen(cb){
 }
 function snipHas(pid){return !!clipSnips()[pid]}
 async function snipBlob(pid){
-  const cached=await recGet(pid).catch(()=>null);
-  if(cached&&cached.blob)return cached.blob;
   const meta=clipSnips()[pid];
-  if(!meta)return null;
+  const cached=await recGet(pid).catch(()=>null);
+  /* Opnieuw knippen geeft andere tijden. Zonder deze vergelijking blijft de kopie
+     in IndexedDB voor altijd winnen en hoor je de oude knip terwijl de app zegt
+     dat hij vervangen is. Eigen mic-opnames staan niet in de index en blijven
+     dus altijd geldig. */
+  if(cached&&cached.blob&&(cached.src!=='snip'||(meta&&cached.start===meta.start&&cached.end===meta.end&&cached.req===meta.req)))return cached.blob;
+  if(!meta){
+    // Geen index meer, wél een kopie van de helper: op een ander apparaat is dit
+    // fragment weggehaald. Dan hoort het hier ook te verdwijnen.
+    if(cached&&cached.src==='snip'){recDel(pid).catch(()=>{});clipRecSet.delete(pid)}
+    return null;
+  }
   // Het knipscript zet er een signed URL van een jaar bij; dan hoeft de app zelf
   // geen leesrecht op de bucket te hebben. Verlopen of ouder formaat: alsnog
   // zelf een korte URL vragen via de ingelogde sessie.
@@ -2039,7 +2129,7 @@ async function snipBlob(pid){
     const {data}=await window.GM_SB.storage.from(CLIP_BUCKET).createSignedUrl(meta.obj,3600);
     if(data&&data.signedUrl)blob=await fetch(data.signedUrl).then(r=>r.ok?r.blob():null).catch(()=>null);
   }
-  if(blob)await recPut(pid,{blob,mime:blob.type||'audio/mp4',dur:meta.dur,made:Date.now(),src:'snip'}).catch(()=>{});
+  if(blob)await recPut(pid,{blob,mime:blob.type||'audio/mp4',dur:meta.dur,start:meta.start,end:meta.end,req:meta.req,made:Date.now(),src:'snip'}).catch(()=>{});
   return blob;
 }
 function recPidFor(id){const e=phraseById(String(id||''));return e&&e.interval&&e.direction?'int_'+e.interval+'_'+e.direction:null}
@@ -2301,7 +2391,10 @@ function clipRecDoel(){
   const off=clipDoel!==null?clipDoel:clipHuidigeOffset();
   const iv=off!==null?clipIntervalVan(off):null;
   if(!iv)return null;
-  const idx=(clipPerBeweging()[off]||[])[0];
+  // Sta je te bladeren tussen meerdere fragmenten op dezelfde beweging, dan geldt
+  // het fragment dat je vóór je hebt — niet blind het eerste uit de lijst.
+  const lijst=clipPerBeweging()[off]||[];
+  const idx=lijst.indexOf(clipIdx)>=0?clipIdx:lijst[0];
   // pid in het phrase-formaat (up/down), niet met het pijltje — daar zoekt de oefening op
   return {pid:'int_'+iv.interval+'_'+(off<0?'down':'up'), naam:iv.interval+' '+iv.richting, idx, off};
 }
@@ -2329,7 +2422,7 @@ async function clipRecToggle(){
     if(clipCtl)clipCtl.pause();
     if(blob.size<2000){clipSay('Opname te kort of leeg — niets bewaard.');renderClipSelect();return}
     recPut(doel.pid,{blob,mime:blob.type,dur:Math.round((Date.now()-t0)/100)/10,made:Date.now()})
-      .then(()=>{clipRecSet.add(doel.pid);renderClipSelect();clipSay('Opname bewaard ('+(Math.round((Date.now()-t0)/100)/10)+' s) — de oefening speelt nu déze, zonder reclame en ook offline.');0})
+      .then(()=>{clipRecSet.add(doel.pid);clipResultPid=null;renderClipSelect();clipSay('Opname bewaard ('+(Math.round((Date.now()-t0)/100)/10)+' s) — de oefening speelt nu déze, zonder reclame en ook offline.');0})
       .catch(()=>{clipSay('Opslaan mislukte.');renderClipSelect()});
   };
   clipRec.start();
@@ -2354,32 +2447,49 @@ function clipMakeFragment(){
   if(!doel)return clipMakeMsg('Tik eerst de chip van een beweging.');
   if(doel.idx===undefined)return clipMakeMsg('Geen fragment op '+doel.naam+' om te knippen.');
   const c=clipList()[doel.idx];
+  if(!(c.end>c.start))return clipMakeMsg('Zet eerst een eindtijd met "Eind hier" — zonder eind is er niets af te knippen.');
   if(c.end-c.start>30)return clipMakeMsg('Eerst inkorten: '+Math.round(c.end-c.start)+' s is te lang voor een fragment.');
-  const jobs=clipJobs().filter(j=>j!==doel.pid);   // eerst lezen…
-  jobs.push(doel.pid);
+  // De helper slaat een knip met dezelfde tijden over; dan zou de app voor niets
+  // staan wachten. Zeg dat meteen in plaats van twee minuten te draaien.
+  const al=clipSnips()[doel.pid];
+  if(al&&Math.abs((al.start!=null?al.start:-1)-c.start)<0.05&&Math.abs((al.end!=null?al.end:-1)-c.end)<0.05)
+    return clipMakeMsg('Staat er al, precies zo geknipt. Verschuif start of eind, of tik eerst "Fragment weg".');
+  // ook een nog openstaande verwijderopdracht eruit: die zou het verse fragment
+  // meteen weer weghalen
+  const jobs=clipJobs().filter(j=>jobPid(j)!==doel.pid&&j!=='-'+doel.pid);   // eerst lezen…
+  // Kenmerk van déze aanvraag; de helper schrijft het terug in de index. Dat is het
+  // enige sluitende antwoord op "is dit mijn knip?" — tijden en bestandsgrootte
+  // kunnen na verwijderen-en-opnieuw-knippen exact gelijk zijn aan wat er stond.
+  const req=String(Date.now());
+  jobs.push({pid:doel.pid,video:c.id,start:c.start,end:c.end,req});
   updateClipLab(st=>{st.jobs=JSON.stringify(jobs)}); // …dan pas schrijven
+  clipSay('');   // anders blijft "verwijderd" eronder staan terwijl je net opnieuw vraagt
   clipMakeMsg('Aangevraagd: '+doel.naam+' ('+Math.round(c.end-c.start)+' s). Even kijken of je Mac meeluistert…');
   renderClipSelect();
-  clipWachtOpFragment(doel.pid,doel.naam);
+  clipWachtOpFragment(doel.pid,doel.naam,req);
 }
-function clipWachtOpFragment(pid,naam){
-  let n=0;
+/* Klaar is: de index draagt het kenmerk van déze aanvraag. */
+function clipWachtOpFragment(pid,naam,req){
+  let n=0,af=false;
+  const klaar=()=>{const m=clipSnipsRauw()[pid];return !!m&&m.req===req};
   const iv=setInterval(()=>{
     n++;
     clipHelperVerversen(()=>{
-      if(!snipHas(pid))return;
-      clearInterval(iv);
+      if(!klaar())return;
+      clearInterval(iv);af=true;
       // de helper raakt cpt_clipLab niet aan; de app haalt zijn eigen aanvraag weg
-      const rest=clipJobs().filter(j=>j!==pid);
+      const rest=clipJobs().filter(j=>jobPid(j)!==pid);
       updateClipLab(st=>{st.jobs=JSON.stringify(rest)});
-      clipMakeMsg('Klaar: '+naam+' staat er als audio — de oefening speelt hem nu zonder reclame.');
+      clipMakeMsg('Klaar: '+naam+' staat er als audio.'+(clipRecSet.has(pid)
+        ?' Let op: je eigen opname gaat voor — haal die weg met "Fragment weg" als je de knip wilt horen.'
+        :' De oefening speelt hem nu zonder reclame.'));
       renderClipSelect();
     });
     // De aanvraag blijft in de wachtrij staan, dus "later" is een geldig antwoord.
-    if(n===3)clipMakeMsg(clipHelperLevend()
+    if(!af&&n===3)clipMakeMsg(clipHelperLevend()
       ? 'Je Mac is ermee bezig…'
       : 'In de wachtrij — dit wordt geknipt zodra je Mac aanstaat met de helper.');
-    if(n>40){                                  // 2 minuten
+    if(!af&&n>40){                             // 2 minuten
       clearInterval(iv);
       clipMakeMsg(clipHelperLevend()
         ? 'De helper draait maar levert niets — kijk in dat venster of er een foutmelding staat.'
@@ -2392,7 +2502,7 @@ function renderClipRecKnoppen(){
   const doel=clipRecDoel(),heeft=doel&&clipRecSet.has(doel.pid);
   b.textContent=clipRec?'⏹ Stop opname':(heeft?'🎙 Opnieuw opnemen':'🎙 Zelf opnemen');
   const klaar=doel&&(clipRecSet.has(doel.pid)||snipHas(doel.pid));
-  const wacht=doel&&clipJobs().indexOf(doel.pid)>=0;
+  const wacht=doel&&clipWachtKnip(doel.pid);
   const mk=$('clipMakeBtn');
   if(mk){
     const levend=clipHelperLevend();
@@ -2403,6 +2513,8 @@ function renderClipRecKnoppen(){
     if(hs)hs.textContent=levend?'Mac: luistert mee':'Mac: uit — aanvragen blijven in de wachtrij';
   }
   // de gemaakte clip heeft nu zijn eigen speler; alleen 'weg' blijft een knop
+  const del=$('clipRecDelBtn');
+  if(del)del.textContent=(wacht&&!klaar)?'Aanvraag intrekken':'Fragment weg';
 }
 
 function renderClipLab(){
@@ -2450,17 +2562,26 @@ $('clipRecBtn').onclick=()=>clipRecToggle();
 $('clipRecDelBtn').onclick=()=>{
   const d=clipRecDoel();
   if(!d)return;
-  const opServer=snipHas(d.pid);
-  const jobs=clipJobs().filter(j=>j!==d.pid&&j!=='-'+d.pid);
-  if(opServer)jobs.push('-'+d.pid);   // opdracht aan de helper: weg uit index én bucket
-  recDel(d.pid).then(()=>{
+  const opServer=snipHas(d.pid),eigenOpname=clipRecSet.has(d.pid),inWachtrij=clipJobs().some(j=>jobPid(j)===d.pid);
+  if(!opServer&&!eigenOpname&&!inWachtrij)return clipSay('Op '+d.naam+' staat nog geen fragment.');
+  // Ook doorgaan als de kast dwarsligt (privévenster, volle opslag): wat op de
+  // server staat is wat je andere apparaten spelen, en dát moet weg.
+  recDel(d.pid).catch(()=>{}).then(()=>{
     clipRecSet.delete(d.pid);
-    const snips=clipSnips();delete snips[d.pid];
-    if(clipHelperState.snips)delete clipHelperState.snips[d.pid];
+    const snips=clipSnipsRauw();delete snips[d.pid];
     localStorage.setItem('clipSnipsCache',JSON.stringify(snips));
-    updateClipLab(st=>{st.jobs=JSON.stringify(jobs)});
+    // pas hier lezen én schrijven: de wachtlus kan er ondertussen iets bij gezet
+    // hebben, en een kopie van drie tellen geleden zou dat terugdraaien
+    updateClipLab(st=>{
+      let jobs=[];try{jobs=JSON.parse(st.jobs||'[]')}catch(e){}
+      jobs=jobs.filter(j=>jobPid(j)!==d.pid&&j!=='-'+d.pid);
+      if(opServer)jobs.push('-'+d.pid);   // opdracht aan de helper: weg uit index én bucket
+      st.jobs=JSON.stringify(jobs);
+    });
     clipResultPid=null;renderClipSelect();
-    clipSay('Fragment van '+d.naam+' verwijderd'+(opServer?' (ook op je Mac)':'')+'. Knip opnieuw wanneer je wilt.');
+    clipSay('Fragment van '+d.naam+' '+(opServer
+      ?(clipHelperLevend()?'verwijderd, ook op je Mac.':'verwijderd hier — je Mac ruimt hem op zodra hij aanstaat.')
+      :(inWachtrij&&!eigenOpname?'ingetrokken.':'verwijderd.')));
   });
 };
 $('clipModeBtn').onclick=()=>{const next=clipMode()==='major'?'minor':'major';const st=loadClipLab();st.mode=next;saveClipLab();renderClipSelect()};

@@ -1,6 +1,9 @@
 # Changelog
 
 Newest first. One line per deploy to the live root.
+
+## 2026-08-31 (v2026.08.31-1) — ChordSprint v1.85: phrases oproepen na de ronde en op de ?-bolletjes; knip-keten (wijzigen/verwijderen/opnieuw knippen) gerepareerd
+
 ## 2026-08-30 (v2026.08.30-2) — ChordSprint v1.84: eigen geknipte fragmenten in plaats van YouTube-clips. Clip lab is een knip-editor (vrij afspelen, Start/Eind met −1s/+1s, knipbalk, Beluister knip, en je fragment als audiospeler); ✂️ Maak fragment laat je Mac het stuk knippen (yt-dlp+ffmpeg) en in de privébucket zetten. In de oefening is YouTube helemaal weg: eigen audio zonder reclame, ook offline, of anders de tekst-phrase. Incl. 3 review-fixes
 
 
