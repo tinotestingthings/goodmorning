@@ -85,6 +85,7 @@
 .trimRow .tVal{width:62px;font-weight:700;font-variant-numeric:tabular-nums}
 .trimRow .btn{padding:5px 9px;font-size:.8rem;flex:0 0 auto}
 .phraseClipBtn{margin-top:6px;margin-right:6px}
+.playingNow{outline:2px solid #d94a3d;outline-offset:2px}
 #playClipMsg{margin:6px 0 0}
 #playClipMsg:empty{display:none}
 #clipWhereMain{display:block;font-size:1.15rem;font-weight:800}
@@ -529,9 +530,10 @@ let inKeyLadderState=loadInKeyLadderState();
 let inKeyLevelMenuOpen=false;
 let phraseOverrides=loadPhraseOverrides();
 if(!['chords','tones'].includes(playbackMode)) playbackMode='chords';
-const defaultSoundTweak={volume:100,brightness:100,attack:100,decay:100,body:100,sparkle:100,hammer:100,width:100,hammerOn:false};
+const defaultSoundTweak={volume:100,clipVolume:22,brightness:100,attack:100,decay:100,body:100,sparkle:100,hammer:100,width:100,hammerOn:false};
 const SOUND_TWEAK_ROWS=[
  ['volume','Volume','Overall loudness',50,150,'%'],
+ ['clipVolume','Clip volume','Recorded fragments next to the piano — a mastered clip is far louder than the synth',5,100,'%'],
  ['brightness','Brightness','Filter and hammer brightness',50,180,'%'],
  ['attack','Attack','Lower = sharper hit, higher = softer start',40,220,'%'],
  ['decay','Decay / length','How long chords ring out',50,180,'%'],
@@ -836,6 +838,9 @@ function loadSoundTweak(){try{const saved=JSON.parse(localStorage.getItem('cpt_s
 function saveSoundTweak(){localStorage.setItem('cpt_soundTweak',JSON.stringify(soundTweak))}
 // Sliders are percentages of the normal value; tw() is the multiplier the audio graph uses.
 function tw(n){const v=soundTweak[n];return (typeof v==='number'&&isFinite(v))?v/100:1}
+/* Fragmenten (opnames) tegenover de synth. De schaal zelf is met het oor
+   gezet; de Clip volume-slider in het Sound lab is de fijnregeling. */
+function clipGain(){return Math.min(1,Math.max(0,tw('clipVolume')*tw('volume')))}
 function renderSoundLab(){const lab=$('soundLab');if(!lab)return;const rows=SOUND_TWEAK_ROWS;lab.innerHTML=rows.map(([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`).join('')+`<div class="soundToggle"><button class="btn ${soundTweak.hammerOn?'active':''}" id="hammerToggleBtn">${soundTweak.hammerOn?'✓ ':''}Hammer on</button><button class="btn" id="neutralSoundBtn">Set neutral</button></div>`;document.querySelectorAll('[data-soundtweak]').forEach(inp=>inp.oninput=()=>{soundTweak[inp.dataset.soundtweak]=+inp.value;saveSoundTweak();$('soundVal_'+inp.dataset.soundtweak).textContent=inp.value+'%'});$('hammerToggleBtn').onclick=()=>{soundTweak.hammerOn=!soundTweak.hammerOn;saveSoundTweak();renderSoundLab();playRoot()};$('neutralSoundBtn').onclick=()=>{soundTweak={...defaultSoundTweak};saveSoundTweak();renderSoundLab();playRoot()}}
 function renderSettings(){
   document.querySelectorAll('[data-practice-type]').forEach(b=>b.classList.toggle('active',b.dataset.practiceType===practiceType));
@@ -1154,12 +1159,58 @@ function newProgression(autoPlay=true){
 }
 function midiToFreq(m){return 440*Math.pow(2,(m-69)/12)}
 function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.62;highPass=audioCtx.createBiquadFilter();highPass.type='highpass';highPass.frequency.value=38;toneFilter=audioCtx.createBiquadFilter();toneFilter.type='lowpass';toneFilter.frequency.value=12500;toneFilter.Q.value=.35;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=18;compressor.ratio.value=2.2;compressor.attack.value=.002;compressor.release.value=.18;reverbDelay=audioCtx.createDelay(.45);reverbDelay.delayTime.value=.033;reverbFeedback=audioCtx.createGain();reverbFeedback.gain.value=.045;highPass.connect(toneFilter);toneFilter.connect(compressor);compressor.connect(masterGain);toneFilter.connect(reverbDelay);reverbDelay.connect(reverbFeedback);reverbFeedback.connect(reverbDelay);reverbDelay.connect(masterGain);masterGain.connect(audioCtx.destination)}
-function stopSynth(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[]}
+let synthEndsAt=0,playToggleBtn=null,playTogglePoll=null,playToggleAt=0;
+function stopSynth(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[];synthEndsAt=0}
 // Elke synth-start gaat via stopAudio, dus dit is de ene plek die borgt dat
 // synth en fragment elkaar afwisselen — Replay(-slower) incluis.
-function stopAudio(){stopSynth();if(typeof playClipPause==='function')playClipPause();if(typeof playRecStop==='function')playRecStop()}
+function stopAudio(){stopSynth();if(typeof playClipPause==='function')playClipPause();if(typeof playRecStop==='function')playRecStop();playToggleReset()}
+/* ---- Elke lange play-knop is ook een stopknop -------------------------------
+   Nog een tik op dezelfde knop zet het geluid uit, en dat is te zien ook: het
+   label wordt "⏹ Stop" en de knop krijgt een ring. Eén vanger in de capture-fase
+   (dus vóór de eigen onclick van de knop), zodat geen enkele play-knop vergeten
+   kan worden en elke stop — waar ook vandaan — de knop weer netjes terugzet.
+   Bewust NIET in de lijst: de korte hints (bolletjes, ♪ 1 / ▶ Root, één akkoord
+   of één noot in Help). Die zijn na een seconde toch klaar. */
+const PLAY_TOGGLE_SEL='#playBtn,#previewSoundBtn,#pgPlayNotesBtn,#pgPlayChordsBtn,#clipPreviewBtn,#clipProgPlay,'
+  +'[data-help-notes],[data-help-scale],[data-help-loop],[data-help-prog],[data-help-prog-key],'
+  +'[data-phrase-play],[data-phrase-play-chords],[data-phrase-play-prog],[data-play-rec],[data-replay-slow]';
+function playToggleReset(){
+  if(playToggleBtn){
+    if(playToggleBtn.textContent==='⏹ Stop')playToggleBtn.textContent=playToggleBtn.dataset.playLabel||'▶';
+    playToggleBtn.classList.remove('playingNow');
+    delete playToggleBtn.dataset.playLabel;
+    playToggleBtn=null;
+  }
+  if(playTogglePoll){clearInterval(playTogglePoll);playTogglePoll=null}
+}
+function audioBusy(){
+  if(pendingPlayTimer)return true;
+  if(recAudio&&!recAudio.paused&&!recAudio.ended)return true;
+  if(clipCtl)return true;
+  return !!(audioCtx&&audioCtx.currentTime<synthEndsAt);
+}
+function stopEverything(){stopAudio();if(clipCtl){clipStop();renderClipSelect()}}
+document.addEventListener('click',ev=>{
+  const btn=ev.target.closest&&ev.target.closest(PLAY_TOGGLE_SEL);
+  if(!btn)return;
+  if(btn===playToggleBtn){ev.preventDefault();ev.stopPropagation();stopEverything();return}
+  playToggleReset();   // alleen de knopstatus: het afbreken doet de play-functie zelf,
+                       // en clipPlayList hergebruikt bewust de bestaande speler
+  // Pas markeren NA de eigen onclick van de knop: bijna elke play-functie begint
+  // zelf met stopAudio(), en die zou de knop meteen weer terugzetten.
+  setTimeout(()=>{
+    if(playTogglePoll)clearInterval(playTogglePoll);
+    playToggleBtn=btn;playToggleAt=Date.now();
+    btn.dataset.playLabel=btn.textContent;
+    btn.textContent='⏹ Stop';
+    btn.classList.add('playingNow');
+    // Wachttijd van 1,2 s: een fragment moet eerst nog opgehaald worden, dan is
+    // er heel even niets te horen en zou de knop zichzelf meteen terugzetten.
+    playTogglePoll=setInterval(()=>{if(Date.now()-playToggleAt>1200&&!audioBusy())playToggleReset()},250);
+  },0);
+},true);
 function connectThroughFilter(node,filterFreq=null){if(filterFreq){const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=filterFreq;f.Q.value=.45;node.connect(f);f.connect(highPass);return f}node.connect(highPass);return node}
-function pianoVoice(freq,start,dur,gain,detune,harmonic,type='triangle',attack=.004,decay=.08,sustain=.08,filterFreq=null){const g=audioCtx.createGain(),o=audioCtx.createOscillator();const harmonicBoost=harmonic<=1?tw('body'):tw('sparkle');gain*=tw('volume')*harmonicBoost;dur*=tw('decay');attack*=tw('attack');decay*=tw('attack');detune*=tw('width');if(filterFreq)filterFreq*=tw('brightness');o.type=type;o.frequency.value=freq*harmonic;o.detune.value=detune;g.gain.setValueAtTime(.00001,start);g.gain.exponentialRampToValueAtTime(Math.max(gain,.00002),start+attack);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain,.00002),start+decay);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain*.42,.00002),start+Math.min(dur*.55,dur-.04));g.gain.exponentialRampToValueAtTime(.00001,start+dur);o.connect(g);connectThroughFilter(g,filterFreq);o.start(start);o.stop(start+dur+.08);activeAudioNodes.push(o)}
+function pianoVoice(freq,start,dur,gain,detune,harmonic,type='triangle',attack=.004,decay=.08,sustain=.08,filterFreq=null){const g=audioCtx.createGain(),o=audioCtx.createOscillator();const harmonicBoost=harmonic<=1?tw('body'):tw('sparkle');gain*=tw('volume')*harmonicBoost;dur*=tw('decay');attack*=tw('attack');decay*=tw('attack');detune*=tw('width');if(filterFreq)filterFreq*=tw('brightness');o.type=type;o.frequency.value=freq*harmonic;o.detune.value=detune;g.gain.setValueAtTime(.00001,start);g.gain.exponentialRampToValueAtTime(Math.max(gain,.00002),start+attack);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain,.00002),start+decay);g.gain.exponentialRampToValueAtTime(Math.max(gain*sustain*.42,.00002),start+Math.min(dur*.55,dur-.04));g.gain.exponentialRampToValueAtTime(.00001,start+dur);o.connect(g);connectThroughFilter(g,filterFreq);o.start(start);o.stop(start+dur+.08);synthEndsAt=Math.max(synthEndsAt,start+dur+.08);activeAudioNodes.push(o)}
 // Hammer level ≈0.8x the gain of the note it sits under: the .012 this used to default to
 // was ~24x below the tone, i.e. inaudible once it was wired back up.
 const HAMMER_TO_TONE=.8;
@@ -1963,6 +2014,7 @@ function renderClipResult(){
     clipResultUrl=URL.createObjectURL(blob);
     const a=$('clipResultAudio');
     a.src=clipResultUrl;
+    a.volume=clipGain();
     // Alleen het bereik van de knip tonen als je die ook hóórt: bij een eigen
     // mic-opname horen die tijden bij een ander bestand.
     const m=mic?null:clipSnips()[d.pid];
@@ -2133,12 +2185,16 @@ async function snipBlob(pid){
   return blob;
 }
 function recPidFor(id){const e=phraseById(String(id||''));return e&&e.interval&&e.direction?'int_'+e.interval+'_'+e.direction:null}
-function playRecStop(){if(recAudio){try{recAudio.pause()}catch(e){}recAudio=null}}
+let recGen=0;   // elke stop verhoogt dit; een fragment dat daarna binnenkomt speelt niet meer
+function playRecStop(){recGen++;if(recAudio){try{recAudio.pause()}catch(e){}recAudio=null}}
 function playRec(pid){
   stopSynth();playClipPause();playRecStop();
+  const gen=recGen;
   snipBlob(pid).then(blob=>{
+    if(gen!==recGen)return;              // ondertussen op stop getikt
     if(!blob)return playClipMsg('Fragment nog niet opgehaald — ben je offline?');
     recAudio=new Audio(URL.createObjectURL(blob));
+    recAudio.volume=clipGain();
     recAudio.onended=()=>{if(recAudio)URL.revokeObjectURL(recAudio.src)};
     recAudio.play().catch(()=>playClipMsg('Afspelen geblokkeerd — tik nog eens.'));
   }).catch(()=>playClipMsg('Fragment niet leesbaar.'));

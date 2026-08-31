@@ -123,7 +123,9 @@
       var tryReload = function () {
         var ae = document.activeElement;
         var typing = ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable);
-        if (typing || document.querySelector(".inline-form, .capture-sheet, .item-menu-overlay, .cal-editor-overlay, .detail-overlay, .card-menu-backdrop")) {
+        // #utilFrameWrap:not([hidden]) = er staat een utility-app open in de
+        // iframe. Een reload zou die midden in een oefening dichtgooien.
+        if (typing || document.querySelector(".inline-form, .capture-sheet, .item-menu-overlay, .cal-editor-overlay, .detail-overlay, .card-menu-backdrop, #utilFrameWrap:not([hidden])")) {
           setTimeout(tryReload, 3000);
           return;
         }
