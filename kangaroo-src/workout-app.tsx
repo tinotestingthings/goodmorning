@@ -50,13 +50,49 @@ const calendarDaysSince = (value: string) => {
   const today = Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
   return Math.max(0,Math.round((today - thenDay) / 86400000));
 };
-const getRecoveryStatus = (value?: string): RecoveryStatus => {
+// Two recovery profiles, not fourteen thresholds — see docs/kangaroo-fysio-audit.md.
+// "normal" is calibrated on the WHO rule of at least twice a week per major
+// muscle group (average gap 3.5 days, so 5+ days means you no longer make it).
+// "short" is for groups that carry little damage and where the gain is in
+// regularity: slow-twitch (calves/soleus, shins) and postural or tendon work
+// (core, hips, knees). Nothing here says train them MORE — frequency adds
+// nothing at equal weekly volume — only that their window closes sooner.
+type RecoveryProfile = "short" | "normal";
+const recoveryDays: Record<RecoveryProfile, { recent: number; warning: number }> = {
+  short: { recent: 1, warning: 3 },
+  normal: { recent: 2, warning: 4 },
+};
+const shortRecovery: Muscle[] = ["Core", "Hips", "Knees", "Shins", "Calves"];
+const profileFor = (muscle: Muscle): RecoveryProfile => shortRecovery.includes(muscle) ? "short" : "normal";
+
+const getRecoveryStatus = (value?: string, profile: RecoveryProfile = "normal"): RecoveryStatus => {
   if (!value) return "never";
   const days = calendarDaysSince(value);
-  return days <= 2 ? "recent" : days <= 4 ? "warning" : "overdue";
+  const limit = recoveryDays[profile];
+  return days <= limit.recent ? "recent" : days <= limit.warning ? "warning" : "overdue";
 };
 
-const recoveryLabels: Record<RecoveryStatus, string> = { recent: "0–2 days", warning: "3–4 days", overdue: "5+ days", never: "No history" };
+const recoveryLabel = (status: RecoveryStatus, profile: RecoveryProfile = "normal") => {
+  const limit = recoveryDays[profile];
+  if (status === "never") return "No history";
+  if (status === "recent") return `0–${limit.recent} days`;
+  if (status === "warning") return `${limit.recent + 1}–${limit.warning} days`;
+  return `${limit.warning + 1}+ days`;
+};
+
+// ---- fase 2: minimale rust ------------------------------------------------
+// Alleen hamstrings: na zwaar excentrisch werk is 72 uur vaak nog niet genoeg
+// voor herstel van structuur en functie. Geen kleur en geen blokkade, alleen
+// een zin. De opgeslagen datum heeft geen bruikbare kloktijd (handmatig
+// markeren zet 12:00), dus dit rekent in kalenderdagen: vandaag of gisteren.
+const minRestDays: Partial<Record<Muscle, number>> = { Hamstrings: 2 };
+const restWarning = (muscle: Muscle, value?: string) => {
+  const min = minRestDays[muscle];
+  if (!min || !value) return null;
+  const days = calendarDaysSince(value);            // NaN bij een kapotte opgeslagen datum
+  if (!Number.isFinite(days) || days >= min) return null;
+  return "Hamstrings take longer than most: after hard eccentric work even 72 hours is often not enough to fully recover. Going again this soon is fine if you keep it light.";
+};
 const cardioMinimum = (activity: CardioActivity) => activity === "Walking" ? 30 : activity === "Biking" ? 40 : 1;
 const estimateWorkoutMinutes = (workout: Workout) => Math.max(1,Math.ceil(workout.exercises.reduce((total,exercise) => {
   if (exercise.mode === "hold") return total + exercise.sets * exercise.duration;
@@ -559,7 +595,7 @@ export default function WorkoutApp() {
     return days === 0 ? "Trained today" : days === 1 ? "Trained yesterday" : `Trained ${days} days ago`;
   };
   const recoveryClass = (muscle: Muscle) => {
-    return getRecoveryStatus(history[muscle]);
+    return getRecoveryStatus(history[muscle], profileFor(muscle));
   };
   const selectBodyTarget = (target: Muscle | "Cardio") => {
     setSelectedBodyTarget(target);
@@ -594,7 +630,7 @@ export default function WorkoutApp() {
     </header>
 
     {view === "body" && <section className="workspace-page body-page">
-      <div className="page-intro body-intro"><span className="eyebrow">BODY MAP</span><div className="recovery-legend"><span><i className="recent"/> 0–2 days</span><span><i className="warning"/> 3–4 days</span><span><i className="overdue"/> 5+ days</span><span><i className="never"/> No history</span></div></div>
+      <div className="page-intro body-intro"><span className="eyebrow">BODY MAP</span><div className="recovery-legend"><span><i className="recent"/> 0–2 days</span><span><i className="warning"/> 3–4 days</span><span><i className="overdue"/> 5+ days</span><span><i className="never"/> No history</span></div><p className="recovery-legend-note">{shortRecovery.join(", ")} carry less damage and turn sooner: 0–1 / 2–3 / 4+ days.</p></div>
       <div className="body-grid">
         <div className="body-view-area">
           <div className="body-side-toggle" role="group" aria-label="Choose body view"><button className={bodySide === "front" ? "active" : ""} aria-pressed={bodySide === "front"} onClick={() => setBodySide("front")}>Front</button><button className={bodySide === "back" ? "active" : ""} aria-pressed={bodySide === "back"} onClick={() => setBodySide("back")}>Back</button></div>
@@ -604,7 +640,7 @@ export default function WorkoutApp() {
             <div className="body-view-labels" aria-hidden="true"><span>Front</span><span>Back</span></div>
           </div>
         </div>
-        <aside className="muscle-panel"><div className="all-muscles"><h3>Cardio</h3><div ref={cardioRowRef} className={`body-list-item ${selectedBodyTarget === "Cardio" ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget("Cardio")}><i className={getRecoveryStatus(latestCardio?.date)}/><span><strong>Cardio</strong><small>{latestCardio ? `${latestCardio.activity} · ${describeDate(latestCardio.date)}` : "No cardio logged yet"}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === "Cardio" && <div className="inline-tracking-panel"><span className={`status-badge ${getRecoveryStatus(latestCardio?.date)}`}>{recoveryLabels[getRecoveryStatus(latestCardio?.date)]}</span><h2>Cardio</h2><p>Log a walk, bike ride, or run with the date you did it.</p><div className="tracking-form"><div className="field-group"><label>Activity</label><select value={cardioActivity} onChange={(event) => { const activity = event.target.value as CardioActivity; setCardioActivity(activity); setCardioMinutes((value) => Math.max(value,cardioMinimum(activity))); }}><option value="Walking">Walking (30+ minutes)</option><option value="Biking">Biking (40+ minutes)</option><option value="Running">Running</option></select></div><div className="field-group"><label>Minutes</label><input type="number" min={cardioMinimum(cardioActivity)} value={cardioMinutes} onChange={(event) => setCardioMinutes(Math.max(cardioMinimum(cardioActivity),Number(event.target.value)))}/></div><div className="field-group date-field"><label>Date</label><div><input type="date" max={localDateValue()} value={cardioDate} onChange={(event) => setCardioDate(event.target.value)}/><button onClick={() => setCardioDate(localDateValue())}>Today</button></div></div></div><button className="primary-button" onClick={addCardioEntry}><Icon name="plus"/> Add cardio activity</button>{sortedCardioEntries.length > 0 && <div className="cardio-history"><h4>Recent cardio</h4>{sortedCardioEntries.slice(0,6).map((entry) => <div key={entry.id}><span><strong>{entry.activity}</strong><small>{entry.minutes} min · {describeDate(entry.date)}</small></span><button className="mini-icon danger" onClick={() => setCardioEntries((entries) => entries.filter((item) => item.id !== entry.id))} aria-label={`Delete ${entry.activity} entry`}><Icon name="trash"/></button></div>)}</div>}</div>}</div><h3>Muscle groups</h3>{sortedMuscles.map((muscle) => <div key={muscle} ref={(node) => { muscleRowRefs.current[muscle] = node; }} className={`body-list-item ${selectedBodyTarget === muscle ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget(muscle)}><i className={recoveryClass(muscle)}/><span><strong>{muscle}</strong><small>{formatLastTrained(muscle)}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === muscle && <div className="inline-tracking-panel"><span className={`status-badge ${recoveryClass(muscle)}`}>{recoveryLabels[recoveryClass(muscle)]}</span><h2>{muscle}<FormCheck targets={[muscle]} label={muscle}/></h2><p>{formatLastTrained(muscle)}</p><div className="field-group date-field"><label>Training date</label><div><input type="date" max={localDateValue()} value={muscleDateDraft} onChange={(event) => setMuscleDateDraft(event.target.value)}/><button onClick={() => setMuscleDateDraft(localDateValue())}>Today</button></div></div><div className="muscle-actions"><button className="primary-button" onClick={() => saveMuscleDate(muscle)}><Icon name="check"/> {history[muscle] ? "Update training date" : "Mark trained"}</button><button className="secondary-button" onClick={() => { setHistory((previous) => { const next = { ...previous }; delete next[muscle]; return next; }); setMuscleDateDraft(localDateValue()); }}>Clear history</button></div></div>}</div>)}</div></aside>
+        <aside className="muscle-panel"><div className="all-muscles"><h3>Cardio</h3><div ref={cardioRowRef} className={`body-list-item ${selectedBodyTarget === "Cardio" ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget("Cardio")}><i className={getRecoveryStatus(latestCardio?.date)}/><span><strong>Cardio</strong><small>{latestCardio ? `${latestCardio.activity} · ${describeDate(latestCardio.date)}` : "No cardio logged yet"}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === "Cardio" && <div className="inline-tracking-panel"><span className={`status-badge ${getRecoveryStatus(latestCardio?.date)}`}>{recoveryLabel(getRecoveryStatus(latestCardio?.date))}</span><h2>Cardio</h2><p>Log a walk, bike ride, or run with the date you did it.</p><div className="tracking-form"><div className="field-group"><label>Activity</label><select value={cardioActivity} onChange={(event) => { const activity = event.target.value as CardioActivity; setCardioActivity(activity); setCardioMinutes((value) => Math.max(value,cardioMinimum(activity))); }}><option value="Walking">Walking (30+ minutes)</option><option value="Biking">Biking (40+ minutes)</option><option value="Running">Running</option></select></div><div className="field-group"><label>Minutes</label><input type="number" min={cardioMinimum(cardioActivity)} value={cardioMinutes} onChange={(event) => setCardioMinutes(Math.max(cardioMinimum(cardioActivity),Number(event.target.value)))}/></div><div className="field-group date-field"><label>Date</label><div><input type="date" max={localDateValue()} value={cardioDate} onChange={(event) => setCardioDate(event.target.value)}/><button onClick={() => setCardioDate(localDateValue())}>Today</button></div></div></div><button className="primary-button" onClick={addCardioEntry}><Icon name="plus"/> Add cardio activity</button>{sortedCardioEntries.length > 0 && <div className="cardio-history"><h4>Recent cardio</h4>{sortedCardioEntries.slice(0,6).map((entry) => <div key={entry.id}><span><strong>{entry.activity}</strong><small>{entry.minutes} min · {describeDate(entry.date)}</small></span><button className="mini-icon danger" onClick={() => setCardioEntries((entries) => entries.filter((item) => item.id !== entry.id))} aria-label={`Delete ${entry.activity} entry`}><Icon name="trash"/></button></div>)}</div>}</div>}</div><h3>Muscle groups</h3>{sortedMuscles.map((muscle) => <div key={muscle} ref={(node) => { muscleRowRefs.current[muscle] = node; }} className={`body-list-item ${selectedBodyTarget === muscle ? "active" : ""}`}><button className="body-target-button" onClick={() => selectBodyTarget(muscle)}><i className={recoveryClass(muscle)}/><span><strong>{muscle}</strong><small>{formatLastTrained(muscle)}</small></span><Icon name="arrow"/></button>{selectedBodyTarget === muscle && <div className="inline-tracking-panel"><span className={`status-badge ${recoveryClass(muscle)}`}>{recoveryLabel(recoveryClass(muscle), profileFor(muscle))}</span><h2>{muscle}<FormCheck targets={[muscle]} label={muscle}/></h2><p>{formatLastTrained(muscle)}</p>{restWarning(muscle, history[muscle]) && <p className="rest-note">{restWarning(muscle, history[muscle])}</p>}<div className="field-group date-field"><label>Training date</label><div><input type="date" max={localDateValue()} value={muscleDateDraft} onChange={(event) => setMuscleDateDraft(event.target.value)}/><button onClick={() => setMuscleDateDraft(localDateValue())}>Today</button></div></div><div className="muscle-actions"><button className="primary-button" onClick={() => saveMuscleDate(muscle)}><Icon name="check"/> {history[muscle] ? "Update training date" : "Mark trained"}</button><button className="secondary-button" onClick={() => { setHistory((previous) => { const next = { ...previous }; delete next[muscle]; return next; }); setMuscleDateDraft(localDateValue()); }}>Clear history</button></div></div>}</div>)}</div></aside>
       </div>
     </section>}
 
@@ -696,7 +732,7 @@ function AnatomyCanvas({ history, selectedMuscle, onSelect }: { history: Trainin
   const imageRef = useRef<HTMLImageElement | null>(null);
   const colors: Record<RecoveryStatus,string> = { recent:"#8ccf48", warning:"#f1b84a", overdue:"#f26f54", never:"#c4c8c2" };
   const statusFor = useCallback((muscle: Muscle) => {
-    return getRecoveryStatus(history[muscle]);
+    return getRecoveryStatus(history[muscle], profileFor(muscle));
   },[history]);
 
   const draw = useCallback(() => {

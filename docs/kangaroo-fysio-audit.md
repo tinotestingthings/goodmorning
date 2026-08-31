@@ -1,14 +1,16 @@
 # Kangaroo — fysio-audit van de spiergroepen en de kleurcode
 
-Plan (31 aug 2026). **Status: onderzocht, nog niet uitgevoerd.** Drie vragen van
+Plan (31 aug 2026). **Status: fase 1 en 2 gebouwd op 31 aug 2026** (twee
+herstelprofielen + rustsignaal bij hamstrings); fase 3 (onderarm/grijp) en 4
+(voet) bewust open — zeg het als je ze wilt. Drie vragen van
 Tinus: (1) is er wetenschappelijk bewijs dat je bepaalde spieren veel vaker moet
 doen dan andere, (2) is een kleurcode *per spiergroep* een goed idee, (3) mist er
 een spiergroep die onmisbaar is. Hieronder per vraag het antwoord, wat het bewijs
 wél en niet draagt, en pas daarna een plan.
 
-Wat de app nu doet: veertien spiergroepen (sinds 31 aug incl. Heup), één
-kleurcode voor allemaal — groen 0–2 dagen, oranje 3–4, rood 5+ — en de datum
-komt van een afgevinkte oefening of van "Mark trained".
+Wat de app doet: veertien spiergroepen (sinds 31 aug incl. Heup) en een kleur
+per groep op basis van hoe lang geleden je hem trainde. De datum komt van een
+afgevinkte oefening of van "Mark trained".
 
 ---
 
@@ -51,9 +53,12 @@ Wat het bewijs wél draagt is **twee herstelprofielen**, plus één extra signaa
 | **kort** | Core, Kuiten, Schenen, Heup, Knieën | groen 0–1, oranje 2–3, rood 4+ | Langzaam-vezelig of pees-/houdingswerk: weinig schade, verdraagt om-de-dag, en de winst zit juist in regelmaat |
 | **normaal** | Schouders, Borst, Biceps, Triceps, Boven-/Onderrug, Bilspieren, Quadriceps, Hamstrings | groen 0–2, oranje 3–4, rood 5+ (ongewijzigd) | Geijkt op de 2×/week-norm |
 
-Plus een **"te vroeg"-signaal** (geen kleur, een zinnetje) bij Hamstrings binnen
-48 uur na de vorige keer — de enige groep waarvoor het bewijs voor een echte
-minimumrust concreet genoeg is.
+Plus een **"te vroeg"-signaal** (geen kleur, een zinnetje) bij Hamstrings —
+de enige groep waarvoor het bewijs voor een echte minimumrust concreet genoeg is.
+Let op de korrel: de opgeslagen datum heeft geen bruikbare kloktijd (handmatig
+markeren zet 12:00), dus dit rekent in kalenderdagen. "Vandaag of gisteren" is
+het beste wat de data toelaat; echte 48-uursprecisie zou een kloktijd in
+`kangaroo-history` vragen en dat is de moeite niet waard.
 
 Let op: Knieën en Schenen zijn strikt genomen geen spiergroepen maar regio's.
 De belasting daar is vooral pees (patellapees, tibialis anterior), en pezen
@@ -94,14 +99,16 @@ eenbenige taken zijn waar Knieën als aparte regio in de app over gaat.
 
 Alles zit in `kangaroo-src/workout-app.tsx`; bouwen met `bash kangaroo-src/build.sh`.
 
-1. **Herstelprofielen.** Eén veld erbij: `recoveryProfile: Record<Muscle,"kort"|"normaal">`,
-   en `getRecoveryStatus(value)` krijgt dat profiel als tweede argument. Raakt
-   `recoveryClass`, `formatLastTrained` en `AnatomyCanvas.statusFor`. De legenda
-   boven de body map moet dan per geselecteerde groep de juiste dagen tonen.
-   *Klein: ~30 regels.*
-2. **"Te vroeg" bij hamstrings.** Eén regel tekst in het spiergroep-paneel als de
-   laatste keer < 48 uur geleden is. Geen kleur, geen blokkade.
-   *Heel klein.*
+1. ~~**Herstelprofielen.**~~ **Gedaan 31 aug.** `shortRecovery` + `profileFor()`,
+   en `getRecoveryStatus(value, profile)` kreeg het profiel als tweede argument;
+   `recoveryLabels` werd `recoveryLabel(status, profile)` zodat de badge de juiste
+   dagen noemt. Raakt `recoveryClass` en `AnatomyCanvas.statusFor`; Cardio houdt
+   het normale profiel. De legenda boven de body map toont de normale band plus
+   één regel voor de korte groepen — de body map kleurt namelijk álle groepen
+   tegelijk, dus alleen de geselecteerde band tonen zou misleiden.
+2. ~~**"Te vroeg" bij hamstrings.**~~ **Gedaan 31 aug.** `minRestDays` +
+   `restWarning()`, één amberkleurig zinnetje in het spiergroep-paneel. Geen
+   kleurstatus, geen blokkade.
 3. **Onderarm / grijp als vijftiende groep.** Type + lijst + maskers (voorkant:
    onderarm links/rechts; achterkant idem) + een `formChecks`-regel. Zelfde
    patroon als Heup op 31 aug. *Klein, maar de maskers kosten het meeste werk.*

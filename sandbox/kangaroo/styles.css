@@ -25,3 +25,7 @@
 .form-check-row>span{display:block}
 .form-check-row>span+span{margin-top:6px}
 .form-check-row em{margin-right:6px;color:var(--green);font-style:normal;font-weight:800}
+/* Legenda-noot onder de body map (twee herstelprofielen) en de rustwaarschuwing
+   bij hamstrings — informatief, geen kleurstatus. */
+.recovery-legend-note{margin-top:6px;color:var(--muted);font-size:11px;letter-spacing:.02em}
+.rest-note{margin:8px 0 0;padding:10px 12px;border-left:3px solid var(--amber);border-radius:8px;background:#f6efdf;color:var(--ink);font-size:13px;line-height:1.5}
