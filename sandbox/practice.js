@@ -29,7 +29,9 @@
     attentinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>',
     elpatroon:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H8L3.5 5.8 5.4 9.6 8 8.2V21h8V8.2l2.6 1.4 1.9-3.8L16 3h-1"/><path d="M9 3a3 3 0 0 0 6 0"/></svg>'
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H8L3.5 5.8 5.4 9.6 8 8.2V21h8V8.2l2.6 1.4 1.9-3.8L16 3h-1"/><path d="M9 3a3 3 0 0 0 6 0"/></svg>',
+    utrechttoen:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><rect x="9" y="7.5" width="6" height="4.5" rx="1"/><path d="M10.5 7.5V6.5h3v1"/></svg>'
   };
 
   var APPS = [
@@ -43,7 +45,8 @@
     { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" },
     { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" },
     { key: "clipinus", label: "Clipinus", url: "clipinus/index.html" },
-    { key: "elpatroon", label: "El Patroon", url: "el-patroon/index.html" }
+    { key: "elpatroon", label: "El Patroon", url: "el-patroon/index.html" },
+    { key: "utrechttoen", label: "Utrecht Toen", url: "utrecht-toen/index.html" }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
