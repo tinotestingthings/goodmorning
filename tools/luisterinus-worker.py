@@ -82,7 +82,13 @@ class StillBusy(Exception):
 
 # ---- Supabase (REST, service_role) -----------------------------------------
 
-SECRETS_FILES = [  # conventie uit Mijn Wiki/90 System/Automations.md: één iCloud-vrij .env-bestand
+# Eerst een pad buiten iCloud: launchd-processen krijgen van macOS (TCC) géén
+# toegang tot iCloud Drive, dus de symlink naar de vault geeft daar Errno 1
+# "Operation not permitted" — terwijl dezelfde regel met de hand wél werkt (die
+# erft de rechten van je terminal). Dat kostte 104 stille crashes, 30 aug-1 sep.
+# Roteert de sleutel ooit, ververs dan ook ~/.config/goodmorning.env.
+SECRETS_FILES = [
+    Path.home() / ".config/goodmorning.env",
     Path.home() / "Code/secrets/goodmorning.env",
     Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/Mijn Wiki/.secrets.nosync/goodmorning.env",
 ]
@@ -93,13 +99,18 @@ def service_role():
     for f in SECRETS_FILES:
         if key:
             break
-        if f.is_file():
-            for line in f.read_text().splitlines():
-                if line.startswith("SUPABASE_SERVICE_ROLE_KEY="):
-                    key = line.split("=", 1)[1].strip().strip("'\"")
-                    break
+        try:
+            if f.is_file():
+                for line in f.read_text().splitlines():
+                    if line.startswith("SUPABASE_SERVICE_ROLE_KEY="):
+                        key = line.split("=", 1)[1].strip().strip("'\"")
+                        break
+        except OSError as e:  # o.a. TCC op iCloud: geen traceback, wel een bruikbare regel
+            print(f"sleutelbestand niet leesbaar ({f}): {e.strerror}", flush=True)
     if not key:
-        raise SystemExit("SUPABASE_SERVICE_ROLE_KEY niet gevonden (env of " + str(SECRETS_FILES[0]) + ")")
+        raise SystemExit("SUPABASE_SERVICE_ROLE_KEY niet gevonden. Zet een kopie buiten iCloud: "
+                         "install -m 600 /dev/null ~/.config/goodmorning.env && "
+                         "cat ~/Code/secrets/goodmorning.env > ~/.config/goodmorning.env")
     return key
 
 

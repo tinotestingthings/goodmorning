@@ -177,6 +177,16 @@ ronde meteen bij het openklappen. Wie de Mac zelf wakker wil laten worden:
 `sudo pmset repeat wake MTWRFSU 07:55:00` (werkt uit slaap, aan de stroom; een
 uitgeschakelde Apple Silicon-Mac aanzetten lukt daarmee niet).
 
+**Valkuil die 104 stille crashes kostte (30 aug – 1 sep):** de sleutel stond alleen
+in iCloud (`~/Code/secrets/goodmorning.env` is een symlink naar de vault), en
+launchd-processen krijgen van macOS (TCC) géén toegang tot iCloud Drive → elke
+ronde `PermissionError: [Errno 1] Operation not permitted`. Met de hand draaien
+werkte wél, want dat erft de rechten van je terminal — de fout was dus alleen
+zichtbaar in `~/Library/Logs/luisterinus.log`. Opgelost met een kopie buiten
+iCloud in `~/.config/goodmorning.env` (0600), die de worker als eerste leest;
+roteert de sleutel, ververs dan ook die kopie. Onleesbare sleutelbestanden geven
+nu één nette regel in plaats van een traceback.
+
 Installeren/bijwerken: zie de kop van het plist-bestand — Claude kan het niet
 zelf (`launchctl` is geblokkeerd in auto mode), dus Tinus draait dat commando.
 Log: `~/Library/Logs/luisterinus.log` — daar staat ook "NotebookLM-login
