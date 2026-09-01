@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-01 (v2026.09.01-3) — Utrecht Toen: historische foto's van Utrecht op de kaart, al wandelend (nieuwe utility-app, port van ~/Code/utrecht-in-beeld)
+
+
 ## 2026-09-01 (v2026.09.01-2) — Quick capture opent op Task voor vandaag; Clip lab start de YouTube-video niet meer uit zichzelf (kiezen pauzeert, afspelen doe je zelf) en zegt er nu bij dat je naar de bronvideo kijkt. Plus docs/chordsprint-phrases.md: de phrases kloppen niet, onderzoek + plan (nog niet uitgevoerd)
 
 ## 2026-09-01 (v2026.09.01-1) — El Patroon als utility app: alle FreeSewing-designs op je eigen maten
