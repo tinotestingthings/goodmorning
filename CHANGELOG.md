@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-02 (v2026.09.02-1) — Utrecht Toen: pins zichtbaar (cluster-label gebruikte een font dat OpenFreeMap niet serveert → hele tile mislukte)
+
+
 ## 2026-09-01 (v2026.09.01-3) — Utrecht Toen: historische foto's van Utrecht op de kaart, al wandelend (nieuwe utility-app, port van ~/Code/utrecht-in-beeld)
 
 

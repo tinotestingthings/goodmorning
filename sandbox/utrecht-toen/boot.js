@@ -73,19 +73,13 @@
   }
 
   // ---- kaartdata --------------------------------------------------------------
-  var TIER_ORDER = { exact: 0, building: 1, street: 2 };
+  // Eén feature per foto; MapLibre's clustering voegt samen wat op dezelfde plek
+  // ligt (point_count). Een eigen clusterProperties-som brak de tile-opbouw in
+  // de worker ("Expected number, found null") en dan verschijnt er niets.
   function photoFeatures() {
-    var groups = {}, order = [];
-    results.forEach(function (p) {
-      var key = p.latitude.toFixed(5) + "," + p.longitude.toFixed(5);
-      if (!groups[key]) { groups[key] = []; order.push(key); }
-      groups[key].push(p);
-    });
-    return { type: "FeatureCollection", features: order.map(function (key) {
-      var g = groups[key], least = "exact", sel = false;
-      g.forEach(function (p) { var t = tier(p); if (TIER_ORDER[t] > TIER_ORDER[least]) least = t; if (p.id === selectedId) sel = true; });
-      return { type: "Feature", properties: { photoId: g[0].id, photoCount: g.length, tier: least, selected: sel },
-        geometry: { type: "Point", coordinates: [g[0].longitude, g[0].latitude] } };
+    return { type: "FeatureCollection", features: results.map(function (p) {
+      return { type: "Feature", properties: { photoId: p.id, tier: tier(p), selected: p.id === selectedId },
+        geometry: { type: "Point", coordinates: [p.longitude, p.latitude] } };
     }) };
   }
 
@@ -146,6 +140,7 @@
       style: "https://tiles.openfreemap.org/styles/" + (dark() ? "dark" : "positron"),
       center: [UTRECHT.longitude, UTRECHT.latitude], zoom: 13.25, attributionControl: false
     });
+    map.on("error", function (e) { console.error("Kaartfout:", e.error && e.error.message); });
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.on("load", function () {
@@ -159,19 +154,17 @@
       map.addLayer({ id: "accuracy-fill", source: "accuracy", type: "fill", paint: { "fill-color": ACCENT, "fill-opacity": 0.08 } });
       map.addLayer({ id: "accuracy-line", source: "accuracy", type: "line", paint: { "line-color": ACCENT, "line-width": 1.5, "line-opacity": 0.6, "line-dasharray": [3, 2] } });
       ["exact", "building", "street"].forEach(function (t) { map.addImage("photo-" + t, markerImage(t), { pixelRatio: 2 }); });
-      map.addSource("photos", { type: "geojson", data: empty(), cluster: true, clusterRadius: 56, clusterMaxZoom: 16,
-        clusterProperties: { photo_count: ["+", ["get", "photoCount"]] } });
+      map.addSource("photos", { type: "geojson", data: empty(), cluster: true, clusterRadius: 56, clusterMaxZoom: 16 });
       map.addLayer({ id: "clusters", source: "photos", type: "circle", filter: ["has", "point_count"],
-        paint: { "circle-color": ACCENT, "circle-radius": ["step", ["get", "photo_count"], 20, 10, 24, 25, 29], "circle-stroke-color": "#fff", "circle-stroke-width": 3 } });
+        paint: { "circle-color": ACCENT, "circle-radius": ["step", ["get", "point_count"], 20, 10, 24, 25, 29], "circle-stroke-color": "#fff", "circle-stroke-width": 3 } });
       map.addLayer({ id: "cluster-count", source: "photos", type: "symbol", filter: ["has", "point_count"],
-        layout: { "text-field": ["to-string", ["get", "photo_count"]], "text-size": 12, "text-allow-overlap": true }, paint: { "text-color": "#fff" } });
+        // text-font moet een font zijn dat OpenFreeMap serveert; MapLibre's standaard
+        // "Open Sans" geeft een 404 op de glyphs en dan mislukt de hele tile (geen pins).
+        layout: { "text-field": ["get", "point_count_abbreviated"], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-allow-overlap": true }, paint: { "text-color": "#fff" } });
       map.addLayer({ id: "selected-ring", source: "photos", type: "circle", filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "selected"], true]],
         paint: { "circle-radius": 18, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": ACCENT, "circle-stroke-width": 3, "circle-translate": [0, -20] } });
       map.addLayer({ id: "points", source: "photos", type: "symbol", filter: ["!", ["has", "point_count"]],
         layout: { "icon-image": ["match", ["get", "tier"], "exact", "photo-exact", "building", "photo-building", "photo-street"], "icon-anchor": "bottom", "icon-allow-overlap": true } });
-      map.addLayer({ id: "group-count", source: "photos", type: "symbol", filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "photoCount"], 1]],
-        layout: { "text-field": ["to-string", ["get", "photoCount"]], "text-size": 11, "text-offset": [0, -1.75], "text-allow-overlap": true },
-        paint: { "text-color": "#fff", "text-halo-color": ACCENT, "text-halo-width": 3 } });
       map.addSource("bearing", { type: "geojson", data: empty() });
       map.addLayer({ id: "bearing-halo", source: "bearing", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": "#fff", "line-width": 7, "line-opacity": 0.85 } });
       map.addLayer({ id: "bearing-line", source: "bearing", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": ACCENT, "line-width": 3 } });
@@ -190,8 +183,8 @@
         if (f && typeof f.properties.photoId === "string") select(f.properties.photoId);
       };
       map.on("click", "clusters", openCluster); map.on("click", "cluster-count", openCluster);
-      map.on("click", "points", openPhoto); map.on("click", "group-count", openPhoto);
-      ["clusters", "cluster-count", "points", "group-count"].forEach(function (l) {
+      map.on("click", "points", openPhoto);
+      ["clusters", "cluster-count", "points"].forEach(function (l) {
         map.on("mouseenter", l, function () { map.getCanvas().style.cursor = "pointer"; });
         map.on("mouseleave", l, function () { map.getCanvas().style.cursor = ""; });
       });
