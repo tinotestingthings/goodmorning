@@ -51,6 +51,8 @@
 /* v1.76 NoteSprint-like vertical mini-piano range control */
 .miniPianoStage{display:grid;grid-template-columns:minmax(0,1fr)52px;gap:9px;align-items:stretch;margin:6px auto 8px}.miniPianoStage .miniPiano{margin:0;height:156px}.pianoVSlider{position:relative;height:156px;min-width:50px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--btn) 64%,transparent);display:flex;align-items:center;justify-content:center;padding:18px 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}.pianoVTrack{position:relative;width:16px;height:100%;border-radius:999px;background:color-mix(in srgb,var(--line) 80%,var(--card));box-shadow:inset 0 0 0 1px var(--line)}.pianoVFill{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,var(--line))}.pianoVThumb{position:absolute;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:999px;background:var(--accent);border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);color:white;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;line-height:1}.pianoVLabel{position:absolute;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.03em;pointer-events:none}.pianoVLabel.top{top:4px}.pianoVLabel.bottom{bottom:4px}.pianoSliderRow,.pianoRange{display:none!important}@media(max-width:460px){.miniPianoStage{grid-template-columns:minmax(0,1fr)48px;gap:7px}.miniPianoStage .miniPiano{height:148px}.pianoVSlider{height:148px;min-width:46px;padding:18px 8px}.pianoVThumb{width:32px;height:32px}.miniPianoBox{padding:10px 8px}}
 
+#clipStageNote[hidden]{display:none}
+#clipStageNote{margin:8px 0 0}
 #clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
 #clipStage.on{display:block}
 #clipStage iframe{width:100%;height:100%;border:0;display:block}
@@ -425,6 +427,7 @@
       <div id="clipRuler"></div>
       <div id="clipChips"></div>
       <div id="clipWhere"><b id="clipWhereMain"></b><span id="clipWhereSub"></span></div>
+      <p class="small clipStageNote" id="clipStageNote" hidden>🎬 Hieronder speelt de <b>YouTube-video zelf</b> — de bron, inclusief reclame. Jouw geknipte fragment staat verderop bij “Je fragment”.</p>
       <div id="clipStage"></div>
       <div class="split"><button class="btn primary" id="clipPlayBtn">▶ Speel</button><button class="btn primary" id="clipMakeBtn">✂️ Maak fragment</button></div>
       <div id="clipTrimBar"></div>
@@ -1186,7 +1189,7 @@ function playToggleReset(){
 function audioBusy(){
   if(pendingPlayTimer)return true;
   if(recAudio&&!recAudio.paused&&!recAudio.ended)return true;
-  if(clipCtl)return true;
+  if(clipSpeelt)return true;
   return !!(audioCtx&&audioCtx.currentTime<synthEndsAt);
 }
 function stopEverything(){stopAudio();if(clipCtl){clipStop();renderClipSelect()}}
@@ -1915,7 +1918,7 @@ const CLIP_CHAPTER={
  up:{m2:[112,167],M2:[167,219],m3:[219,262],M3:[262,334],P4:[334,363],TT:[363,488],P5:[535,602],m6:[602,714],M6:[714,772],m7:[772,856],M7:[856,935],P8:[935,1008]},
  down:{m2:[48,77],M2:[77,121],m3:[121,190],M3:[190,255],P4:[255,283],TT:[283,314],P5:[314,361],m6:[408,478],M6:[478,508],m7:[508,529],M7:[529,594],P8:[594,720]}
 };
-let clipState=null,clipCtl=null,clipIdx=0,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null,clipStatusTimer=null;
+let clipState=null,clipCtl=null,clipSpeelt=false,clipIdx=0,clipsReturn='home',clipExtra={},clipVerhangen=false,clipTicker=null,clipDoel=null,clipStatusTimer=null;
 
 function clipDefaultText(){
   if(!window.Segue)return '';        // zonder de speler is er ook geen klok
@@ -2029,12 +2032,30 @@ function renderClipSelect(){
   const b=$('clipModeBtn');
   if(b)b.textContent=clipMode()==='minor'?'🎼 Mineur — landingen in mineur':'🎼 Majeur — landingen in majeur';
   const pb=$('clipPlayBtn');
-  if(pb)pb.textContent=clipCtl?'⏹ Stop':'▶ Speel';
+  if(pb)pb.textContent=clipSpeelt?'⏹ Stop':'▶ Speel';
+  clipStageNoteToon(!!clipCtl);
   renderClipRecKnoppen();
 }
+/* Kiezen is niet afspelen (2026-09-01). Een chip aantikken startte de
+   YouTube-video meteen: ongevraagd geluid, en bij YouTube meteen een lopende
+   kijksessie met reclame. Nu verzet een tik alleen de keuze en zet hij een
+   lopende speler op pauze — niet destroy, want dan is de volgende ▶ weer een
+   nieuwe iframe en dus opnieuw reclame. Afspelen doe je met ▶ Speel of
+   ▶ Beluister knip. */
+function clipKies(i){
+  const clips=clipList();
+  if(!clips.length){clipSay('Geen fragmenten.');return}
+  clipIdx=Math.min(Math.max(i,0),clips.length-1);
+  if(clipCtl){try{clipCtl.pause()}catch(e){}}
+  clipSpeelt=false;
+  clipSay('');
+}
+function clipStageNoteToon(aan){const n=$('clipStageNote');if(n)n.hidden=!aan}
 function clipStop(){
   if(typeof clipRecKlaar==='function')clipRecKlaar();
   if(typeof playRecStop==='function')playRecStop();
+  clipSpeelt=false;
+  clipStageNoteToon(false);
   if(clipCtl){try{clipCtl.destroy()}catch(e){}clipCtl=null}
   clearInterval(clipTicker);clipTicker=null;
   if($('clipStartHere')){$('clipStartHere').textContent='Start hier';$('clipEndHere').textContent='Eind hier'}
@@ -2225,6 +2246,7 @@ function clipPlayList(list,extra){
   // elke nieuwe iframe is voor YouTube een nieuwe kijksessie, en dus opnieuw
   // reclame vóór een fragment van twee seconden. Binnen dezelfde video springt
   // de motor nu; alleen bij een àndere video kost het weer een laadbeurt.
+  clipSpeelt=true;clipStageNoteToon(true);
   if(clipCtl){clipCtl.setClips(list);clipCtl.go(0);clipTickStart();return clipCtl}
   const stage=$('clipStage');stage.classList.add('on');stage.innerHTML='<div></div>';
   clipCtl=Segue.play(stage.firstChild,list,{
@@ -2383,7 +2405,7 @@ function renderClipChips(){
     :'';
   el.innerHTML='<div class="cRow">'+rij('down','↓')+'</div><div class="cRow">'+rij('up','↑')+'</div>'+rijLos;
   el.querySelectorAll('[data-clipmove]').forEach(b=>b.onclick=()=>clipKiesBeweging(+b.dataset.clipmove));
-  el.querySelectorAll('[data-clipclip]').forEach(b=>b.onclick=()=>{clipVerhangen=false;clipDoel=null;clipPlay(+b.dataset.clipclip);renderClipSelect()});
+  el.querySelectorAll('[data-clipclip]').forEach(b=>b.onclick=()=>{clipVerhangen=false;clipDoel=null;clipKies(+b.dataset.clipclip);renderClipSelect()});
 }
 function clipKiesBeweging(off){
   if(clipVerhangen){clipVerhangNaar(off);return}
@@ -2397,7 +2419,7 @@ function clipKiesBeweging(off){
   }
   // staat er al een van deze beweging? dan de volgende
   const n=lijst.indexOf(clipIdx);
-  clipPlay(lijst[(n+1)%lijst.length]);
+  clipKies(lijst[(n+1)%lijst.length]);
   renderClipSelect();   // niet renderClipLab: die zou het tekstvak overschrijven
 }
 /* Verhangen: het label van het huidige fragment wordt de nieuwe beweging. Het
@@ -2656,7 +2678,7 @@ $('clipAddBtn').onclick=()=>{
   st.text=st.text.replace(/\s+$/,'')+'\n'+Segue.toText([{id:id,start:0,end:30,label:iv.interval+' '+iv.richting}]);
   saveClipLab();
   $('clipAddUrl').value='';
-  clipPlay(clipList().length-1);renderClipLab();
+  clipKies(clipList().length-1);renderClipLab();
   clipSay('Nieuwe video op '+iv.interval+' '+iv.richting+' — voorlopig 0:00-0:30, knip met Start/Eind hier.');
 };
 function renderPhraseClipsBtn(){const b=$('phraseClipsBtn');if(b)b.textContent=loadClipLab().phraseClips!==false?'🎬 Clips (default)':'📝 Text only'}
@@ -2666,7 +2688,7 @@ $('clipProgPlay').onclick=()=>clipProgSpeel();
 $('clipProgClear').onclick=()=>{loadClipLab().prog=[];saveClipLab();renderClipProg()};
 // Eén knop: spelen als er niets speelt, anders stoppen (en de speler opruimen,
 // want een levende iframe is bij YouTube een lopende kijksessie).
-$('clipPlayBtn').onclick=()=>{if(clipCtl){clipStop();clipSay('')}else clipPlay(clipIdx);renderClipSelect()};
+$('clipPlayBtn').onclick=()=>{if(clipSpeelt){clipStop();clipSay('')}else clipPlay(clipIdx);renderClipSelect()};
 $('clipPreviewBtn').onclick=()=>clipPreview();
 document.querySelectorAll('[data-nudge]').forEach(b=>b.onclick=()=>{const [w,d]=b.dataset.nudge.split(',');clipNudge(w,+d)});
 $('clipStartHere').onclick=()=>clipEdge('start');

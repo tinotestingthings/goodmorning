@@ -22,7 +22,7 @@
     t._hideTimer = setTimeout(function () { t.classList.remove("show"); }, 1900);
   }
 
-  var KINDS = [["note", "Note"], ["task", "Task"], ["project", "Project"]];
+  var KINDS = [["task", "Task"], ["note", "Note"], ["project", "Project"]];
 
   // Local log of what was captured, so the History view can show it even after
   // the Supabase rows are drained into the vault. Capped to the last 60.
@@ -54,7 +54,7 @@
     ta.rows = 4;
     ta.placeholder = "What's on your mind? First line becomes the title.";
 
-    var kind = "note";
+    var kind = "task";   // default: een taak voor vandaag (When staat hieronder al op Today)
     var seg = el("div", "capture-seg");
     KINDS.forEach(function (pair) {
       var b = el("button", "capture-seg-btn" + (pair[0] === kind ? " active" : ""), pair[1]);
@@ -95,9 +95,9 @@
     });
     whenWrap.appendChild(whenSeg);
     whenWrap.appendChild(whenDate);
-    whenWrap.style.display = "none"; // shown only for kind=task
+    whenWrap.style.display = "";      // hidden again as soon as you pick Note/Project
 
-    var send = el("button", "btn btn-primary capture-send", "Add to inbox");
+    var send = el("button", "btn btn-primary capture-send", "Add task");
     send.type = "button";
     send.addEventListener("click", function () {
       var body = (ta.value || "").trim();
