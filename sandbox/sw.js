@@ -6,7 +6,7 @@
 // wiste de activate van de één de offline-shell van de ander bij elke bump.
 var IS_SANDBOX = self.registration.scope.indexOf("/sandbox/") !== -1;
 var CACHE_PREFIX = (IS_SANDBOX ? "sbx" : "dd") + "-shell-";
-var CACHE_NAME = CACHE_PREFIX + "v76";
+var CACHE_NAME = CACHE_PREFIX + "v77";
 var LEGACY_PREFIX = "dd-sandbox-shell-";   // de oude gedeelde naam; alleen live ruimt hem op
 
 var SHELL_FILES = [
@@ -147,7 +147,10 @@ self.addEventListener("fetch", function (event) {
   // Nu geldt network-first voor alle HTML/JS/CSS onder de scope, ongeacht diepte.
   // Afbeeldingen, iconen en de statische data-JSON blijven cache-first, want die
   // zijn groot en veranderen niet per deploy.
-  var isShellFile = rel !== null && /\.(html|js|css)$/.test(rel);
+  // .mjs hoort er ook bij: de rekenkern van el-patroon zit in ES-modules, en
+  // die mogen niet uit de pas lopen met een net opgehaalde app.js -- zelfde
+  // desync als index.html met een gecachete practice.js hierboven.
+  var isShellFile = rel !== null && /\.(html|js|mjs|css)$/.test(rel);
 
   if (event.request.mode === "navigate" || isShellFile) {
     event.respondWith(

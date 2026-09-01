@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-01 (v2026.09.01-1) — El Patroon als utility app: alle FreeSewing-designs op je eigen maten
+
+
 ## 2026-08-31 (v2026.08.31-3) — Kangaroo fysio-audit fase 1+2: twee herstelprofielen in plaats van één drempel voor alle spiergroepen (Core, Hips, Knees, Shins, Calves draaien op 0-1/2-3/4+ dagen, de rest ongewijzigd), badge en legenda volgen mee, plus een rustsignaal bij hamstrings als je vandaag of gisteren al ging. Incl. 1 review-fix
 
 ## 2026-08-31 (v2026.08.31-2) — Utilities sluit niet meer vanzelf af (sync-hertekening blankte de iframe); Kangaroo: Heup als spiergroep, lijst op langst-geleden-bovenaan, (?)-vormcontrole per spiergroep; ChordSprint: fragmentvolume naast de piano (+ Clip volume-slider) en elke lange play-knop is nu ook een stopknop. Incl. 5 review-fixes

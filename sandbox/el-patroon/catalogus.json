@@ -1,0 +1,2625 @@
+{
+ "freesewing": "4.10.1",
+ "designs": {
+  "aaron": {
+   "naam": "Aaron A-shirt",
+   "omschrijving": "A FreeSewing pattern for a A-shirt or tank top",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops",
+    "underwear"
+   ],
+   "technieken": [
+    "hem",
+    "stretch",
+    "knit-binding",
+    "curved-seam"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 14,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/aaron/",
+    "instructies": "https://freesewing.org/docs/designs/aaron/instructions/"
+   }
+  },
+  "albert": {
+   "naam": "Albert apron",
+   "omschrijving": "A FreeSewing pattern for an apron",
+   "moeilijkheid": 2,
+   "tags": [
+    "accessories"
+   ],
+   "technieken": [
+    "hem",
+    "knit-binding",
+    "curved-seam",
+    "pocket"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "chest",
+    "hpsToWaistBack",
+    "waist",
+    "waistToKnee",
+    "hips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 6,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/albert/",
+    "instructies": "https://freesewing.org/docs/designs/albert/instructions/"
+   }
+  },
+  "ashley": {
+   "naam": "Ashley A-Line Shorts",
+   "omschrijving": "A FreeSewing pattern for A-line shorts",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "button",
+    "buttonhole",
+    "curved-seam",
+    "flat-felled-seam",
+    "fly",
+    "hem",
+    "interfacing",
+    "pocket",
+    "zipper"
+   ],
+   "ontwerper": "Gawain CCBR",
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg",
+    "inseam",
+    "hips",
+    "crotchDepth"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 39,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/ashley/",
+    "instructies": "https://freesewing.org/docs/designs/ashley/instructions/"
+   }
+  },
+  "bee": {
+   "naam": "Bee bikini top",
+   "omschrijving": "A FreeSewing pattern for a bikini top",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops",
+    "swimwear"
+   ],
+   "technieken": [
+    "hem",
+    "stretch",
+    "curved-seam",
+    "precision"
+   ],
+   "ontwerper": "PrudenceRabbit",
+   "maten": [
+    "highBust",
+    "chest",
+    "underbust",
+    "waist",
+    "waistBack",
+    "bustSpan",
+    "neck",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "bustPointToUnderbust"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 28,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bee/",
+    "instructies": "https://freesewing.org/docs/designs/bee/instructions/"
+   }
+  },
+  "bella": {
+   "naam": "Bella body block",
+   "omschrijving": "A FreeSewing pattern for a womenswear bodice block",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "dart",
+    "block"
+   ],
+   "ontwerper": [
+    "Bella Incognito",
+    "Joost De Cock"
+   ],
+   "maten": [
+    "highBust",
+    "chest",
+    "underbust",
+    "waist",
+    "waistBack",
+    "bustSpan",
+    "neck",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "biceps",
+    "shoulderToWrist",
+    "waistToArmpit",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 46,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bella/",
+    "instructies": "https://freesewing.org/docs/designs/bella/instructions/"
+   }
+  },
+  "benjamin": {
+   "naam": "Benjamin bow tie",
+   "omschrijving": "A FreeSewing pattern for a bow tie",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories"
+   ],
+   "technieken": [
+    "precision",
+    "interfacing"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "neck"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 8,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/benjamin/",
+    "instructies": "https://freesewing.org/docs/designs/benjamin/instructions/"
+   }
+  },
+  "bent": {
+   "naam": "Bent body block",
+   "omschrijving": "A FreeSewing pattern for a menswear body block with a two-part sleeve",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "hem",
+    "curved-seam",
+    "set-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "shoulderToElbow",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 20,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bent/",
+    "instructies": "https://freesewing.org/docs/designs/bent/instructions/"
+   }
+  },
+  "bibi": {
+   "naam": "Bibi body block",
+   "omschrijving": "A FreeSewing pattern for a knit top body block",
+   "moeilijkheid": 2,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "hem",
+    "flat-sleeve"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "shoulderToWrist",
+    "wrist",
+    "hips",
+    "waist",
+    "seat",
+    "seatBack",
+    "waistToSeat",
+    "hpsToWaistFront"
+   ],
+   "matenOptioneel": [
+    "highBust",
+    "bustSpan",
+    "waistToUnderbust",
+    "waistToKnee",
+    "waistToFloor"
+   ],
+   "tekening": true,
+   "opties": 55,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bibi/",
+    "instructies": "https://freesewing.org/docs/designs/bibi/instructions/"
+   }
+  },
+  "bob": {
+   "naam": "Bob the bib",
+   "omschrijving": "A FreeSewing pattern for a bib",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories",
+    "infants"
+   ],
+   "technieken": [
+    "bias-tape",
+    "curved-seam",
+    "snap"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [],
+   "matenOptioneel": [
+    "head"
+   ],
+   "tekening": true,
+   "opties": 4,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bob/",
+    "instructies": "https://freesewing.org/docs/designs/bob/instructions/"
+   }
+  },
+  "breanna": {
+   "naam": "Breanna body block",
+   "omschrijving": "A FreeSewing pattern for a basic body block for womenswear",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "block",
+    "dart"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "bustFront",
+    "bustSpan",
+    "highBust",
+    "highBustFront",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "hpsToWaistFront",
+    "waist",
+    "waistToHips",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 44,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/breanna/",
+    "instructies": "https://freesewing.org/docs/designs/breanna/instructions/"
+   }
+  },
+  "brian": {
+   "naam": "Brian body block",
+   "omschrijving": "A FreeSewing pattern for a basic body block for menswear",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "block",
+    "flat-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 37,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/brian/",
+    "instructies": "https://freesewing.org/docs/designs/brian/instructions/"
+   }
+  },
+  "bruce": {
+   "naam": "Bruce boxer briefs",
+   "omschrijving": "A FreeSewing pattern for boxer briefs",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "underwear"
+   ],
+   "technieken": [
+    "stretch",
+    "hem",
+    "curved-seam",
+    "elastic"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "hips",
+    "upperLeg",
+    "waistToHips",
+    "waistToUpperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 6,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/bruce/",
+    "instructies": "https://freesewing.org/docs/designs/bruce/instructions/"
+   }
+  },
+  "carlita": {
+   "naam": "Carlita coat",
+   "omschrijving": "A FreeSewing pattern for Sherlock Holmes cosplay; Or just a nice long coat",
+   "moeilijkheid": 5,
+   "tags": [
+    "tops",
+    "coats"
+   ],
+   "technieken": [
+    "hem",
+    "pocket",
+    "curved-seam",
+    "precision",
+    "set-sleeve",
+    "welt-pocket",
+    "lining",
+    "princess-seam",
+    "interfacing",
+    "button"
+   ],
+   "ontwerper": [
+    "Anneke Caramin",
+    "Joost De Cock"
+   ],
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "waist",
+    "waistToFloor",
+    "waistToSeat",
+    "seat",
+    "highBust",
+    "bustSpan",
+    "shoulderToElbow",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 42,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/carlita/",
+    "instructies": "https://freesewing.org/docs/designs/carlita/instructions/"
+   }
+  },
+  "carlton": {
+   "naam": "Carlton coat",
+   "omschrijving": "A FreeSewing pattern for Sherlock Holmes cosplay; Or just a nice long coat",
+   "moeilijkheid": 5,
+   "tags": [
+    "tops",
+    "coats"
+   ],
+   "technieken": [
+    "hem",
+    "pocket",
+    "curved-seam",
+    "precision",
+    "set-sleeve",
+    "welt-pocket",
+    "lining",
+    "interfacing",
+    "button"
+   ],
+   "ontwerper": [
+    "Anneke Caramin",
+    "Joost De Cock"
+   ],
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "waist",
+    "waistToFloor",
+    "waistToSeat",
+    "seat",
+    "shoulderToElbow",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 43,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/carlton/",
+    "instructies": "https://freesewing.org/docs/designs/carlton/instructions/"
+   }
+  },
+  "cathrin": {
+   "naam": "Cathrin corset",
+   "omschrijving": "A FreeSewing pattern for a underbust corset / waist trainer",
+   "moeilijkheid": 4,
+   "tags": [
+    "tops",
+    "underwear"
+   ],
+   "technieken": [
+    "boning",
+    "precision",
+    "curved-seam",
+    "interfacing"
+   ],
+   "ontwerper": [
+    "Cathrin Åhlén",
+    "Joost De Cock"
+   ],
+   "maten": [
+    "underbust",
+    "waist",
+    "hips",
+    "waistToUnderbust",
+    "waistToHips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 8,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/cathrin/",
+    "instructies": "https://freesewing.org/docs/designs/cathrin/instructions/"
+   }
+  },
+  "charlie": {
+   "naam": "Charlie chinos",
+   "omschrijving": "A FreeSewing pattern for chino trousers",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "welt-pocket",
+    "curved-seam",
+    "interfacing",
+    "fly",
+    "zipper",
+    "button",
+    "dart",
+    "hem",
+    "seam-pocket"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 35,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/charlie/",
+    "instructies": "https://freesewing.org/docs/designs/charlie/instructions/"
+   }
+  },
+  "cornelius": {
+   "naam": "Cornelius cycling breeches",
+   "omschrijving": "A FreeSewing pattern for cycling breeches, based on the Keystone drafting system",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "curved-seam",
+    "fly",
+    "zipper",
+    "button",
+    "pocket"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist",
+    "hips",
+    "inseam",
+    "seat",
+    "waistToKnee",
+    "waistToHips",
+    "waistToFloor",
+    "knee"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 9,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/cornelius/",
+    "instructies": "https://freesewing.org/docs/designs/cornelius/instructions/"
+   }
+  },
+  "crux": {
+   "naam": "Crux Climbing pants",
+   "omschrijving": "A FreeSewing pattern for climbing or hiking pants",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "curved-seam",
+    "fly",
+    "zipper",
+    "button",
+    "pocket",
+    "dart"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist",
+    "hips",
+    "inseam",
+    "seat",
+    "waistToKnee",
+    "waistToHips",
+    "waistToFloor",
+    "knee",
+    "waistBack",
+    "seatBack",
+    "waistToSeat",
+    "heel"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 25,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/crux/",
+    "instructies": "https://freesewing.org/docs/designs/crux/instructions/"
+   }
+  },
+  "devon": {
+   "naam": "Devon denim jacket",
+   "omschrijving": "A FreeSewing pattern for a denim jacket, based on the Bent block",
+   "moeilijkheid": 4,
+   "tags": [
+    "tops",
+    "coats"
+   ],
+   "technieken": [
+    "pocket",
+    "precision",
+    "set-sleeve",
+    "buttonhole"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "highBust",
+    "hips",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "shoulderToElbow",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 28,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/devon/",
+    "instructies": "https://freesewing.org/docs/designs/devon/instructions/"
+   }
+  },
+  "diana": {
+   "naam": "Diana draped top",
+   "omschrijving": "A FreeSewing pattern for a top with a draped neck",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "flat-sleeve",
+    "hem"
+   ],
+   "ontwerper": "Erica Alcusa Sáez",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 36,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/diana/",
+    "instructies": "https://freesewing.org/docs/designs/diana/instructions/"
+   }
+  },
+  "florence": {
+   "naam": "Florence face mask",
+   "omschrijving": "A FreeSewing pattern for a face mask",
+   "moeilijkheid": 1,
+   "tags": [
+    "accessories"
+   ],
+   "technieken": [
+    "curved-seam"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "head"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 3,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/florence/",
+    "instructies": "https://freesewing.org/docs/designs/florence/instructions/"
+   }
+  },
+  "florent": {
+   "naam": "Florent flat cap",
+   "omschrijving": "A FreeSewing pattern for a flat cap",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories",
+    "hats"
+   ],
+   "technieken": [
+    "curved-seam"
+   ],
+   "ontwerper": "Quentin Felix",
+   "maten": [
+    "head"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 1,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/florent/",
+    "instructies": "https://freesewing.org/docs/designs/florent/instructions/"
+   }
+  },
+  "gozer": {
+   "naam": "Gozer ghost costume",
+   "omschrijving": "A FreeSewing pattern for a ghost costume",
+   "moeilijkheid": 1,
+   "tags": [
+    "costumes"
+   ],
+   "technieken": [
+    "hem"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "hpsToWaistBack",
+    "waistToFloor",
+    "head"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 0,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/gozer/",
+    "instructies": "https://freesewing.org/docs/designs/gozer/instructions/"
+   }
+  },
+  "hannah": {
+   "naam": "Hannah Hoodie",
+   "omschrijving": "A FreeSewing pattern for a hoodie",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "ribbing",
+    "flat-sleeve",
+    "raglan-sleeve"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "head",
+    "biceps",
+    "chest",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToSeat",
+    "seat",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "waistBack",
+    "seatBack",
+    "highBust",
+    "bustFront",
+    "hips",
+    "waistToHips",
+    "hpsToBust",
+    "bustSpan"
+   ],
+   "tekening": true,
+   "opties": 58,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/hannah/",
+    "instructies": "https://freesewing.org/docs/designs/hannah/instructions/"
+   }
+  },
+  "hi": {
+   "naam": "Hi the shark",
+   "omschrijving": "A FreeSewing pattern for a shark plush toy",
+   "moeilijkheid": 4,
+   "tags": [
+    "accessories",
+    "toys"
+   ],
+   "technieken": [
+    "curved-seam",
+    "dart"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 4,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/hi/",
+    "instructies": "https://freesewing.org/docs/designs/hi/instructions/"
+   }
+  },
+  "holmes": {
+   "naam": "Holmes deerstalker hat",
+   "omschrijving": "A FreeSewing pattern for a Sherlock Holmes hat",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories",
+    "hats"
+   ],
+   "technieken": [
+    "curved-seam",
+    "lining"
+   ],
+   "ontwerper": "Erica Alcusa Sáez",
+   "maten": [
+    "head"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 9,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/holmes/",
+    "instructies": "https://freesewing.org/docs/designs/holmes/instructions/"
+   }
+  },
+  "hortensia": {
+   "naam": "Hortensia handbag",
+   "omschrijving": "A FreeSewing pattern for a handbag",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories",
+    "bags"
+   ],
+   "technieken": [
+    "curved-seam",
+    "precision",
+    "lining",
+    "zipper"
+   ],
+   "ontwerper": [
+    "Stoffsuchti",
+    "Wouter Van Wageningen"
+   ],
+   "maten": [],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 4,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/hortensia/",
+    "instructies": "https://freesewing.org/docs/designs/hortensia/instructions/"
+   }
+  },
+  "huey": {
+   "naam": "Huey hoodie",
+   "omschrijving": "A FreeSewing pattern for a zip-up hoodie",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "pocket",
+    "zipper",
+    "ribbing",
+    "flat-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "shoulderToWrist",
+    "wrist",
+    "head"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 50,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/huey/",
+    "instructies": "https://freesewing.org/docs/designs/huey/instructions/"
+   }
+  },
+  "hugo": {
+   "naam": "Hugo hoodie",
+   "omschrijving": "A FreeSewing pattern for a hooded jumper with raglan sleeves",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "pocket",
+    "ribbing",
+    "raglan-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "shoulderToWrist",
+    "wrist",
+    "head"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 21,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/hugo/",
+    "instructies": "https://freesewing.org/docs/designs/hugo/instructions/"
+   }
+  },
+  "jaeger": {
+   "naam": "Jaeger jacket",
+   "omschrijving": "A FreeSewing pattern for a sport coat style jacket",
+   "moeilijkheid": 5,
+   "tags": [
+    "tops",
+    "coats"
+   ],
+   "technieken": [
+    "hem",
+    "pocket",
+    "curved-seam",
+    "precision",
+    "set-sleeve",
+    "welt-pocket",
+    "lining",
+    "interfacing",
+    "button"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "waist",
+    "shoulderToElbow",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": false,
+   "opties": 59,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/jaeger/",
+    "instructies": "https://freesewing.org/docs/designs/jaeger/instructions/"
+   }
+  },
+  "jane": {
+   "naam": "Jane 1790s shift",
+   "omschrijving": "A FreeSewing pattern for a 1790s shift",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops",
+    "historical",
+    "underwear"
+   ],
+   "technieken": [
+    "hem"
+   ],
+   "ontwerper": "SeaZeeZee",
+   "maten": [
+    "chest",
+    "hips",
+    "hpsToWaistBack",
+    "waistToKnee",
+    "shoulderToShoulder",
+    "neck",
+    "hpsToBust",
+    "waistToFloor",
+    "biceps",
+    "shoulderToElbow"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 8,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/jane/",
+    "instructies": "https://freesewing.org/docs/designs/jane/instructions/"
+   }
+  },
+  "jett": {
+   "naam": "Jett Jacket",
+   "omschrijving": "A FreeSewing pattern for a bomber or letterman jacket",
+   "moeilijkheid": 4,
+   "tags": [
+    "coats",
+    "tops"
+   ],
+   "technieken": [
+    "button",
+    "ribbing",
+    "welt-pocket",
+    "lining",
+    "set-sleeve",
+    "snap"
+   ],
+   "ontwerper": "Candle",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "highBust",
+    "hips",
+    "hpsToWaistFront",
+    "bustSpan",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 69,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/jett/",
+    "instructies": "https://freesewing.org/docs/designs/jett/instructions/"
+   }
+  },
+  "library": {
+   "naam": "Design Part Library",
+   "omschrijving": "A FreeSewing design that bundles reuseable parts",
+   "moeilijkheid": 2,
+   "tags": [],
+   "technieken": [],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "hpsToWaistBack",
+    "shoulderToWrist",
+    "waistToArmpit",
+    "wrist",
+    "shoulderToElbow",
+    "head"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 26,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/library/",
+    "instructies": "https://freesewing.org/docs/designs/library/instructions/"
+   }
+  },
+  "lily": {
+   "naam": "Lily leggings",
+   "omschrijving": "A FreeSewing pattern for basic leggings",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms"
+   ],
+   "technieken": [
+    "elastic",
+    "curved-seam",
+    "hem"
+   ],
+   "ontwerper": "Anna Puk",
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg",
+    "ankle",
+    "heel"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 18,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/lily/",
+    "instructies": "https://freesewing.org/docs/designs/lily/instructions/"
+   }
+  },
+  "lucy": {
+   "naam": "Lucy tie-on pocket",
+   "omschrijving": "A FreeSewing pattern for a historical tie-on pocket",
+   "moeilijkheid": 2,
+   "tags": [
+    "accessories",
+    "historical",
+    "bags"
+   ],
+   "technieken": [
+    "curved-seam"
+   ],
+   "ontwerper": "SeaZeeZee",
+   "maten": [],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 3,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/lucy/",
+    "instructies": "https://freesewing.org/docs/designs/lucy/instructions/"
+   }
+  },
+  "lumina": {
+   "naam": "Lumina leggings",
+   "omschrijving": "A FreeSewing pattern for leggings",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "stretch",
+    "curved-seam",
+    "elastic"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist",
+    "waistBack",
+    "hips",
+    "seat",
+    "seatBack",
+    "inseam",
+    "waistToSeat",
+    "waistToUpperLeg",
+    "waistToKnee",
+    "waistToHips",
+    "waistToFloor",
+    "knee",
+    "ankle",
+    "crossSeam",
+    "crossSeamFront",
+    "heel",
+    "upperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 12,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/lumina/",
+    "instructies": "https://freesewing.org/docs/designs/lumina/instructions/"
+   }
+  },
+  "lumira": {
+   "naam": "Lumira leggings",
+   "omschrijving": "A FreeSewing pattern for leggings",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "stretch",
+    "curved-seam",
+    "elastic"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist",
+    "waistBack",
+    "hips",
+    "seat",
+    "seatBack",
+    "upperLeg",
+    "knee",
+    "ankle",
+    "heel",
+    "inseam",
+    "crossSeam",
+    "crossSeamFront",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToUpperLeg",
+    "waistToSeat",
+    "waistToHips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 14,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/lumira/",
+    "instructies": "https://freesewing.org/docs/designs/lumira/instructions/"
+   }
+  },
+  "lunetius": {
+   "naam": "Lunetius lacerna",
+   "omschrijving": "A FreeSewing pattern for a lacerna, a historical Roman cloak",
+   "moeilijkheid": 1,
+   "tags": [
+    "tops",
+    "coats",
+    "historical"
+   ],
+   "technieken": [
+    "hem"
+   ],
+   "ontwerper": "Rika Tamaike",
+   "maten": [
+    "waistToKnee",
+    "waistToUpperLeg",
+    "waistToFloor",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderToElbow",
+    "waistToHips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 3,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/lunetius/",
+    "instructies": "https://freesewing.org/docs/designs/lunetius/instructions/"
+   }
+  },
+  "noble": {
+   "naam": "Noble body block",
+   "omschrijving": "A FreeSewing pattern for a princess seam bodice block",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "tops"
+   ],
+   "technieken": [
+    "block",
+    "curved-seam",
+    "precision",
+    "princess-seam"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "highBust",
+    "chest",
+    "underbust",
+    "waist",
+    "waistBack",
+    "bustSpan",
+    "neck",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "shoulderToShoulder",
+    "shoulderSlope"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 26,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/noble/",
+    "instructies": "https://freesewing.org/docs/designs/noble/instructions/"
+   }
+  },
+  "octoplushy": {
+   "naam": "Octoplushy the octopus",
+   "omschrijving": "A FreeSewing pattern for an octopus plushy toy",
+   "moeilijkheid": 4,
+   "tags": [
+    "accessories",
+    "toys"
+   ],
+   "technieken": [
+    "curved-seam",
+    "precision"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 9,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/octoplushy/",
+    "instructies": "https://freesewing.org/docs/designs/octoplushy/instructions/"
+   }
+  },
+  "onyx": {
+   "naam": "Onyx one-piece",
+   "omschrijving": "A FreeSewing pattern for one-piece garments",
+   "moeilijkheid": 4,
+   "tags": [
+    "swimwear",
+    "pajamas",
+    "onePiece"
+   ],
+   "technieken": [
+    "hem",
+    "curved-seam",
+    "stretch",
+    "lining",
+    "zipper",
+    "ribbing"
+   ],
+   "ontwerper": "Thrunic",
+   "maten": [
+    "biceps",
+    "neck",
+    "chest",
+    "waist",
+    "hips",
+    "seat",
+    "waistToHips",
+    "hpsToWaistBack",
+    "hpsToWaistFront",
+    "waistToSeat",
+    "crossSeam",
+    "waistToArmpit",
+    "inseam",
+    "upperLeg",
+    "waistToUpperLeg",
+    "ankle",
+    "wrist",
+    "shoulderToWrist",
+    "head"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 47,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/onyx/",
+    "instructies": "https://freesewing.org/docs/designs/onyx/instructions/"
+   }
+  },
+  "opal": {
+   "naam": "Opal overalls",
+   "omschrijving": "A FreeSewing pattern for overalls",
+   "moeilijkheid": 3,
+   "tags": [
+    "overalls",
+    "onePiece"
+   ],
+   "technieken": [
+    "flat-felled-seam",
+    "hem",
+    "curved-seam",
+    "button",
+    "pocket"
+   ],
+   "ontwerper": "Thrunic",
+   "maten": [
+    "waist",
+    "waistBack",
+    "seat",
+    "seatBack",
+    "waistToSeat",
+    "upperLeg",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "waistToUpperLeg",
+    "waistToArmpit",
+    "waistToFloor",
+    "inseam",
+    "ankle"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 78,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/opal/",
+    "instructies": "https://freesewing.org/docs/designs/opal/instructions/"
+   }
+  },
+  "otis": {
+   "naam": "Otis romper",
+   "omschrijving": "A FreeSewing pattern for a baby romper",
+   "moeilijkheid": 2,
+   "tags": [],
+   "technieken": [],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 5,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/otis/",
+    "instructies": "https://freesewing.org/docs/designs/otis/instructions/"
+   }
+  },
+  "paco": {
+   "naam": "Paco pants",
+   "omschrijving": "A FreeSewing pattern for summer pants",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "elastic",
+    "curved-seam",
+    "pocket",
+    "welt-pocket",
+    "hem"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg",
+    "heel"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 23,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/paco/",
+    "instructies": "https://freesewing.org/docs/designs/paco/instructions/"
+   }
+  },
+  "penelope": {
+   "naam": "Penelope pencil skirt",
+   "omschrijving": "A FreeSewing pattern for a pencil skirt",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "skirts"
+   ],
+   "technieken": [
+    "hem",
+    "curved-seam",
+    "precision",
+    "zipper"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "waist",
+    "seat",
+    "waistToHips",
+    "waistToSeat",
+    "waistToKnee"
+   ],
+   "matenOptioneel": [
+    "waistBack",
+    "seatBack"
+   ],
+   "tekening": true,
+   "opties": 16,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/penelope/",
+    "instructies": "https://freesewing.org/docs/designs/penelope/instructions/"
+   }
+  },
+  "percy": {
+   "naam": "Percy Puffy Pants",
+   "omschrijving": "A FreeSewing pattern for fall-front puffy shorts",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "button",
+    "hem",
+    "interfacing",
+    "pocket",
+    "curved-seam"
+   ],
+   "ontwerper": "Gawain (Candle)",
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg",
+    "inseam"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 33,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/percy/",
+    "instructies": "https://freesewing.org/docs/designs/percy/instructions/"
+   }
+  },
+  "polly": {
+   "naam": "Polly Plush",
+   "omschrijving": "A FreeSewing pattern for a humanoid plush doll",
+   "moeilijkheid": 3,
+   "tags": [
+    "accessories",
+    "toys"
+   ],
+   "technieken": [
+    "curved-seam",
+    "dart",
+    "precision"
+   ],
+   "ontwerper": "Gawain CCBR",
+   "maten": [],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 13,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/polly/",
+    "instructies": "https://freesewing.org/docs/designs/polly/instructions/"
+   }
+  },
+  "sabrina": {
+   "naam": "Sabrina sports top",
+   "omschrijving": "A FreeSewing pattern for sports tops",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops",
+    "underwear"
+   ],
+   "technieken": [
+    "stretch",
+    "curved-seam",
+    "elastic"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "neck",
+    "chest",
+    "bustFront",
+    "highBust",
+    "underbust",
+    "waist",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "waistToArmpit",
+    "bustPointToUnderbust",
+    "shoulderSlope",
+    "shoulderToShoulder",
+    "bustSpan"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 23,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sabrina/",
+    "instructies": "https://freesewing.org/docs/designs/sabrina/instructions/"
+   }
+  },
+  "sandy": {
+   "naam": "Sandy circle skirt",
+   "omschrijving": "A FreeSewing pattern for a circle skirt",
+   "moeilijkheid": 3,
+   "tags": [
+    "bottoms",
+    "skirts"
+   ],
+   "technieken": [
+    "curved-seam",
+    "button",
+    "hem"
+   ],
+   "ontwerper": "Erica Alcusa Sáez",
+   "maten": [
+    "waist",
+    "waistToFloor",
+    "waistToHips",
+    "hips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 10,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sandy/",
+    "instructies": "https://freesewing.org/docs/designs/sandy/instructions/"
+   }
+  },
+  "sarah": {
+   "naam": "Sarah skirt block",
+   "omschrijving": "A FreeSewing pattern for a basic skirt block pattern based on Aldrich",
+   "moeilijkheid": 2,
+   "tags": [
+    "skirts",
+    "bottoms",
+    "blocks"
+   ],
+   "technieken": [
+    "hem",
+    "curved-seam",
+    "block",
+    "dart"
+   ],
+   "ontwerper": "Timur Duehr",
+   "maten": [
+    "waist",
+    "seat",
+    "waistToSeat",
+    "waistToFloor",
+    "hips",
+    "waistToHips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 15,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sarah/",
+    "instructies": "https://freesewing.org/docs/designs/sarah/instructions/"
+   }
+  },
+  "sasha": {
+   "naam": "Sasha skater dress",
+   "omschrijving": "A FreeSewing pattern for a skater dress with princess seams and pockets",
+   "moeilijkheid": 3,
+   "tags": [
+    "dresses"
+   ],
+   "technieken": [
+    "curved-seam",
+    "princess-seam",
+    "hem",
+    "bias-tape"
+   ],
+   "ontwerper": "Anna Puk",
+   "maten": [
+    "highBust",
+    "chest",
+    "underbust",
+    "waist",
+    "waistBack",
+    "bustSpan",
+    "neck",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "hips",
+    "seat",
+    "crossSeam",
+    "crossSeamFront",
+    "waistToHips",
+    "waistToSeat",
+    "waistToKnee",
+    "shoulderToWrist",
+    "wrist",
+    "biceps",
+    "waistToArmpit"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 56,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sasha/",
+    "instructies": "https://freesewing.org/docs/designs/sasha/instructions/"
+   }
+  },
+  "shale": {
+   "naam": "Shale Shorts",
+   "omschrijving": "A FreeSewing pattern for shorts",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms",
+    "trousers",
+    "pajamas",
+    "underwear"
+   ],
+   "technieken": [
+    "elastic",
+    "pocket",
+    "hem"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "seat",
+    "seatBack",
+    "knee",
+    "hips",
+    "waist",
+    "waistToKnee",
+    "waistToSeat",
+    "waistToHips",
+    "crotchDepth",
+    "waistToUpperLeg",
+    "upperLeg",
+    "crossSeam",
+    "crossSeamFront"
+   ],
+   "matenOptioneel": [
+    "waistToFloor",
+    "inseam"
+   ],
+   "tekening": true,
+   "opties": 17,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/shale/",
+    "instructies": "https://freesewing.org/docs/designs/shale/instructions/"
+   }
+  },
+  "shelly": {
+   "naam": "Shelly swim shirt",
+   "omschrijving": "A FreeSewing pattern for a raglan shirt, perfect for swim shirts",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops",
+    "swimwear"
+   ],
+   "technieken": [
+    "hem",
+    "stretch",
+    "curved-seam",
+    "raglan-sleeve"
+   ],
+   "ontwerper": "Thrunic",
+   "maten": [
+    "biceps",
+    "neck",
+    "chest",
+    "hips",
+    "waistToHips",
+    "hpsToWaistBack",
+    "waistToArmpit",
+    "wrist",
+    "shoulderToWrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 17,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/shelly/",
+    "instructies": "https://freesewing.org/docs/designs/shelly/instructions/"
+   }
+  },
+  "shin": {
+   "naam": "Shin swim trunks",
+   "omschrijving": "A FreeSewing pattern for swim trunks",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms",
+    "swimwear"
+   ],
+   "technieken": [
+    "hem",
+    "stretch",
+    "curved-seam",
+    "elastic"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "hips",
+    "upperLeg",
+    "waistToUpperLeg",
+    "waistToHips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 6,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/shin/",
+    "instructies": "https://freesewing.org/docs/designs/shin/instructions/"
+   }
+  },
+  "simon": {
+   "naam": "Simon button-down shirt",
+   "omschrijving": "A FreeSewing pattern for a button down shirt",
+   "moeilijkheid": 4,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "hem",
+    "button",
+    "interfacing",
+    "curved-seam",
+    "flat-felled-seam",
+    "flat-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "waist",
+    "hips",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 79,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/simon/",
+    "instructies": "https://freesewing.org/docs/designs/simon/instructions/"
+   }
+  },
+  "simone": {
+   "naam": "Simone button-down shirt",
+   "omschrijving": "A FreeSewing pattern for a button down shirt (Simone = Simon for people with breasts)",
+   "moeilijkheid": 4,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "hem",
+    "button",
+    "interfacing",
+    "curved-seam",
+    "flat-felled-seam",
+    "flat-sleeve"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "waist",
+    "hips",
+    "highBust",
+    "bustSpan",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 84,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/simone/",
+    "instructies": "https://freesewing.org/docs/designs/simone/instructions/"
+   }
+  },
+  "skully": {
+   "naam": "Skully the FreeSewing mascot",
+   "omschrijving": "A FreeSewing pattern for skully, our logo, a plushy toy",
+   "moeilijkheid": 4,
+   "tags": [
+    "accessories",
+    "toys"
+   ],
+   "technieken": [
+    "curved-seam",
+    "precision"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [],
+   "matenOptioneel": [
+    "head"
+   ],
+   "tekening": true,
+   "opties": 1,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/skully/",
+    "instructies": "https://freesewing.org/docs/designs/skully/instructions/"
+   }
+  },
+  "sophie": {
+   "naam": "Sophie Slip Dress",
+   "omschrijving": "A FreeSewing pattern for a slip dress with a gathered bust",
+   "moeilijkheid": 2,
+   "tags": [],
+   "technieken": [],
+   "ontwerper": "JenBarb_",
+   "maten": [
+    "bustSpan",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "bustPointToUnderbust",
+    "bustFront",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "underbust",
+    "waist",
+    "hips",
+    "seat",
+    "waistToUnderbust",
+    "waistToHips",
+    "waistToSeat",
+    "waistToKnee"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 14,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sophie/",
+    "instructies": "https://freesewing.org/docs/designs/sophie/instructions/"
+   }
+  },
+  "sunny": {
+   "naam": "Sunny Split-side Skirt",
+   "omschrijving": "A FreeSewing pattern for an 18th century split side skirt",
+   "moeilijkheid": 1,
+   "tags": [
+    "skirts",
+    "bottoms"
+   ],
+   "technieken": [
+    "hem",
+    "pleat"
+   ],
+   "ontwerper": "halbmoki",
+   "maten": [
+    "waist",
+    "waistToSeat",
+    "seat"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 11,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sunny/",
+    "instructies": "https://freesewing.org/docs/designs/sunny/instructions/"
+   }
+  },
+  "sven": {
+   "naam": "Sven sweatshirt",
+   "omschrijving": "A FreeSewing pattern for a straightforward sweater",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "flat-sleeve",
+    "ribbing"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 41,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/sven/",
+    "instructies": "https://freesewing.org/docs/designs/sven/instructions/"
+   }
+  },
+  "tamiko": {
+   "naam": "Tamiko zero-waste top",
+   "omschrijving": "A FreeSewing pattern for a zero-waste top",
+   "moeilijkheid": 1,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "shoulderToShoulder",
+    "chest",
+    "hpsToWaistBack",
+    "shoulderSlope",
+    "waistToHips"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": false,
+   "opties": 6,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/tamiko/",
+    "instructies": "https://freesewing.org/docs/designs/tamiko/instructions/"
+   }
+  },
+  "teagan": {
+   "naam": "Teagan T-shirt",
+   "omschrijving": "A FreeSewing pattern for a T-shirt",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "hem",
+    "flat-sleeve",
+    "knit-band"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 39,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/teagan/",
+    "instructies": "https://freesewing.org/docs/designs/teagan/instructions/"
+   }
+  },
+  "tiberius": {
+   "naam": "Tiberius tunica",
+   "omschrijving": "A FreeSewing pattern for a tunica, a historical Roman tunic",
+   "moeilijkheid": 1,
+   "tags": [
+    "tops",
+    "historical"
+   ],
+   "technieken": [],
+   "ontwerper": "Rika Tamaike",
+   "maten": [
+    "head",
+    "shoulderToElbow",
+    "shoulderToShoulder",
+    "biceps",
+    "hpsToWaistBack",
+    "waistToKnee",
+    "waist",
+    "chest",
+    "seat",
+    "hips",
+    "waistToFloor",
+    "waistToUpperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 10,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/tiberius/",
+    "instructies": "https://freesewing.org/docs/designs/tiberius/instructions/"
+   }
+  },
+  "tina": {
+   "naam": "Tina Top",
+   "omschrijving": "A FreeSewing pattern for a fake wrap top",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "ribbing",
+    "hem",
+    "flat-sleeve",
+    "knit-band"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "head",
+    "biceps",
+    "chest",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToSeat",
+    "seat",
+    "waist",
+    "shoulderToWrist",
+    "waistToUnderbust",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "waistBack",
+    "seatBack",
+    "highBust",
+    "bustFront",
+    "hips",
+    "waistToHips",
+    "hpsToBust",
+    "bustSpan"
+   ],
+   "tekening": true,
+   "opties": 62,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/tina/",
+    "instructies": "https://freesewing.org/docs/designs/tina/instructions/"
+   }
+  },
+  "titan": {
+   "naam": "Titan trouser block",
+   "omschrijving": "A FreeSewing pattern for a unisex trouser block",
+   "moeilijkheid": 3,
+   "tags": [
+    "blocks",
+    "bottoms"
+   ],
+   "technieken": [],
+   "ontwerper": [
+    "Debra Bean",
+    "Joost De Cock"
+   ],
+   "maten": [
+    "crossSeam",
+    "crossSeamFront",
+    "knee",
+    "seat",
+    "seatBack",
+    "waist",
+    "waistBack",
+    "waistToFloor",
+    "waistToKnee",
+    "waistToHips",
+    "waistToSeat",
+    "waistToUpperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 19,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/titan/",
+    "instructies": "https://freesewing.org/docs/designs/titan/instructions/"
+   }
+  },
+  "toni": {
+   "naam": "Toni Top",
+   "omschrijving": "A FreeSewing pattern for a fitted top",
+   "moeilijkheid": 2,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "hem",
+    "flat-sleeve",
+    "raglan-sleeve",
+    "knit-band"
+   ],
+   "ontwerper": "Jonathan Haas",
+   "maten": [
+    "head",
+    "biceps",
+    "chest",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToSeat",
+    "seat",
+    "waist",
+    "shoulderToWrist",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "waistBack",
+    "seatBack",
+    "highBust",
+    "bustFront",
+    "hips",
+    "waistToHips",
+    "hpsToBust",
+    "bustSpan"
+   ],
+   "tekening": true,
+   "opties": 58,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/toni/",
+    "instructies": "https://freesewing.org/docs/designs/toni/instructions/"
+   }
+  },
+  "trayvon": {
+   "naam": "Trayvon tie",
+   "omschrijving": "A FreeSewing pattern for a tie",
+   "moeilijkheid": 2,
+   "tags": [
+    "accessories"
+   ],
+   "technieken": [
+    "precision",
+    "lining"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "hpsToWaistBack",
+    "waistToHips",
+    "neck"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 3,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/trayvon/",
+    "instructies": "https://freesewing.org/docs/designs/trayvon/instructions/"
+   }
+  },
+  "tristan": {
+   "naam": "Tristan top",
+   "omschrijving": "A FreeSewing pattern for a fitted top with prince(ss) seams",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "precision"
+   ],
+   "ontwerper": "Natalia Sayang",
+   "maten": [
+    "highBust",
+    "chest",
+    "underbust",
+    "waist",
+    "waistBack",
+    "bustSpan",
+    "neck",
+    "hpsToBust",
+    "hpsToWaistFront",
+    "hpsToWaistBack",
+    "shoulderToShoulder",
+    "shoulderSlope"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 30,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/tristan/",
+    "instructies": "https://freesewing.org/docs/designs/tristan/instructions/"
+   }
+  },
+  "uma": {
+   "naam": "Uma undies",
+   "omschrijving": "A FreeSewing pattern for a basic, highly-customizable underwear pattern",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms",
+    "underwear"
+   ],
+   "technieken": [
+    "elastic",
+    "curved-seam"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "waist",
+    "seat",
+    "waistToSeat",
+    "waistToUpperLeg"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 12,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/uma/",
+    "instructies": "https://freesewing.org/docs/designs/uma/instructions/"
+   }
+  },
+  "umbra": {
+   "naam": "Umbra undies",
+   "omschrijving": "A FreeSewing pattern for a basic, highly-customizable underwear pattern",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms",
+    "underwear"
+   ],
+   "technieken": [
+    "elastic",
+    "curved-seam"
+   ],
+   "ontwerper": [
+    "Joost De Cock",
+    "Jonathan Haas"
+   ],
+   "maten": [
+    "waist",
+    "seat",
+    "waistToSeat",
+    "crossSeam",
+    "crossSeamFront",
+    "waistToHips",
+    "hips"
+   ],
+   "matenOptioneel": [],
+   "tekening": true,
+   "opties": 22,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/umbra/",
+    "instructies": "https://freesewing.org/docs/designs/umbra/instructions/"
+   }
+  },
+  "wahid": {
+   "naam": "Wahid waistcoat",
+   "omschrijving": "A FreeSewing pattern for a classic fitted waistcoat",
+   "moeilijkheid": 4,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "hem",
+    "interfacing",
+    "lining",
+    "welt-pocket",
+    "button"
+   ],
+   "ontwerper": "Joost De Cock",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "waist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 27,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/wahid/",
+    "instructies": "https://freesewing.org/docs/designs/wahid/instructions/"
+   }
+  },
+  "walburga": {
+   "naam": "Walburga wappenrock",
+   "omschrijving": "A FreeSewing pattern for a wappenrock (tabard/surcoat), a historical European/medieval (ish) garment",
+   "moeilijkheid": 1,
+   "tags": [
+    "bottoms",
+    "historical"
+   ],
+   "technieken": [
+    "hem"
+   ],
+   "ontwerper": "Rika Tamaike",
+   "maten": [
+    "head",
+    "shoulderToShoulder",
+    "hpsToWaistBack",
+    "waistToKnee",
+    "waistToHips",
+    "waistToFloor",
+    "waistToUpperLeg",
+    "neck"
+   ],
+   "matenOptioneel": [],
+   "tekening": false,
+   "opties": 6,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/walburga/",
+    "instructies": "https://freesewing.org/docs/designs/walburga/instructions/"
+   }
+  },
+  "waralee": {
+   "naam": "Waralee wrap pants",
+   "omschrijving": "A FreeSewing pattern for wrap pants",
+   "moeilijkheid": 2,
+   "tags": [
+    "bottoms",
+    "trousers"
+   ],
+   "technieken": [
+    "curved-seam",
+    "hem",
+    "welt-pocket"
+   ],
+   "ontwerper": "Wouter Van Wageningen",
+   "maten": [
+    "seat",
+    "inseam",
+    "crotchDepth",
+    "waistToHips"
+   ],
+   "matenOptioneel": [
+    "waist",
+    "waistBack"
+   ],
+   "tekening": true,
+   "opties": 18,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/waralee/",
+    "instructies": "https://freesewing.org/docs/designs/waralee/instructions/"
+   }
+  },
+  "yuri": {
+   "naam": "Yuri sweater",
+   "omschrijving": "A FreeSewing pattern for a fancy zipless sweater based on the Huey hoodie",
+   "moeilijkheid": 3,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "curved-seam",
+    "flat-sleeve",
+    "hem",
+    "button"
+   ],
+   "ontwerper": "Biou",
+   "maten": [
+    "biceps",
+    "chest",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderToShoulder",
+    "shoulderSlope",
+    "waistToArmpit",
+    "waistToHips",
+    "hips",
+    "shoulderToWrist",
+    "wrist",
+    "head"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": true,
+   "opties": 38,
+   "docs": {
+    "pagina": "https://freesewing.org/docs/designs/yuri/",
+    "instructies": "https://freesewing.org/docs/designs/yuri/instructions/"
+   }
+  },
+  "eigen/kraagtrui": {
+   "naam": "Kraagtrui",
+   "omschrijving": "Huey zonder capuchon, met een staande kraag. Eigen design op basis van Huey.",
+   "moeilijkheid": null,
+   "tags": [
+    "tops"
+   ],
+   "technieken": [
+    "hem",
+    "stretch"
+   ],
+   "ontwerper": "eigen",
+   "maten": [
+    "biceps",
+    "chest",
+    "hips",
+    "hpsToBust",
+    "hpsToWaistBack",
+    "neck",
+    "shoulderSlope",
+    "shoulderToShoulder",
+    "shoulderToWrist",
+    "waistToArmpit",
+    "waistToHips",
+    "wrist"
+   ],
+   "matenOptioneel": [
+    "highBust"
+   ],
+   "tekening": false,
+   "opties": 47,
+   "docs": {
+    "pagina": null,
+    "instructies": null
+   },
+   "eigen": true
+  }
+ }
+}

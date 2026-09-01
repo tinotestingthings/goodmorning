@@ -1,0 +1,278 @@
+{
+ "bron": "FreeSewing (MIT) — sites/org/docs/docs/measurements/ en sites/org/src/theme/MDXComponents/{sarah,tim}/ op codeberg.org/freesewing/freesewing",
+ "maten": {
+  "ankle": {
+   "titel": "Ankle circumference",
+   "tekst": "The ankle circumference measurement goes around your ankle.\n\nTo measure your ankle circumference, run the tape measure around your leg, just above your ankle.",
+   "bron": "https://freesewing.org/docs/measurements/ankle/",
+   "houding": "standing",
+   "graden": false
+  },
+  "biceps": {
+   "titel": "Biceps circumference",
+   "tekst": "The biceps circumference measurement goes around the fullest part of your upper arm.\n\nTo measure your biceps circumference, run the tape measure around the fullest part of your upper arm.",
+   "bron": "https://freesewing.org/docs/measurements/biceps/",
+   "houding": "standing",
+   "graden": false
+  },
+  "bustFront": {
+   "titel": "Bust front",
+   "tekst": "The bust front is the front part of your chest circumference.\n\nTo measure your bust front, run the tape measure horizontally across the fullest part of your chest,\nstarting at the side (seam) on one side, across your breasts to the side (seam) on the other side.",
+   "bron": "https://freesewing.org/docs/measurements/bustfront/",
+   "houding": "standing",
+   "graden": false
+  },
+  "bustPointToUnderbust": {
+   "titel": "Bust point to underbust",
+   "tekst": "The bust point to underbust measurement is the distance from your bust point/nipple to your underbust.\n\nIt's the distance an ant would have to walk to go from your bust point/nipple straight down to where your breast meets your torso.",
+   "bron": "https://freesewing.org/docs/measurements/bustpointtounderbust/",
+   "houding": "standing",
+   "graden": false
+  },
+  "bustSpan": {
+   "titel": "Bust span",
+   "tekst": "The bust span is the horizontal distance between the two apex points of your bust.\n\nTo measure your bust span, run the tape measure horizontally in a straight line from the tip of your one breast to the tip of the other.",
+   "bron": "https://freesewing.org/docs/measurements/bustspan/",
+   "houding": "standing",
+   "graden": false
+  },
+  "chest": {
+   "titel": "Chest circumference",
+   "tekst": "The chest circumference measurement wraps around the fullest part of your chest.\n\nTo measure your chest circumference, wrap the tape measure around your chest at the fullest part.\nMake sure to keep the tape measure horizontal (parallel to the floor).",
+   "bron": "https://freesewing.org/docs/measurements/chest/",
+   "houding": "standing",
+   "graden": false
+  },
+  "crossSeam": {
+   "titel": "Cross seam",
+   "tekst": "The cross seam is measured from the waist line at the front through your legs to the back.\n\nTo measure your cross seam tie a string around your waist. Then, measure down from the\ncenter front of your waist going through your legs back up to the back until you meet the string\nat your waist.",
+   "bron": "https://freesewing.org/docs/measurements/crossseam/",
+   "houding": "standing",
+   "graden": false
+  },
+  "crossSeamFront": {
+   "titel": "Cross seam front",
+   "tekst": "The cross seam front is the front part of the cross seam measurement.\n\nTo measure your cross seam front tie a string around your waist. Then, measure down from the\ncenter front of your waist until the spot that is:\n\n- Where the fork of a tight-fitting pair of trousers would sit\n- At the base of your scrotum\n- Somewhere towards the front of your perineum",
+   "bron": "https://freesewing.org/docs/measurements/crossseamfront/",
+   "houding": "standing",
+   "graden": false
+  },
+  "crotchDepth": {
+   "titel": "Crotch depth",
+   "tekst": "The crotch depth measurement is the height your waist rises from the surface you are sitting on.\n\nTo measure your crotch depth, sit straight on a flat chair or table, and measure from waist line down to the chair/table.",
+   "bron": "https://freesewing.org/docs/measurements/crotchdepth/",
+   "houding": "seated",
+   "graden": false
+  },
+  "heel": {
+   "titel": "Heel circumference",
+   "tekst": "The heel circumference measurement is the narrowest measurement a trouser leg can be so you can still get in to it.\n\nTo measure your heel circumference, stretch your foot forward, and run the tape measure around your foot at the widest part of your heel.",
+   "bron": "https://freesewing.org/docs/measurements/heel/",
+   "houding": "standing",
+   "graden": false
+  },
+  "head": {
+   "titel": "Head circumference",
+   "tekst": "The head circumference measurement wraps around the fullest part of your head.\n\nTo measure your head circumference, wrap the tape measure around your head at the height of your forehead.",
+   "bron": "https://freesewing.org/docs/measurements/head/",
+   "houding": "standing",
+   "graden": false
+  },
+  "highBust": {
+   "titel": "High bust",
+   "tekst": "The high bust measurement is your chest circumference measured just under your arms, above the fullest part of your bust.\n\nThe point of the high bust measurement is to get an idea of the chest circumference without taking breasts into account.\nAs such, this measurement is most commonly used to fit people with breasts, but it's perfectly fine measurement for people without too.\n\nTo measure your high bust, wrap the tape measure around your chest just under your arms.\nYou might not be able to keep it horizontal (parallel to the floor), but that's ok.",
+   "bron": "https://freesewing.org/docs/measurements/highbust/",
+   "houding": "standing",
+   "graden": false
+  },
+  "highBustFront": {
+   "titel": "High bust front",
+   "tekst": "The high bust front measurement is the front part of your high bust measurement:\nyour chest circumference measured just under your arms, above the fullest part of your bust.\n\nTo measure your high bust front, wrap the tape measure around your chest just under your arms\nand measure from the side (seam) across your breasts to the other side (seam).\nYou might not be able to keep it horizontal (parallel to the floor), but that's ok.",
+   "bron": "https://freesewing.org/docs/measurements/highbustfront/",
+   "houding": "standing",
+   "graden": false
+  },
+  "hips": {
+   "titel": "Hips circumference",
+   "tekst": "The hips circumference is measured at the top of your hip bones.\n\nTo measure your hips circumference put a tape measure around your body at the height\nwhere the top of your hip bone is at your sides.\n\nThe hips measurement is usually a little bit below the navel.",
+   "bron": "https://freesewing.org/docs/measurements/hips/",
+   "houding": "standing",
+   "graden": false
+  },
+  "hpsToBust": {
+   "titel": "HPS to bust",
+   "tekst": "The high point shoulder or HPS point is used as the base for several vertical measurements.\nRefer to the hps documentation for information on how to locate this point.\n\nThe high point shoulder (HPS) to bust measurement runs from your HPS down to the line that forms your bust span.\n\nTo measure your HPS to bust, first localize your HPS point.\nThen measure straight down to the line that forms your chest circumference/bust span.\n\nThe point of this measurement is to locate the fullest part of your bust vertically on your torso.\n\nIf you measure yourself, you might try to hold your measuring tape up to your shoulder with the hand on\nthe same side of your body as the shoulder you're measuring. So, for example, you could be holding the top of\nthe tape up to your right shoulder with your right hand, while your left hand is holding the end.\nBut that means you distort the length you are trying to measure by raising your arm on the same side.\nYou might not think there is a difference, but all is connected in the world of physiology, and\ndoing this could lead to an error of ~2.5cm (~1 inch) in your measurement.  \nSimply switch your hands around, and you get a more accurate measurement.\n\nFor best results, get a second person to take your measurements (if possible).",
+   "bron": "https://freesewing.org/docs/measurements/hpstobust/",
+   "houding": "standing",
+   "graden": false
+  },
+  "hpsToWaistBack": {
+   "titel": "HPS to waist back",
+   "tekst": "The high point shoulder or HPS point is used as the base for several vertical measurements.\nRefer to the hps documentation for information on how to locate this point.\n\nThe high point shoulder (HPS) to waist back measurement runs from your HPS down to your waist line.\n\nTo measure your HPS to waist back, first localize your HPS point.\nThen measure straight down to your waist line.",
+   "bron": "https://freesewing.org/docs/measurements/hpstowaistback/",
+   "houding": "standing",
+   "graden": false
+  },
+  "hpsToWaistFront": {
+   "titel": "HPS to waist front",
+   "tekst": "The high point shoulder or HPS point is used as the base for several vertical measurements.\nRefer to the hps documentation for information on how to locate this point.\n\nThe high point shoulder (HPS) to waist front measurement runs from your HPS down to your waist line across the front of your body.\n\nTo measure your HPS to waist front, first localize your HPS point.\nThen measure straight down to your waist line.\n\nIf you have breasts, don't go deep into your underbust region, but also don't float your measurement tape over long distances.\nTry to follow the shape a good fitting shirt would have over your front.\n\nBecause you don't follow the body outline completely, the HPS to waist front measurement is usually shorter\nthan the sum of the individual measurements hps-to-bust + bust-point-to-underbust + waist-to-underbust.",
+   "bron": "https://freesewing.org/docs/measurements/hpstowaistfront/",
+   "houding": "standing",
+   "graden": false
+  },
+  "inseam": {
+   "titel": "Inseam",
+   "tekst": "The inseam is the measurement from your crotch down to the floor.\n\nTo measure your inseam, measure down vertically from the point your legs join (at the crotch) down to the floor.",
+   "bron": "https://freesewing.org/docs/measurements/inseam/",
+   "houding": "standing",
+   "graden": false
+  },
+  "knee": {
+   "titel": "Knee circumference",
+   "tekst": "The knee circumference is the measurement around your knee.\n\nTo measure your knee circumference, wrap the tape measure around your knee.\nMake sure to keep the tape measure horizontal to the floor as you measure the circumference of your knee.",
+   "bron": "https://freesewing.org/docs/measurements/knee/",
+   "houding": "standing",
+   "graden": false
+  },
+  "neck": {
+   "titel": "Neck circumference",
+   "tekst": "The neck circumference is the measurement around your neck, at the level you would wear your shirt collar, or tie.\n\nTo measure your neck circumference, wrap the tape measure around your neck where your shirt collar would sit.",
+   "bron": "https://freesewing.org/docs/measurements/neck/",
+   "houding": "standing",
+   "graden": false
+  },
+  "seat": {
+   "titel": "Seat circumference",
+   "tekst": "The seat circumference is the measurement around the fullest part of your bum.\n\nTo measure your seat circumference,\nrun the tape measure around your bum at the fullest part.\nMake sure to keep the tape measure horizontal while doing so. In other words, parallel to the floor.",
+   "bron": "https://freesewing.org/docs/measurements/seat/",
+   "houding": "standing",
+   "graden": false
+  },
+  "seatBack": {
+   "titel": "Seat back",
+   "tekst": "The seat back is the back portion of your seat circumference.\n\nTo measure your seat back,\nrun the tape measure around your bum at the fullest part, and check the length of the back part.\n\nMake sure to keep the tape measure horizontal while doing so. In other words, parallel to the floor.",
+   "bron": "https://freesewing.org/docs/measurements/seatback/",
+   "houding": "standing",
+   "graden": false
+  },
+  "shoulderSlope": {
+   "titel": "Shoulder slope",
+   "tekst": "The shoulder slope measurement is an indicator for the amount with which your shoulder slopes downward, measured in degrees.\n\nTo measure your shoulder slope, you need to determine the angle at which your shoulder line slopes downward.\n\nA good way to measure your shoulder slope is to take\na selfie and rotate it until your shoulder line is horizontal.\n\nThe number of degrees you had to rotate is your shoulder slope.\n\nAlmost all people have a slightly different shoulder slope on both sides.\nThat's because your dominant arm is more pronounced.\n\nUnless the different is huge, best not to worry about it.\nIt won't show up for casual garments, and for formal wear, it's better to add\nasymmetric shoulder padding, rather than create an asymmetric pattern.",
+   "bron": "https://freesewing.org/docs/measurements/shoulderslope/",
+   "houding": "standing",
+   "graden": true
+  },
+  "shoulderToElbow": {
+   "titel": "Shoulder to elbow",
+   "tekst": "The shoulder to elbow measurement runs from the tip of your shoulder down to your elbow.\n\nTo measure your shoulder to elbow, start at the tip of your shoulder,\nthe tip or corner of the protruding bone that is located where the\ntop of the shoulder meets the side of the arm.\nIt is also where the top of the shoulder seam sits and the sleeve begins\non a well-fitting dress shirt.\nFollow your arm down to your elbow.",
+   "bron": "https://freesewing.org/docs/measurements/shouldertoelbow/",
+   "houding": "standing",
+   "graden": false
+  },
+  "shoulderToShoulder": {
+   "titel": "Shoulder to shoulder",
+   "tekst": "The shoulder to shoulder measurement runs from the tip of your shoulder on one side across your back to the tip of your other shoulder.\n\nTo measure your shoulder to shoulder find the tip of your shoulder,\nthe tip or corner of the protruding bone that is located where the\ntop of the shoulder meets the side of the arm.\nIt is also where the top of the shoulder seam sits and the sleeve begins\non a well-fitting dress shirt.\nThen, measure from there across your back to the same point at the other side.",
+   "bron": "https://freesewing.org/docs/measurements/shouldertoshoulder/",
+   "houding": "standing",
+   "graden": false
+  },
+  "shoulderToWrist": {
+   "titel": "Shoulder to wrist",
+   "tekst": "The shoulder to wrist measurement determines your sleeve length, and runs from the tip of your shoulder along the arm to your wrist.\n\nTo measure your shoulder to wrist measurement, place your tape measure at the tip of your shoulder,\nthe tip or corner of the protruding bone that is located where the\ntop of the shoulder meets the side of the arm.\nIt is also where the top of the shoulder seam sits and the sleeve begins\non a well-fitting dress shirt.\nLet your arm hang naturally in a slight bend, and measure along your slightly bent arm up to your wrist.",
+   "bron": "https://freesewing.org/docs/measurements/shouldertowrist/",
+   "houding": "standing",
+   "graden": false
+  },
+  "underbust": {
+   "titel": "Underbust",
+   "tekst": "The underbust measurement is the circumference of your chest without taking your breasts into account.\n\nTo measure your underbust, wrap the tape measure around your chest just below your breasts, where your bra band sits.\n\nIf you don’t have breasts, this measurement does not apply to you. Just use your chest circumference.",
+   "bron": "https://freesewing.org/docs/measurements/underbust/",
+   "houding": "standing",
+   "graden": false
+  },
+  "upperLeg": {
+   "titel": "Upper leg circumference",
+   "tekst": "The upper leg circumference is the measurement around your leg, near the top of your leg.\n\nYou should measure this a bit below your crotch, refer to the illustration for guidance.\nMake sure to keep the tape measure horizontal to the floor as you measure the circumference of your leg.\n\nThis measurements is also used as a vertical reference to determine the vertical space in which to draft the seat/crotch of trousers. As such, the vertical location of this measurement is important.",
+   "bron": "https://freesewing.org/docs/measurements/upperleg/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waist": {
+   "titel": "Waist circumference",
+   "tekst": "The waist circumference measurement is the circumference of your waist below your ribcage.\n\nTo measure your waist circumference, wrap the tape measure around the narrowest part of your waist,\nor wherever your skin folds when you bend sideways, making sure to keep it horizontal.\n\nThe waist measurement is usually above the navel.\n\nIf the waist is not the smallest part of your body, our\nmeasurement faq entry contains some tips\nfor locating your natural waist.",
+   "bron": "https://freesewing.org/docs/measurements/waist/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistBack": {
+   "titel": "Waist back",
+   "tekst": "The waist back measurement is the back part of your waist circumference.\n\nTo measure your waist back, wrap the tape measure around the narrowest part of your waist, making sure to keep it horizontal.\nThen, measure the length from one side over your back to the other.",
+   "bron": "https://freesewing.org/docs/measurements/waistback/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToArmpit": {
+   "titel": "Waist to armpit",
+   "tekst": "The waist to armpit is the measurement from your waist up towards your armpit, measured on the side of your body.\n\nSince armpit is a bit ambiguous, we recommend finding the height that would be about the tightest possible sleeve that could still work.\nThe height of the subcapular/posterior lymph nodes is typically a good spot.\n\nOr, if you're not certain where the lymph nodes under your arm are, you can follow this approach:\n\n- Stand up straight, yet relaxed, and let your arms hang loosely by your side.\n- Raise your dominant arm (the right if you are right-handed, or the left if you are left-handed) about 30 degrees sideways, away from your body.\n- Now reach to the side of your body with the other hand, placing the palm of your hand against the side, and your thumb on your chest pointing upwards.\n- Slide your hand upwards as far as you can without having to push anything out of the way.\n- Your index finger will now sit in the armpit, which is a bit too high. But your middle finger is a good spot to mark as the start of your armpit.",
+   "bron": "https://freesewing.org/docs/measurements/waisttoarmpit/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToFloor": {
+   "titel": "Waist to floor",
+   "tekst": "The waist to floor is the measurement from your waist down to the floor.\n\nTo measure your waist to floor measurement,\nlocate the height of your waist, and measure how high it is from the floor.\n\nIt is often easiest to measure at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttofloor/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToHips": {
+   "titel": "Waist to hips",
+   "tekst": "The waist to hips measurement is measured from your waist down to the top of your hip bone. Measure it at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttohips/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToKnee": {
+   "titel": "Waist to knee",
+   "tekst": "The waist to knee is the measurement from your waist down towards your knee, measured on the side of your body.\n\nTo measure your waist to knee, locate the height of both your waist and your knee, and measure the vertical distance between them. Make sure to measure at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttoknee/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToSeat": {
+   "titel": "Waist to seat",
+   "tekst": "The waist to seat is the measurement from your waist down towards the fullest part of your bum, measured on the side of your body.\n\nTo measure your waist to seat, locate the height of both your waist and seat circumference, and measure the vertical distance between them. Make sure to measure at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttoseat/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToUnderbust": {
+   "titel": "Waist to underbust",
+   "tekst": "The waist to underbust is the measurement from your waist up towards your underbust link (where your bra band sits).\n\nTo measure your waist to underbust, locate the height of both your waist and underbust, and measure the vertical distance between them. Make sure to measure at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttounderbust/",
+   "houding": "standing",
+   "graden": false
+  },
+  "waistToUpperLeg": {
+   "titel": "Waist to upper leg",
+   "tekst": "The waist to upper leg is measured from your waist down to where your upper leg circumference measurement is. Measure it at the side of your body.",
+   "bron": "https://freesewing.org/docs/measurements/waisttoupperleg/",
+   "houding": "standing",
+   "graden": false
+  },
+  "wrist": {
+   "titel": "Wrist circumference",
+   "tekst": "The wrist circumference measurement is the circumference of your wrist.\n\nTo measure your wrist circumference, run the tape measure around your wrist, where your arm joins your hand.",
+   "bron": "https://freesewing.org/docs/measurements/wrist/",
+   "houding": "standing",
+   "graden": false
+  }
+ },
+ "begrippen": {
+  "hps": {
+   "titel": "High Point Shoulder (HPS)",
+   "tekst": "The high point shoulder or HPS point is used as the base for several\nvertical measurements.\n\nThe HPS is where your shoulder seam would meet your neck. The point is\nsituated where your neck meets your shoulder. If you put a marble there, it\nshould not roll forward or backward, but roll towards your shoulder (as in, it\nshould sit in the middle)",
+   "bron": "https://freesewing.org/docs/sewing/hps/"
+  }
+ }
+}

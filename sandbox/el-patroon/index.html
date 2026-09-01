@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<script src="../theme-sync.js"></script>
+<script>try { if (window.top !== window.self) document.documentElement.className = "embedded"; } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El Patroon</title>
+<style>
+  /* Vangnet als ../design.css niet laadt: anders valt elke var() weg. */
+  :root {
+    --bg: #f5f6f8; --card: #fff; --text: #1a1d24; --muted: #5a6270; --line: #dde1e6;
+    --blue: #4a90d9; --keep: #2fae66; --warn: #d9a441; --dismiss: #d9534f;
+    --radius: 14px; --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  /* Eigen namen blijven, maar de kleuren komen uit design.css -- een app
+     krijgt geen eigen kleurset (DESIGN.md). */
+  :root {
+    --zacht: color-mix(in srgb, currentColor 6%, transparent);
+    --accent: var(--blue);
+    --ok: var(--keep); --letop: var(--warn); --fout: var(--dismiss);
+  }
+  /* Lijntekeningen zijn SVG's met stroke="currentColor"; in een <img> is dat
+     altijd zwart. Omdraaien is de enige manier zonder ze inline te zetten (64
+     stuks). Welk thema donker is bepaalt app.js -- de hoofdapp heeft er meer
+     dan één, dus prefers-color-scheme alleen klopt niet. */
+  html.donker img.duim, html.donker img.groot { filter: invert(1); }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 var(--font); margin: 0; padding: 1.25rem; background: var(--bg); color: var(--text); }
+  /* In het Utilities-scherm van de hoofdapp staat de naam al boven de iframe. */
+  .embedded h1 { display: none; }
+  .alleen-embedded { display: none; font-size: .82rem; }
+  .embedded .alleen-embedded { display: inline; }
+  h1 { font-size: 1.05rem; font-weight: 600; margin: 0 0 1rem; }
+  h1 small { font-weight: 400; opacity: .55; }
+  h2 { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; opacity: .55; margin: 1.25rem 0 .5rem; }
+  h2:first-of-type { margin-top: 0; }
+
+  .kolommen { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 800px) { .kolommen { grid-template-columns: 1fr; } }
+
+  label { display: flex; flex-direction: column; gap: .2rem; font-size: .78rem; opacity: .85; }
+  .rij { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .rij > label { flex: 1 1 7rem; }
+  select, input { font: inherit; font-size: .85rem; padding: .3rem .4rem; border: 1px solid var(--line); border-radius: 5px; background: transparent; color: inherit; width: 100%; }
+  input[type=checkbox] { width: auto; }
+  .vink { flex-direction: row; align-items: center; gap: .4rem; }
+  button { font: inherit; padding: .45rem 1rem; border: 0; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 500; }
+  button.stil { background: transparent; color: inherit; border: 1px solid var(--line); font-weight: 400; }
+  button:disabled { opacity: .5; cursor: default; }
+  .meta { font-size: .72rem; opacity: .6; }
+
+  /* designkiezer */
+  #lijst { list-style: none; margin: .5rem 0 0; padding: 0; max-height: 15rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; }
+  #lijst li button { display: flex; align-items: center; gap: .55rem; width: 100%; text-align: left; background: transparent; color: inherit; border-radius: 0; padding: .4rem .6rem; font-weight: 400; border-bottom: 1px solid var(--line); }
+  #lijst li:last-child button { border-bottom: 0; }
+  #lijst button:hover { background: var(--zacht); }
+  #lijst button[aria-current=true] { background: var(--accent); color: #fff; }
+  #lijst button[aria-current=true] img.duim { filter: invert(1); }
+  #lijst .tekst { min-width: 0; }
+  #lijst .naam { font-weight: 500; }
+  #lijst .meta { font-size: .72rem; opacity: .6; }
+  #lijst button[aria-current=true] .meta { opacity: .85; }
+
+  .duim { width: 2.4rem; height: 2.4rem; flex: 0 0 auto; object-fit: contain; }
+  .duim.geen, .groot.geen { border: 1px dashed var(--line); border-radius: 4px; }
+  .groot { width: 100%; max-height: 9rem; object-fit: contain; }
+  .groot.geen { height: 4rem; }
+  #gekozenblok { display: grid; grid-template-columns: 8rem 1fr; gap: .75rem; align-items: center; margin-top: .75rem; padding: .6rem; border: 1px solid var(--line); border-radius: 6px; }
+  #gekozenNaam { font-weight: 600; }
+
+  fieldset { border: 1px solid var(--line); border-radius: 6px; padding: .5rem .6rem .7rem; margin: 0 0 .5rem; }
+  legend { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; opacity: .55; padding: 0 .3rem; }
+  .optiegroep { border: 1px solid var(--line); border-radius: 6px; padding: 0 .6rem; margin: 0 0 .5rem; }
+  .optiegroep > summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; opacity: .55; padding: .45rem .3rem; cursor: pointer; }
+  .optiegroep[open] > summary { margin-bottom: .2rem; }
+  .optiegroep > .rij { padding-bottom: .7rem; }
+
+  #status { font-size: .82rem; margin: .75rem 0; min-height: 1.2em; }
+  #status.bezig { opacity: .6; }
+  #status.fout { color: var(--fout); }
+
+  /* validatie */
+  #validatie { border-left: 4px solid var(--line); padding: .5rem .8rem; margin-bottom: 1rem; border-radius: 0 6px 6px 0; background: var(--zacht); }
+  #validatie[data-status=KLAAR] { border-color: var(--ok); }
+  #validatie[data-status=CONTROLEER] { border-color: var(--letop); }
+  #validatie[data-status=GEBLOKKEERD] { border-color: var(--fout); }
+  .vstatus { font-weight: 600; margin-bottom: .2rem; }
+  #validatie[data-status=KLAAR] .vstatus { color: var(--ok); }
+  #validatie[data-status=CONTROLEER] .vstatus { color: var(--letop); }
+  #validatie[data-status=GEBLOKKEERD] .vstatus { color: var(--fout); }
+  .meldingen { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .8rem; }
+  .meldingen li { margin: .15rem 0; }
+  .meldingen li.fout::marker { color: var(--fout); }
+  .meldingen li.let-op::marker { color: var(--letop); }
+  .meldingen li.info { opacity: .75; }
+
+  #materiaal { display: flex; flex-wrap: wrap; gap: 0 2rem; margin-bottom: 1rem; }
+  #materiaal table { border-collapse: collapse; font-size: .8rem; flex: 1 1 14rem; align-self: flex-start; }
+  #materiaal th, #materiaal td { text-align: left; padding: .2rem .6rem .2rem 0; border-bottom: 1px solid var(--line); }
+  #materiaal caption { text-align: left; font-weight: 600; font-size: .78rem; padding: .5rem 0 .2rem; }
+
+  /* Het patroon: op het scherm volgt de achtergrond het thema; boot.js legt
+     FreeSewing's eigen donkere palet over hun stylesheet heen (app.js). */
+  #tekening { border: 1px solid var(--line); border-radius: 8px; overflow: auto; background: var(--card); }
+  #tekening svg { display: block; max-width: 100%; height: auto; }
+  footer { margin-top: 1.5rem; font-size: .72rem; opacity: .55; }
+  #syncmelding { opacity: 1; color: var(--letop); margin: 0 0 .5rem; max-width: 60ch; }
+  a { color: inherit; }
+  .links { margin-top: .35rem; font-size: .75rem; display: flex; gap: .8rem; }
+  .links a { color: var(--accent); }
+  .waarschuwing { color: var(--letop); font-weight: 600; }
+  button.klein { padding: .3rem .65rem; font-size: .78rem; }
+  button.gevaar { color: var(--fout); border-color: var(--fout); }
+  .knoppenrij { margin-top: .5rem; gap: .4rem; }
+  .knoppenrij > * { flex: 0 0 auto; }
+  .knoplabel { display: inline-flex; align-items: center; padding: .3rem .65rem; font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; opacity: 1; }
+  #status button { margin-left: .4rem; }
+
+  /* maten-dialoog */
+  dialog { width: min(46rem, 94vw); max-height: 92vh; border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; background: Canvas; color: CanvasText; }
+  dialog::backdrop { background: rgba(0,0,0,.45); }
+  .dkop { display: grid; grid-template-columns: 1fr 1fr auto; gap: .6rem; margin-bottom: .5rem; }
+  .dtip { margin: 0 0 .75rem; }
+  #matenrijen details { border: 1px solid var(--line); border-radius: 6px; padding: .3rem .7rem; margin-bottom: .6rem; }
+  #matenrijen summary { cursor: pointer; font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; opacity: .7; padding: .3rem 0; }
+  .maatrij { border-top: 1px solid var(--line); padding: .5rem 0; }
+  .dref { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; margin: .2rem 0 .6rem; }
+  .dref label { flex: 0 1 16rem; }
+  .maatkop { display: grid; grid-template-columns: 1fr auto auto auto; gap: .6rem; align-items: center; }
+  .maatkop label { flex-direction: row; align-items: baseline; gap: .4rem; font-size: .85rem; opacity: 1; flex-wrap: wrap; }
+  .maatnaam { font-weight: 500; }
+  .maatinvoer { display: flex; align-items: center; gap: .35rem; }
+  .maatinvoer input { width: 5.5rem; text-align: right; }
+  .eenheid { font-size: .8rem; opacity: .7; }
+  .delta { font-size: .78rem; min-width: 4.5rem; white-space: nowrap; }
+  .delta.plus { color: var(--letop); }
+  .delta.min { color: var(--accent); }
+  .delta.gelijk { opacity: .5; }
+  .referentie { display: flex; align-items: center; gap: .3rem; font-size: .8rem; opacity: .75; white-space: nowrap; }
+  .referentie button { padding: .1rem .45rem; font-size: .72rem; }
+  .uitleg { margin: .6rem 0 .2rem; padding: .6rem .8rem; border-radius: 6px; background: var(--zacht); font-size: .85rem; }
+  .uitleg p { margin: .4rem 0; }
+  .uitleg details { margin-top: .4rem; }
+  .uitleg summary { cursor: pointer; font-size: .78rem; opacity: .7; }
+  .begrip { border-left: 3px solid var(--line); padding-left: .6rem; }
+  /* FreeSewing's meetafbeelding: SVG-overlay (het meetlint) over een foto
+     als achtergrond -- precies zoals hun eigen site het doet. */
+  .meetfoto { display: block; width: 100%; max-width: 28rem; aspect-ratio: 4 / 3; background-size: cover; border-radius: 6px; margin: .2rem 0 .5rem; }
+  .dvoet { display: flex; gap: .5rem; margin-top: .8rem; }
+  .dvoet .gevaar { margin-left: auto; }
+  #dialoogfout { color: var(--fout); font-size: .82rem; min-height: 1em; margin: .4rem 0 0; }
+  @media (max-width: 700px) { .dkop { grid-template-columns: 1fr; } .maatkop { grid-template-columns: 1fr 1fr; } }
+
+  /* Printen op ware grootte. De vellen staan al in mm; niets schalen, anders
+     klopt het patroon niet meer met de maten. */
+  #print { display: none; }
+  @media print {
+    /* Het scherm-padding van body moet eraf: elk vel is precies zo groot als
+       het bedrukbare vlak (papier min @page-marge), dus elke millimeter extra
+       schuift het patroon over de rand en op een tweede pagina. */
+    body { margin: 0; padding: 0; }
+    body > *:not(#print) { display: none !important; }
+    #print { display: block; }
+    .vel { break-after: page; page-break-after: always; }
+    .vel:last-child { break-after: auto; page-break-after: auto; }
+    /* Het vellabel staat absoluut over de bovenmarge van de tekening heen, en
+       telt zo niet mee voor de hoogte van het vel. */
+    .vel { position: relative; }
+    .vellabel { position: absolute; top: 0; left: 0; font: 7pt/1 system-ui, sans-serif; color: #000; }
+    .velsvg { display: block; }
+  }
+</style>
+</head>
+<body>
+<h1>el-patroon <small>— alle FreeSewing-designs</small></h1>
+
+<div class="kolommen">
+  <div>
+    <h2>Design</h2>
+    <div class="rij">
+      <label>Zoek <input id="zoek" type="search" placeholder="naam of omschrijving"></label>
+      <label>Categorie <select id="tag"></select></label>
+      <label>Techniek <select id="techniek"></select></label>
+    </div>
+    <label class="vink" style="margin-top:.5rem"><input id="alleentekening" type="checkbox"> Alleen met lijntekening</label>
+    <ul id="lijst"></ul>
+
+    <div id="gekozenblok">
+      <div id="gekozenTekening"></div>
+      <div>
+        <div id="gekozenNaam"></div>
+        <div id="gekozenOmschrijving" class="meta"></div>
+        <div id="gekozenLinks" class="links"></div>
+      </div>
+    </div>
+
+    <h2>Maten</h2>
+    <label>Wiens maten <select id="maatset"></select></label>
+    <div class="rij knoppenrij">
+      <button id="nieuwknop" type="button" class="stil klein">Eigen maten invoeren</button>
+      <button id="bewerkknop" type="button" class="stil klein" hidden>Bewerken</button>
+      <button id="exportknop" type="button" class="stil klein" title="Bewaar je maten als bestand (back-up, of voor een ander apparaat)">Exporteren</button>
+      <label class="stil klein knoplabel" title="Lees een eerder geëxporteerd bestand in">Importeren<input id="importbestand" type="file" accept="application/json,.json" hidden></label>
+    </div>
+    <p id="matenuitleg" class="meta" style="margin:.4rem 0 0"></p>
+
+    <h2>Opties</h2>
+    <div id="opties"></div>
+    <div id="delen"></div>
+
+    <h2>Patroon</h2>
+    <div class="rij">
+      <label>Naadtoeslag (mm) <input id="sa" type="number" value="10" min="0" max="30" step="1"></label>
+      <label>Eenheden <select id="units"><option value="metric">metrisch</option><option value="imperial">imperial</option></select></label>
+    </div>
+    <div class="rij" style="margin-top:.5rem">
+      <label>Printen op <select id="papier"><option value="">niet tegelen</option></select></label>
+    </div>
+    <div class="rij" style="margin-top:.5rem">
+      <label class="vink"><input id="paperless" type="checkbox"> Paperless (raster + maatlijnen)</label>
+    </div>
+    <p>
+      <button id="go">Genereer patroon</button>
+      <button id="printknop" hidden>Print op ware grootte</button>
+      <button id="downloadknop" class="stil" hidden title="Het hele patroon als SVG in millimeters — voor een drukker of plotter">Download SVG</button>
+      <!-- Printen vanuit het Utilities-scherm gaat door een iframe heen; in een
+           eigen tabblad weet je zeker dat de printer het patroon krijgt en niet
+           de pagina eromheen. -->
+      <a id="eigentab" class="alleen-embedded" href="index.html" target="_blank" rel="noopener">In eigen tabblad openen</a>
+    </p>
+  </div>
+
+  <div>
+    <p id="status"></p>
+    <div id="validatie"></div>
+    <!-- Materiaallijst boven de tekening: die tekening is al gauw meer dan
+         een meter hoog, dus alles eronder scrol je nooit meer in beeld. -->
+    <div id="materiaal"></div>
+    <div id="tekening"></div>
+  </div>
+</div>
+
+<div id="print"></div>
+
+<!-- Eigen maten invoeren. Uitleg en foto's per maat komen van FreeSewing
+     (app/maten.json, app/maten/); de vertaling uit app/maten-nl.mjs. -->
+<dialog id="matendialoog">
+  <form method="dialog" onsubmit="return false">
+    <div class="dkop">
+      <label>Naam <input id="profielnaam" type="text" placeholder="bijv. Tinus" required autocomplete="off"></label>
+      <label>Notitie <input id="profielnotitie" type="text" placeholder="bijv. gemeten 22 aug, met hulp"></label>
+      <label>Foto’s van <select id="modelkeuze"><option value="tim">Tim</option><option value="sarah">Sarah</option></select></label>
+    </div>
+    <!-- Vergelijken met een standaardmaat van FreeSewing: de waarde staat bij
+         elke maat ernaast, met het verschil. Overnemen vult wat nog leeg is,
+         zodat je alleen aanpast wat bij jou echt afwijkt. -->
+    <div class="dref">
+      <label>Vergelijk met <select id="referentiekeuze"></select></label>
+      <button id="overneemknop" type="button" class="stil klein" title="Vult alleen de lege velden; wat je al hebt ingevuld blijft staan">Vul lege velden met deze maat</button>
+      <span id="refuitleg" class="meta"></span>
+    </div>
+    <p class="meta dtip">Meet in centimeters, op het blote lichaam of over dun ondergoed, met het lint strak maar niet knellend. Laat je het liefst door iemand anders opmeten. Bij elke maat staat FreeSewing’s uitleg met foto onder <em>hoe meet ik dit?</em>. De grijze waarde ernaast is de gekozen standaardmaat; het verschil met jouw maat staat erachter.</p>
+    <div id="matenrijen"></div>
+    <p id="dialoogfout" class="fout"></p>
+    <div class="dvoet">
+      <button id="opslaanknop" type="button">Opslaan</button>
+      <button id="sluitknop" type="button" class="stil">Sluiten</button>
+      <button id="verwijderknop" type="button" class="stil gevaar" hidden>Verwijderen</button>
+    </div>
+  </form>
+</dialog>
+
+<footer>
+  <p id="syncmelding" hidden></p>
+  Patronen van <a href="https://freesewing.org">FreeSewing</a> <code id="fsversie"></code> (MIT),
+  geladen van esm.sh. Geen build-stap, geen server.
+</footer>
+
+<!-- Eigen designs in app/designs/ zijn gewone FreeSewing-modules: ze importeren
+     '@freesewing/core' en het design waarop ze bouwen. Deze kaart wijst die
+     namen naar esm.sh, zodat hetzelfde bestand ook onder Node en in
+     `npx @freesewing/studio` draait. check.mjs bewaakt dat de versies hier
+     gelijk zijn aan FS_VERSION en dat elke import een regel heeft. -->
+<link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
+<script type="importmap">
+{
+  "imports": {
+    "@freesewing/core": "https://esm.sh/@freesewing/core@4.10.1",
+    "@freesewing/huey": "https://esm.sh/@freesewing/huey@4.10.1"
+  }
+}
+</script>
+<!-- boot.js is de gate: inloggen + sync, en laadt daarna app.js (ES-module). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="boot.js"></script>
+</body>
+</html>
