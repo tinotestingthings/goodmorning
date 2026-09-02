@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-02 (v2026.09.02-3) — Utrecht Toen: 232 foto's — 100 binnenstadfoto's van vóór 1950 erbij (Het Utrechts Archief, gebouwniveau via PDOK-adres, geen review; batch centrum-1950)
+
+
 ## 2026-09-02 (v2026.09.02-2) — Utrecht Toen: foto aanklikken zoomt niet meer uit (blijft op je route-zoom)
 
 
