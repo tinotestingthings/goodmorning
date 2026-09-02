@@ -1,457 +1,477 @@
 {
-  "generated": "2026-09-01T06:49:58+02:00",
-  "daily": [
-    {
-      "id": "2026-08-30-techbbq-europese-ai-soevereiniteit-whittaker-privacy-marktvraag",
-      "title": "TechBBQ: Europese AI-soevereiniteit werd concreet toen Mythos en Fable buiten Europa wegvielen — en Whittaker ziet privacy als marktvraag",
-      "source": "TechCrunch, Dominic-Madori Davis (29 augustus 2026)",
-      "url": "https://techcrunch.com/2026/08/29/at-techbbq-europes-ai-conversations-kept-coming-back-to-whos-actually-in-control/",
-      "date": "2026-08-30",
-      "summary": "Verslag van TechBBQ in Kopenhagen (afgesloten 27 augustus), waar het thema \"Emerging from Agency\" volgens TechCrunch steeds terugviel op één vraag: wie heeft er feitelijk zeggenschap over de AI-infrastructuur die Europa gebruikt. Wat het gesprek dit jaar scherper maakte dan het gebruikelijke soevereiniteitspraatje was een concreet incident: Anthropics modellen Mythos en Fable werden eerder dit jaar onbeschikbaar voor gebruikers buiten Europa, wat volgens de aanwezigen het verschil tussen \"een model bezitten\" en \"rekencapaciteit huren van de VS of China\" ineens tastbaar maakte. Eén startup-executive zei dat het incident zijn softwareteam serieus ontregelde; een ander haalde zijn schouders op — voorlopig gaat alles goed."
-    },
-    {
-      "id": "2026-08-31-datadoorgifte-vs-adequaatheidsbesluit-blijft-van-kracht-kamervragen",
-      "title": "Staatssecretaris: datadoorgifte naar de VS kan \"vooralsnog\" doorgaan — het adequaatheidsbesluit blijft tot nader order van kracht",
-      "source": "Security.NL, Redactie (27 augustus 2026, 14:31)",
-      "url": "https://www.security.nl/posting/950726/Staatssecretaris%3A+Datadoorgifte+naar+VS+kan+vooralsnog+gewoon+doorgaan",
-      "date": "2026-08-31",
-      "summary": "Staatssecretaris Van Bruggen (Justitie en Veiligheid) heeft Kamervragen beantwoord over de vraag of de EU en de VS na de uitspraak van het Amerikaanse hooggerechtshof nog persoonsgegevens mogen uitwisselen. Haar antwoord: voorlopig wel. De Europese Commissie heeft de lidstaten laten weten de uitspraak te onderzoeken en vindt een brede evaluatie van het functioneren van het Amerikaanse rechtssysteem nodig, maar benadrukt daarbij dat het adequaatheidsbesluit tot nader order van kracht blijft."
-    },
-    {
-      "id": "2026-08-31-eevidence-verordening-van-kracht-nederland-niet-operationeel",
-      "title": "eEvidence-verordening geldt sinds 18 augustus, maar Nederland is er pas begin 2027 klaar voor — dienstverleners zitten er tussenin",
-      "source": "Computable, Pim van der Beek (21 augustus 2026); Netkwesties Privacyjournaal week 35, Peter Olsthoorn (28 augustus 2026)",
-      "url": "https://www.computable.nl/2026/08/21/eevidence-9-vragen-over-eu-wet-rondom-digitaal-bewijs/",
-      "date": "2026-08-31",
-      "summary": "Sinds 18 augustus 2026 is de Europese eEvidence-verordening (EU) 2023/1543 van toepassing in de hele EU. Die verplicht digitale dienstverleners om op een Europees verstrekkings- of bewaringsbevel digitaal bewijsmateriaal te leveren aan justitiële autoriteiten in andere lidstaten. Het bereik is breed: aanbieders van internet- en communicatiediensten, cloud- en opslagproviders, online platforms en marktplaatsen, en partijen die domeinnamen of ip-diensten beheren. Onder het bevel valt alles wat relevant kan zijn voor een strafzaak — contactgegevens, ip-adressen, dataverkeer, opgeslagen communicatie."
-    },
-    {
-      "id": "2026-08-31-infostealer-malware-kaapt-actieve-claude-sessies-anthropic-waarschuwt",
-      "title": "Anthropic waarschuwt gebruikers: infostealer-malware kaapt actieve Claude-sessies — accounts overgenomen zonder wachtwoord",
-      "source": "BleepingComputer (30 augustus 2026); Search Engine Journal (30 augustus 2026)",
-      "url": "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-warns-infostealer-malware-is-hijacking-claude-sessions-to-drain-usage/",
-      "date": "2026-08-31",
-      "summary": "Anthropic waarschuwt een deel van zijn gebruikers dat infostealer-malware op hun eigen pc actieve Claude-inlogsessies heeft gestolen, waardoor aanvallers bij hun account kunnen en hun usage opmaken. De malware komt binnen via downloads of kwaadaardige apps en harkt lokaal opgeslagen gegevens op: browserwachtwoorden, login-cookies en credentials van andere apps. Bekende families in deze categorie zijn Vidar, LummaC2, StealC en RedLine."
-    },
-    {
-      "id": "2026-09-01-berlijn-rhysida-ransomware-avg-als-afpersingsmiddel",
-      "title": "Berlijn bevestigt datadiefstal na Rhysida-aanval — en de afpersers gebruiken de AVG expliciet als drukmiddel",
-      "source": "BleepingComputer, Bill Toulas (31 augustus 2026); heise online, SecurityWeek, Cybernews (28-31 augustus 2026)",
-      "url": "https://www.bleepingcomputer.com/news/security/berlin-confirms-data-theft-after-rhysida-ransomware-attack-claims/",
-      "date": "2026-09-01",
-      "summary": "De stadsdeelregering van Berlijn heeft op 31 augustus bevestigd dat cybercriminelen de stad afpersen nadat de Rhysida-ransomwaregroep haar op hun leaksite had gezet. De inbraak werd medio augustus ontdekt, de aanvaller claimde hem publiek op vrijdag 28 augustus. Burgemeester Kai Wergner zegt niet te betalen; het Landeskriminalamt, het openbaar ministerie en federale veiligheidsdiensten onderzoeken de zaak. Volgens forensisch onderzoek werd data weggesluisd bij de Senatsverwaltung voor Mobiliteit, Verkeer, Klimaatbescherming en Milieu, vermoedelijk tussen 7 en 12 augustus; de getroffen afdelingen zijn op 14 augustus van het staatsnetwerk losgekoppeld."
-    },
-    {
-      "id": "2026-09-01-npr-newsguard-chatbots-weerleggen-staatspropaganda-ai-overzichten-slechter",
-      "title": "NPR en NewsGuard testten zes chatbots op staatspropaganda — de bots deden het goed, de AI-overzichten in zoekmachines niet",
-      "source": "NPR i.s.m. NewsGuard (30 augustus 2026)",
-      "url": "https://www.npr.org/2026/08/30/nx-s1-5876436/chatbots-search-propaganda",
-      "date": "2026-09-01",
-      "summary": "NPR en NewsGuard hebben 30 vragen opgesteld op basis van valse narratieven die door China, Iran en Rusland (of aan die overheden gelieerde actoren) werden verspreid en die tussen december 2025 en juli 2026 voor het eerst opdoken. Die vragen zijn voorgelegd aan de bekende chatbots — ChatGPT, Gemini, Copilot, Meta AI, Grok en Claude — én aan de grootste zoekmachines. De uitkomst is opvallend positief: de chatbots weerlegden de onwaarheden in ruwweg driekwart van de gevallen, wat NPR zelf samenvat als \"surprisingly well\"."
-    },
-    {
-      "id": "2026-09-01-openai-koopt-tienduizenden-macs-om-computer-use-agents-te-trainen",
-      "title": "OpenAI koopt tienduizenden Mac mini's en Mac Studio's om computer-use-agents te trainen — Anthropic huurt ze via AWS",
-      "source": "TechRepublic, The Decoder, Dataconomy e.a. (31 augustus 2026)",
-      "url": "https://www.techrepublic.com/article/news-openai-mac-mini-mac-studio-ai-agents/",
-      "date": "2026-09-01",
-      "summary": "OpenAI heeft de afgelopen maanden tienduizenden Mac mini's en Mac Studio's gekocht, expliciet voor reinforcement learning en het trainen van computer-use-agents: modellen die software bedienen zoals een mens dat doet — interfaces navigeren, code schrijven en testen, e-mail ordenen, meerstapstaken afmaken. De machines worden zonder scherm of toetsenbord ingezet als kale rekenknopen in de eigen infrastructuur. Anthropic doet hetzelfde langs een andere route en huurt Mac mini-capaciteit via AWS; die wil meer, maar de zwaarste modellen zijn al maanden uitverkocht door een geheugenchip-tekort. De vraag is groot genoeg dat Apple de levering niet bijhoudt."
-    },
-    {
-      "id": "2026-09-01-wetsvoorstel-aivd-mivd-meer-bevoegdheden-minder-toezicht",
-      "title": "Bits of Freedom over het nieuwe inlichtingenwetsvoorstel: burgers makkelijker op de radar, toezicht juist afgeschaald",
-      "source": "Security.NL, Redactie (31 augustus 2026 09:11); NOS (31 augustus 2026); Internetconsultatie.nl",
-      "url": "https://www.security.nl/posting/951095/Bits+of+Freedom%3A+Burger+steeds+makkelijker+op+radar+van+geheime+diensten",
-      "date": "2026-09-01",
-      "summary": "Het kabinet presenteerde vorige week een wetsvoorstel dat de bevoegdheden van AIVD en MIVD uitbreidt en tegelijk het toezicht afschaalt. Bits of Freedom reageerde er op maandag 31 augustus op tegenover de NOS, en de kern van die reactie is een trendargument, niet een detailbezwaar: Lotte Houwing ziet sinds de Wiv 2017 een lijn waarin de diensten steeds grootschaliger gegevens verzamelen terwijl het toezicht afneemt. \"Burgers komen steeds makkelijker op de radar van de geheime diensten met minder waarborgen.\" Haar extra punt is scherp: uit een recent rapport bleek dat de datahuishouding van de diensten niet op orde is — meer binnenhalen terwijl je het bestaande niet beheerst."
-    }
-  ],
-  "today": {
-    "date": "2026-09-01",
-    "tasks": [
-      {
-        "id": "2026-08-17-rotate-github-pat-before-18-september",
-        "title": "Rotate the GitHub PAT before 18 September 2026",
-        "status": "todo",
-        "detail": "The fine-grained personal access token `tinotestingthings-token` that the daily digest uses to push `feed.json` expires Friday 18 September 2026.",
-        "hint": "Nog 17 dagen: doe 'm in de week van 11 september, dan is er speling.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-28-piano-learn-familiar",
-        "title": "Piano - learn Familiar",
-        "status": "doing",
-        "detail": "Leer Familiar op piano spelen. De notitie bevat verder geen details over hoe ver je bent — status staat op doing sinds 4 augustus.",
-        "hint": "Staat al vier weken op 'doing' zonder update; noteer even waar je bent.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-23-tiktok-bytedance-400-miljoen-schikking-doj-kinderprivacy-coppa",
-        "title": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse ministerie van Justitie over kinderprivacy",
-        "status": "todo",
-        "detail": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse DOJ over COPPA-schendingen; de notitie wijst erop dat de niet-financiele voorwaarden (eigendom, management, compliance-operatie) waarschijnlijk het precedent vormen, niet het bedrag.",
-        "hint": "Lees de schikking op wat er naast het geld in staat — dat is het deel dat doorwerkt.",
-        "notes": [],
-        "subtasks": []
-      }
-    ],
-    "projects": [
-      {
-        "id": "2026-07-14-team-verbetering-idee",
-        "title": "Team verbetering — idee",
-        "status": "active",
-        "updated": "2026-08-19 07:10",
-        "line": "Idee over hoe we ons team kunnen verbeteren: - 2-maandelijkse strategiesessie met mede-senior - Meer eisen en actielijst bijhouden voor onze manager - Meer zichtbaarheid creëren naar de manager",
-        "notes": [
-          "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
-        ],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-28-goodmorning-app-improvements",
-        "title": "Goodmorning app improvements",
-        "status": "active",
-        "updated": "2026-08-26 07:12",
-        "line": "Hub project for improvements to the goodmorning app.",
-        "notes": [],
-        "subtasks": [
-          {
-            "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
-            "done": true
-          },
-          {
-            "text": "Calendar: duplicate a box on PC via shift+drag",
-            "done": false
-          },
-          {
-            "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
-            "done": false
-          },
-          {
-            "text": "Morning loop tile style should match the other tiles",
-            "done": true
-          },
-          {
-            "text": "Add an emoji+ theme",
-            "done": true
-          },
-          {
-            "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
-            "done": false
-          },
-          {
-            "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
-            "done": false
-          },
-          {
-            "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
-            "done": false
-          },
-          {
-            "text": "Triage: add a history view",
-            "done": false
-          },
-          {
-            "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
-            "done": false
-          },
-          {
-            "text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
-            "done": false
-          },
-          {
-            "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
-            "done": false
-          },
-          {
-            "text": "Compliance Radar entries should be editable like tasks and projects",
-            "done": false
-          },
-          {
-            "text": "Live hotfix: title SBX · Daily Digest → Daily Digest; path-guard the reset button so it can't wipe live dd. data (commit 818ee07, 2026-08-04)",
-            "done": true
-          },
-          {
-            "text": "Make sandbox→live promotion safe — runtime namespace (killed the sed transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
-            "done": true
-          },
-          {
-            "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
-            "done": false
-          },
-          {
-            "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
-            "done": false
-          },
-          {
-            "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
-            "done": false
-          },
-          {
-            "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
-            "done": false
-          },
-          {
-            "text": "I should be able to hold and drag to reorder backlog items",
-            "done": false
-          },
-          {
-            "text": "Verify offline mode: can the app still be used offline, and are changes saved and synced when back online?",
-            "done": false
-          },
-          {
-            "text": "Integrate the Vogelspotinus bird-spotting/learning app as a utility app inside goodmorning (same as the Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs). It's currently a standalone no-backend PWA — to match the others it also needs to persist progress to Supabase (dd:/sbx: namespaced keys) and get a daily-digest backup leg. Full spec: [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]] (C8 backup leg + vogelspotinusstate table drafted; wire into the live digest task at integration time).",
-            "done": false
-          },
-          {
-            "text": "Vogelspotinus voortgangsfeatures — statuskaart (geleerd/beheerst/streak/box-verdeling + \"te herhalen vandaag\"-tegel), drie oefenspellen (Herhalen / Goed gehad / Lastige vogels), de gewone quiz telt nu mee voor de SRS, per-vogel badges in Bladeren, en het Bladeren-infoblok + Wikipedia/Xeno-canto icon-links op de quiz/study-reveal. Gebouwd in sandbox en gepromoot naar live 2026-08-11. Details + open follow-ups in [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]].",
-            "done": true
-          },
-          {
-            "text": "Vogel van de dag als tegel op het homescreen — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand vogelspotinus/data/bird-tiles.json (561 vogels, 107 kB) dat tools/build-bird-tiles.mjs uit birds.json (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
-            "done": true
-          },
-          {
-            "text": "Homescreen app-tile labels fit on one line — \"ChordSprint\" was too wide for the 92px \"most used\" tile and broke mid-word onto a second line. Fixed 2026-08-18 (commit 35bbe3b, live + sandbox): the label now takes the full tile width, and fitTileLabel() in home.js steps the font size down after layout until it fits (floor 0.6rem, falls back to wrapping below that). Adaptive rather than a hardcoded size, so future app names fit too.",
-            "done": true
-          }
-        ]
-      },
-      {
-        "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
-        "title": "Een AI app waarmee je mallen voor kleding kan maken.",
-        "status": "active",
-        "updated": "2026-08-18 07:10",
-        "line": "Nog geen omschrijving vastgelegd in de notitie.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-19-vof-opzeggen",
-        "title": "VOF opzeggen",
-        "status": "active",
-        "updated": "2026-08-31 07:09",
-        "line": "<!-- app-subtasks:start -->",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-20-be-better-with-claude",
-        "title": "Be better with Claude",
-        "status": "active",
-        "updated": "2026-08-31 07:09",
-        "line": "<!-- app-subtasks:start -->",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-27-optimize-productivity-workflow",
-        "title": "Optimize productivity workflow",
-        "status": "active",
-        "updated": "2026-08-27 07:21",
-        "line": "Nog geen omschrijving vastgelegd in de notitie.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-11-finance-and-markets-learning-interest",
-        "title": "Finance and markets — learning interest",
-        "status": "idea-stage",
-        "updated": "2026-08-04 21:22",
-        "line": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-11-personal-productivity-mental-health-management",
-        "title": "Personal productivity as mental health management",
-        "status": "idea-stage",
-        "updated": "2026-08-11 07:10",
-        "line": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
-        "notes": [],
-        "subtasks": [
-          {
-            "text": "Welke wetenschap achter vitamines is er",
-            "done": false
-          },
-          {
-            "text": "Welke wetenachap achter productiviteit is er",
-            "done": false
-          }
-        ]
-      },
-      {
-        "id": "2026-07-11-work-compliance-topics-resources-to-gather",
-        "title": "Work compliance topics — resources to gather",
-        "status": "idea-stage",
-        "updated": "2026-08-20 07:09",
-        "line": "Topics to add work-relevant resources on: - ISO 27001 - ISO 27701 - EU AI Act - GDPR",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-28-learn-pistol-squats",
-        "title": "Learn pistol squats",
-        "status": "idea-stage",
-        "updated": "2026-08-20 07:09",
-        "line": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-28-link-chatgpt-work-to-app",
-        "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
-        "status": "idea-stage",
-        "updated": "2026-08-07 07:09",
-        "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-12-visit-every-park-in-utrecht",
-        "title": "Visit every park in Utrecht.",
-        "status": "idea-stage",
-        "updated": "2026-08-12 12:44",
-        "line": "Nog geen omschrijving vastgelegd in de notitie.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-30-mountainbiken",
-        "title": "Mountainbiken?",
-        "status": "idea-stage",
-        "updated": "2026-08-30 07:09",
-        "line": "Nog geen omschrijving vastgelegd in de notitie.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
-        "title": "Cooking — improving recipes",
-        "status": "done",
-        "updated": "2026-08-04 22:28",
-        "line": "Goal: start and improve recipes based on current ones, using the second brain.",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-11-daily-habits-hub-site",
-        "title": "Project: a daily \"things to do everyday\" hub site",
-        "status": "done",
-        "updated": "2026-08-04 22:28",
-        "line": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
-        "notes": [
-          "2026-07-24 22:16 (Tinus): Done"
-        ],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-14-cookie-scanner-applicatie",
-        "title": "Project: Cookie Scanner Applicatie",
-        "status": "done",
-        "updated": "2026-08-20 07:09",
-        "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk).",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
-        "title": "Daily digest app — instructions & Claude Code build prompt",
-        "status": "done",
-        "updated": "2026-08-19 (Claude-Fable-5: today.radar.weekly toegevoegd aan het feed-contract — wekelijkse radar-samenvatting; app-kant live in v2026.08.19-6, taak-prompt moet dit veld nog gaan schrijven)",
-        "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed).",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-01-backlog-list-type-build-spec",
-        "title": "Backlog list type — build spec",
-        "status": "done",
-        "updated": "2026-08-04 22:28",
-        "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-04-sandbox-live-promotion-safety-spec",
-        "title": "Sandbox → live promotion — safety spec",
-        "status": "done",
-        "updated": "2026-08-04 22:28",
-        "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
-        "title": "Vogelspotinus — integration & backup spec",
-        "status": "done",
-        "updated": "2026-08-13 07:09",
-        "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-13-event-tracker-integration-and-backup-spec",
-        "title": "Event Tracker — integration & backup spec",
-        "status": "done",
-        "updated": "2026-08-18 07:10",
-        "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-        "notes": [],
-        "subtasks": []
-      },
-      {
-        "id": "2026-08-18-ecosystem-explainer-remotion-script",
-        "title": "Ecosystem explainer — script & storyboard (Remotion)",
-        "status": "done",
-        "updated": "2026-08-27 07:21",
-        "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
-        "notes": [],
-        "subtasks": []
-      }
-    ],
-    "radar": {
-      "updated": "2026-08-31",
-      "follow_ups": 1,
-      "headline": "Datatilsynet draagt SATS op de check-in-foto om te zetten naar art. 6(1)(f): contractuele noodzaak afgewezen, recht van bezwaar (art. 21) gaat aan (impact 4).",
-      "deadlines": [
-        {
-          "date": "2026-10-31",
-          "label": "ISO 27701: certificerende instellingen moeten over naar de 2025-editie"
-        },
-        {
-          "date": "2026-12-02",
-          "label": "AI Act art. 50(2) grace period eindigt + nieuw verbod op AI-NCII/CSAM"
-        },
-        {
-          "date": "2027-08-02",
-          "label": "GPAI-aanbieders met pre-aug-2025-modellen: volledige compliance"
-        },
-        {
-          "date": "2027-12-02",
-          "label": "Zelfstandige high-risk AI-verplichtingen (Annex III) van toepassing"
-        },
-        {
-          "date": "2028-08-02",
-          "label": "High-risk AI in producten (Annex I) compliance-deadline"
-        }
-      ],
-      "weekly": {
-        "date": "2026-08-31",
-        "lines": [
-          "Alle 3 nieuwe items kwamen via secundair commentaar; primaire bronnen leverden niets.",
-          "Datatilsynet x SATS: art. 6(1)(b) afgewezen voor incheckfoto, art. 21 gaat aan.",
-          "NL-rechters passen Brillen Rottler toe: 5x art. 15-verzoek misbruik van recht.",
-          "DPC 550m X Corp nu 42d onbevestigd; 2 dec AI Act 50(2) op 92 dagen."
-        ]
-      }
-    }
+ "generated": "2026-09-02T04:50:13Z",
+ "daily": [
+  {
+   "id": "2026-08-31-eevidence-verordening-van-kracht-nederland-niet-operationeel",
+   "title": "eEvidence-verordening geldt sinds 18 augustus, maar Nederland is er pas begin 2027 klaar voor — dienstverleners zitten er tussenin",
+   "source": "Computable, Pim van der Beek (21 augustus 2026); Netkwesties Privacyjournaal week 35, Peter Olsthoorn (28 augustus 2026)",
+   "url": "https://www.computable.nl/2026/08/21/eevidence-9-vragen-over-eu-wet-rondom-digitaal-bewijs/",
+   "date": "2026-08-31",
+   "summary": "Sinds 18 augustus 2026 is de Europese eEvidence-verordening (EU) 2023/1543 van toepassing in de hele EU. Die verplicht digitale dienstverleners om op een Europees verstrekkings- of bewaringsbevel digitaal bewijsmateriaal te leveren aan justitiële autoriteiten in andere lidstaten. Het bereik is breed: aanbieders van internet- en communicatiediensten, cloud- en opslagproviders, online platforms en marktplaatsen, en partijen die domeinnamen of ip-diensten beheren. Onder het bevel valt alles wat relevant kan zijn voor een strafzaak — contactgegevens, ip-adressen, dataverkeer, opgeslagen communicatie."
   },
-  "vaultNote": {
-    "title": "De camperverhuurder houdt mijn geld nadat ik misleid ben door hun AI-chatbot!",
-    "excerpt": "Summary Arnoud Engelfriet (Ius Mentis, 9 juli 2026) bespreekt een consumentenklacht die via Reddit (r/LegalAdviceEurope) binnenkwam: iemand boekte een camper bij het Nederlandse bedrijf Indie Campers en vroeg vooraf aan de AI-chatbot op de officiële website of reizen naar Montenegro was toegestaan. De bot bevestigde dit expliciet. Na betaling bleek uit de algemene voorwaarden dat reizen naar Montenegro juist verboden was. Het bedrijf weigerde aanvankelijk mee te werken (\"wij nemen geen verantwoordelijkheid voor AI-antwoorden\") en gaf uiteindelijk maar 5% van het bedrag terug in plaats van een ",
-    "path": "Mijn Wiki/20 Sources/2026-07-15-camperverhuurder-ai-chatbot-aansprakelijkheid.md",
-    "noteDate": "2026-07-15"
+  {
+   "id": "2026-09-01-npr-newsguard-chatbots-weerleggen-staatspropaganda-ai-overzichten-slechter",
+   "title": "NPR en NewsGuard testten zes chatbots op staatspropaganda — de bots deden het goed, de AI-overzichten in zoekmachines niet",
+   "source": "NPR i.s.m. NewsGuard (30 augustus 2026)",
+   "url": "https://www.npr.org/2026/08/30/nx-s1-5876436/chatbots-search-propaganda",
+   "date": "2026-09-01",
+   "summary": "NPR en NewsGuard hebben 30 vragen opgesteld op basis van valse narratieven die door China, Iran en Rusland (of aan die overheden gelieerde actoren) werden verspreid en die tussen december 2025 en juli 2026 voor het eerst opdoken. Die vragen zijn voorgelegd aan de bekende chatbots — ChatGPT, Gemini, Copilot, Meta AI, Grok en Claude — én aan de grootste zoekmachines. De uitkomst is opvallend positief: de chatbots weerlegden de onwaarheden in ruwweg driekwart van de gevallen, wat NPR zelf samenvat als \"surprisingly well\"."
+  },
+  {
+   "id": "2026-09-02-deense-dpa-staat-voetbalclubs-gezichtsherkenning-toe-met-voorwaarden",
+   "title": "Deense privacytoezichthouder staat twee voetbalclubs automatische gezichtsherkenning toe — met een opvallend technische voorwaardenlijst",
+   "source": "Security.NL (1 september 2026, 10:21), op basis van besluiten van Datatilsynet (juli/augustus 2026)",
+   "url": "https://www.security.nl/posting/951290/Deense+voetbalclubs+mogen+automatische+gezichtsherkenning+inzetten",
+   "date": "2026-09-02",
+   "summary": "De Deense toezichthouder Datatilsynet heeft Lyngby Boldklub en AC Horsens toestemming gegeven om tijdens wedstrijden automatische gezichtsherkenning in te zetten. Doel is het identificeren van personen met een stadionverbod en het handhaven daarvan. De clubs hadden hier expliciet vergunning voor aangevraagd; de individuele besluiten dateren van juli 2026, de gebundelde persaankondiging van augustus, en Security.NL pikte het op 1 september op."
+  },
+  {
+   "id": "2026-09-02-kamervragen-patientdata-chinese-medische-apparatuur-derdelandtoegang",
+   "title": "Kamervragen over patiëntdata bij Chinese medische apparatuur — de derdelandvraag verschuift van cloud naar apparaat",
+   "source": "Security.NL (1 september 2026, 12:45), op basis van Kamervragen 2026Z17530 en berichtgeving in het FD",
+   "url": "https://www.security.nl/posting/951318/Kamervragen+over+privacy+pati%C3%ABntdata+bij+gebruik+Chinese+medische+apparatuur",
+   "date": "2026-09-02",
+   "summary": "VVD-Kamerleden Wendel en Rajkowski hebben op 1 september vragen gesteld aan minister Sterk van Langdurige Zorg over de privacy van patiëntgegevens bij het gebruik van Chinese medische apparatuur (kamerstuk 2026Z17530). Aanleiding is een FD-bericht dat Chinese fabrikanten van medische apparatuur voet aan de grond krijgen in Europa, ook in Nederland. De minister heeft drie weken om te antwoorden."
+  },
+  {
+   "id": "2026-09-02-openai-astra-eerste-model-boven-kritieke-cyberdrempel",
+   "title": "OpenAI's Astra is het eerste model boven de eigen \"critical cybersecurity threshold\" — en vindt zelfstandig zerodays",
+   "source": "TechCrunch, Tim Fernholz (1 september 2026, 21:06 UTC), op basis van OpenAI's eigen blogpost \"Path to Astra\"",
+   "url": "https://techcrunch.com/2026/09/01/open-ais-astra-model-is-on-the-way-and-very-good-at-breaking-into-computer-systems/",
+   "date": "2026-09-02",
+   "summary": "OpenAI heeft details gepubliceerd over Astra, het aankomende model dat volgens het bedrijf als eerste de eigen \"critical cybersecurity threshold\" haalt. De kern van die classificatie: Astra kan onbekende kwetsbaarheden vinden en exploiteren zonder menselijke sturing. Het model wordt \"binnenkort\" beschikbaar, maar de meest geavanceerde cybercapaciteiten worden achter beperktere toegang gezet. Dit is dezelfde categorie zorg die Anthropic eerder dit jaar over Mythos formuleerde, met vergelijkbare voorzorgsmaatregelen."
+  },
+  {
+   "id": "2026-09-02-pentagon-genai-mil-chatgpt-grok-drie-miljoen-medewerkers",
+   "title": "Pentagon zet ChatGPT Mil en Grok open voor 3 miljoen medewerkers — en de risicodocumentatie ontbreekt publiekelijk",
+   "source": "TechCrunch / DefenseScoop / Fortune / The Hill (31 augustus - 1 september 2026); risicokanttekeningen via BankInfoSecurity en TechTimes",
+   "url": "https://defensescoop.com/2026/08/31/grok-chatgpt-added-to-genai-mil/",
+   "date": "2026-09-02",
+   "summary": "Het Amerikaanse ministerie van Defensie heeft op 31 augustus twee nieuwe modellen toegevoegd aan GenAI.mil, het centrale AI-portaal dat in december 2025 startte met Google's Gemini for Government. Daar komen nu ChatGPT Mil (OpenAI) en Grok for Government (xAI) bij, beschikbaar voor ruim 3 miljoen militaire en burgermedewerkers. Het portaal heeft inmiddels 1,7 miljoen unieke gebruikers. Alle drie de modellen zijn geautoriseerd op Impact Level 5 (IL5) — de hoogste autorisatie voor ongeclassificeerd defensiewerk."
   }
+ ],
+ "today": {
+  "date": "2026-09-02",
+  "tasks": [
+   {
+    "id": "2026-08-19-wc-kitten",
+    "title": "WC kitten",
+    "status": "doing",
+    "detail": "De notitie bevat geen omschrijving — alleen de titel kwam uit de app mee, dus wat er precies aan de wc-kitten moet gebeuren staat nergens vast.",
+    "hint": "Staat op 'doing' sinds 19 augustus. Voeg één zin toe over wat er nog moet, anders verdwijnt hij.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-17-rotate-github-pat-before-18-september",
+    "title": "Rotate the GitHub PAT before 18 September 2026",
+    "status": "todo",
+    "detail": "De fine-grained token `tinotestingthings-token` waarmee de daily digest `feed.json` pusht verloopt vrijdag 18 september 2026.",
+    "hint": "Nog 16 dagen. Doe 'm in de week van 11 september, dan is er speling.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-22-openai-private-safety-processing-versus-anthropic-dataretentie",
+    "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
+    "status": "todo",
+    "detail": "OpenAI zette 19 augustus 'Private Safety Processing' in preview: misbruikdetectie via een afgebakend safety signal in plaats van Anthropics 30-dagenretentie; de technische white paper staat voor september gepland.",
+    "hint": "September is begonnen — goed moment om te checken of die white paper er is.",
+    "notes": [
+     "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren"
+    ],
+    "subtasks": []
+   }
+  ],
+  "projects": [
+   {
+    "id": "2026-07-14-team-verbetering-idee",
+    "title": "Team verbetering — idee",
+    "status": "active",
+    "updated": "2026-08-19 07:10",
+    "line": "Idee over hoe we ons team kunnen verbeteren: - 2-maandelijkse strategiesessie met mede-senior - Meer eisen en actielijst bijhouden voor onze manager - Meer zichtbaarheid creëren naar de manager",
+    "notes": [
+     "2026-07-28 06:47 (Tinus): The gist of this idea should be in the description in the app, at least"
+    ],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-28-goodmorning-app-improvements",
+    "title": "Goodmorning app improvements",
+    "status": "active",
+    "updated": "2026-08-26 07:12",
+    "line": "Hub project for improvements to the goodmorning app.",
+    "notes": [],
+    "subtasks": [
+     {
+      "text": "Quick-capture \"+\" button: make it movable (hold & drag to reposition), staying sticky to the screen sides as it is now",
+      "done": true
+     },
+     {
+      "text": "Calendar: duplicate a box on PC via shift+drag",
+      "done": false
+     },
+     {
+      "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+      "done": false
+     },
+     {
+      "text": "Morning loop tile style should match the other tiles",
+      "done": true
+     },
+     {
+      "text": "Add an emoji+ theme",
+      "done": true
+     },
+     {
+      "text": "All-day items should behave like normal calendar tasks (currently appear like tasks but can't even be deleted)",
+      "done": false
+     },
+     {
+      "text": "Drag-and-drop a calendar task onto the all-day bar, Outlook-style (currently dragging overlays the all-day row but still interacts with the timeslots)",
+      "done": false
+     },
+     {
+      "text": "Quick-capture box: history / \"see history\" button of the ideas posted in the box",
+      "done": false
+     },
+     {
+      "text": "Triage: add a history view",
+      "done": false
+     },
+     {
+      "text": "Integrate self-made utility apps (e.g. the Kangaroo gym tracker); maybe build a better gym tracker",
+      "done": false
+     },
+     {
+      "text": "\"Copy gym schedule\" feature in agenda settings: copy the next 14 days of gym days/times to paste/share with friends",
+      "done": false
+     },
+     {
+      "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+      "done": false
+     },
+     {
+      "text": "Compliance Radar entries should be editable like tasks and projects",
+      "done": false
+     },
+     {
+      "text": "Live hotfix: title `SBX · Daily Digest` → `Daily Digest`; path-guard the reset button so it can't wipe live `dd.*` data (commit 818ee07, 2026-08-04)",
+      "done": true
+     },
+     {
+      "text": "Make sandbox→live promotion safe — runtime namespace (killed the `sed` transform) + live-clean guard script shipped (commit 3ed0b34); only the GitHub Actions workflow file left to add manually. Full spec: [[2026-08-04-sandbox-live-promotion-safety-spec|Sandbox → live promotion — safety spec]]",
+      "done": true
+     },
+     {
+      "text": "Calendar: add a filter for an agenda view (all separate tasks listed)",
+      "done": false
+     },
+     {
+      "text": "Postponing a task from today to tomorrow keeps the end date on today, so it still shows on the homescreen under today — it shouldn't",
+      "done": false
+     },
+     {
+      "text": "Backlog should contain backlog items + to-do items (they're the same): currently to-do items show in tasks/projects but not in backlog",
+      "done": false
+     },
+     {
+      "text": "When I choose task or project, it should just become an item in the app instead of being sent to the inbox",
+      "done": false
+     },
+     {
+      "text": "I should be able to hold and drag to reorder backlog items",
+      "done": false
+     },
+     {
+      "text": "Verify offline mode: can the app still be used offline, and are changes saved and synced when back online?",
+      "done": false
+     },
+     {
+      "text": "Integrate the **Vogelspotinus** bird-spotting/learning app as a utility app inside goodmorning (same as the Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs). It's currently a standalone no-backend PWA — to match the others it also needs to persist progress to Supabase (`dd:`/`sbx:` namespaced keys) and get a daily-digest backup leg. Full spec: [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]] (C8 backup leg + `vogelspotinus_state` table drafted; wire into the live digest task at integration time).",
+      "done": false
+     },
+     {
+      "text": "**Vogelspotinus voortgangsfeatures** — statuskaart (geleerd/beheerst/streak/box-verdeling + \"te herhalen vandaag\"-tegel), drie oefenspellen (Herhalen / Goed gehad / Lastige vogels), de gewone quiz telt nu mee voor de SRS, per-vogel badges in Bladeren, en het Bladeren-infoblok + Wikipedia/Xeno-canto icon-links op de quiz/study-reveal. Gebouwd in sandbox en gepromoot naar live 2026-08-11. Details + open follow-ups in [[2026-08-10-vogelspotinus-integration-and-backup-spec|Vogelspotinus — integration & backup spec]].",
+      "done": true
+     },
+     {
+      "text": "**Vogel van de dag als tegel op het homescreen** — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand `vogelspotinus/data/bird-tiles.json` (561 vogels, 107 kB) dat `tools/build-bird-tiles.mjs` uit `birds.json` (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
+      "done": true
+     },
+     {
+      "text": "**Homescreen app-tile labels fit on one line** — \"ChordSprint\" was too wide for the 92px \"most used\" tile and broke mid-word onto a second line. Fixed 2026-08-18 (commit 35bbe3b, live + sandbox): the label now takes the full tile width, and `fitTileLabel()` in `home.js` steps the font size down after layout until it fits (floor 0.6rem, falls back to wrapping below that). Adaptive rather than a hardcoded size, so future app names fit too.",
+      "done": true
+     }
+    ]
+   },
+   {
+    "id": "2026-08-15-een-ai-app-waarmee-je-mallen-voor-kleding-kan-maken",
+    "title": "Een AI app waarmee je mallen voor kleding kan maken.",
+    "status": "active",
+    "updated": "2026-08-18 07:10",
+    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-19-vof-opzeggen",
+    "title": "VOF opzeggen",
+    "status": "active",
+    "updated": "2026-09-01 07:09",
+    "line": "<!-- app-subtasks:start -->",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-20-be-better-with-claude",
+    "title": "Be better with Claude",
+    "status": "active",
+    "updated": "2026-09-01 07:09",
+    "line": "<!-- app-subtasks:start -->",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-27-optimize-productivity-workflow",
+    "title": "Optimize productivity workflow",
+    "status": "active",
+    "updated": "",
+    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-11-finance-and-markets-learning-interest",
+    "title": "Finance and markets — learning interest",
+    "status": "idea-stage",
+    "updated": "2026-08-04 21:22",
+    "line": "I want to learn and build knowledge about finance — the markets and stocks, not personal finance.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-11-personal-productivity-mental-health-management",
+    "title": "Personal productivity as mental health management",
+    "status": "idea-stage",
+    "updated": "2026-08-11 07:10",
+    "line": "I want to learn about personal productivity, in the sense that it's mostly about managing mental health, rest, managing endorphins, etc.",
+    "notes": [],
+    "subtasks": [
+     {
+      "text": "Welke wetenschap achter vitamines is er",
+      "done": false
+     },
+     {
+      "text": "Welke wetenachap achter productiviteit is er",
+      "done": false
+     }
+    ]
+   },
+   {
+    "id": "2026-07-11-work-compliance-topics-resources-to-gather",
+    "title": "Work compliance topics — resources to gather",
+    "status": "idea-stage",
+    "updated": "2026-08-20 07:09",
+    "line": "Topics to add work-relevant resources on: - ISO 27001 - ISO 27701 - EU AI Act - GDPR",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-28-learn-pistol-squats",
+    "title": "Learn pistol squats",
+    "status": "idea-stage",
+    "updated": "2026-08-20 07:09",
+    "line": "Learn pistol squats (if they don't fuck up your knees) for both legs, and like the russian pistol squat dance.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-28-link-chatgpt-work-to-app",
+    "title": "Link ChatGPT Work to the app, to avoid vendor lock-in",
+    "status": "idea-stage",
+    "updated": "2026-08-07 07:09",
+    "line": "Link ChatGPT Work to the app, to avoid vendor lock-in.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-12-visit-every-park-in-utrecht",
+    "title": "Visit every park in Utrecht.",
+    "status": "idea-stage",
+    "updated": "",
+    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-30-mountainbiken",
+    "title": "Mountainbiken?",
+    "status": "idea-stage",
+    "updated": "",
+    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
+    "title": "Cooking — improving recipes",
+    "status": "done",
+    "updated": "2026-08-04 22:28",
+    "line": "Goal: start and improve recipes based on current ones, using the second brain.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-11-daily-habits-hub-site",
+    "title": "Project: a daily \"things to do everyday\" hub site",
+    "status": "done",
+    "updated": "2026-08-04 22:28",
+    "line": "I want a site where I have things to just do every day: practise notes a bit, do interval training, do some exercises, check my to-do for the day, etc.",
+    "notes": [
+     "2026-07-24 22:16 (Tinus): Done"
+    ],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-14-cookie-scanner-applicatie",
+    "title": "Project: Cookie Scanner Applicatie",
+    "status": "done",
+    "updated": "2026-08-20 07:09",
+    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk).",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
+    "title": "Daily digest app — instructions & Claude Code build prompt",
+    "status": "done",
+    "updated": "2026-08-19",
+    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed).",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-01-backlog-list-type-build-spec",
+    "title": "Backlog list type — build spec",
+    "status": "done",
+    "updated": "2026-08-04 22:28",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-04-sandbox-live-promotion-safety-spec",
+    "title": "Sandbox → live promotion — safety spec",
+    "status": "done",
+    "updated": "2026-08-04 22:28",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-10-vogelspotinus-integration-and-backup-spec",
+    "title": "Vogelspotinus — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-13 07:09",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-13-event-tracker-integration-and-backup-spec",
+    "title": "Event Tracker — integration & backup spec",
+    "status": "done",
+    "updated": "2026-08-18 07:10",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-18-ecosystem-explainer-remotion-script",
+    "title": "Ecosystem explainer — script & storyboard (Remotion)",
+    "status": "done",
+    "updated": "2026-08-27 07:21",
+    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "notes": [],
+    "subtasks": []
+   }
+  ],
+  "radar": {
+   "updated": "2026-08-31",
+   "follow_ups": 1,
+   "headline": "Datatilsynet draagt SATS op de check-in-foto om te zetten naar art. 6(1)(f): contractuele noodzaak afgewezen, recht van bezwaar (art. 21) gaat aan (impact 4).",
+   "deadlines": [
+    {
+     "date": "2026-09-11",
+     "label": "SATS moet de Datatilsynet-bevelen hebben uitgevoerd (grondslag + bezwaarafhandeling)"
+    },
+    {
+     "date": "2026-10-30",
+     "label": "EDPB-consultaties anonimisering (02/2026) en webscraping (03/2026) sluiten"
+    },
+    {
+     "date": "2026-10-31",
+     "label": "ISO 27701: certificerende instellingen moeten over naar de 2025-editie"
+    },
+    {
+     "date": "2026-12-02",
+     "label": "AI Act art. 50(2) grace period eindigt + nieuw verbod op AI-NCII/CSAM"
+    },
+    {
+     "date": "2027-08-02",
+     "label": "GPAI-aanbieders met pre-aug-2025-modellen: volledige compliance"
+    },
+    {
+     "date": "2027-12-02",
+     "label": "Zelfstandige high-risk AI-verplichtingen (Annex III) van toepassing"
+    },
+    {
+     "date": "2028-08-02",
+     "label": "High-risk AI in producten (Annex I) compliance-deadline"
+    }
+   ],
+   "weekly": {
+    "date": "2026-08-31",
+    "lines": [
+     "Alle 3 nieuwe items kwamen via secundair commentaar; primaire bronnen leverden niets.",
+     "Datatilsynet x SATS: art. 6(1)(b) afgewezen voor incheckfoto, art. 21 gaat aan.",
+     "NL-rechters passen Brillen Rottler toe: 5x art. 15-verzoek misbruik van recht.",
+     "DPC 550m X Corp nu 42d onbevestigd; 2 dec AI Act 50(2) op 92 dagen."
+    ]
+   }
+  }
+ },
+ "radar_week": {
+  "week_of": "2026-08-31",
+  "items": [
+   {
+    "date": "2026-08-31",
+    "topic": "enforcement",
+    "impact": 4,
+    "title": "Datatilsynet × SATS — check-in-foto: art. 6(1)(b) afgewezen, art. 21 gaat aan",
+    "line": "Bevel + berisping, geen boete. Contractuele noodzaak dekt geen controle die alleen nuttig is; de FAQ met de verkeerde grondslag was zelf een transparantieschending."
+   },
+   {
+    "date": "2026-08-27",
+    "topic": "gdpr",
+    "impact": 4,
+    "title": "NL-rechters passen Brillen Rottler toe: vijf uitspraken, art. 15-verzoeker niet-ontvankelijk wegens misbruik van recht",
+    "line": "RBNHO ×4 + Rotterdam. Misbruik in Scapino ambtshalve vastgesteld; werkelijke proceskosten alleen toegewezen mét kostenspecificatie."
+   },
+   {
+    "date": "2026-08-27",
+    "topic": "gdpr",
+    "impact": 4,
+    "title": "HvJ (Grote Kamer) C-474/24 NADA Austria — wanneer gepubliceerde sanctiedata art. 9-gezondheidsgegevens worden",
+    "line": "Overtreding + schorsing op zich niet; het noemen van de stof kan het wél zijn via afleiding. Publicatie moet stoppen zodra de sanctie afloopt."
+   }
+  ]
+ },
+ "vaultNote": {
+  "title": "Umamibomkom Van Yvette Van Boven",
+  "excerpt": "Doordeweekse Recepten — Total Time: 30 min — Servings: 2 personen — Source: Ah.nl Ingredients - 1 liter kokend water - 1 groentebouillontablet - 30 g gedroogde paddenstoel - 2 kroppen Shanghai paksoi - 1 grote ui - 7 cm verse gember - 3 tenen knoflook - 2 middelgrote eieren - 2 el sesamolie - 2 el misopasta - 200 g zilvervliesrijst - 150 g shiitake - 5 wortelen - 2 bosuien - 2 el rijstazijn - 1 tl zwart sesamzaad",
+  "path": "Mijn Wiki/20 Sources/2026-07-13-umamibomkom-van-yvette-van-boven.md",
+  "noteDate": "2026-07-13"
+ }
 }
