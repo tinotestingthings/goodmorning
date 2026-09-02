@@ -8,6 +8,10 @@ lees daar `CLAUDE.md` en `APP-HANDBOEK.md` voordat je aan de data komt.
 - `index.html` + `boot.js`: kaart (MapLibre 5, cdnjs), filters (straal, periode, verhalen),
   fotoblad met de drie locatieniveaus, onzekerheidscirkel, kijkrichting alleen bij een echte
   bearing, wijzigingsgeschiedenis bij "Nieuw vastgesteld".
+- "Selfie op deze plek" (fotoblad): camera met de oude foto half doorzichtig eroverheen om
+  hetzelfde kader te zoeken; resultaat is toen en nu naast/onder elkaar als jpeg, opslaan
+  (download) of delen (Web Share). Geen uitsnede. HUA-beeld via IIIF `full/1200,`; beide
+  hosts sturen CORS. In de Utilities-iframe via `allow="camera; web-share"`.
 - `data.json`: 132 foto's + 2 contextproviders. Genereren: `node tools/build-utrecht-toen.mjs`
   (vanuit de repo-root). Nooit met de hand bewerken.
 - Geen Supabase-tabel, geen opslag: de kaart is de hele staat.

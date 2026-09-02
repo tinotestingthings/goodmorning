@@ -285,7 +285,8 @@
       + '<div class="frame"><img id="sheetImg" src="' + esc(p.thumbnail_url) + '" alt="' + esc(title(p)) + '">'
       + '<span class="date">' + esc(date(p)) + '</span><p class="fail">De foto kon niet bij de bron worden geladen.</p></div>'
       + '<div class="body"><h2>' + esc(title(p)) + '</h2><p class="desc">' + esc(description(p.description)) + '</p>'
-      + '<div class="tier ' + t + '"><strong>' + TIER_LABEL[t] + (rev && rev.status === "newly_established" ? "<em>Nieuw vastgesteld</em>" : "") + '</strong><span>' + TIER_HELP[t] + '</span></div>';
+      + '<div class="tier ' + t + '"><strong>' + TIER_LABEL[t] + (rev && rev.status === "newly_established" ? "<em>Nieuw vastgesteld</em>" : "") + '</strong><span>' + TIER_HELP[t] + '</span></div>'
+      + (navigator.mediaDevices ? '<button type="button" class="act" id="selfie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Selfie op deze plek</button>' : "");
     if (rev && rev.status === "newly_established") {
       var prev = rev.previous_location;
       h += '<section class="rev" aria-label="Wijzigingsgeschiedenis van de locatie"><header><strong>Nieuw vastgesteld</strong><time>' + esc(new Date(rev.established_at).toLocaleDateString("nl-NL")) + '</time></header>'
@@ -325,6 +326,7 @@
     var img = $("sheetImg");
     img.onerror = function () { img.parentNode.className = "frame failed"; };
     img.onclick = function () { openFull(p); };
+    var sb = $("selfie"); if (sb) sb.onclick = function () { openCam(p); };
   }
 
   function step(dir) {
@@ -341,7 +343,88 @@
     full.className = "on";
   }
   $("fullClose").onclick = function () { full.className = ""; };
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") full.className = ""; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { full.className = ""; if (cam.className) closeCam(); } });
+
+  // ---- Toen & nu: selfie op de plek van de oude foto --------------------------
+  // De oude foto ligt half doorzichtig over het camerabeeld, zodat je dezelfde
+  // plek en hetzelfde kader zoekt. Bewust niet gespiegeld: de straat achter je
+  // moet de oude foto dekken, en een spiegel zou haar omkeren. Resultaat: toen
+  // en nu naast elkaar (staand: onder elkaar) als jpeg, om op te slaan of te delen.
+  // ponytail: geen uitsnede/segmentatie; die komt bovenop dit pad als Tinus hem wil.
+  var cam = $("cam"), video = cam.querySelector("video"), ghost = $("ghost"), shot = $("shot");
+  var stream = null, facing = "user", camPhoto = null, camBlob = null, ghostFell = false;
+
+  // HUA serveert via IIIF elke maat (full/full is een png van 10–27 MB); voor
+  // Commons volstaat de thumbnail van 960 px. Beide hosts sturen CORS-headers,
+  // anders mag het canvas niet worden geëxporteerd. Laadt de grote niet (404),
+  // dan de thumbnail (ghost.onerror).
+  function hires(p) {
+    var u = p.image_url.replace(/\/full\/full\/0\/default\.png$/, "/full/1200,/0/default.jpg");
+    return u === p.image_url ? p.thumbnail_url : u;
+  }
+  var camReq = 0;
+  function startCam() {
+    stopCam();
+    var id = ++camReq;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }).then(function (s) {
+      // Intussen gesloten of opnieuw gestart (snel dubbel tikken)? Dan deze
+      // stream meteen stoppen, anders blijft de camera onzichtbaar aan.
+      if (id !== camReq || !cam.className) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
+      stream = s; video.srcObject = s;
+    }, function () { if (id === camReq) { closeCam(); say("Geen toegang tot de camera.", true); } });
+  }
+  function stopCam() {
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = null; video.srcObject = null;
+  }
+  function clearShot() {
+    if (shot.src) { URL.revokeObjectURL(shot.src); shot.removeAttribute("src"); }
+    camBlob = null;
+  }
+  function openCam(p) {
+    camPhoto = p; clearShot();
+    ghostFell = false; ghost.src = hires(p);
+    cam.className = "on";
+    startCam();
+  }
+  function closeCam() { stopCam(); clearShot(); cam.className = ""; }
+  ghost.onerror = function () { if (camPhoto && !ghostFell) { ghostFell = true; ghost.src = camPhoto.thumbnail_url; } };
+
+  function stamp(x, text, left, bottom, fs) {
+    x.font = "600 " + fs + "px " + cssVar("--font", "sans-serif");
+    var w = x.measureText(text).width + fs, hgt = fs * 1.6;
+    x.fillStyle = "rgba(0,0,0,.6)"; x.fillRect(left, bottom - hgt, w, hgt);
+    x.fillStyle = "#fff"; x.textBaseline = "middle"; x.fillText(text, left + fs / 2, bottom - hgt / 2);
+  }
+  function shoot() {
+    var w = video.videoWidth, h = video.videoHeight;
+    if (!w || !h) return;
+    var o = ghost.naturalWidth ? ghost : null, stack = h > w, ow = 0, oh = 0;
+    if (o && stack) { ow = w; oh = Math.round(o.naturalHeight * w / o.naturalWidth); }
+    else if (o) { oh = h; ow = Math.round(o.naturalWidth * h / o.naturalHeight); }
+    var c = document.createElement("canvas"), x = c.getContext("2d"), fs = Math.round(h / 36), m = Math.round(fs * 0.6);
+    c.width = stack ? w : ow + w; c.height = stack ? oh + h : h;
+    var nx = stack ? 0 : ow, ny = stack ? oh : 0;
+    if (o) { x.drawImage(o, 0, 0, ow, oh); stamp(x, "Toen · " + date(camPhoto), m, oh - m, fs); }
+    x.drawImage(video, nx, ny, w, h);
+    stamp(x, "Nu · " + new Date().toLocaleDateString("nl-NL"), nx + m, c.height - m, fs);
+    stopCam(); // camera uit zolang het resultaat staat; "Opnieuw" start hem weer
+    c.toBlob(function (b) {
+      if (!b) { closeCam(); say("De foto kon niet worden samengesteld.", true); return; }
+      clearShot(); camBlob = b; shot.src = URL.createObjectURL(b); cam.className = "on shot";
+      $("camShare").hidden = !(navigator.canShare && navigator.canShare({ files: [camFile()] }));
+    }, "image/jpeg", 0.92);
+  }
+  function camFile() {
+    return new File([camBlob], "toen-nu-" + title(camPhoto).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) + ".jpg", { type: "image/jpeg" });
+  }
+  $("camClose").onclick = closeCam;
+  $("camShoot").onclick = shoot;
+  $("camRetry").onclick = function () { cam.className = "on"; startCam(); };
+  $("camFlip").onclick = function () { facing = facing === "user" ? "environment" : "user"; startCam(); };
+  $("ghostOp").oninput = function () { ghost.style.opacity = this.value / 100; };
+  $("camSave").onclick = function () { var a = document.createElement("a"); a.href = shot.src; a.download = camFile().name; a.click(); };
+  $("camShare").onclick = function () { navigator.share({ files: [camFile()], title: title(camPhoto) }).catch(function () {}); };
 
   // ---- filters ----------------------------------------------------------------
   $("radius").onchange = function () { radius = Number(this.value); refresh(); };
