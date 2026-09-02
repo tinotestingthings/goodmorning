@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-02 (v2026.09.02-2) — Utrecht Toen: foto aanklikken zoomt niet meer uit (blijft op je route-zoom)
+
+
 ## 2026-09-02 (v2026.09.02-1) — Utrecht Toen: pins zichtbaar (cluster-label gebruikte een font dat OpenFreeMap niet serveert → hele tile mislukte)
 
 

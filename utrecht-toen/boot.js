@@ -211,8 +211,8 @@
     map.getSource("accuracy").setData(p && t !== "exact" && p.location_accuracy_m != null ? circle(p.latitude, p.longitude, p.location_accuracy_m) : empty());
     if (p && flownTo !== p.id) {
       flownTo = p.id;
-      var target = t === "street" ? 13.5 : 15, cap = t === "street" ? 13.5 : 17;
-      map.flyTo({ center: [p.longitude, p.latitude], zoom: Math.max(Math.min(map.getZoom(), cap), target), duration: 650 });
+      // Nooit uitzoomen: wie ingezoomd zijn route loopt, blijft op dat niveau.
+      map.flyTo({ center: [p.longitude, p.latitude], zoom: Math.max(map.getZoom(), t === "street" ? 13.5 : 15), duration: 650 });
     }
     if (!p) flownTo = null;
   }
