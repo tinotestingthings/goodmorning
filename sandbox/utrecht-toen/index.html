@@ -104,7 +104,12 @@
     #cam { position: fixed; inset: 0; z-index: 11; background: #000; display: none; }
     #cam.on { display: block; }
     /* Beeld en resultaat blijven boven de knoppenbalk (96px = sluiter + padding), zodat het hele kader zichtbaar is */
-    #cam video, #cam img { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 96px - env(safe-area-inset-bottom, 0px)); object-fit: contain; }
+    #cam video, #cam img, #cam canvas { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 96px - env(safe-area-inset-bottom, 0px)); object-fit: contain; }
+    #cam.cut video { opacity: 0; } /* blijft spelen voor de segmenter; het canvas toont het beeld */
+    #cam.cut #ghost, #cam.cut .top, #cam:not(.cut) #live, #cam.shot #live { display: none; }
+    #cam .wait { display: none; position: absolute; left: 0; right: 0; top: 45%; margin: 0; text-align: center; color: #fff; font-size: 0.9rem; }
+    #cam.cut:not(.ready):not(.shot) .wait { display: block; }
+    #cam.cut:not(.ready) .bottom .shutter { opacity: .4; pointer-events: none; }
     #ghost { opacity: .45; pointer-events: none; }
     #cam .top { position: absolute; z-index: 1; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 56px; display: flex; align-items: center; gap: 10px;
                 color: #fff; font-size: 0.8rem; text-shadow: 0 0 4px rgba(0,0,0,.8); }
@@ -153,10 +158,12 @@
       <figcaption><strong></strong><span></span></figcaption>
     </figure>
 
-    <div id="cam" role="dialog" aria-modal="true" aria-label="Selfie op de plek van de oude foto">
+    <div id="cam" role="dialog" aria-modal="true" aria-label="Camera bij de oude foto">
       <video autoplay playsinline muted></video>
       <img id="ghost" alt="" crossorigin="anonymous" />
-      <img id="shot" alt="Toen en nu" />
+      <img id="shot" alt="Resultaat" />
+      <canvas id="live" aria-label="Jij in de oude foto"></canvas>
+      <p class="wait">Uitsnijden laden…</p>
       <button type="button" class="close" id="camClose" aria-label="Sluit camera">×</button>
       <div class="top"><span>Oude foto</span><input id="ghostOp" type="range" min="0" max="100" value="45" aria-label="Doorzichtigheid van de oude foto" /></div>
       <div class="bottom">
@@ -171,6 +178,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.8.0/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js"></script>
   <script src="boot.js"></script>
 </body>
 </html>
