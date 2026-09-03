@@ -229,6 +229,9 @@
     return s.replace(/(?:https?:\/\/|www\.)\S+/gi, "").replace(/\s*->\s*/g, " ").replace(/\s*["']?>+\s*/g, " ").replace(/\s{2,}/g, " ").trim();
   }
   function ext(href, label) { return '<a href="' + esc(href) + '" target="_blank" rel="noreferrer">' + esc(label) + ' ↗</a>'; }
+  function act(m, label, icon) {
+    return '<button type="button" class="act" data-mode="' + m + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg>' + label + '</button>';
+  }
 
   // ---- UI ---------------------------------------------------------------------
   function selected() {
@@ -285,7 +288,9 @@
       + '<div class="frame"><img id="sheetImg" src="' + esc(p.thumbnail_url) + '" alt="' + esc(title(p)) + '">'
       + '<span class="date">' + esc(date(p)) + '</span><p class="fail">De foto kon niet bij de bron worden geladen.</p></div>'
       + '<div class="body"><h2>' + esc(title(p)) + '</h2><p class="desc">' + esc(description(p.description)) + '</p>'
-      + '<div class="tier ' + t + '"><strong>' + TIER_LABEL[t] + (rev && rev.status === "newly_established" ? "<em>Nieuw vastgesteld</em>" : "") + '</strong><span>' + TIER_HELP[t] + '</span></div>';
+      + '<div class="tier ' + t + '"><strong>' + TIER_LABEL[t] + (rev && rev.status === "newly_established" ? "<em>Nieuw vastgesteld</em>" : "") + '</strong><span>' + TIER_HELP[t] + '</span></div>'
+      + (navigator.mediaDevices ? (window.SelfieSegmentation ? act("cut", "Stap in de oude foto", '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>') : "")
+        + act("then", "Maak een toen/nu-foto op deze locatie", '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>') : "");
     if (rev && rev.status === "newly_established") {
       var prev = rev.previous_location;
       h += '<section class="rev" aria-label="Wijzigingsgeschiedenis van de locatie"><header><strong>Nieuw vastgesteld</strong><time>' + esc(new Date(rev.established_at).toLocaleDateString("nl-NL")) + '</time></header>'
@@ -325,6 +330,7 @@
     var img = $("sheetImg");
     img.onerror = function () { img.parentNode.className = "frame failed"; };
     img.onclick = function () { openFull(p); };
+    Array.prototype.forEach.call(sheet.querySelectorAll(".act"), function (b) { b.onclick = function () { openCam(p, b.getAttribute("data-mode")); }; });
   }
 
   function step(dir) {
@@ -341,7 +347,157 @@
     full.className = "on";
   }
   $("fullClose").onclick = function () { full.className = ""; };
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") full.className = ""; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { full.className = ""; if (cam.className) closeCam(); } });
+
+  // ---- Camera: in de oude foto stappen, of een toen/nu-foto -------------------
+  // Twee standen op één overlay. "cut": MediaPipe Selfie Segmentation snijdt je
+  // per frame uit het camerabeeld en zet je op de oude foto (Teams/Snapchat-
+  // achtig); het canvas is meteen het eindbeeld. "then": de oude foto ligt half
+  // doorzichtig over het camerabeeld om hetzelfde kader te zoeken; resultaat is
+  // toen en nu naast elkaar (staand: onder elkaar). "then" is bewust niet
+  // gespiegeld (anders keert de straat om); "cut" wel bij de voorcamera.
+  // Zelfde bron als de <script>-tag in index.html: wasm en model moeten bij die build horen.
+  var segTag = document.querySelector('script[src*="selfie_segmentation"]');
+  var SEG_CDN = segTag ? segTag.src.replace(/[^\/]*$/, "") : "";
+  var cam = $("cam"), video = cam.querySelector("video"), ghost = $("ghost"), shot = $("shot"), live = $("live");
+  var stream = null, facing = "user", mode = "", camPhoto = null, camBlob = null, ghostFell = false;
+  var seg = null, segBusy = false, sendId = 0, ticking = false, tmp = document.createElement("canvas");
+
+  // HUA serveert via IIIF elke maat (full/full is een png van 10–27 MB); voor
+  // Commons volstaat de thumbnail van 960 px. Beide hosts sturen CORS-headers,
+  // anders mag het canvas niet worden geëxporteerd. Laadt de grote niet (404),
+  // dan de thumbnail (ghost.onerror).
+  function hires(p) {
+    var u = p.image_url.replace(/\/full\/full\/0\/default\.png$/, "/full/1200,/0/default.jpg");
+    return u === p.image_url ? p.thumbnail_url : u;
+  }
+  function oldPhoto() { return ghost.naturalWidth ? ghost : null; }
+  function liveClass() { return mode === "cut" ? "on cut" : "on"; }
+  var camReq = 0;
+  function startCam() {
+    stopCam();
+    var id = ++camReq;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }).then(function (s) {
+      // Intussen gesloten of opnieuw gestart (snel dubbel tikken)? Dan deze
+      // stream meteen stoppen, anders blijft de camera onzichtbaar aan.
+      if (id !== camReq || !cam.className) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
+      stream = s; video.srcObject = s;
+      if (mode === "cut") tick();
+    }, function () { if (id === camReq) { closeCam(); say("Geen toegang tot de camera.", true); } });
+  }
+  function stopCam() {
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = null; video.srcObject = null;
+  }
+  function clearShot() {
+    if (shot.src) { URL.revokeObjectURL(shot.src); shot.removeAttribute("src"); }
+    camBlob = null;
+  }
+  function openCam(p, m) {
+    camPhoto = p; mode = m; clearShot();
+    ghostFell = false; ghost.src = hires(p);
+    cam.className = liveClass();
+    startCam();
+  }
+  function closeCam() { stopCam(); clearShot(); cam.className = ""; }
+  ghost.onerror = function () {
+    if (camPhoto && !ghostFell) { ghostFell = true; ghost.src = camPhoto.thumbnail_url; return; }
+    if (mode === "cut" && cam.className) { closeCam(); say("De oude foto kon niet worden geladen.", true); }
+  };
+
+  // Uitsnijden: één segmenter voor de hele sessie; het model (wasm ≈ 6 MB,
+  // daarna uit de browsercache) laadt bij de eerste send().
+  function segmenter() {
+    if (!seg) {
+      seg = new SelfieSegmentation({ locateFile: function (f) { return SEG_CDN + f; } });
+      seg.setOptions({ modelSelection: 0, selfieMode: facing === "user" });
+      seg.onResults(composite);
+    }
+    return seg;
+  }
+  function cutting() { return mode === "cut" && !cam.classList.contains("shot") && !!stream; }
+  function tick() {
+    if (ticking) return;
+    ticking = true;
+    (function loop() {
+      if (!cutting()) { ticking = false; return; }
+      if (video.videoWidth && !segBusy) {
+        segBusy = true; sendId = camReq;
+        segmenter().send({ image: video }).then(function () { segBusy = false; }, function () {
+          segBusy = false;
+          // Alleen fataal zolang er nog nooit een frame lukte (model laadt niet); een losse misser daarna slaan we over.
+          if (sendId === camReq && !cam.classList.contains("ready")) { closeCam(); say("Uitsnijden lukt niet op dit apparaat of zonder verbinding.", true); }
+        });
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+  // Achtergrond = de hele oude foto op eigen maat (≤ 1200 px via hires); jij
+  // erop, passend op hoogte en gecentreerd. Masker × beeld via source-in geeft
+  // zachte randen. Zonder oude foto, of met een frame van een vorige camera
+  // (na wisselen/opnieuw), tekenen we niets: dan blijft "laden" staan.
+  function composite(r) {
+    var o = oldPhoto(), w = r.image.width || video.videoWidth, h = r.image.height || video.videoHeight;
+    if (sendId !== camReq || !o || !w || !h) return;
+    var W = o.naturalWidth, H = o.naturalHeight;
+    if (live.width !== W || live.height !== H) { live.width = W; live.height = H; }
+    if (tmp.width !== w || tmp.height !== h) { tmp.width = w; tmp.height = h; }
+    var x = live.getContext("2d"), t = tmp.getContext("2d");
+    x.drawImage(o, 0, 0, W, H);
+    t.globalCompositeOperation = "source-over"; t.clearRect(0, 0, w, h);
+    t.drawImage(r.segmentationMask, 0, 0, w, h);
+    t.globalCompositeOperation = "source-in"; t.drawImage(r.image, 0, 0, w, h);
+    var pw = w * H / h;
+    x.drawImage(tmp, (W - pw) / 2, 0, pw, H);
+    cam.classList.add("ready");
+  }
+
+  function stamp(x, text, left, bottom, fs) {
+    x.font = "600 " + fs + "px " + cssVar("--font", "sans-serif");
+    var w = x.measureText(text).width + fs, hgt = fs * 1.6;
+    x.fillStyle = "rgba(0,0,0,.6)"; x.fillRect(left, bottom - hgt, w, hgt);
+    x.fillStyle = "#fff"; x.textBaseline = "middle"; x.fillText(text, left + fs / 2, bottom - hgt / 2);
+  }
+  function thenNow() {
+    var w = video.videoWidth, h = video.videoHeight;
+    if (!w || !h) return null;
+    var o = oldPhoto(), stack = h > w, ow = 0, oh = 0;
+    if (o && stack) { ow = w; oh = Math.round(o.naturalHeight * w / o.naturalWidth); }
+    else if (o) { oh = h; ow = Math.round(o.naturalWidth * h / o.naturalHeight); }
+    var c = document.createElement("canvas"), x = c.getContext("2d"), fs = Math.round(h / 36), m = Math.round(fs * 0.6);
+    c.width = stack ? w : ow + w; c.height = stack ? oh + h : h;
+    var nx = stack ? 0 : ow, ny = stack ? oh : 0;
+    if (o) { x.drawImage(o, 0, 0, ow, oh); stamp(x, "Toen · " + date(camPhoto), m, oh - m, fs); }
+    x.drawImage(video, nx, ny, w, h);
+    stamp(x, "Nu · " + new Date().toLocaleDateString("nl-NL"), nx + m, c.height - m, fs);
+    return c;
+  }
+  function shoot() {
+    var c = mode === "cut" ? (cam.classList.contains("ready") ? live : null) : thenNow();
+    if (!c) return;
+    stopCam(); // camera uit zolang het resultaat staat; "Opnieuw" start hem weer
+    c.toBlob(function (b) {
+      if (!b) { closeCam(); say("De foto kon niet worden samengesteld.", true); return; }
+      clearShot(); camBlob = b; shot.src = URL.createObjectURL(b); cam.classList.add("shot");
+      $("camShare").hidden = !(navigator.canShare && navigator.canShare({ files: [camFile()] }));
+    }, "image/jpeg", 0.92);
+  }
+  function camFile() {
+    var slug = title(camPhoto).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+    return new File([camBlob], (mode === "cut" ? "in-de-oude-foto-" : "toen-nu-") + slug + ".jpg", { type: "image/jpeg" });
+  }
+  $("camClose").onclick = closeCam;
+  $("camShoot").onclick = shoot;
+  $("camRetry").onclick = function () { cam.className = liveClass(); startCam(); };
+  $("camFlip").onclick = function () {
+    facing = facing === "user" ? "environment" : "user";
+    if (seg) seg.setOptions({ selfieMode: facing === "user" });
+    cam.className = liveClass(); // "ready" weg tot de nieuwe camera een frame gaf
+    startCam();
+  };
+  $("ghostOp").oninput = function () { ghost.style.opacity = this.value / 100; };
+  $("camSave").onclick = function () { var a = document.createElement("a"); a.href = shot.src; a.download = camFile().name; a.click(); };
+  $("camShare").onclick = function () { navigator.share({ files: [camFile()], title: title(camPhoto) }).catch(function () {}); };
 
   // ---- filters ----------------------------------------------------------------
   $("radius").onchange = function () { radius = Number(this.value); refresh(); };

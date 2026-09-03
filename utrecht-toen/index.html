@@ -97,11 +97,35 @@
     .nav button { border: 0; background: none; padding: 6px 0; color: var(--blue); font-weight: 600; cursor: pointer; }
     .nav span { color: var(--muted); font-size: 0.85rem; }
 
+    .act { display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 4px 0 12px; color: var(--blue); font-weight: 600; cursor: pointer; }
+    .act svg { width: 18px; height: 18px; }
+
+    /* Toen & nu: camera met de oude foto half doorzichtig eroverheen, daarna het resultaat */
+    #cam { position: fixed; inset: 0; z-index: 11; background: #000; display: none; }
+    #cam.on { display: block; }
+    /* Beeld en resultaat blijven boven de knoppenbalk (96px = sluiter + padding), zodat het hele kader zichtbaar is */
+    #cam video, #cam img, #cam canvas { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 96px - env(safe-area-inset-bottom, 0px)); object-fit: contain; }
+    #cam.cut video { opacity: 0; } /* blijft spelen voor de segmenter; het canvas toont het beeld */
+    #cam.cut #ghost, #cam.cut .top, #cam:not(.cut) #live, #cam.shot #live { display: none; }
+    #cam .wait { display: none; position: absolute; left: 0; right: 0; top: 45%; margin: 0; text-align: center; color: #fff; font-size: 0.9rem; }
+    #cam.cut:not(.ready):not(.shot) .wait { display: block; }
+    #cam.cut:not(.ready) .bottom .shutter { opacity: .4; pointer-events: none; }
+    #ghost { opacity: .45; pointer-events: none; }
+    #cam .top { position: absolute; z-index: 1; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 56px; display: flex; align-items: center; gap: 10px;
+                color: #fff; font-size: 0.8rem; text-shadow: 0 0 4px rgba(0,0,0,.8); }
+    #cam .top input { flex: 1; max-width: 220px; margin: 0; accent-color: var(--blue); }
+    #cam .bottom { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; gap: 24px;
+                   padding: 14px 16px max(16px, env(safe-area-inset-bottom)); background: rgba(0,0,0,.5); }
+    #cam .bottom button, #cam .bottom i { border: 0; background: none; color: #fff; font-weight: 600; padding: 8px 4px; min-width: 88px; cursor: pointer; }
+    #cam .bottom .shutter { width: 66px; height: 66px; min-width: 0; padding: 0; border-radius: 50%; background: #fff; border: 4px solid rgba(255,255,255,.4); background-clip: padding-box; }
+    #cam.shot video, #cam.shot #ghost, #cam.shot .top, #cam.shot .live { display: none; }
+    #cam:not(.shot) #shot, #cam:not(.shot) .done { display: none; }
+
     #full { position: fixed; inset: 0; z-index: 10; background: #000; display: none; flex-direction: column; }
     #full.on { display: flex; }
     #full img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
     #full figcaption { color: #fff; padding: 10px 16px max(12px, env(safe-area-inset-bottom)); font-size: 0.85rem; display: flex; gap: 10px; justify-content: space-between; }
-    #full .close { top: max(8px, env(safe-area-inset-top)); }
+    #full .close, #cam .close { top: max(8px, env(safe-area-inset-top)); }
   </style>
   <link rel="stylesheet" href="../design.css"> <!-- gedeelde tokens; als laatste -->
 </head>
@@ -133,9 +157,28 @@
       <img alt="" />
       <figcaption><strong></strong><span></span></figcaption>
     </figure>
+
+    <div id="cam" role="dialog" aria-modal="true" aria-label="Camera bij de oude foto">
+      <video autoplay playsinline muted></video>
+      <img id="ghost" alt="" crossorigin="anonymous" />
+      <img id="shot" alt="Resultaat" />
+      <canvas id="live" aria-label="Jij in de oude foto"></canvas>
+      <p class="wait">Uitsnijden laden…</p>
+      <button type="button" class="close" id="camClose" aria-label="Sluit camera">×</button>
+      <div class="top"><span>Oude foto</span><input id="ghostOp" type="range" min="0" max="100" value="45" aria-label="Doorzichtigheid van de oude foto" /></div>
+      <div class="bottom">
+        <button type="button" class="live" id="camFlip">Wissel camera</button>
+        <button type="button" class="live shutter" id="camShoot" aria-label="Maak foto"></button>
+        <i class="live" aria-hidden="true"></i>
+        <button type="button" class="done" id="camRetry">Opnieuw</button>
+        <button type="button" class="done" id="camSave">Opslaan</button>
+        <button type="button" class="done" id="camShare">Delen</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.8.0/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js"></script>
   <script src="boot.js"></script>
 </body>
 </html>
