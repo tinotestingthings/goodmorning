@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-03 (v2026.09.03-3) — Utrecht Toen: 413 foto's (data bijgewerkt uit utrecht-in-beeld)
+
+
 ## 2026-09-03 (v2026.09.03-2) — Utrecht Toen: 332 foto's — 100 binnenstadfoto's van vóór 1950 erbij (Het Utrechts Archief, gebouwniveau via PDOK-adres, geen review; batch centrum-1950 + eerste Europeana-batch)
 
 
