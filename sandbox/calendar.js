@@ -1237,7 +1237,7 @@
   function todoCopyAt(t,nds,st,et){
     var copy={}; for(var k in t)copy[k]=t[k];
     copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
-    copy.done=false; copy.snoozes=0;
+    copy.done=false; copy.snoozes=0; copy.prio=null;
     if(nds){
       if(copy.endDate&&copy.dueDate){ var sp=Math.round((parseYmd(copy.endDate)-parseYmd(copy.dueDate))/86400000); if(!(sp>=0))sp=0; copy.endDate=ymd(addDays(parseYmd(nds),sp)); }
       copy.dueDate=nds;

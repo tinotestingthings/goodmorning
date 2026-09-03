@@ -99,6 +99,20 @@
     return found;
   }
 
+  // Several patches, ONE save (= one sync push). `patches` = { id: patch }.
+  function updateMany(patches) {
+    var ids = Object.keys(patches);
+    if (!ids.length) return;
+    var list = load();
+    for (var i = 0; i < list.length; i++) {
+      var p = patches[list[i].id];
+      if (!p) continue;
+      for (var k in p) { if (Object.prototype.hasOwnProperty.call(p, k)) list[i][k] = p[k]; }
+      list[i].updated = nowISO();
+    }
+    save(list);
+  }
+
   function remove(id) {
     save(load().filter(function (x) { return x.id !== id; }));
   }
@@ -194,6 +208,7 @@
     get: get,
     byState: byState,
     backlog: backlog,
+    updateMany: updateMany,
     add: add,
     update: update,
     remove: remove,

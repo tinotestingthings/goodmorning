@@ -863,6 +863,7 @@
   // A "+N more" disclosure: renders `primary` rows straight into `container`,
   // and tucks `rest` behind a small toggle so a long list doesn't dominate
   // by default. `rowFn` builds one row's DOM for a given item. `moreLabel`
+    if (window.Wakeup) heroRow.appendChild(renderWakeupTile());
   // lets a caller say "+6 more days" instead of the generic "+6 more"
   // (defaults to "more").
   function collapsible(container, primary, rest, rowFn, moreLabel) {
@@ -1205,7 +1206,7 @@
     var rank = { active: 0, todo: 1, idea: 2 };
     return window.Items.all().filter(function (x) {
       return x.type === type && (x.state === "idea" || x.state === "todo" || x.state === "active");
-    }).sort(function (a, b) { return (rank[a.state] || 0) - (rank[b.state] || 0); });
+    }).sort(function (a, b) { return (isPrio(b) - isPrio(a)) || (rank[a.state] || 0) - (rank[b.state] || 0); });
   }
 
   var ITEM_STATES = [["backlog", "Backlog"], ["idea", "Idea"], ["todo", "To-do"], ["active", "Active"], ["done", "Done"]];
@@ -1321,6 +1322,7 @@
     }
     refresh();
     return openAppItems(type).length;
+    if (isPrio(item)) row.appendChild(el("span", "cal-badge-prio", "\u2605"));
   }
 
   function daysUntil(dateStr) {
@@ -2092,7 +2094,11 @@
     row.appendChild(checkBtn);
 
     var textWrap = el("div", "todo-text-wrap");
-    textWrap.appendChild(el("div", "todo-text" + (t.done ? " todo-text-done" : ""), t.text));
+  // Wake-up priority: `prio` holds the date it was starred for (to-dos AND
+  // items), so it expires by itself. Set in wakeup.js / the ItemUI menu.
+  function isPrio(x) { return !!x && x.prio === localDateStr(); }
+
+    textWrap.appendChild(el("div", "todo-text" + (t.done ? " todo-text-done" : ""), (isPrio(t) ? "\u2605 " : "") + t.text));
     var dueLabel = todoDueLabel(t);
     if (dueLabel) textWrap.appendChild(el("div", "todo-due", dueLabel));
     row.appendChild(textWrap);
@@ -2155,7 +2161,7 @@
       var list = loadTodos();
       var open = list.filter(function (t) { return !t.done; }).sort(function (a, b) {
         var ad = a.dueDate || "9999-99-99", bd = b.dueDate || "9999-99-99";
-        return ad < bd ? -1 : ad > bd ? 1 : 0;
+        return (isPrio(b) - isPrio(a)) || (ad < bd ? -1 : ad > bd ? 1 : 0);
       });
       var done = list.filter(function (t) { return t.done; });
       if (open.length === 0 && done.length === 0) {
@@ -2258,10 +2264,12 @@
   // device in the meantime must not be resurrected on the target day.
   // Pure data operation, exported on DayModel and shared with the calendar's
   // "All" view; returns how many to-dos actually moved.
-  function moveTodosTo(ids, ymdStr) {
+  // In-place on `list` (no load/save) so a caller can combine it with other
+  // edits in ONE save = one sync push; moveTodosTo wraps it.
+  function moveTodosIn(list, ids, ymdStr) {
     var byId = {};
     ids.forEach(function (id) { byId[id] = true; });
-    var list = loadTodos(), moved = 0;
+    var moved = 0;
     list.forEach(function (t) {
       if (!byId[t.id] || t.done) return;
       if (t.endDate && t.dueDate) {
@@ -2321,8 +2329,14 @@
     }
 
     var list = el("div", "todo-list");
+      t.prio = null;   // moved off today = not today's priority any more
     todos.forEach(function (t) {
       var row = el("div", "todo-row bulk-row");
+    return moved;
+  }
+  function moveTodosTo(ids, ymdStr) {
+    var list = loadTodos();
+    var moved = moveTodosIn(list, ids, ymdStr);
       var chk = document.createElement("button");
       chk.type = "button";
       chk.className = "todo-check bulk-check";
@@ -2427,6 +2441,8 @@
 
     // ---- icon tiles + inline accordion ----
   // Tiles render in rows (wide tiles/urgent cards get their own row;
+  var prioOpenState = {};   // ⋯-panel open/closed per priority item, kept across re-renders
+
   // regular tiles pair up 2-per-row) instead of one CSS grid, so that
   // tapping any tile inserts its expanded content directly below that
   // tile's own row — not at the bottom of the whole tile area.
@@ -2453,6 +2469,23 @@
     head.appendChild(iconWrap);
     head.appendChild(el("span", "tile-label", label));
     t.appendChild(head);
+    // Priority (wake-up stars) first: to-dos pulled out of the lists below,
+    // plus starred tasks/projects from the items store. `prio` is a date, so
+    // yesterday's stars are simply not today's.
+    var prioTodos = loadTodos().filter(function (t) { return !t.done && isPrio(t); });
+    var prioItems = window.Items ? window.Items.all().filter(function (x) {
+      return isPrio(x) && (x.state === "idea" || x.state === "todo" || x.state === "active");
+    }) : [];
+    if (prioTodos.length || prioItems.length) {
+      oTodos = oTodos.filter(function (t) { return !isPrio(t); });
+      todos = todos.filter(function (t) { return !isPrio(t); });
+      container.appendChild(el("div", "home-today-head home-prio-head", "\u2605 Priority"));
+      var pList = el("div", "cal-item-list home-today-list");
+      prioTodos.forEach(function (t) { pList.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
+      prioItems.forEach(function (it) { pList.appendChild(appItemRow(it, render, prioOpenState)); });
+      container.appendChild(pList);
+    }
+
     t.addEventListener("click", onToggle);
     return t;
   }
@@ -2915,7 +2948,18 @@
     freqLabel: freqLabel,
     localDateStr: localDateStr,
     WEEKDAY_NAMES: WEEKDAY_NAMES,
-    toast: toast
+    toast: toast,
+    // for wakeup.js (+ ItemUI): priority predicate, due lists, greeting, and
+    // the same weather fetch/cache as the mini weather tile
+    isPrio: isPrio,
+    overdueTodos: overdueTodos,
+    dueTodayTodos: dueTodayTodos,
+    moveTodosIn: moveTodosIn,
+    greetingWord: greetingWord,
+    weather: loadWeather,
+    pickHourly: pickHourly,
+    weatherInfo: weatherInfo,
+    WEATHER_SLOTS: WEATHER_SLOTS
   };
 
   if (window.App && App.onShow) {
