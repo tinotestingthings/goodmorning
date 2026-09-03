@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-03 (v2026.09.03-2) — Utrecht Toen: 332 foto's — 100 binnenstadfoto's van vóór 1950 erbij (Het Utrechts Archief, gebouwniveau via PDOK-adres, geen review; batch centrum-1950 + eerste Europeana-batch)
+
+
 ## 2026-09-03 (v2026.09.03-1) — Utrecht Toen: 'Stap in de oude foto' (jij uitgesneden via MediaPipe Selfie Segmentation op de oude foto) en 'Maak een toen/nu-foto op deze locatie' in het fotoblad; opslaan of delen; Utilities-iframe met camera/web-share
 
 
