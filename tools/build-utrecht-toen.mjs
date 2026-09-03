@@ -45,7 +45,8 @@ for (const photo of photos) {
 photos.sort((a, b) => a.id.localeCompare(b.id));
 
 const assert = (ok, msg) => { if (!ok) { console.error("✗ " + msg); process.exit(1); } };
-assert(photos.length === 332, `verwacht 332 foto's, kreeg ${photos.length}`);
+// Elke basis- en reviewfoto precies één keer: dubbels horen al in de bron te zijn opgelost.
+assert(photos.length === base.length + published.length, `verwacht ${base.length + published.length} foto's (basis + review), kreeg ${photos.length}`);
 assert(photos.filter((p) => p.location_revision?.status === "newly_established").length === 21, "verwacht 21 nieuw vastgestelde locaties");
 assert(photos.every((p) => p.bearing == null || p.bearing_method), "bearing zonder methode");
 
