@@ -19,6 +19,7 @@ const src = process.argv[2] || join(homedir(), "Code", "utrecht-in-beeld");
 const read = (f) => JSON.parse(readFileSync(join(src, "data", f), "utf8"));
 
 const base = read("photos.json");
+const cities = read("cities.json");
 const published = read("published-review-photos.json");
 const providers = read("context-providers.json").filter((p) => p.enabled);
 const contributions = read("context-contributions.json");
@@ -51,5 +52,5 @@ assert(photos.filter((p) => p.location_revision?.status === "newly_established")
 assert(photos.every((p) => p.bearing == null || p.bearing_method), "bearing zonder methode");
 
 const out = join(import.meta.dirname, "..", "sandbox", "utrecht-toen", "data.json");
-writeFileSync(out, JSON.stringify({ providers, photos }));
+writeFileSync(out, JSON.stringify({ cities, providers, photos }));
 console.log(`✓ ${photos.length} foto's, ${providers.length} providers → ${out}`);
