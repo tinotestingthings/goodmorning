@@ -2885,7 +2885,8 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
 .sbx-badge {
   position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
   background: #d9a441; color: #1a1d24; font-size: 0.62rem; font-weight: 800;
-  letter-spacing: 0.06em; padding: 2px 10px; border-radius: 999px; z-index: 100; pointer-events: none;
+  letter-spacing: 0.06em; padding: 2px 10px; border-radius: 999px; z-index: 100;
+  cursor: pointer; touch-action: manipulation; white-space: nowrap; max-width: 70vw; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* detail sheet: schedule row + per-subtask calendar button */

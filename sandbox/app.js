@@ -100,13 +100,42 @@
   }
 
   // ---- sandbox-only marker (path-based → never appears on the live app) ----
+  // Shows the build stamp from env.js, so you always know WHICH sandbox you're
+  // looking at. Tap = check the server for a newer stamp and reload if so; the
+  // same check also runs once per load, silently (reload at most once per
+  // served version, so a half-deployed Pages build can't loop us).
   if (global.location && global.location.pathname.indexOf("/sandbox/") !== -1) {
+    var sbxVersion = function () { return (global.DD_ENV && global.DD_ENV.version) || "?"; };
+    // Bypasses the HTTP cache (Pages: max-age=600) — the one gap the SW's
+    // network-first can't close by itself.
+    var servedVersion = function () {
+      return fetch("env.js", { cache: "no-store" }).then(function (r) { return r.text(); })
+        .then(function (t) { var m = t.match(/version: "([^"]*)"/); return m ? m[1] : null; });
+    };
     var addSbx = function () {
       if (document.querySelector(".sbx-badge")) return;
-      var b = document.createElement("div"); b.className = "sbx-badge"; b.textContent = "SANDBOX";
+      var b = document.createElement("div"); b.className = "sbx-badge";
+      var label = function (suffix) { b.textContent = "SANDBOX · " + sbxVersion() + (suffix || ""); };
+      label();
+      b.setAttribute("role", "button");
+      b.setAttribute("aria-label", "Sandbox " + sbxVersion() + " — tap to check for a newer build");
+      b.addEventListener("click", function () {
+        label(" …");
+        servedVersion().then(function (v) {
+          if (v && v !== sbxVersion()) { global.location.reload(); return; }
+          label(" ✓");
+          setTimeout(function () { label(); }, 1500);
+        }).catch(function () { label(); });
+      });
       document.body.appendChild(b);
     };
     if (document.body) addSbx(); else document.addEventListener("DOMContentLoaded", addSbx);
+    servedVersion().then(function (v) {
+      if (!v || v === sbxVersion()) return;
+      var key = k("reloadedFor");
+      try { if (sessionStorage.getItem(key) === v) return; sessionStorage.setItem(key, v); } catch (e) {}
+      global.location.reload();
+    }).catch(function () {});
   }
 
   // ---- service worker (installability + offline shell) ----

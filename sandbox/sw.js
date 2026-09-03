@@ -154,8 +154,13 @@ self.addEventListener("fetch", function (event) {
   var isShellFile = rel !== null && /\.(html|js|mjs|css)$/.test(rel);
 
   if (event.request.mode === "navigate" || isShellFile) {
+    // Sandbox: revalidate with the server (ETag → 304) instead of trusting the
+    // HTTP cache. Pages sends max-age=600, so without this a phone could run a
+    // 10-minute-old shell right after a push — the test loop Tinus asked for
+    // (2026-09-03) needs "open = newest". Live keeps the cheap default.
+    var req = IS_SANDBOX ? new Request(event.request.url, { cache: "no-cache", credentials: "same-origin" }) : event.request;
     event.respondWith(
-      fetch(event.request).then(function (res) {
+      fetch(req).then(function (res) {
         if (res && res.ok) {
           var copy = res.clone();
           caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });

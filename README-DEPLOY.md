@@ -19,6 +19,18 @@ file is correct at either URL. There is no `sed` transform anymore.
 3. The daily-digest scheduled task only ever writes `feed.json`. It must never
    copy app code.
 
+## Testen op je telefoon (sandbox)
+
+- Open https://tinotestingthings.github.io/goodmorning/sandbox/ — de gele badge bovenaan toont de
+  build: `SANDBOX · sbx 2026-09-03 21:57`. Zelfde stempel staat onderaan Settings. De stempel wordt
+  bij elke commit met sandbox-bestanden gezet door de pre-commit hook (`tools/stamp-sandbox-version.sh`;
+  eenmalig installeren: `ln -sf ../../tools/stamp-sandbox-version.sh .git/hooks/pre-commit`).
+- Nieuwste versie: de sandbox-SW haalt html/js/css altijd met `cache: no-cache` (ETag-check, geen
+  10-minuten HTTP-cache van Pages) en de app vergelijkt bij het openen de stempel op de server met de
+  draaiende; anders → één automatische reload. Tik op de badge om dat handmatig te doen (✓ = up-to-date).
+- Reken 1–2 minuten na `git push` voor de Pages-deploy. Data wissen hoeft niet voor een nieuwe versie;
+  wil je schone testdata, tik dan de ↺-knop rechtsboven (wist alleen `sbx.*`, je login blijft).
+
 ## Promote sandbox → live
 
 **Use the script:** `bash tools/promote.sh "what changed"` — it runs the guard, copies, re-guards, syntax-checks, writes the CHANGELOG line, commits, tags `vYYYY.MM.DD-n` and pushes. The manual loop below is what it does.
