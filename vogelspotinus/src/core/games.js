@@ -93,24 +93,24 @@ export function applySeed({ version, games: seededGames, retire = [] }) {
   if (seenVersion === version) return;
 
   // Elk seed-spel is een specificIds-spel, opgebouwd uit de zojuist geladen
-  // datasets. Een lege lijst betekent dus: die dataset laadde deze boot niet
-  // (street.json viel bv. net weg; loadBirds vangt dat stil af). Dan niets
-  // doen en de versie NIET markeren -- de volgende boot probeert het gewoon
-  // opnieuw. Zonder deze guard werd het lege spel permanent: lege
-  // specificIds vallen in matchesFilters terug op "alles", en de
-  // versiecheck hierboven blokkeerde elk herstel.
-  if (seededGames.some((g) => (g.filters?.specificIds ?? []).length === 0)) return;
+  // datasets. Een lege lijst betekent dus: díe dataset laadde deze boot niet
+  // (street.json viel bv. net weg; loadBirds vangt dat stil af). Zo'n spel
+  // overslaan -- leeg opslaan is fataal, want lege specificIds vallen in
+  // matchesFilters terug op "alles" -- maar de andere spellen gewoon zetten.
+  // De versie markeren we pas als ze er allemaal waren, zodat de volgende
+  // boot het overgeslagen spel alsnog toevoegt; anders bleef het weg.
+  const bruikbaar = seededGames.filter((g) => g.filters.specificIds.length > 0);
 
   if (seenVersion !== null) {
     for (const id of retire) {
       games = games.filter((g) => g.id !== id);
     }
   }
-  for (const game of seededGames) {
+  for (const game of bruikbaar) {
     if (!games.some((g) => g.id === game.id)) games.push(game);
   }
 
   write(KEYS.customGames, games);
-  write(KEYS.seededDefaults, version);
+  if (bruikbaar.length === seededGames.length) write(KEYS.seededDefaults, version);
   emit(EVENTS.gamesChanged, games);
 }

@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-03 (v2026.09.03-4) — Spotinus straatarcheologie: opruimronde — aliassen uit de data (de typ-quiz keurde 'soort' en 'korthaar' ten onrechte goed), seed slaat alleen het spel met de ontbrekende dataset over i.p.v. alle vier, horizontaal schuiven op alle segmented controls
+
 ## 2026-09-03 (v2026.09.03-3) — Utrecht Toen: 413 foto's (data bijgewerkt uit utrecht-in-beeld)
 
 

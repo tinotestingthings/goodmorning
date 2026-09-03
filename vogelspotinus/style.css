@@ -1106,11 +1106,19 @@ button.secondary.playing {
 
 .segmented {
   display: flex;
-  flex-wrap: wrap;
+  /* Niet wrappen: een tweede regel knoppen ziet er in een pil met
+     radius-full + overflow:hidden gebroken uit. Past de rij niet, dan schuift
+     hij horizontaal -- geldt voor elke segmented control, niet alleen de
+     categorie-schakelaar die er als eerste tegenaan liep. */
+  flex-wrap: nowrap;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
+  /* Volgorde telt: de shorthand zet beide assen, dus overflow-x moet erná --
+     anders wordt de rij afgekapt zonder dat je erbij kunt. */
   overflow: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
   width: fit-content;
   max-width: 100%;
   margin: 0 auto var(--space-3);
@@ -1138,16 +1146,10 @@ button.secondary.playing {
   color: var(--accent-contrast);
 }
 
-/* De categorie-schakelaar: vijf knoppen wrappen lelijk in een afgeronde pil,
-   dus deze variant is compacter en scrolt horizontaal zodra hij alsnog niet
-   past (na .segmented button, want gelijke specificiteit: volgorde beslist). */
-.segmented-kind {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.segmented-kind button {
+/* De categorie-schakelaar telt vijf knoppen: compacter, zodat ze op een smalle
+   telefoon nog zonder schuiven passen. Twee klassen in de selector, dus hij
+   wint van .segmented button op specificiteit in plaats van op volgorde. */
+.segmented.segmented-kind button {
   padding-inline: var(--space-2);
 }
 
