@@ -6,6 +6,9 @@
   // postpone 1 day), or hold / tap ⋯ for the full menu. opts:
   //   { refresh(), editTodo(t), editChore(c) }
   function M(){ return global.DayModel; }
+  // Tolerant of a stale home.js (HTTP-cached across a deploy): a missing
+  // export must never blank Today/Calendar — it happened on 2026-09-03.
+  function isPrio(t){ return !!(M().isPrio && M().isPrio(t)); }
   function el(t,cls,txt){ var n=document.createElement(t); if(cls)n.className=cls; if(txt!=null)n.textContent=txt; return n; }
   function pad(n){ return n<10?"0"+n:""+n; }
   function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
@@ -63,7 +66,7 @@
     var body=el("div","cal-item-body");
     var tw=el("div","cal-item-titlewrap");
     tw.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
-    if(M().isPrio(t))tw.appendChild(el("span","cal-badge-prio","★"));
+    if(isPrio(t))tw.appendChild(el("span","cal-badge-prio","★"));
     if(t.snoozes>0)tw.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×"));
     if((t.reminders&&t.reminders.length)||t.reminderTime)tw.appendChild(el("span","cal-badge-remind","🔔"));
     if(t.url)tw.appendChild(linkChip(t.url));
@@ -111,7 +114,7 @@
     sheet.appendChild(el("div","item-menu-title",t.text));
     if(!t.done) sheet.appendChild(menuBtn("✓  Complete","im-done",function(){ closeMenu(); setTodoDone(t,true,opts); }));
     else sheet.appendChild(menuBtn("↺  Reopen",null,function(){ closeMenu(); setTodoDone(t,false,opts); }));
-    if(!t.done) sheet.appendChild(menuBtn(M().isPrio(t)?"☆  Not a priority":"★  Priority today",null,function(){ closeMenu(); var on=!M().isPrio(t); var l=M().loadTodos(); l.forEach(function(x){ if(x.id===t.id) x.prio=on?todayStr():null; }); M().saveTodos(l); opts.refresh(); }));
+    if(!t.done) sheet.appendChild(menuBtn(isPrio(t)?"☆  Not a priority":"★  Priority today",null,function(){ closeMenu(); var on=!isPrio(t); var l=M().loadTodos(); l.forEach(function(x){ if(x.id===t.id) x.prio=on?todayStr():null; }); M().saveTodos(l); opts.refresh(); }));
     sheet.appendChild(postponeBtn(t,1,"Postpone 1 day",opts));
     sheet.appendChild(postponeBtn(t,7,"Postpone 1 week",opts));
     if(opts.editTodo) sheet.appendChild(menuBtn("✎  Edit details",null,function(){ closeMenu(); opts.editTodo(t); }));
