@@ -182,13 +182,10 @@ check("twee soorten met dezelfde weergavenaam worden nooit samen aangeboden", ()
 const dogs = json("data/dogs.json");
 const dogPhotos = json("data/dog-photos.json");
 
-check(`${dogs.length} honden, met ids die niet met vogels kunnen botsen`, () => {
+check(`${dogs.length} honden met een eigen dog:Q-id`, () => {
   assert.ok(dogs.length > 300, `maar ${dogs.length} rassen`);
   const eigen = dogs.filter((d) => /^dog:Q\d+$/.test(d.id ?? ""));
   assert.equal(eigen.length, dogs.length, "niet elk ras heeft een dog:Q-id");
-  const botsing = dogs.filter((d) => byId.has(d.id));
-  assert.deepEqual(botsing, [], "een hond deelt een id met een vogel");
-  assert.equal(new Set(dogs.map((d) => d.id)).size, dogs.length, "dubbele hond-ids");
 });
 
 check("honden hebben geen soortnaam en geen geluid", () => {
@@ -230,18 +227,6 @@ check("kleuren en groottes van honden vallen binnen de bestaande filterwaarden",
   for (const d of dogs) {
     for (const c of d.tags.colors) assert.ok(kleuren.has(c), `onbekende kleur "${c}" bij ${d.id}`);
     if (d.tags.sizeBucket) assert.ok(groottes.has(d.tags.sizeBucket), `${d.tags.sizeBucket}`);
-  }
-});
-
-check("afleiders mengen vogels en honden niet", () => {
-  // De hele reden voor de kind-term in similarity(): een hond tussen drie mezen
-  // is geen vraag, die herken je zonder te kijken.
-  const alles = [...birds, ...dogs.map((d) => ({ ...d }))];
-  for (const soort of [...birds.slice(0, 10), ...dogs.slice(0, 10)]) {
-    const eigenKind = soort.tags?.kind ?? "bird";
-    const opties = pickDistractors(soort, alles, 3);
-    const vreemd = opties.filter((o) => (o.tags?.kind ?? "bird") !== eigenKind);
-    assert.deepEqual(vreemd.map((o) => o.id), [], `${soort.id} kreeg een afleider van het andere kind`);
   }
 });
 
@@ -420,7 +405,6 @@ check(`${arch.length} bouwstijlen: ids, kind en era kloppen`, () => {
   const eras = new Set(["medieval", "early-modern", "s19", "s1900", "postwar"]);
   for (const a of arch) {
     assert.match(a.id, /^arch:[a-z-]+$/, `vreemd id ${a.id}`);
-    assert.ok(!byId.has(a.id), `${a.id} botst met een vogel`);
     assert.equal(a.tags?.kind, "architecture", a.id);
     assert.ok(eras.has(a.tags?.era), `${a.id} heeft onbekende era ${a.tags?.era}`);
     assert.equal(a.scientificName, null, a.id);
@@ -430,7 +414,6 @@ check(`${arch.length} bouwstijlen: ids, kind en era kloppen`, () => {
     assert.ok(a.features_nl?.length >= 3 && a.features_en?.length >= 3, `${a.id} mist kenmerken`);
     assert.ok(a.fact_nl && a.fact_en, `${a.id} mist verhaal`);
   }
-  assert.equal(new Set(arch.map((a) => a.id)).size, arch.length, "dubbele stijl-ids");
 });
 
 check("de stijlen staan chronologisch — de tijdlijn is de cursus", () => {
@@ -439,41 +422,12 @@ check("de stijlen staan chronologisch — de tijdlijn is de cursus", () => {
   assert.deepEqual(jaren, gesorteerd, "arch.json is niet chronologisch geordend");
 });
 
-check("elke stijl heeft genoeg foto's voor een echte quiz", () => {
-  // De hoofdfoto plus minstens twee extra: met minder train je op de foto in
-  // plaats van op de stijl -- de les van de honden.
-  const dun = arch.filter((a) => {
-    const totaal = (a.imageThumbUrl ? 1 : 0) + (archPhotos[a.id]?.length ?? 0);
-    return totaal < 3;
-  });
-  assert.deepEqual(dun.map((a) => a.id), []);
-});
-
-check("stijlfoto's: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig", () => {
-  const archById = new Map(arch.map((a) => [a.id, a]));
-  for (const [id, lijst] of Object.entries(archPhotos)) {
-    const stijl = archById.get(id);
-    assert.ok(stijl, `foto's voor onbekende stijl ${id}`);
-    const hoofd = bestand(stijl.imageThumbUrl);
-    for (const p of lijst) {
-      assert.notEqual(bestand(p.u), hoofd, `${id}: hoofdfoto ook als extra`);
-      assert.ok(p.a, `${id}: foto zonder bronvermelding`);
-    }
-    assert.equal(new Set(lijst.map((p) => p.u)).size, lijst.length, `${id}: dubbele foto`);
-  }
-});
-
-check("afleiders voor een stijl zijn stijlen, het liefst tijdgenoten", () => {
-  const alles = [...birds, ...dogs, ...arch.map((a) => ({ ...a }))];
-  for (const stijl of arch.slice(0, 12)) {
-    const opties = pickDistractors(stijl, alles, 3);
-    const vreemd = opties.filter((o) => o.tags?.kind !== "architecture");
-    assert.deepEqual(vreemd.map((o) => o.id), [], `${stijl.id} kreeg een dier als afleider`);
-  }
-  // De era-term moet tijdgenoten naar voren duwen: bij een 19e-eeuwse stijl
-  // horen de topkandidaten ook 19e-eeuws te zijn (er zijn er 6, dus 3 lukt).
+check("de era-term duwt tijdgenoten naar voren bij een stijl", () => {
+  // Bij een 19e-eeuwse stijl horen de topkandidaten ook 19e-eeuws te zijn (er
+  // zijn er 6, dus 3 lukt). Dát afleiders binnen de categorie blijven, test de
+  // gedeelde check hieronder; dit gaat over de era-term erbovenop.
   const neogotiek = arch.find((a) => a.id === "arch:neogotiek");
-  const opties = pickDistractors(neogotiek, alles, 3);
+  const opties = pickDistractors(neogotiek, [...birds, ...dogs, ...arch], 3);
   const zelfdeEra = opties.filter((o) => o.tags?.era === "s19").length;
   assert.ok(zelfdeEra >= 2, `maar ${zelfdeEra} van 3 afleiders zijn tijdgenoten`);
 });
@@ -487,10 +441,8 @@ const { matchesGuess } = await import(`${APP}/src/core/birds.js`);
 check(`${street.length} straatobjecten: ids, kind, groep en teksten kloppen`, () => {
   assert.ok(street.length >= 20, `maar ${street.length} objecten`);
   const groepen = new Set(["str-grond", "str-gevel", "str-paal", "str-straat"]);
-  const andereIds = new Set([...dogs, ...arch].map((s) => s.id));
   for (const s of street) {
     assert.match(s.id, /^street:[a-z-]+$/, `vreemd id ${s.id}`);
-    assert.ok(!byId.has(s.id) && !andereIds.has(s.id), `${s.id} botst met een andere soort`);
     assert.equal(s.tags?.kind, "street", s.id);
     assert.ok(groepen.has(s.tags?.family), `${s.id} heeft onbekende groep ${s.tags?.family}`);
     // De groep leunt op het generieke familie-pad in populateFamilyValues():
@@ -503,61 +455,111 @@ check(`${street.length} straatobjecten: ids, kind, groep en teksten kloppen`, ()
     assert.ok(s.features_nl?.length >= 3 && s.features_en?.length >= 3, `${s.id} mist kenmerken`);
     assert.ok(s.fact_nl && s.fact_en, `${s.id} mist verhaal`);
   }
-  assert.equal(new Set(street.map((s) => s.id)).size, street.length, "dubbele object-ids");
 });
 
-check("elk straatobject heeft genoeg foto's voor een echte quiz", () => {
-  // Hoofdfoto plus minstens twee extra: met minder train je op de foto in
-  // plaats van op het object -- de les van de honden.
-  const dun = street.filter((s) => {
-    const totaal = (s.imageThumbUrl ? 1 : 0) + (streetPhotos[s.id]?.length ?? 0);
-    return totaal < 3;
-  });
-  assert.deepEqual(dun.map((s) => s.id), []);
-});
-
-check("straatfoto's: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig", () => {
-  const streetById = new Map(street.map((s) => [s.id, s]));
-  for (const [id, lijst] of Object.entries(streetPhotos)) {
-    const obj = streetById.get(id);
-    assert.ok(obj, `foto's voor onbekend object ${id}`);
-    const hoofd = bestand(obj.imageThumbUrl);
-    for (const p of lijst) {
-      assert.notEqual(bestand(p.u), hoofd, `${id}: hoofdfoto ook als extra`);
-      assert.ok(p.a, `${id}: foto zonder bronvermelding`);
-    }
-    assert.equal(new Set(lijst.map((p) => p.u)).size, lijst.length, `${id}: dubbele foto`);
-  }
-});
-
-check("afleiders voor een straatobject zijn straatobjecten, het liefst groepsgenoten", () => {
-  const alles = [...birds, ...dogs, ...arch, ...street.map((s) => ({ ...s }))];
-  for (const obj of street.slice(0, 12)) {
-    const opties = pickDistractors(obj, alles, 3);
-    const vreemd = opties.filter((o) => o.tags?.kind !== "street");
-    assert.deepEqual(vreemd.map((o) => o.id), [], `${obj.id} kreeg een dier als afleider`);
-  }
-  // De groep werkt als familie (+4): bij een paal horen palen als topkandidaten.
-  // str-paal heeft 5 leden, dus het venster (count+2) bevat minstens 4 palen en
-  // kunnen er nooit minder dan 2 van de 3 gekozen worden.
+check("de familie-term duwt groepsgenoten naar voren bij een straatobject", () => {
+  // De groep werkt als familie (+4): bij een paal horen palen als
+  // topkandidaten. str-paal heeft 5 leden, dus het venster (count+2) bevat er
+  // minstens 4 en kunnen er nooit minder dan 2 van de 3 gekozen worden.
   const grenspaal = street.find((s) => s.id === "street:grenspaal");
-  const opties = pickDistractors(grenspaal, alles, 3);
+  const opties = pickDistractors(grenspaal, [...birds, ...dogs, ...arch, ...street], 3);
   const zelfdeGroep = opties.filter((o) => o.tags?.family === "str-paal").length;
   assert.ok(zelfdeGroep >= 2, `maar ${zelfdeGroep} van 3 afleiders zijn palen`);
 });
 
-check("het alias tussen haakjes telt als goed antwoord in de typ-quiz", () => {
+// --- 9c. De hele catalogus in één keer -----------------------------------------
+
+// Zoals loadBirds() hem samenstelt. Eén pool voor de checks hieronder: bij vier
+// datasets zijn er zes botsingsparen en evenveel afleiderparen, en die met de
+// hand per sectie bijhouden liep al scheef -- hond-versus-stijl werd nergens
+// getest.
+const catalogus = [...birds, ...dogs, ...arch, ...street];
+
+check(`${catalogus.length} soorten: elk id is uniek over álle datasets heen`, () => {
+  // Twee soorten met hetzelfde id delen één sleutel in de Leitner-state en in
+  // de favorieten -- stille dataverminking, precies wat loadBirds() weigert.
+  const gezien = new Set();
+  const dubbel = [];
+  for (const s of catalogus) {
+    if (gezien.has(s.id)) dubbel.push(s.id);
+    gezien.add(s.id);
+  }
+  assert.deepEqual(dubbel, []);
+  assert.equal(gezien.size, catalogus.length);
+});
+
+// Fotohygiëne is per dataset dezelfde vraag, dus één functie in plaats van een
+// kopie per categorie: te weinig foto's traint je op de foto in plaats van op
+// de soort, en een wees-sleutel of ontbrekende bron is dataschade.
+function fotoChecks(naam, records, fotos) {
+  check(`${naam}: elke soort heeft genoeg foto's voor een echte quiz`, () => {
+    const dun = records.filter(
+      (r) => (r.imageThumbUrl ? 1 : 0) + (fotos[r.id]?.length ?? 0) < 3
+    );
+    assert.deepEqual(dun.map((r) => r.id), []);
+  });
+
+  check(`${naam}: geen wees-sleutels, geen dubbele hoofdfoto, bron aanwezig`, () => {
+    const perId = new Map(records.map((r) => [r.id, r]));
+    for (const [id, lijst] of Object.entries(fotos)) {
+      const record = perId.get(id);
+      assert.ok(record, `foto's voor onbekende soort ${id}`);
+      const hoofd = bestand(record.imageThumbUrl);
+      for (const foto of lijst) {
+        assert.notEqual(bestand(foto.u), hoofd, `${id}: hoofdfoto ook als extra`);
+        assert.ok(foto.a, `${id}: foto zonder bronvermelding`);
+      }
+      assert.equal(new Set(lijst.map((f) => f.u)).size, lijst.length, `${id}: dubbele foto`);
+    }
+  });
+}
+
+fotoChecks("stijlen", arch, archPhotos);
+fotoChecks("straatobjecten", street, streetPhotos);
+
+check("afleiders blijven binnen hun eigen categorie", () => {
+  // Vier categorieën betekent zes paren; een straatpaal tussen drie honden is
+  // geen vraag. Eén lus over de hele catalogus dekt ze allemaal.
+  for (const kind of ["bird", "dog", "architecture", "street"]) {
+    for (const vraag of catalogus.filter((s) => s.tags?.kind === kind).slice(0, 8)) {
+      const vreemd = pickDistractors(vraag, catalogus, 3).filter((o) => o.tags?.kind !== kind);
+      assert.deepEqual(
+        vreemd.map((o) => o.id), [],
+        `${vraag.id} kreeg een afleider uit ${vreemd[0]?.tags?.kind}`
+      );
+    }
+  }
+});
+
+check("alleen een echt alias telt als goed antwoord in de typ-quiz", () => {
   // "Stolperstein (struikelsteen)" toont het woord struikelsteen op de kaart;
-  // wie dat typt mag geen fout krijgen. De Wikipedia-disambiguator "(vogel)"
-  // blijft juist géén naam -- anders was "vogel" overal een goed antwoord.
-  const stolper = street.find((s) => s.id === "street:stolperstein");
-  assert.ok(matchesGuess(stolper, "struikelsteen"), "struikelsteen werd fout gerekend");
-  assert.ok(matchesGuess(stolper, "Stolperstein"), "de hoofdnaam zelf moet ook blijven werken");
-  const reclame = street.find((s) => s.id === "street:muurreclame");
-  assert.ok(matchesGuess(reclame, "spookreclame"), "spookreclame werd fout gerekend");
-  const metDisambiguator = birds.find((b) => /\((vogel|dier|geslacht)\)\s*$/.test(b.dutchName ?? ""));
-  assert.ok(metDisambiguator, "geen vogel met (vogel)-disambiguator meer in de data?");
-  assert.ok(!matchesGuess(metDisambiguator, "vogel"), '"vogel" telt ineens als naam');
+  // wie dat typt mag geen fout krijgen. Maar de haakjes uit de naam terugparsen
+  // gaat mis: dan zou "(soort)" bij een vogel gelden en "(korthaar)" bij twee
+  // verschillende hondenrassen tegelijk. Daarom staat het alias in de data.
+  const goed = (id, woord) => {
+    const soort = catalogus.find((s) => s.id === id);
+    assert.ok(soort, `${id} niet gevonden`);
+    return matchesGuess(soort, woord);
+  };
+  assert.ok(goed("street:stolperstein", "struikelsteen"), "struikelsteen werd fout gerekend");
+  assert.ok(goed("street:stolperstein", "Stolperstein"), "de hoofdnaam moet ook blijven werken");
+  assert.ok(goed("street:muurreclame", "spookreclame"), "spookreclame werd fout gerekend");
+
+  // De tegenproef: haakjes die géén alias zijn mogen niets goedkeuren.
+  const haakjes = (s) => /\(([^)]+)\)/.exec(s.dutchName ?? "")?.[1]?.trim();
+  const nietAlias = catalogus.filter((s) => haakjes(s) && !(s.aliases ?? []).length);
+  assert.ok(nietAlias.length >= 20, `maar ${nietAlias.length} soorten met een disambiguator`);
+  for (const soort of nietAlias) {
+    assert.ok(
+      !matchesGuess(soort, haakjes(soort)),
+      `"${haakjes(soort)}" telt als naam van ${soort.id}`
+    );
+  }
+  // En specifiek het geval dat twee rassen tegelijk zou goedkeuren.
+  assert.equal(
+    catalogus.filter((s) => haakjes(s) === "korthaar").length, 2,
+    "de korthaar-tweeling is uit de data verdwenen; kies een ander voorbeeld"
+  );
 });
 
 check("een seed met een lege soortenlijst wordt niet vastgelegd", () => {

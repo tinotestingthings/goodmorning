@@ -56,10 +56,23 @@ function idsVanKind(kind) {
 }
 
 /**
+ * Eén seed-spel. Alle vier volgen hetzelfde stramien -- een handgekozen
+ * soortenlijst bovenop een lege selectie -- en dat is ook de aanname waarop
+ * applySeed() leunt: een seed-spel is altijd een specificIds-spel.
+ */
+const spel = (id, name, gameMode, specificIds) => ({
+  id,
+  name,
+  gameMode,
+  filters: { ...emptySelection(), specificIds },
+});
+
+/**
  * De seed wordt bij het opstarten opgebouwd, ná het laden van de data -- de
- * honden- en stijlenlijst komen namelijk uit de dataset zelf. Bump `version`
- * als je de inhoud wijzigt; applySeed() voegt een spel alleen toe als het id
- * nog niet bestaat, dus zonder bump verandert er bij bestaande installaties niets.
+ * honden-, stijlen- en straatlijst komen namelijk uit de dataset zelf. Bump
+ * `version` als je de inhoud wijzigt; applySeed() voegt een spel alleen toe als
+ * het id nog niet bestaat, dus zonder bump verandert er bij bestaande
+ * installaties niets.
  */
 export function buildSeed() {
   return {
@@ -67,44 +80,16 @@ export function buildSeed() {
     version: "6",
     retire: ["griftpark-top20", "griftpark-all"],
     games: [
-      {
-        id: "griftpark-browse",
-        name: "Griftpark · 100",
-        gameMode: "browse",
-        filters: {
-          ...emptySelection(),
-          specificIds: GRIFTPARK_COURSE.species.map(([sci]) => sci),
-        },
-      },
-      {
-        id: "stromingen-tijdlijn",
-        name: "Bouwstijlen · tijdlijn",
-        gameMode: "browse",
-        filters: {
-          ...emptySelection(),
-          specificIds: idsVanKind("architecture"),
-        },
-      },
-      {
-        id: "straat-utrecht",
-        name: "Straatarcheologie · Utrecht",
-        gameMode: "browse",
-        filters: {
-          ...emptySelection(),
-          specificIds: idsVanKind("street"),
-        },
-      },
-      {
-        id: "honden-nl-top30",
-        name: "Honden · NL top 30",
-        // Meerkeuze en niet bladeren: dit is een lijst om te LEREN, niet om
-        // door te scrollen. De Griftpark-tegel is het naslagwerk.
-        gameMode: "quiz-choice",
-        filters: {
-          ...emptySelection(),
-          specificIds: popularDutchDogs(),
-        },
-      },
+      spel("griftpark-browse", "Griftpark · 100", "browse",
+        GRIFTPARK_COURSE.species.map(([sci]) => sci)),
+      spel("stromingen-tijdlijn", "Bouwstijlen · tijdlijn", "browse",
+        idsVanKind("architecture")),
+      spel("straat-utrecht", "Straatarcheologie · Utrecht", "browse",
+        idsVanKind("street")),
+      // Meerkeuze en niet bladeren: dit is een lijst om te LEREN, niet om
+      // door te scrollen. De Griftpark-tegel is het naslagwerk.
+      spel("honden-nl-top30", "Honden · NL top 30", "quiz-choice",
+        popularDutchDogs()),
     ],
   };
 }

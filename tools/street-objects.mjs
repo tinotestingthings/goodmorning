@@ -15,9 +15,15 @@
 //   group  -- vier groepen, als `tags.family` + familyName* in de dataset:
 //             dat geeft het familiefilter, de familie-sortering én betere
 //             afleiders (palen verwarren met palen) zonder één regel appcode.
-//   nlWiki/enWiki -- kandidaat-artikeltitels; het buildscript checkt welke
-//             echt bestaat en linkt alleen die (kandidaten, want "Plaskrul"
-//             kan net zo goed onder "Urinoir" staan).
+//   nlWiki/enWiki -- OPTIONEEL: artikeltitels die afwijken van de objectnaam
+//             ("Voetschraper", "Paddenstoel (wegwijzer)"). Ze gaan vóór de
+//             naam zelf, want juist daarvoor staan ze er; het buildscript
+//             checkt welke titel echt bestaat en linkt alleen die. Staat er
+//             niets, dan is de objectnaam de kandidaat -- bij 14 van de 24.
+//
+// Een woord tussen haakjes in `nl` is een echte tweede naam ("Stolperstein
+// (struikelsteen)"), geen Wikipedia-disambiguator: het buildscript zet hem als
+// `aliases` in de dataset, zodat de typ-quiz hem goedrekent.
 
 export const STREET_GROUPS = {
   "str-grond": { nl: "Onder je voeten", en: "Underfoot" },
@@ -36,7 +42,6 @@ export const STREET_OBJECTS = [
     period: "1200–1400",
     group: "str-grond",
     nlWiki: ["Werfkelder", "Werf (kade)"],
-    enWiki: ["Wharf cellar"],
     featuresNl: [
       "kelderdeuren in de werfmuur, onder straatniveau",
       "alleen langs Oude- en Nieuwegracht",
@@ -62,7 +67,6 @@ export const STREET_OBJECTS = [
     period: "sinds 2007",
     group: "str-grond",
     nlWiki: ["Stolperstein"],
-    enWiki: ["Stolperstein"],
     featuresNl: [
       "messing plaatje van 10×10 cm tussen de stoeptegels",
       "begint met HIER WOONDE",
@@ -87,8 +91,6 @@ export const STREET_OBJECTS = [
     en: "Manhole cover",
     period: "1850–heden",
     group: "str-grond",
-    nlWiki: ["Putdeksel"],
-    enWiki: ["Manhole cover"],
     featuresNl: [
       "gietijzer, rond of vierkant, in het wegdek",
       "vaak stadswapen of naam van gieterij/nutsbedrijf",
@@ -114,7 +116,6 @@ export const STREET_OBJECTS = [
     period: "1700–1900",
     group: "str-grond",
     nlWiki: ["Voetenschraper", "Voetschraper"],
-    enWiki: ["Boot scraper"],
     featuresNl: [
       "smeedijzeren beugel of plaatje naast de voordeur",
       "op stoephoogte, soms in een eigen nisje",
@@ -141,8 +142,6 @@ export const STREET_OBJECTS = [
     en: "Gable stone",
     period: "1550–1800",
     group: "str-gevel",
-    nlWiki: ["Gevelsteen"],
-    enWiki: ["Gable stone"],
     featuresNl: [
       "gebeeldhouwde, vaak beschilderde steen in de gevel",
       "dier, ambacht, heilige of woordspeling",
@@ -167,7 +166,6 @@ export const STREET_OBJECTS = [
     en: "Wall anchor",
     period: "1500–1900",
     group: "str-gevel",
-    nlWiki: ["Muuranker"],
     enWiki: ["Anchor plate"],
     featuresNl: [
       "smeedijzeren staaf, krul of lelie op de gevel",
@@ -193,7 +191,6 @@ export const STREET_OBJECTS = [
     en: "Hoisting beam",
     period: "1600–heden",
     group: "str-gevel",
-    nlWiki: ["Hijsbalk"],
     enWiki: ["Hoist (device)"],
     featuresNl: [
       "balk met haak, bovenin uit de gevel stekend",
@@ -219,7 +216,6 @@ export const STREET_OBJECTS = [
     en: "Pothuis (cellar porch)",
     period: "1600–1800",
     group: "str-gevel",
-    nlWiki: ["Pothuis"],
     enWiki: ["Pothuis"],
     featuresNl: [
       "laag uitbouwtje tegen de gevel, half onder de stoep",
@@ -245,8 +241,6 @@ export const STREET_OBJECTS = [
     en: "Gaper",
     period: "1600–1900",
     group: "str-gevel",
-    nlWiki: ["Gaper"],
-    enWiki: ["Gaper"],
     featuresNl: [
       "gebeeldhouwde kop met open mond boven de deur",
       "vaak exotisch gekleed: tulband of steek",
@@ -272,7 +266,6 @@ export const STREET_OBJECTS = [
     period: "1720–1900",
     group: "str-gevel",
     nlWiki: ["Verzekeringsplaatje", "Brandverzekering"],
-    enWiki: ["Fire insurance mark"],
     featuresNl: [
       "klein metalen plaatje hoog op de gevel",
       "embleem: feniks, zon, anker of wapen",
@@ -297,7 +290,6 @@ export const STREET_OBJECTS = [
     en: "Foundation stone",
     period: "1600–heden",
     group: "str-gevel",
-    nlWiki: ["Eerste steen"],
     enWiki: ["Cornerstone"],
     featuresNl: [
       "gedenksteen laag in de gevel",
@@ -328,7 +320,6 @@ export const STREET_OBJECTS = [
     period: "1880–1960",
     group: "str-gevel",
     nlWiki: ["Muurreclame"],
-    enWiki: ["Ghost sign"],
     featuresNl: [
       "vervaagde geschilderde reclame op een zijgevel",
       "merken en winkels die niet meer bestaan",
@@ -353,8 +344,6 @@ export const STREET_OBJECTS = [
     en: "Door knocker",
     period: "1600–1900",
     group: "str-gevel",
-    nlWiki: ["Deurklopper"],
-    enWiki: ["Door knocker"],
     featuresNl: [
       "smeedijzeren of messing klopper op de voordeur",
       "leeuwenkop met ring is het klassieke model",
@@ -405,7 +394,6 @@ export const STREET_OBJECTS = [
     en: "Streetlight corbel",
     period: "sinds 1953",
     group: "str-gevel",
-    nlWiki: ["Lantaarnconsole"],
     enWiki: ["Corbel"],
     featuresNl: [
       "gebeeldhouwde console onder een grachtlantaarn",
@@ -433,8 +421,6 @@ export const STREET_OBJECTS = [
     en: "Amsterdammertje",
     period: "1800–heden",
     group: "str-paal",
-    nlWiki: ["Amsterdammertje"],
-    enWiki: ["Amsterdammertje"],
     featuresNl: [
       "roodbruin gietijzeren paaltje op de stoeprand",
       "drie andreaskruizen uit het stadswapen",
@@ -459,8 +445,6 @@ export const STREET_OBJECTS = [
     en: "Guard stone",
     period: "1600–1900",
     group: "str-paal",
-    nlWiki: ["Schamppaal"],
-    enWiki: ["Guard stone"],
     featuresNl: [
       "schuine stenen of ijzeren stomp op een hoek",
       "bij poorten, stegen en inritten",
@@ -485,8 +469,6 @@ export const STREET_OBJECTS = [
     en: "Boundary marker",
     period: "1300–1900",
     group: "str-paal",
-    nlWiki: ["Grenspaal"],
-    enWiki: ["Boundary marker"],
     featuresNl: [
       "stenen paal met wapen, letter of nummer",
       "langs oude wegen, dijken en gemeentegrenzen",
@@ -537,7 +519,6 @@ export const STREET_OBJECTS = [
     en: "Towing roller post",
     period: "1600–1900",
     group: "str-paal",
-    nlWiki: ["Rolpaal"],
     enWiki: ["Towpath"],
     featuresNl: [
       "paal met verticale draaibare rol",
@@ -624,7 +605,6 @@ export const STREET_OBJECTS = [
     period: "1850–heden",
     group: "str-straat",
     nlWiki: ["Brievenbus"],
-    enWiki: ["Post box"],
     featuresNl: [
       "vrijstaande bus op paal of voet",
       "rood (PTT, tot ±1990) of oranje (daarna)",
@@ -649,8 +629,6 @@ export const STREET_OBJECTS = [
     en: "Telephone booth",
     period: "1931–2015",
     group: "str-straat",
-    nlWiki: ["Telefooncel"],
-    enWiki: ["Telephone booth"],
     featuresNl: [
       "glazen of metalen cel met deur",
       "PTT-groen, later KPN-groen met glas",

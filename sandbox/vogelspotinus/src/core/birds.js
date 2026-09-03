@@ -16,13 +16,20 @@
 
 import { currentLanguage, otherLanguage } from "./i18n.js";
 
-const DATA_URL = "data/birds.json";
-// Honden en stromingen zijn APARTE fetches, geen extra blokken in birds.json.
-// Zo blijft een kapot of ontbrekend uitbreidingsbestand een app met minder
-// kinds, in plaats van een app die niet start.
-const DOGS_URL = "data/dogs.json";
-const ARCH_URL = "data/arch.json";
-const STREET_URL = "data/street.json";
+/**
+ * De datasets waaruit Spotinus bestaat, met hun fotobestand. Elk kind is een
+ * APARTE fetch, geen extra blok in birds.json: zo blijft een kapot of
+ * ontbrekend uitbreidingsbestand een app met minder categorieën, in plaats van
+ * een app die niet start. Vogels zijn verplicht (`zonder` ontbreekt), de rest
+ * mag falen. Eén regel per categorie -- photos.js leest `photos` uit deze
+ * lijst, zodat er geen tweede register naast kan gaan lopen.
+ */
+export const DATASETS = [
+  { url: "data/birds.json", photos: "data/bird-photos.json" },
+  { url: "data/dogs.json", photos: "data/dog-photos.json", zonder: "honden" },
+  { url: "data/arch.json", photos: "data/arch-photos.json", zonder: "bouwstijlen" },
+  { url: "data/street.json", photos: "data/street-photos.json", zonder: "straatobjecten" },
+];
 
 /** @type {Array<object>} */
 let birds = [];
@@ -62,14 +69,11 @@ const optioneel = (url, zonder) =>
   });
 
 export async function loadBirds() {
-  const [birdData, dogData, archData, streetData] = await Promise.all([
-    fetchList(DATA_URL),
-    optioneel(DOGS_URL, "honden"),
-    optioneel(ARCH_URL, "bouwstijlen"),
-    optioneel(STREET_URL, "straatobjecten"),
-  ]);
+  const lijsten = await Promise.all(
+    DATASETS.map((d) => (d.zonder ? optioneel(d.url, d.zonder) : fetchList(d.url)))
+  );
 
-  birds = [...birdData, ...dogData, ...archData, ...streetData];
+  birds = lijsten.flat();
   // Pre-compute the search haystack once instead of rebuilding it per keystroke
   // for all 566 birds (the old code did the latter, un-debounced). Hier krijgt
   // elke soort ook zijn `id` en zijn `kind`: birds.json kent beide velden niet,
@@ -157,13 +161,12 @@ export function normalizeGuess(str) {
 export function matchesGuess(bird, guess) {
   const needle = normalizeGuess(guess);
   if (!needle) return false;
-  // Haakjes in de Nederlandse naam zijn bij straatobjecten een alias dat de
-  // kaart zelf toont ("Stolperstein (struikelsteen)") -- dat woord moet als
-  // antwoord gelden, anders rekent de typ-quiz fout wat hij zelf leert.
-  // Wikipedia-disambiguators zijn juist geen naam; die kent dutchName() al.
-  const alias = /\(([^)]+)\)/.exec(bird.dutchName ?? "")?.[1]?.trim();
-  const aliasName = alias && !/^(vogel|dier|geslacht)$/i.test(alias) ? alias : null;
-  return [bird.englishName, dutchName(bird), bird.scientificName, aliasName]
+  // `aliases` komt uit de data en bevat alleen echte tweede namen die de kaart
+  // toont ("Stolperstein (struikelsteen)"): het buildscript weet dat die
+  // haakjes handgeschreven zijn. Ze hier uit de naam terugparsen kan niet --
+  // dan zou "(soort)" bij een vogel en "(korthaar)" bij twee verschillende
+  // hondenrassen even goed als antwoord gelden.
+  return [bird.englishName, dutchName(bird), bird.scientificName, ...(bird.aliases ?? [])]
     .filter(Boolean)
     .some((candidate) => normalizeGuess(candidate) === needle);
 }

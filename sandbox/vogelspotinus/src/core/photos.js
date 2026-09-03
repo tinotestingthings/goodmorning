@@ -11,14 +11,11 @@
 // gebouwd te worden.
 // ---------------------------------------------------------------------------
 
-import { allBirds, photoUrl } from "./birds.js";
+import { DATASETS, allBirds, photoUrl } from "./birds.js";
 
-const DATA_URLS = [
-  "data/bird-photos.json",
-  "data/dog-photos.json",
-  "data/arch-photos.json",
-  "data/street-photos.json",
-];
+// Geen eigen lijst: een tweede register zou stil uit de pas kunnen lopen met
+// dat van birds.js -- de categorie draait dan door op alleen hoofdfoto's.
+const DATA_URLS = DATASETS.map((d) => d.photos);
 
 /** @type {Record<string, Array<{u: string, a: string}>>} gesleuteld op soort-id */
 let extra = {};

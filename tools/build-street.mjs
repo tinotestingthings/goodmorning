@@ -21,13 +21,9 @@ import { dirname } from "node:path";
 import { STREET_OBJECTS, STREET_GROUPS } from "./street-objects.mjs";
 
 const args = process.argv.slice(2);
-const flag = (name) => {
-  const i = args.indexOf(`--${name}`);
-  return i >= 0 ? (args[i + 1]?.startsWith("--") ? true : args[i + 1]) : null;
-};
-const APP_DIR = args.find((a) => !a.startsWith("--") && !args[args.indexOf(a) - 1]?.startsWith("--"))
-  || "sandbox/vogelspotinus";
-const EXCLUDE_FILE = flag("exclude");
+const APP_DIR = args[0]?.startsWith("--") ? "sandbox/vogelspotinus" : args[0] || "sandbox/vogelspotinus";
+const excludeArg = args.indexOf("--exclude");
+const EXCLUDE_FILE = excludeArg < 0 ? null : args[excludeArg + 1] ?? "";
 
 const OUT_STREET = `${APP_DIR}/data/street.json`;
 const OUT_PHOTOS = `${APP_DIR}/data/street-photos.json`;
@@ -232,6 +228,17 @@ async function verifyWikiLinks(lang, kandidaten) {
   return bestaat;
 }
 
+/**
+ * De kandidaat-artikeltitels per taal, in volgorde van voorkeur. De
+ * handgekozen `nlWiki`/`enWiki` gaan voorop -- die staan er juist omdat het
+ * artikel anders heet dan het object -- en de objectnaam is de fallback, wat
+ * bij 14 van de 24 objecten de enige kandidaat is. Andersom zou fout gaan:
+ * "Wall anchor" redirect naar Anchor bolt (ankerbouten), terwijl het
+ * handgekozen Anchor plate wél over muurankers gaat.
+ */
+const nlTitels = (obj) => [...(obj.nlWiki ?? []), obj.nl];
+const enTitels = (obj) => [...(obj.enWiki ?? []), obj.en];
+
 const wikiUrl = (lang, titel) =>
   titel ? `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(titel.replace(/ /g, "_"))}` : null;
 
@@ -242,8 +249,8 @@ async function main() {
 
   // Een tikfout in het pad mag niet stil "geen excludes" betekenen: dan
   // stroomt alle handmatig afgekeurde rommel geruisloos terug in de dataset.
-  if (EXCLUDE_FILE && (EXCLUDE_FILE === true || !existsSync(EXCLUDE_FILE))) {
-    throw new Error(`--exclude ${EXCLUDE_FILE === true ? "(zonder pad)" : EXCLUDE_FILE} bestaat niet`);
+  if (EXCLUDE_FILE !== null && !existsSync(EXCLUDE_FILE)) {
+    throw new Error(`--exclude ${EXCLUDE_FILE || "(zonder pad)"} bestaat niet`);
   }
   const excluded = new Set(
     EXCLUDE_FILE
@@ -259,12 +266,15 @@ async function main() {
 
   const alleBestanden = [...new Set([...perObject.values()].flat())];
   console.log(`  ${alleBestanden.length} kandidaat-foto's, licenties ophalen...`);
-  const info = await fetchImageInfo(alleBestanden);
-
-  const nlLinks = await verifyWikiLinks("nl", STREET_OBJECTS.map((o) => o.nlWiki ?? []));
-  const enLinks = await verifyWikiLinks("en", STREET_OBJECTS.map((o) => o.enWiki ?? []));
+  // Drie verschillende hosts, dus tegelijk: de beleefdheidspauze zit in mwApi
+  // en geldt per keten, niet over hosts heen.
+  const [info, nlLinks, enLinks] = await Promise.all([
+    fetchImageInfo(alleBestanden),
+    verifyWikiLinks("nl", STREET_OBJECTS.map(nlTitels)),
+    verifyWikiLinks("en", STREET_OBJECTS.map(enTitels)),
+  ]);
   const eersteLink = (bestaat, kandidaten) => {
-    for (const t of kandidaten ?? []) if (bestaat.has(t)) return bestaat.get(t);
+    for (const t of kandidaten) if (bestaat.has(t)) return bestaat.get(t);
     return null;
   };
 
@@ -301,10 +311,15 @@ async function main() {
           : hoofdInfo.url
         : null,
       imageThumbUrl: hoofdInfo ? hoofdInfo.thumburl ?? hoofdInfo.url : null,
-      wikipediaUrl: wikiUrl("en", eersteLink(enLinks, obj.enWiki)),
-      dutchWikipediaUrl: wikiUrl("nl", eersteLink(nlLinks, obj.nlWiki)),
+      wikipediaUrl: wikiUrl("en", eersteLink(enLinks, enTitels(obj))),
+      dutchWikipediaUrl: wikiUrl("nl", eersteLink(nlLinks, nlTitels(obj))),
       soundUrl: null,
       period: obj.period,
+      // Het woord tussen haakjes in de handgeschreven naam ("Stolperstein
+      // (struikelsteen)") is een echte tweede naam die de kaart toont, dus een
+      // geldig quiz-antwoord. Alleen dit script weet dat: bij vogels zijn
+      // haakjes juist een Wikipedia-disambiguator ("Alk (soort)").
+      aliases: [/\(([^)]+)\)/.exec(obj.nl)?.[1]?.trim()].filter(Boolean),
       features_nl: obj.featuresNl,
       features_en: obj.featuresEn,
       familyNameNl: groep.nl,
