@@ -112,6 +112,20 @@
       return fetch("env.js", { cache: "no-store" }).then(function (r) { return r.text(); })
         .then(function (t) { var m = t.match(/version: "([^"]*)"/); return m ? m[1] : null; });
     };
+    // Newer build on the server: refresh the HTTP-cache entry of every shell
+    // file (cache:"reload" re-fetches and overwrites it — a plain reload would
+    // keep serving the max-age=600 copies), then reload. No SW needed, so it
+    // also heals a page whose home.js failed to run.
+    var refreshShell = function () {
+      var urls = ["index.html"];
+      var nodes = document.querySelectorAll("script[src], link[rel=stylesheet]");
+      for (var i = 0; i < nodes.length; i++) {
+        var u = nodes[i].src || nodes[i].href;
+        if (u && u.indexOf(global.location.origin) === 0) urls.push(u);
+      }
+      return Promise.all(urls.map(function (u) { return fetch(u, { cache: "reload" }).catch(function () {}); }))
+        .then(function () { global.location.reload(); });
+    };
     var addSbx = function () {
       if (document.querySelector(".sbx-badge")) return;
       var b = document.createElement("div"); b.className = "sbx-badge";
@@ -122,7 +136,7 @@
       b.addEventListener("click", function () {
         label(" …");
         servedVersion().then(function (v) {
-          if (v && v !== sbxVersion()) { global.location.reload(); return; }
+          if (v && v !== sbxVersion()) { refreshShell(); return; }
           label(" ✓");
           setTimeout(function () { label(); }, 1500);
         }).catch(function () { label(); });
@@ -134,7 +148,7 @@
       if (!v || v === sbxVersion()) return;
       var key = k("reloadedFor");
       try { if (sessionStorage.getItem(key) === v) return; sessionStorage.setItem(key, v); } catch (e) {}
-      global.location.reload();
+      refreshShell();
     }).catch(function () {});
   }
 
