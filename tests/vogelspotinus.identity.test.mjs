@@ -531,6 +531,82 @@ check("afleiders blijven binnen hun eigen categorie", () => {
   }
 });
 
+check("de fotostrip krijgt echt alle foto's van een soort, niet alleen de hoofdfoto", async () => {
+  // De strip in het detailblad leunt op photoVariants(): dat is de enige plek
+  // waar hoofdfoto en extra foto's samenkomen. Werkt die keten niet, dan ziet
+  // Bladeren weer één foto per bouwstijl -- precies de klacht die de strip
+  // moest oplossen. Fetch wijst hier naar de bestanden op schijf.
+  const echteFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const pad = `${APP}/${String(url)}`;
+    return { ok: true, json: async () => JSON.parse(readFileSync(pad, "utf8")) };
+  };
+  try {
+    const { loadBirds, speciesById } = await import(`${APP}/src/core/birds.js`);
+    const { loadExtraPhotos, photoVariants, photoAttribution } = await import(
+      `${APP}/src/core/photos.js`
+    );
+    await loadBirds();
+    await loadExtraPhotos();
+
+    const jugendstil = speciesById("arch:jugendstil");
+    assert.ok(jugendstil, "arch:jugendstil niet gevonden");
+    const fotos = photoVariants(jugendstil);
+    assert.ok(fotos.length >= 5, `Jugendstil levert maar ${fotos.length} foto('s) aan de strip`);
+    assert.equal(new Set(fotos).size, fotos.length, "dezelfde foto zit twee keer in de strip");
+
+    // Elke stijl en elk straatobject hoort meer dan één foto te hebben, anders
+    // valt de strip terug op de losse foto.
+    const eenFoto = [...arch, ...street]
+      .map((r) => ({ id: r.id, n: photoVariants(speciesById(r.id)).length }))
+      .filter((r) => r.n < 2);
+    assert.deepEqual(eenFoto, []);
+
+    // En de bron hoort mee te komen: bij een bouwstijl zegt die welk gebouw je
+    // ziet -- zonder dat is de strip acht naamloze foto's.
+    const metBron = fotos.filter((u) => photoAttribution(jugendstil, u));
+    assert.ok(metBron.length >= fotos.length - 1, "de extra foto's missen hun bronvermelding");
+  } finally {
+    globalThis.fetch = echteFetch;
+  }
+});
+
+check("de strip haalt zichzelf in als de extra foto's later binnenkomen", () => {
+  // main.js roept loadExtraPhotos() ZONDER await aan, ná de eerste render.
+  // Open je een kaart in dat venster, dan geeft photoVariants() één foto en
+  // zou je stil de oude ene-foto-versie houden tot je het blad sluit.
+  const media = codeOf("src/ui/bird-media.js");
+  const photos = codeOf("src/core/photos.js");
+  assert.match(photos, /export function photosReady/, "photos.js meldt niet wanneer hij klaar is");
+  assert.match(media, /photosReady\(\)\?\.then/, "de strip wacht niet op de late foto's");
+  assert.match(media, /isConnected/, "de strip vervangt ook een blad dat al gesloten is");
+  const main = codeOf("src/main.js");
+  assert.match(main, /loadExtraPhotos\(\)/, "main.js laadt de extra foto's niet meer");
+});
+
+check("de strip is met muis en toetsenbord te bedienen", () => {
+  // Een verticaal scrollwiel schuift de strip niet en de scrollbar is
+  // verborgen: zonder aantikbare puntjes zijn foto 2 en verder op een laptop
+  // onbereikbaar. En n identieke tabstops maakt tabben door het blad zinloos.
+  const media = codeOf("src/ui/bird-media.js");
+  const css = readFileSync(`${APP}/style.css`, "utf8");
+  assert.match(media, /h\("button", \{[\s\S]*?offsetLeft/, "de puntjes zijn niet aanklikbaar");
+  assert.match(media, /tabIndex = j === i \? 0 : -1/, "alle foto's blijven tabstops");
+  assert.match(css, /overscroll-behavior-x: contain/, "doorvegen kaapt de browser-terugnavigatie");
+  assert.match(css, /\.photo-caption \{[\s\S]*?text-overflow: ellipsis/, "lange bronregels verspringen de layout");
+});
+
+check("het detailblad toont de strip, niet de losse foto", () => {
+  const blad = codeOf("src/ui/detail-sheet.js");
+  const media = codeOf("src/ui/bird-media.js");
+  assert.match(blad, /birdPhotoStrip\(bird/, "detail-sheet gebruikt de strip niet");
+  assert.doesNotMatch(blad, /birdPhoto\(bird/, "detail-sheet toont nog de losse foto");
+  assert.match(media, /export function birdPhotoStrip/, "birdPhotoStrip bestaat niet");
+  // Eén foto: dan geen strip om niets -- de quiz en de dagkaart blijven ook
+  // gewoon birdPhoto() gebruiken.
+  assert.match(media, /urls\.length <= 1/, "de strip valt niet terug op de losse foto");
+});
+
 check("alleen een echt alias telt als goed antwoord in de typ-quiz", () => {
   // "Stolperstein (struikelsteen)" toont het woord struikelsteen op de kaart;
   // wie dat typt mag geen fout krijgen. Maar de haakjes uit de naam terugparsen

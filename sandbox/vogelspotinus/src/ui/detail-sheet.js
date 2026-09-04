@@ -14,7 +14,7 @@ import { FILTER_DEFINITIONS, filterValueLabel } from "../core/filters.js";
 import { isFavorite, toggleFavorite } from "../core/favorites.js";
 import { stopSound } from "../core/sound.js";
 import { openSheet, sheetBody } from "./sheet.js";
-import { birdPhoto, soundButton } from "./bird-media.js";
+import { birdPhotoStrip, soundButton } from "./bird-media.js";
 import { nameLine } from "./bird-names.js";
 
 function field(label, ...value) {
@@ -37,7 +37,7 @@ export function openBirdDetail(bird) {
     onClose: stopSound,
     build(dialog) {
       dialog.append(favoriteButton(bird));
-      dialog.append(birdPhoto(bird, { fit: "cover" }));
+      dialog.append(birdPhotoStrip(bird, { fit: "cover" }));
       dialog.append(
         sheetBody(
           h("h2", {}, primaryName(bird)),

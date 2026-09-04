@@ -23,7 +23,26 @@ let extra = {};
  *  dezelfde vogel niet toevallig dezelfde foto herhalen. */
 const lastShown = new Map();
 
+/** Loopt zolang de extra foto's onderweg zijn -- zie photosReady(). */
+let laden = null;
+
+/**
+ * De belofte van loadExtraPhotos(), of null als die nooit startte.
+ *
+ * main.js laadt de extra foto's bewust NA de eerste render, dus wie meteen een
+ * detailblad opent ziet even maar een foto. De fotostrip haakt hierop in en
+ * bouwt zichzelf alsnog op zodra de rest binnen is.
+ */
+export function photosReady() {
+  return laden;
+}
+
 export async function loadExtraPhotos() {
+  laden = laadAlles();
+  return laden;
+}
+
+async function laadAlles() {
   // Elk bestand apart: ontbreekt er één, dan houden we de andere gewoon. Beide
   // sleutelen op soort-id, dus ze kunnen zonder meer samengevoegd worden.
   const sets = await Promise.all(
