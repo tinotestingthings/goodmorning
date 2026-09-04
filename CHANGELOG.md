@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-13) — ChordSprint v1.87: home is één Start-knop (hervat je laatste mode) met alles wat geen oefenen is achter één ⋯; oefenscherm toont alleen de lus (← Home links, ⋯ rechts); terugknop overal linksboven; één navigatiestapel in plaats van vijf terug-variabelen; Sound toont alleen Volume + Clip volume, de rest onder Advanced. Incl. 1 review-fix
+
 ## 2026-09-04 (v2026.09.04-12) — Utilities: Clipinus-tegel weg (app blijft bestaan, ChordSprint leent segue.js); Sandbox-tegel erbij (live → sandbox, sandbox → live, nieuw venster)
 
 
