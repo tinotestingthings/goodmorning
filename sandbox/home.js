@@ -83,10 +83,14 @@
     }
   }
 
-  function renderHeader() {
+  // `weatherEl` (the mini weather pill) sits on the same line as the greeting.
+  function renderHeader(weatherEl) {
     var header = el("div", "home-header");
     header.appendChild(el("div", "home-date", formattedDate()));
-    header.appendChild(el("h1", "home-greeting", greetingWord() + ", Tinus"));
+    var row = el("div", "home-greeting-row");
+    row.appendChild(el("h1", "home-greeting", greetingWord() + ", Tinus"));
+    if (weatherEl) row.appendChild(weatherEl);
+    header.appendChild(row);
     return header;
   }
 
@@ -264,13 +268,6 @@
     var t = document.createElement("button");
     t.type = "button";
     t.className = "mini-weather-tile";
-
-    var top = el("div", "mwt-top");
-    top.appendChild(el("span", "mwt-caption", "Today"));
-    var dayName = "";
-    try { dayName = new Date().toLocaleDateString(undefined, { weekday: "long" }); } catch (e) {}
-    top.appendChild(el("span", "mwt-day", dayName));
-    t.appendChild(top);
 
     var bottom = el("div", "mwt-bottom");
     var iconWrap = el("span", "mwt-icon");
@@ -891,15 +888,14 @@
     return card;
   }
 
-  // ---- hero (greeting + loop/done card + mini weather tile) ----
+  // ---- hero (greeting + mini weather pill, then the tile row) ----
 
   function renderHero(myGeneration) {
     var wrap = el("div", "home-hero");
-    wrap.appendChild(renderHeader());
+    var mwt = renderMiniWeatherTile();
+    wrap.appendChild(renderHeader(mwt.el));
 
     var heroRow = el("div", "hero-row");
-    var mwt = renderMiniWeatherTile();
-    heroRow.appendChild(mwt.el);
     if (window.Wakeup) heroRow.appendChild(renderWakeupTile());
     heroRow.appendChild(renderTrainerTile());   // kleine tegel; blijft weg als alles groen is
     heroRow.appendChild(renderBirdTile());

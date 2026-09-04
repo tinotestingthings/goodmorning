@@ -184,7 +184,7 @@ body {
   gap: 14px;
 }
 
-/* ---- hero row: mini weather tile + loop/done card side by side ---- */
+/* ---- hero row: the small app tiles ---- */
 
 .hero-row {
   display: flex;
@@ -192,17 +192,16 @@ body {
   gap: 10px;
 }
 
+/* Mini weather pill: sits on the greeting line (2026-09-04), tap opens the
+   forecast accordion under the tile row. */
 .mini-weather-tile {
   appearance: none;
   background: var(--card-bg);
   border: 1.5px solid transparent;
-  border-radius: 16px;
-  padding: 12px 10px;
+  border-radius: 999px;
+  padding: 6px 12px 6px 10px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
-  width: 92px;
+  align-items: center;
   flex-shrink: 0;
   cursor: pointer;
   touch-action: manipulation;
@@ -211,26 +210,6 @@ body {
 
 .mini-weather-tile:active { transform: scale(0.97); }
 .mini-weather-tile.tile-active { border-color: var(--skip); }
-
-.mwt-top {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.mwt-caption {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-dim);
-}
-
-.mwt-day {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text);
-}
 
 .mwt-bottom {
   display: flex;
@@ -263,6 +242,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.home-greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .home-date {
@@ -3224,14 +3210,16 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
 }
 
 /* ---- home: "most used" app tiles + events tile (2026-08-17) ----
-   Zelfde formaat en opmaak als de kaarten in het Utilities-grid, en even
-   breed als de weertegel ernaast (92px), zodat de hero-rij één ritme houdt. */
+   Zelfde formaat en opmaak als de kaarten in het Utilities-grid. Max 92px,
+   maar op een smalle telefoon (Pixel 8: 380px binnen de padding) krimpt de
+   breedte zodat er altijd vier naast elkaar passen (2026-09-04). */
 .hero-row { flex-wrap: wrap; }
 
 .app-tile {
   position: relative;
-  width: 92px;
-  flex-shrink: 0;
+  width: calc((100% - 30px) / 4);
+  max-width: 92px;
+  flex-shrink: 1;   /* vier tegels + gaps = exact 100%; een subpixel mag krimpen i.p.v. wrappen */
   background: var(--card-bg);
   border: 1.5px solid transparent;
   border-radius: 16px;
