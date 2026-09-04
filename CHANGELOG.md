@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-8) — Toen: 728 foto's (Amsterdam-centrum +15 op gebouwniveau)
+
+
 ## 2026-09-04 (v2026.09.04-7) — ChordSprint v1.86: Clip lab-liniaal toont de hele/halve-tonenvolgorde (W W H W W W H); omhoog-rij boven omlaag en per kolom hetzelfde interval
 
 
