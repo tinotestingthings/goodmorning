@@ -18,6 +18,7 @@ export const KEYS = {
   stats: "vogelspotinus.stats",
   browseSort: "vogelspotinus.browseSort",
   soundQuestions: "vogelspotinus.soundQuestions",
+  course: "vogelspotinus.course",
 };
 
 /**

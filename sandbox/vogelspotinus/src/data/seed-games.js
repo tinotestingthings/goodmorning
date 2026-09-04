@@ -13,47 +13,10 @@
 // ---------------------------------------------------------------------------
 
 import { emptySelection } from "../core/filters.js";
-import { allBirds } from "../core/birds.js";
 import { GRIFTPARK_COURSE } from "./course-griftpark.js";
-
-const NL_DOG_COUNT = 30;
-
-/**
- * De honden die je in Nederland het vaakst tegenkomt -- bij benadering.
- *
- * WAT DIT WEL EN NIET IS. Er bestaat geen vrij beschikbare lijst van
- * hondenregistraties per ras in Nederland; de Raad van Beheer publiceert die
- * niet als open data. Wat we wél kunnen meten is hoe vaak elk rasartikel op de
- * NEDERLANDSTALIGE Wikipedia wordt bekeken (`nlPopularity`, 60 dagen). Dat is
- * belangstelling, geen telling -- maar het is Nederlandse belangstelling, en
- * dat scheelt: de lijst opent met beagle, Australische herder en cane corso,
- * en heeft het kooikerhondje op 9 en de stabij op 29 staan. Twee Nederlandse
- * rassen in de top 30 die in de Engelse cijfers nergens te bekennen zijn.
- *
- * Alleen door de FCI erkende rassen doen mee. Dat is geen willekeurige eis
- * maar precies de goede: hij haalt de dingo uit de lijst, die hoog scoort om
- * redenen die niets met Nederlandse straten te maken hebben.
- */
-function popularDutchDogs() {
-  return allBirds()
-    .filter((s) => s.tags?.kind === "dog" && s.tags?.fciGroup)
-    .sort((a, b) => (b.nlPopularity ?? 0) - (a.nlPopularity ?? 0))
-    .slice(0, NL_DOG_COUNT)
-    .map((s) => s.id);
-}
-
-/**
- * Alle ids van één kind, in datasetvolgorde -- voor blader-tegels waarvan de
- * volgorde in de data de cursus ís: de stijlen staan chronologisch (de
- * tijdlijn is het verhaal), de straatobjecten per groep (onder je voeten,
- * gevel, palen, op straat). Naslagwerk dus, geen quiz -- vrij quizzen kan al
- * via de kind-schakelaar.
- */
-function idsVanKind(kind) {
-  return allBirds()
-    .filter((s) => s.tags?.kind === kind)
-    .map((s) => s.id);
-}
+// Dezelfde lijsten als de cursussen, zodat een blader-tegel en de cursus met
+// dezelfde naam niet uit elkaar kunnen lopen.
+import { idsVanKind, popularDutchDogs } from "./courses.js";
 
 /**
  * Eén seed-spel. Alle vier volgen hetzelfde stramien -- een handgekozen

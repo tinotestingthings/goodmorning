@@ -17,7 +17,13 @@ import { registerScreen, showScreen, currentScreenId, refreshScreen } from "../c
 import { allBirds, bilingual, hasPhoto, photoUrl, primaryName } from "../core/birds.js";
 import { matchesFilters } from "../core/filters.js";
 import { allGames, deleteGame } from "../core/games.js";
-import { courseDetections, courseProgress } from "../core/course.js";
+import {
+  activeCourseId,
+  allCourses,
+  courseDetections,
+  courseProgress,
+  setActiveCourse,
+} from "../core/course.js";
 import { speciesOfTheDay } from "../core/daily.js";
 import { photoAttribution } from "../core/photos.js";
 import { plannedSessionSize } from "../core/session.js";
@@ -85,6 +91,44 @@ function dailyBirdBlock() {
 }
 
 // --- Voortgang + de ene knop ------------------------------------------------
+
+/**
+ * De cursuskeuze: wat leer je op dit moment?
+ *
+ * Bewust hier en niet in Instellingen -- "ik wil vandaag bouwstijlen leren" is
+ * een besluit dat je op Home neemt, en het stuurt meteen wat eronder staat: de
+ * dagkaart, de voortgang en wat de oefensessie je voorschotelt. Zelfde
+ * schakelaar als bij Bladeren, dus hij schuift horizontaal als hij niet past.
+ *
+ * Met één cursus (data van de andere niet geladen) is er niets te kiezen en
+ * blijft de rij weg.
+ */
+function courseSwitch() {
+  const courses = allCourses();
+  if (courses.length < 2) return null;
+
+  const actief = activeCourseId();
+  const rij = h("div", {
+    class: "segmented segmented-kind",
+    role: "group",
+    "aria-label": t("courseLabel"),
+  });
+  for (const course of courses) {
+    rij.append(
+      h(
+        "button",
+        {
+          type: "button",
+          class: course.id === actief ? "active" : "",
+          "aria-pressed": String(course.id === actief),
+          onclick: () => setActiveCourse(course.id),
+        },
+        t(course.nameKey)
+      )
+    );
+  }
+  return rij;
+}
 
 function progressBlock() {
   const c = courseProgress();
@@ -223,7 +267,8 @@ function launchGame(game) {
 
 function render() {
   byId("home-daily").replaceChildren(dailyBirdBlock() ?? "");
-  byId("home-progress").replaceChildren(progressBlock());
+  // De keuze staat direct boven de voortgang die hij bepaalt.
+  byId("home-progress").replaceChildren(...[courseSwitch(), progressBlock()].filter(Boolean));
 
   byId("home-tiles").replaceChildren(
     quietLink("browseTile", () => showScreen("browse")),
@@ -238,6 +283,11 @@ function render() {
 
 export function registerHomeScreen() {
   registerScreen("home", { render });
+  // Van cursus wisselen verandert dagkaart, voortgang én wat de sessie
+  // voorschotelt -- alle drie op dit scherm, dus opnieuw tekenen.
+  on(EVENTS.courseChanged, () => {
+    if (currentScreenId() === "home") refreshScreen();
+  });
   on(EVENTS.gamesChanged, () => {
     if (currentScreenId() === "home") refreshScreen();
   });

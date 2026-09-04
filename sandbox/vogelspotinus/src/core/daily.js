@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// De vogel van vandaag: elke dag één uitgelichte soort uit de cursus.
+// De soort van vandaag: elke dag één uitgelichte soort uit de ACTIEVE cursus.
 //
 // Puur decoratief -- het raakt de Leitner-planning niet en kost geen budget.
 // Het bestaat omdat het homescherm anders alleen cijfers toont: één vogel om
@@ -12,19 +12,10 @@
 // ---------------------------------------------------------------------------
 
 import { activeCourse } from "./course.js";
-import { allBirds, hasPhoto } from "./birds.js";
+import { hasPhoto } from "./birds.js";
 
 const STRIDE = 37;
 const DAY_MS = 24 * 60 * 60 * 1000;
-/**
- * Hoeveel hondenrassen meedoen aan de dagkaart.
- *
- * De cursus is een vogellijst, dus zonder dit zou "Dier van vandaag" altijd een
- * vogel zijn. Alle 361 rassen meenemen zou het omgekeerde probleem geven: je
- * krijgt vooral rassen waar niemand ooit van hoorde. De populairste 50 (op
- * Wikipedia-bezoeken) zijn precies de honden die je op straat tegenkomt.
- */
-const DAILY_DOGS = 50;
 
 /** Lokale kalenderdag als dagnummer -- dezelfde dagdefinitie als stats.js. */
 function dayNumber(date = new Date()) {
@@ -33,16 +24,17 @@ function dayNumber(date = new Date()) {
 }
 
 /**
- * Cursusvogels plus de bekendste honden. Bewust ZONDER foto-filter, zodat de
- * lengte van deze lijst niet afhangt van wat er al geladen is -- zie
- * speciesOfTheDay().
+ * De soorten van de actieve cursus. Vroeger stonden hier de cursusvogels plús
+ * de vijftig bekendste honden, omdat de cursus per definitie een vogellijst was
+ * en "Dier van vandaag" anders nooit een hond toonde. Nu je een cursus kiest,
+ * hoort de dagkaart bij die keuze: leer je bouwstijlen, dan is de kaart een
+ * bouwstijl. Honden hebben hun eigen cursus.
+ *
+ * Bewust ZONDER foto-filter, zodat de lengte van deze lijst niet afhangt van
+ * wat er al geladen is -- zie speciesOfTheDay().
  */
 function dailyPool() {
-  const dogs = allBirds()
-    .filter((s) => s.tags?.kind === "dog")
-    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
-    .slice(0, DAILY_DOGS);
-  return [...activeCourse().birds, ...dogs];
+  return activeCourse()?.birds ?? [];
 }
 
 /**

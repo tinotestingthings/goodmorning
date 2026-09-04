@@ -15,6 +15,7 @@ export const EVENTS = {
   themeChanged: "theme-changed",
   favoritesChanged: "favorites-changed",
   gamesChanged: "games-changed",
+  courseChanged: "course-changed",
 };
 
 /** Subscribe to `name`. Returns an unsubscribe function. */

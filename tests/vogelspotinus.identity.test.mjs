@@ -714,6 +714,95 @@ check("de onthulling toont de herkenkenmerken, niet alleen het weetje", () => {
   assert.deepEqual(zonder, [], "vogels/honden hebben ineens kenmerken; de regel verschijnt dan ook daar");
 });
 
+// --- 9e. Cursussen per categorie ----------------------------------------------
+
+const cursusFetch = globalThis.fetch;
+globalThis.fetch = async (url) => ({
+  ok: true,
+  json: async () => JSON.parse(readFileSync(`${APP}/${String(url)}`, "utf8")),
+});
+const { loadBirds } = await import(`${APP}/src/core/birds.js`);
+await loadBirds();
+const {
+  allCourses,
+  activeCourse,
+  activeCourseId,
+  setActiveCourse,
+  courseProgress,
+  nextNewBirds,
+} = await import(`${APP}/src/core/course.js`);
+const { speciesOfTheDay } = await import(`${APP}/src/core/daily.js`);
+const { buildSeed } = await import(`${APP}/src/data/seed-games.js`);
+globalThis.fetch = cursusFetch;
+
+check("er zijn vier cursussen en elke cursus heeft soorten", () => {
+  const cursussen = allCourses();
+  assert.deepEqual(
+    cursussen.map((c) => c.id),
+    ["griftpark", "stijlen", "straat", "honden"]
+  );
+  for (const c of cursussen) {
+    assert.ok(c.birds.length > 0, `${c.id} is leeg`);
+    assert.equal(c.birds.length, c.idSet.size, `${c.id} heeft dubbele soorten`);
+  }
+  // De stijlencursus is de tijdlijn: de leervolgorde moet chronologisch zijn.
+  const jaren = cursussen.find((c) => c.id === "stijlen").birds.map((b) => b.startYear);
+  assert.deepEqual(jaren, [...jaren].sort((a, b) => a - b), "stijlen niet in tijdlijnvolgorde");
+});
+
+check("zonder opgeslagen keuze is Griftpark de actieve cursus", () => {
+  // Bestaande installaties hebben deze sleutel niet. Ze moeten precies het
+  // gedrag van vóór de cursuskeuze houden: de Griftpark-vogelcursus.
+  assert.equal(store.has("vogelspotinus.course"), false, "de testopstelling had de sleutel al");
+  assert.equal(activeCourseId(), "griftpark");
+  assert.equal(courseProgress().total, 100);
+  // En het lezen ervan mag niets wegschrijven -- dat zou bij het opstarten een
+  // Supabase-push uitlokken voor een keuze die de gebruiker niet maakte.
+  const voor = writes;
+  activeCourse();
+  nextNewBirds(5);
+  assert.equal(writes, voor, "het lezen van de cursus schreef naar storage");
+});
+
+check("van cursus wisselen verandert wat je leert, en raakt niets kwijt", () => {
+  const vogelKaart = speciesOfTheDay(new Date(2026, 8, 4));
+  assert.equal(vogelKaart?.tags?.kind, "bird", "dagkaart was geen vogel bij de vogelcursus");
+
+  setActiveCourse("stijlen");
+  assert.equal(activeCourseId(), "stijlen");
+  assert.equal(courseProgress().total, arch.length, "voortgang telt niet over de stijlen");
+  const nieuw = nextNewBirds(3);
+  assert.equal(nieuw.length, 3);
+  assert.ok(
+    nieuw.every((s) => s.tags?.kind === "architecture"),
+    "de sessie zou nog steeds vogels voorschotelen"
+  );
+  // De eerste nieuwe stijl is de oudste: de cursusvolgorde ís de tijdlijn.
+  assert.equal(nieuw[0].id, "arch:romaans");
+  const stijlKaart = speciesOfTheDay(new Date(2026, 8, 4));
+  assert.equal(stijlKaart?.tags?.kind, "architecture", "dagkaart volgde de cursus niet");
+
+  // Terugwisselen levert exact hetzelfde op als vóór de wissel: voortgang
+  // hangt aan de Leitner-state, niet aan de cursus.
+  setActiveCourse("griftpark");
+  assert.equal(courseProgress().total, 100);
+  assert.deepEqual(speciesOfTheDay(new Date(2026, 8, 4))?.id, vogelKaart?.id);
+});
+
+check("de cursuslijsten en de blader-tegels lopen niet uit elkaar", () => {
+  // Beide komen uit src/data/courses.js; zou een van de twee zijn eigen lijst
+  // bijhouden, dan gaat "Bouwstijlen · tijdlijn" iets anders tonen dan de
+  // cursus die zo heet.
+  const seed = codeOf("src/data/seed-games.js");
+  assert.match(seed, /from "\.\/courses\.js"/, "seed-games bouwt zijn eigen lijsten weer");
+  assert.doesNotMatch(seed, /nlPopularity/, "de hondenlijst staat er twee keer");
+  const perId = new Map(allCourses().map((c) => [c.id, c.birds.map((b) => b.id)]));
+  const spellen = new Map(buildSeed().games.map((g) => [g.id, g.filters.specificIds]));
+  assert.deepEqual(spellen.get("stromingen-tijdlijn"), perId.get("stijlen"));
+  assert.deepEqual(spellen.get("straat-utrecht"), perId.get("straat"));
+  assert.deepEqual(spellen.get("honden-nl-top30"), perId.get("honden"));
+});
+
 // --- 10. Niets in de app zoekt nog op de oude sleutel -------------------------
 
 check("de identiteitsmodules noemen scientificName helemaal niet meer", () => {

@@ -14,28 +14,32 @@
 export const STRINGS = {
   nl: {
     // Vogel van vandaag + dagplan
-    birdOfTheDay: "Dier van vandaag",
+    birdOfTheDay: "Vandaag",
     plannedCards: "kaarten vandaag",
     plannedReviews: "herhalingen",
-    plannedNew: "nieuwe dieren",
+    plannedNew: "nieuwe",
     and: "en",
     localeTag: "nl-NL",
 
     // Cursus + oefensessie
     courseGriftpark: "Griftpark · 100 vogels",
+    courseStyles: "Bouwstijlen",
+    courseStreet: "Straat",
+    courseDogs: "Honden",
+    courseLabel: "Wat leer je",
     startSession: "Start oefensessie",
     sessionTitle: "Oefenen",
     closeSession: "Sessie sluiten",
     sessionPreviewReview: "herhalen",
     sessionPreviewNew: "nieuw",
-    newBirdBadge: "Nieuw dier",
+    newBirdBadge: "Nieuw",
     introNext: "Ik heb hem bekeken",
     whichBirdDoYouHear: "Welk dier hoor je?",
     whichPhotoIs: "Welke foto is de",
     heardInGriftpark: "gehoord in het Griftpark",
     sessionDoneTitle: "Klaar voor vandaag!",
     sessionScore: "goed beantwoord",
-    sessionNewBirds: "nieuwe dieren geleerd",
+    sessionNewBirds: "nieuw geleerd",
     sessionMissed: "Nog even naar kijken",
     sessionEmptyTitle: "Alles gedaan voor vandaag",
     sessionEmptyBody:
@@ -215,7 +219,7 @@ export const STRINGS = {
     themeVarDanger: "Foutkleur",
 
     // Loading & errors
-    loading: "Dieren laden...",
+    loading: "Laden...",
     loadFailedTitle: "Laden mislukt",
     loadFailedBody: "De diergegevens konden niet worden geladen. Controleer je verbinding.",
     retry: "Opnieuw proberen",
@@ -234,28 +238,32 @@ export const STRINGS = {
 
   en: {
     // Bird of the day + today's plan
-    birdOfTheDay: "Animal of the day",
+    birdOfTheDay: "Today",
     plannedCards: "cards today",
     plannedReviews: "reviews",
-    plannedNew: "new animals",
+    plannedNew: "new",
     and: "and",
     localeTag: "en-GB",
 
     // Course + practice session
     courseGriftpark: "Griftpark · 100 birds",
+    courseStyles: "Architecture",
+    courseStreet: "Street",
+    courseDogs: "Dogs",
+    courseLabel: "What you are learning",
     startSession: "Start practice session",
     sessionTitle: "Practice",
     closeSession: "Close session",
     sessionPreviewReview: "to review",
     sessionPreviewNew: "new",
-    newBirdBadge: "New animal",
+    newBirdBadge: "New",
     introNext: "Got it",
     whichBirdDoYouHear: "Which animal do you hear?",
     whichPhotoIs: "Which photo is the",
     heardInGriftpark: "heard in the Griftpark",
     sessionDoneTitle: "Done for today!",
     sessionScore: "answered correctly",
-    sessionNewBirds: "new animals learned",
+    sessionNewBirds: "newly learned",
     sessionMissed: "Worth another look",
     sessionEmptyTitle: "All done for today",
     sessionEmptyBody:
@@ -435,7 +443,7 @@ export const STRINGS = {
     themeVarDanger: "Error colour",
 
     // Loading & errors
-    loading: "Loading animals...",
+    loading: "Loading...",
     loadFailedTitle: "Could not load",
     loadFailedBody: "The animal data could not be loaded. Check your connection.",
     retry: "Try again",
