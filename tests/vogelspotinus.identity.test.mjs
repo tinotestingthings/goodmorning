@@ -664,6 +664,56 @@ check("een seed met een lege soortenlijst wordt niet vastgelegd", () => {
   assert.ok(allGames().some((g) => g.id === "hele-seed"), "een gevulde seed hoort gewoon te landen");
 });
 
+// --- 9d. Tijdlijnvraag en de herkenregel in de onthulling ----------------------
+
+const { timelineMode, isChronological } = await import(
+  `${APP}/src/screens/quiz-modes/timeline.js`
+);
+
+check("de tijdlijnvraag keurt gelijke startjaren allebei goed", () => {
+  // Drie paren stijlen delen een startjaar (1895, 1920, 1960). Zou de modus op
+  // één "juiste" permutatie vergelijken, dan wordt een correct antwoord soms
+  // afgekeurd. De regel is: de jaartallen mogen niet dalen.
+  const jaren = arch.map((a) => a.startYear);
+  const gedeeld = jaren.filter((j, i) => jaren.indexOf(j) !== i);
+  assert.ok(gedeeld.length >= 1, "geen gedeelde startjaren meer; pas dit voorbeeld aan");
+  const [a, b] = arch.filter((x) => x.startYear === gedeeld[0]);
+  assert.ok(a && b, "twee stijlen met hetzelfde startjaar verwacht");
+  assert.ok(isChronological([a, b]), "gelijke jaartallen werden afgekeurd");
+  assert.ok(isChronological([b, a]), "de omgekeerde volgorde ook, ze zijn even oud");
+
+  const opVolgorde = [...arch].sort((x, y) => x.startYear - y.startYear);
+  assert.ok(isChronological(opVolgorde.slice(0, 3)), "oplopend werd afgekeurd");
+  assert.ok(!isChronological([opVolgorde[5], opVolgorde[0]]), "aflopend werd goedgekeurd");
+});
+
+check("elke bouwstijl kan op de tijdlijn, en de modus is geregistreerd", () => {
+  // De modus toont drie stijlen met een startYear én een foto; valt er één
+  // categorie weg, dan is de vraag niet te stellen.
+  const bruikbaar = arch.filter((a) => Number.isFinite(a.startYear) && a.imageThumbUrl);
+  assert.equal(bruikbaar.length, arch.length, "niet elke stijl heeft jaartal + foto");
+  assert.equal(timelineMode.gameMode, "quiz-timeline");
+  const quiz = codeOf("src/screens/quiz.js");
+  assert.match(quiz, /timelineMode/, "quiz.js kent de tijdlijnmodus niet");
+  assert.match(quiz, /MODES = \[.*timelineMode/, "de modus staat niet in de keuzelijst");
+  // Straatobjecten hebben geen startYear: die horen hier niet in te sluipen.
+  assert.equal(street.filter((s) => Number.isFinite(s.startYear)).length, 0);
+});
+
+check("de onthulling toont de herkenkenmerken, niet alleen het weetje", () => {
+  // Na een fout antwoord wil je lezen WAAROM dit Jugendstil was. Dat staat in
+  // features_nl/features_en -- alleen bij stijlen en straatobjecten, dus bij
+  // een vogel blijft de regel weg.
+  const kaart = codeOf("src/ui/quiz-card.js");
+  assert.match(kaart, /bilingual\(bird, "features"\)/, "de onthulling leest features niet");
+  assert.match(kaart, /styleFeatures/, "geen label boven de kenmerken");
+  assert.match(kaart, /quiz-answer-features/, "geen eigen klasse om te stylen");
+  const metKenmerken = [...arch, ...street].filter((r) => r.features_nl?.length);
+  assert.equal(metKenmerken.length, arch.length + street.length, "niet elke stijl/object heeft kenmerken");
+  const zonder = [...birds, ...dogs].filter((r) => r.features_nl?.length);
+  assert.deepEqual(zonder, [], "vogels/honden hebben ineens kenmerken; de regel verschijnt dan ook daar");
+});
+
 // --- 10. Niets in de app zoekt nog op de oude sleutel -------------------------
 
 check("de identiteitsmodules noemen scientificName helemaal niet meer", () => {

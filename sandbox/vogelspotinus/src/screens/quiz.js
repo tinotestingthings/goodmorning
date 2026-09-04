@@ -20,8 +20,9 @@ import { typeMode } from "./quiz-modes/type.js";
 import { choiceMode } from "./quiz-modes/choice.js";
 import { studyMode } from "./quiz-modes/study.js";
 import { groupMode } from "./quiz-modes/group.js";
+import { timelineMode } from "./quiz-modes/timeline.js";
 
-const MODES = [typeMode, choiceMode, studyMode, groupMode];
+const MODES = [typeMode, choiceMode, studyMode, groupMode, timelineMode];
 const MODE_BY_GAME_MODE = new Map(MODES.map((m) => [m.gameMode, m]));
 
 const selection = emptySelection();

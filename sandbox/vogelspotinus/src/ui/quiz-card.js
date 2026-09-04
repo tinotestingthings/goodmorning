@@ -50,9 +50,22 @@ export function fillAnswer(answerEl, bird) {
   // the "next bird" button all fit on a phone screen at once.
   answerEl.closest(".quiz-card")?.classList.add("answered");
   const fact = bilingual(bird, "fact");
+  // De herkenkenmerken staan bóven het weetje: bij een bouwstijl of
+  // straatobject zijn ze het antwoord op "waarom was dit Jugendstil?", en juist
+  // dat wil je lezen als je het net fout had. Alleen die twee categorieën
+  // hebben het veld, dus bij een vogel of hond verschijnt de regel niet.
+  const features = bilingual(bird, "features");
   answerEl.replaceChildren(
     h("p", { class: "quiz-answer-name" }, primaryName(bird)),
     nameLine(bird, { className: "names" }),
+    features?.length
+      ? h(
+          "p",
+          { class: "quiz-answer-features" },
+          h("span", { class: "quiz-answer-label" }, t("styleFeatures")),
+          features.join(" · ")
+        )
+      : null,
     fact ? h("p", { class: "quiz-answer-fact" }, fact) : null,
     bird.wikipediaUrl
       ? h(

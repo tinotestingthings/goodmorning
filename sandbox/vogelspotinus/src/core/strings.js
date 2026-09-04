@@ -130,6 +130,10 @@ export const STRINGS = {
 
     // Filter dimensions
     fciGroupMode: "Rasgroepen",
+    timelineMode: "Tijdlijn",
+    timelinePrompt: "Zet op volgorde — oudste eerst",
+    timelinePosition: "plek",
+    timelineCorrectOrder: "Op volgorde",
     whichGroup: "Welke rasgroep zie je hier?",
     fciGroupShort: "Groep",
     fciGroupLabel: "Rasgroep (FCI)",
@@ -346,6 +350,10 @@ export const STRINGS = {
 
     // Filter dimensions
     fciGroupMode: "Breed groups",
+    timelineMode: "Timeline",
+    timelinePrompt: "Put them in order — oldest first",
+    timelinePosition: "position",
+    timelineCorrectOrder: "In order",
     whichGroup: "Which breed group is this?",
     fciGroupShort: "Group",
     fciGroupLabel: "Breed group (FCI)",
