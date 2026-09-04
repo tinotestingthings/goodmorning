@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-6) — Utrecht Toen: 713 foto's (data bijgewerkt uit utrecht-in-beeld)
+
+
 ## 2026-09-04 (v2026.09.04-5) — Utrecht Toen: 613 foto's (data bijgewerkt uit utrecht-in-beeld)
 
 
