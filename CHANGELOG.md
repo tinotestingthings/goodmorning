@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-10) — Utrecht Toen: 909 foto's (data bijgewerkt uit utrecht-in-beeld)
+
+
 ## 2026-09-04 (v2026.09.04-9) — Toen: Deventer verschijnt met 5 foto's op exacte camerastandplaats — 733 foto's
 
 
