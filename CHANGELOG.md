@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-5) — Utrecht Toen: 613 foto's (data bijgewerkt uit utrecht-in-beeld)
+
+
 ## 2026-09-04 (v2026.09.04-4) — Wake-up: gym-stap — geen gym in de komende 7 dagen? dagkiezer, per dag een to-do 'Gym' 18:00–19:00 (Health); gym-detectie gedeeld met 'Copy gym schedule' (GymSchedule.days)
 
 
