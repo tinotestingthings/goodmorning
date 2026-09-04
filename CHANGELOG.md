@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-16) — ChordSprint: echte piano in plaats van de synth — 21 gesamplede vleugelnoten (FluidR3 GM, CC BY 3.0, ~530 KB) als standaardklank, tussenliggende noten via playbackRate; oude synth blijft als 'Synth'-profiel en als vangnet; volume geijkt op de synth (RMS-verhouding 0,98) zodat Volume en Clip volume hetzelfde betekenen
+
 ## 2026-09-04 (v2026.09.04-15) — Toen: zoeken op straatnaam (straal telt dan niet, stad wel), straal 2 km, cluster-klik zoomt sneller en verder (max 17), badge + '2/7 op dit adres' bij meerdere foto's op één plek. Incl. 6 review-fixes
 
 
