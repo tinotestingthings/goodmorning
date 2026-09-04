@@ -28,11 +28,12 @@
             border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: 0.85rem; cursor: pointer;
             box-shadow: var(--shadow, none); white-space: nowrap; }
     .chip.primary { color: var(--blue); font-weight: 600; }
-    .chip:disabled { opacity: 0.5; cursor: default; }
+    .chip:disabled, .chip:has(:disabled) { opacity: 0.5; cursor: default; }
     .chip svg { width: 16px; height: 16px; }
     .chip select { appearance: none; -webkit-appearance: none; border: 0; background: none; padding: 0; margin: 0; cursor: pointer; }
     .chip input[type=number] { width: 3.6em; border: 0; background: none; padding: 0; text-align: center; -moz-appearance: textfield; }
     .chip input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .chip input[type=search] { width: 7em; border: 0; background: none; padding: 0; -webkit-appearance: none; }
     .chip .n { color: var(--muted); font-size: 0.8rem; }
     #stories { position: absolute; z-index: 3; top: 56px; left: 10px; right: 10px; max-width: 360px; background: var(--card);
                border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: none; }
@@ -136,8 +137,9 @@
     <div class="bar">
       <button type="button" class="chip primary" id="near"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg><span>Dicht bij mij</span></button>
       <label class="chip"><select id="city" aria-label="Stad"></select></label>
+      <label class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Straat" aria-label="Zoek op straatnaam" autocomplete="off" /></label>
       <label class="chip"><span class="n">Straal</span><select id="radius" aria-label="Zoekstraal">
-        <option value="250">250 m</option><option value="500">500 m</option><option value="1000" selected>1 km</option><option value="5000">5 km</option>
+        <option value="250">250 m</option><option value="500">500 m</option><option value="1000" selected>1 km</option><option value="2000">2 km</option><option value="5000">5 km</option>
       </select></label>
       <label class="chip"><input id="yfrom" type="number" min="1800" max="1997" value="1800" aria-label="Van jaar" /><span class="n">–</span><input id="yto" type="number" min="1800" max="1997" value="1997" aria-label="Tot jaar" /></label>
       <button type="button" class="chip" id="storiesBtn" aria-expanded="false">Verhalen <span class="n" id="storiesN"></span></button>

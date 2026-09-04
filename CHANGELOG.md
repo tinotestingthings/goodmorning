@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-15) — Toen: zoeken op straatnaam (straal telt dan niet, stad wel), straal 2 km, cluster-klik zoomt sneller en verder (max 17), badge + '2/7 op dit adres' bij meerdere foto's op één plek. Incl. 6 review-fixes
+
+
 ## 2026-09-04 (v2026.09.04-14) — Home: weer als pil naast de begroeting (Today/dag weg); app-tegels krimpen zodat er vier naast elkaar passen op een smalle telefoon (Pixel 8)
 
 

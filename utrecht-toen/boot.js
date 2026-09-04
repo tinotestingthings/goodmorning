@@ -36,7 +36,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var app = $("app"), dock = $("dock"), sheet = $("sheet"), full = $("full"), msg = $("msg");
   var all = [], providers = [], results = [];
-  var center = UTRECHT, radius = 1000, yearFrom = YEAR_MIN, yearTo = YEAR_MAX, enabled = {};
+  var center = UTRECHT, radius = 1000, yearFrom = YEAR_MIN, yearTo = YEAR_MAX, enabled = {}, q = "";
   var selectedId = null, map = null, mapReady = false;
 
   // ---- geo (zelfde formules als lib/geo.ts in de bronrepo) -----------------
@@ -63,13 +63,16 @@
     return "street";
   }
 
+  function hay(p) { return (p.title + " " + (p.description || "") + " " + (p.location_evidence || "")).toLowerCase(); }
+  // Zoeken op straat: de straal telt dan niet, de stad wel (Kerkstraat bestaat overal).
   function query() {
     var out = [];
     all.forEach(function (p) {
       if (!p.date_from || !p.date_to) return;
       if (Number(p.date_from.slice(0, 4)) > yearTo || Number(p.date_to.slice(0, 4)) < yearFrom) return;
+      if (q && ((city && (p.city || "utrecht") !== city.id) || hay(p).indexOf(q) < 0)) return;
       var d = distance(center, p);
-      if (d <= radius) out.push(Object.assign({ distance_m: d }, p));
+      if (q || d <= radius) out.push(Object.assign({ distance_m: d }, p));
     });
     return out.sort(function (a, b) { return a.distance_m - b.distance_m || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0); });
   }
@@ -78,9 +81,14 @@
   // Eén feature per foto; MapLibre's clustering voegt samen wat op dezelfde plek
   // ligt (point_count). Een eigen clusterProperties-som brak de tile-opbouw in
   // de worker ("Expected number, found null") en dan verschijnt er niets.
+  function posKey(p) { return p.latitude + "," + p.longitude; }
+  // Foto's op precies dezelfde plek (zelfde gegeocodeerde adres) vormen een stapel.
+  function stack(p) { return results.filter(function (r) { return posKey(r) === posKey(p); }); }
   function photoFeatures() {
+    var n = {};
+    results.forEach(function (p) { n[posKey(p)] = (n[posKey(p)] || 0) + 1; });
     return { type: "FeatureCollection", features: results.map(function (p) {
-      return { type: "Feature", properties: { photoId: p.id, tier: tier(p), selected: p.id === selectedId },
+      return { type: "Feature", properties: { photoId: p.id, tier: tier(p), selected: p.id === selectedId, stack: n[posKey(p)] },
         geometry: { type: "Point", coordinates: [p.longitude, p.latitude] } };
     }) };
   }
@@ -167,6 +175,10 @@
         paint: { "circle-radius": 18, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": ACCENT, "circle-stroke-width": 3, "circle-translate": [0, -20] } });
       map.addLayer({ id: "points", source: "photos", type: "symbol", filter: ["!", ["has", "point_count"]],
         layout: { "icon-image": ["match", ["get", "tier"], "exact", "photo-exact", "building", "photo-building", "photo-street"], "icon-anchor": "bottom", "icon-allow-overlap": true } });
+      // Badge met het aantal foto's op dezelfde plek (pins liggen daar over elkaar).
+      map.addLayer({ id: "stack-count", source: "photos", type: "symbol", filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "stack"], 1]],
+        layout: { "text-field": ["to-string", ["get", "stack"]], "text-font": ["Noto Sans Bold"], "text-size": 11, "text-offset": [1.1, -2.2], "text-allow-overlap": true, "text-ignore-placement": true },
+        paint: { "text-color": "#fff", "text-halo-color": ACCENT, "text-halo-width": 2 } });
       map.addSource("bearing", { type: "geojson", data: empty() });
       map.addLayer({ id: "bearing-halo", source: "bearing", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": "#fff", "line-width": 7, "line-opacity": 0.85 } });
       map.addLayer({ id: "bearing-line", source: "bearing", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": ACCENT, "line-width": 3 } });
@@ -177,7 +189,7 @@
         var id = f && Number(f.properties.cluster_id);
         if (!f || !isFinite(id)) return;
         map.getSource("photos").getClusterExpansionZoom(id).then(function (zoom) {
-          map.easeTo({ center: f.geometry.coordinates, zoom: zoom, duration: 550 });
+          map.easeTo({ center: f.geometry.coordinates, zoom: Math.min(Math.max(zoom, map.getZoom() + 2), 17), duration: 300 });
         });
       };
       var openPhoto = function (ev) {
@@ -185,8 +197,8 @@
         if (f && typeof f.properties.photoId === "string") select(f.properties.photoId);
       };
       map.on("click", "clusters", openCluster); map.on("click", "cluster-count", openCluster);
-      map.on("click", "points", openPhoto);
-      ["clusters", "cluster-count", "points"].forEach(function (l) {
+      map.on("click", "points", openPhoto); map.on("click", "stack-count", openPhoto);
+      ["clusters", "cluster-count", "points", "stack-count"].forEach(function (l) {
         map.on("mouseenter", l, function () { map.getCanvas().style.cursor = "pointer"; });
         map.on("mouseleave", l, function () { map.getCanvas().style.cursor = ""; });
       });
@@ -197,7 +209,7 @@
 
   function syncMap() {
     if (!mapReady) return;
-    map.getSource("search-radius").setData(circle(center.latitude, center.longitude, radius));
+    map.getSource("search-radius").setData(q ? empty() : circle(center.latitude, center.longitude, radius));
     map.getSource("search-center").setData({ type: "Point", coordinates: [center.longitude, center.latitude] });
     map.getSource("photos").setData(photoFeatures());
   }
@@ -266,7 +278,7 @@
   function renderDock() {
     dock.innerHTML = "";
     if (!results.length) {
-      var e = document.createElement("span"); e.className = "empty"; e.textContent = "Geen foto’s binnen deze straal en periode."; dock.appendChild(e);
+      var e = document.createElement("span"); e.className = "empty"; e.textContent = q ? "Geen foto’s gevonden voor “" + q + "”" + (city ? " in " + city.name : "") + " in deze periode." : "Geen foto’s binnen deze straal en periode."; dock.appendChild(e);
       return;
     }
     results.slice(0, 8).forEach(function (p) {
@@ -285,7 +297,7 @@
     var p = selected();
     app.className = p ? "has-sel" : "";
     if (!p) { sheet.innerHTML = ""; return; }
-    var t = tier(p), rev = p.location_revision, ctx = p.context_contributions || [];
+    var t = tier(p), rev = p.location_revision, ctx = p.context_contributions || [], s = stack(p);
     var h = '<button type="button" class="close" id="sheetClose" aria-label="Sluit fotodetails">×</button>'
       + '<div class="frame"><img id="sheetImg" src="' + esc(p.thumbnail_url) + '" alt="' + esc(title(p)) + '">'
       + '<span class="date">' + esc(date(p)) + '</span><p class="fail">De foto kon niet bij de bron worden geladen.</p></div>'
@@ -323,7 +335,7 @@
       + '<dt>Rechten</dt><dd>' + (p.license_url ? ext(p.license_url, p.license) : esc(p.license)) + '</dd></dl>'
       + '<p>' + ext(p.source_record_url, "Bekijk origineel bij de bron") + '</p>'
       + '<p class="note">Broncoördinaten, gegeocodeerde locaties en nieuw vastgestelde camerastandplaatsen blijven afzonderlijk gelabeld. Bij een correctie blijft de eerdere locatie in de wijzigingsgeschiedenis bewaard. Datums en kijkrichtingen worden niet aangevuld.</p></details>'
-      + '<div class="nav"><button type="button" id="prev">← Vorige</button><span>' + (selectedIndex() + 1) + " / " + results.length + '</span><button type="button" id="next">Volgende →</button></div></div>';
+      + '<div class="nav"><button type="button" id="prev">← Vorige</button><span>' + (s.length > 1 ? (s.indexOf(p) + 1) + "/" + s.length + " op dit adres · " : "") + (selectedIndex() + 1) + " / " + results.length + '</span><button type="button" id="next">Volgende →</button></div></div>';
     sheet.innerHTML = h;
     sheet.scrollTop = 0;
     $("sheetClose").onclick = function () { select(null); };
@@ -503,6 +515,14 @@
 
   // ---- filters ----------------------------------------------------------------
   $("radius").onchange = function () { radius = Number(this.value); refresh(); };
+  $("q").oninput = function () { q = this.value.trim().toLowerCase(); $("radius").disabled = !!q; refresh(); };
+  // Bij Enter/zoekknop de kaart op de gevonden foto's leggen (de straal geldt dan niet).
+  $("q").onchange = $("q").onsearch = function () {
+    if (!q || !results.length || !map) return;
+    var b = new maplibregl.LngLatBounds();
+    results.forEach(function (p) { b.extend([p.longitude, p.latitude]); });
+    map.fitBounds(b, { padding: 80, maxZoom: 16, duration: 600 });
+  };
   function yearInput(el, apply) {
     el.onchange = function () {
       var y = Number(el.value);
@@ -558,11 +578,11 @@
     navigator.geolocation.getCurrentPosition(function (pos) {
       btn.disabled = false; btn.lastElementChild.textContent = "Dicht bij mij";
       center = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-      selectedId = null; refresh();
-      if (mapReady) map.flyTo({ center: [center.longitude, center.latitude], zoom: 14, duration: 900 });
-      // Dichtstbijzijnde bekende stad wordt de actieve stad; ver van alle steden: melden.
+      // Dichtstbijzijnde bekende stad wordt de actieve stad (vóór refresh: zoeken filtert op stad); ver van alle steden: melden.
       var nearest = cities.slice().sort(function (a, b) { return distance(center, a.center) - distance(center, b.center); })[0];
       if (nearest) { city = nearest; $("city").value = nearest.id; }
+      selectedId = null; refresh();
+      if (mapReady) map.flyTo({ center: [center.longitude, center.latitude], zoom: 14, duration: 900 });
       if (!nearest || distance(center, nearest.center) > 15000) say("Je staat buiten de steden in de collectie (" + cities.map(function (c) { return c.name; }).join(", ") + ").");
     }, function () {
       btn.disabled = false; btn.lastElementChild.textContent = "Dicht bij mij";
