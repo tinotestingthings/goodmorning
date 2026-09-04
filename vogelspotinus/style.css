@@ -1344,23 +1344,6 @@ button.secondary.playing {
 
 /* The full text is always one tap away in the detail sheet; here it only has
    to whet the appetite, and it must not push "next bird" off the screen. */
-/* Herkenkenmerken bij een bouwstijl of straatobject: de reden waarom dit het
-   goede antwoord was. Compact label + waarde op één blok, zoals de veldrijen
-   in het detailblad, zodat het niet met het weetje concurreert. */
-.quiz-answer-features {
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-2);
-}
-
-.quiz-answer-label {
-  display: block;
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  margin-bottom: var(--space-1);
-}
-
 .quiz-answer-fact {
   font-size: var(--text-sm);
   color: var(--muted);
