@@ -3466,6 +3466,18 @@ a.cal-allday-attent { text-decoration: none; }
 .cal-bulk-check.bulk-check-sel { background: var(--skip); border-color: var(--skip); color: #fff; }
 .cal-item-locked { opacity: 0.45; }
 
+/* ---- app launch card (home.js, 2026-09-04): zooms out of the tapped tile ---- */
+.launch-card {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: center;
+  animation: launch-card 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.launch-card svg { width: 44px; height: 44px; }
+@keyframes launch-card {
+  from { transform: scale(0.12); opacity: 0.6; border-radius: 80px; }
+  to { transform: none; opacity: 1; border-radius: 0; }
+}
+
 /* ---- Wake-up (wakeup.js, 2026-09-03) ------------------------------------
    Full-screen start-the-day flow. Motion is CSS only: slots slide in staggered,
    icons drift, the temperature counts up in JS. Reduced motion = no motion. */

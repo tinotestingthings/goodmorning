@@ -3046,4 +3046,36 @@
     App.onShow("today", render);
   }
   render();
+
+  // ---- app launch (2026-09-04) ------------------------------------------
+  // A tap on a utility-app tile zooms a card in the page colour with the app's
+  // icon out of the tile, then navigates; ../launch.js paints the same card in
+  // the new document until the app has content (Launch.done). Plain left taps
+  // only — modifier clicks, external links and new-window tiles pass through.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest ? e.target.closest("a.app-tile[href], a.gym-open[href]") : null;
+    if (!a || a.target || /^[a-z]+:/i.test(a.getAttribute("href") || "")) return;
+    var icon = a.querySelector(".app-tile-icon svg, svg");
+    var bg = getComputedStyle(document.body).backgroundColor;
+    var fg = icon ? getComputedStyle(icon).color : "";
+    try {
+      sessionStorage.setItem("gm.launch", JSON.stringify({ t: Date.now(), bg: bg, fg: fg, icon: icon ? icon.outerHTML : "" }));
+    } catch (err) {}
+    var reduce = false;
+    try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (err) {}
+    if (reduce) return;   // plain navigation; the splash still hides the load
+    e.preventDefault();
+    var r = a.getBoundingClientRect();
+    var card = el("div", "launch-card");
+    card.style.background = bg;
+    card.style.transformOrigin = (r.left + r.width / 2) + "px " + (r.top + r.height / 2) + "px";
+    if (icon) { var ic = icon.cloneNode(true); ic.style.color = fg; card.appendChild(ic); }
+    document.body.appendChild(card);
+    setTimeout(function () { location.href = a.href; }, 230);
+  });
+  // Back from the app restores this page from the bfcache: the card must not stay.
+  window.addEventListener("pageshow", function () {
+    document.querySelectorAll(".launch-card").forEach(function (n) { n.remove(); });
+  });
 })();

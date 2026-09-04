@@ -149,6 +149,7 @@
   function showApp() { var a = document.querySelector(".app"); if (a) a.style.visibility = "visible"; }
 
   function gate(title, msg, showReload) {
+    if (window.Launch) Launch.done();
     var o = document.createElement("div");
     o.id = "gm-gate";
     o.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;" +
@@ -171,6 +172,7 @@
     var s = document.createElement("script");
     s.type = "module";
     s.src = APP_MODULE;
+    s.onload = function () { if (window.Launch) Launch.done(); };
     document.body.appendChild(s);
   }
 

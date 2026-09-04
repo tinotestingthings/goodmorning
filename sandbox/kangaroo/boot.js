@@ -47,6 +47,7 @@
 
   // ---- tiny gate UI ----
   function gate(title, msg, showReload) {
+    if (window.Launch) Launch.done();
     var root = document.getElementById("root");
     if (!root) return;
     root.innerHTML = "";
@@ -199,6 +200,7 @@
     mounted = true;
     var s = document.createElement("script");
     s.src = "bundle.js";
+    s.onload = function () { if (window.Launch) Launch.done(); };
     document.body.appendChild(s);
   }
 

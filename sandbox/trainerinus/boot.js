@@ -140,6 +140,7 @@
   }
 
   function gate(title, msg, showReload) {
+    if (window.Launch) Launch.done();
     var o = document.getElementById("gm-gate");
     if (o && o.parentNode) o.parentNode.removeChild(o);
     o = document.createElement("div");
@@ -166,6 +167,7 @@
     var s = document.createElement("script");
     s.textContent = code.textContent;
     document.body.appendChild(s);
+    if (window.Launch) Launch.done();
   }
 
   var GT = "Log in om " + APP_LABEL + " te gebruiken";
