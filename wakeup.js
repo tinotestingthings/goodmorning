@@ -90,6 +90,7 @@
   function open() {
     close();
     steps = [stepDay, stepTodos];
+    if (global.GymSchedule && !global.GymSchedule.days(7).length) steps.push(stepGym);
     if (openItems().length) steps.push(stepItems);
     if (backlogItems().length) steps.push(stepBacklog);
     steps.push(stepDone);
@@ -221,6 +222,53 @@
     var a = actions(card);
     a.appendChild(btn("Rest → tomorrow", "btn-primary", function () { commit(true); }));
     a.appendChild(btn("Keep the rest", "", function () { commit(false); }));
+  }
+
+  // ---- 2b. gym not planned in the coming week? pick days -------------------
+  // Rolling 7 days from today (a Mon–Sun week would be one day on a Sunday).
+  // Each picked day gets a "Gym" to-do 18:00–19:00 in the Health category.
+  // ponytail: fixed time/length/category; make them a setting if it nags.
+  var GYM = { text: "Gym", start: "18:00", end: "19:00", cat: "health" };
+  var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  function stepGym(card, next) {
+    card.appendChild(el("h2", "wk-title", "No gym planned this week"));
+    card.appendChild(el("p", "wk-sub", "Pick the days \u2014 each gets a Gym block " + GYM.start + "\u2013" + GYM.end + " (Health)."));
+    var sel = {}, now = new Date(), days = el("div", "wk-days");
+    for (var i = 0; i < 7; i++) {
+      (function (d) {
+        var ds = M().localDateStr(d);
+        var b = el("button", "wk-day");
+        b.type = "button";
+        b.appendChild(el("span", "wk-day-dow", DOW[d.getDay()]));
+        b.appendChild(el("span", "wk-day-num", String(d.getDate())));
+        b.setAttribute("aria-pressed", "false");
+        b.addEventListener("click", function () {
+          sel[ds] = !sel[ds];
+          b.classList.toggle("wk-day-on", !!sel[ds]);
+          b.setAttribute("aria-pressed", sel[ds] ? "true" : "false");
+          go.textContent = planLabel();
+        });
+        days.appendChild(b);
+      })(new Date(now.getFullYear(), now.getMonth(), now.getDate() + i));
+    }
+    card.appendChild(days);
+    function picked() { return Object.keys(sel).filter(function (k) { return sel[k]; }).sort(); }
+    function planLabel() { var n = picked().length; return n ? "Plan " + n + (n === 1 ? " day \u2192" : " days \u2192") : "Pick a day"; }
+    var a = actions(card);
+    var go = btn(planLabel(), "btn-primary", function () {
+      var ds = picked();
+      if (!ds.length) return;
+      var cat = global.Cats && global.Cats.byId(GYM.cat) ? GYM.cat : null;
+      var todos = M().loadTodos();
+      ds.forEach(function (d) {
+        todos.push({ id: M().newTodoId(), text: GYM.text, dueDate: d, startTime: GYM.start, endTime: GYM.end, category: cat, note: null, done: false });
+      });
+      M().saveTodos(todos);
+      M().toast("Gym planned: " + ds.map(function (d) { return DOW[new Date(d + "T00:00:00").getDay()]; }).join(", "));
+      next();
+    });
+    a.appendChild(go);
+    a.appendChild(btn("Skip", "", next));
   }
 
   // ---- 3. tasks & projects (optional) --------------------------------------

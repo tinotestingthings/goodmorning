@@ -2977,6 +2977,7 @@
     overdueTodos: overdueTodos,
     dueTodayTodos: dueTodayTodos,
     moveTodosIn: moveTodosIn,
+    newTodoId: newTodoId,
     greetingWord: greetingWord,
     weather: loadWeather,
     pickHourly: pickHourly,

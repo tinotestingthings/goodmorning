@@ -2,6 +2,11 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-4) — Wake-up: gym-stap — geen gym in de komende 7 dagen? dagkiezer, per dag een to-do 'Gym' 18:00–19:00 (Health); gym-detectie gedeeld met 'Copy gym schedule' (GymSchedule.days)
+
+
+## 2026-09-04 (gerichte promote) — Eventino: catalogusronde + eerlijke Sources-pagina. Acht verlopen events weg (twee uit data.ts, zes filmvoorstellingen uit film-snapshot.ts), vier nieuwe erbij (Lustrumfestival UU 12–13 sep, Buitenbioscoop Botanische Tuinen 9–17 sep, Annex: Mathias Poledna t/m 13 sep, Godenschemering t/m 22 nov) en twee festivals (ILFU 19 sep–3 okt, Leidsche Rijn Festival 6 sep); de inbox toont geen afgelopen events meer (ook niet in de badge); Sources-pagina telt nu echt uit de catalogus in plaats van verzonnen scan-tijden en aantallen
+
 ## 2026-09-04 (v2026.09.04-3) — Toen: stadskeuze toont alleen steden met foto's
 
 
