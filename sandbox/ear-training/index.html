@@ -186,7 +186,8 @@ details.more.heroMore{position:absolute;top:12px;right:12px}
           <div class="label">Instrument</div>
           <div class="soundList">
             <div class="soundGroup"><div class="label" style="margin-top:0">Core</div><div class="optionPad" id="soundPad">
-              <button class="btn" data-sound="default">Default</button>
+              <button class="btn" data-sound="default">🎹 Grand piano</button>
+              <button class="btn" data-sound="synth">Synth</button>
               <button class="btn" data-sound="juno">Juno '84</button>
               <button class="btn" data-sound="epiano">E-Piano</button>
               <button class="btn" data-sound="wurli">Wurli</button>
@@ -199,7 +200,7 @@ details.more.heroMore{position:absolute;top:12px;right:12px}
             </div></div>
           </div>
           <div class="split" style="margin-top:10px"><button class="btn" id="previewSoundBtn">▶ Preview progression</button><button class="btn ghost" id="resetSoundBtn">Reset sound to Default</button></div>
-          <p class="small">Default is the warm-deep sound; the hammer/hitting noise only plays if you switch it on in the Sound lab.</p>
+          <p class="small">Grand piano is a real sampled piano (FluidR3 GM, CC BY 3.0). The sound lab sliders below shape the synth profiles only; Volume and Clip volume apply to everything.</p>
         </div>
         <div class="settingsSection">
           <div class="label">Sound lab</div>
@@ -348,6 +349,7 @@ details.more.heroMore{position:absolute;top:12px;right:12px}
       <button class="btn primary wide" id="helpPhrasesBtn">📝 Open phrase library</button>
       <button class="btn wide" id="helpPlaygroundBtn" style="margin-top:10px">🛝 Open playground</button>
       <p class="helpNote">Use Phrases to choose songs for intervals, scale tones and chords. Use Playground to freely hear repeated scale patterns such as 4ths up and down.</p>
+      <p class="helpNote">Piano sound: FluidR3 GM soundfont via gleitz/midi-js-soundfonts, CC BY 3.0.</p>
     </div>
   </section>
 
@@ -530,7 +532,7 @@ const phraseDefaults=[{"id":"int_m2_up","kind":"interval","interval":"m2","direc
 let presets=loadPresets(),currentPresetId=localStorage.getItem('cpt_preset')||'medium';
 if(!presets.find(p=>p.id===currentPresetId))currentPresetId='medium';
 let practiceType='chords',enabledNumerals=['1','2','4','5','6'],enabledIntervals=['m2','M2','m3','M3','P4','P5','P8'],enabledScaleMoves=['2','3','4','5','6','7','-2','-3','-4','-5','-6','-7'],enabledInKeyStarts=['1','2','3','4','5','6','7'],enabledInKeyMoves=['1','2','3','4','5','6','-1','-2','-3','-4','-5','-6'],tonalityMode='major',currentMode='major',directionMode='both',variety={noRepeats:true,noBounce:true};
-const validSounds=['default','juno','epiano','wurli','organ','lofi','choirpad','chiptune','glass','spacebell'];
+const validSounds=['default','synth','juno','epiano','wurli','organ','lofi','choirpad','chiptune','glass','spacebell'];
 let soundProfile=localStorage.getItem('cpt_soundProfile')||'default';
 if(!validSounds.includes(soundProfile)) soundProfile='default';
 let playbackMode=localStorage.getItem('cpt_playbackMode')||'chords';
@@ -1188,7 +1190,38 @@ function newProgression(autoPlay=true){
   const len=+$('lengthSelect').value;currentMode=tonalityMode==='both'?(Math.random()<.5?'major':'minor'):tonalityMode;currentRoots=[];current=buildProgression(len,getSet());$('keyLabel').textContent=`${key} ${currentMode}`;$('givenText').textContent=`Given: 🎹 ${tonicLabel()}`;renderDots();updatePlaybackModeButton();if(autoPlay)pendingPlayTimer=setTimeout(()=>{pendingPlayTimer=null;play()},130)
 }
 function midiToFreq(m){return 440*Math.pow(2,(m-69)/12)}
-function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.62;highPass=audioCtx.createBiquadFilter();highPass.type='highpass';highPass.frequency.value=38;toneFilter=audioCtx.createBiquadFilter();toneFilter.type='lowpass';toneFilter.frequency.value=12500;toneFilter.Q.value=.35;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=18;compressor.ratio.value=2.2;compressor.attack.value=.002;compressor.release.value=.18;reverbDelay=audioCtx.createDelay(.45);reverbDelay.delayTime.value=.033;reverbFeedback=audioCtx.createGain();reverbFeedback.gain.value=.045;highPass.connect(toneFilter);toneFilter.connect(compressor);compressor.connect(masterGain);toneFilter.connect(reverbDelay);reverbDelay.connect(reverbFeedback);reverbFeedback.connect(reverbDelay);reverbDelay.connect(masterGain);masterGain.connect(audioCtx.destination)}
+/* ---- Gesamplede vleugel (4 sep 2026) ----------------------------------------
+   Het profiel 'default' is nu een echte piano: 21 mp3's (elke kleine terts van
+   C2 tot C7) uit de FluidR3 GM-soundfont (gleitz/midi-js-soundfonts, CC BY 3.0),
+   tussenliggende noten via playbackRate (hooguit één halve toon verschoven).
+   De oude synth blijft als 'synth'-profiel én als vangnet zolang de samples
+   laden of als het decoden mislukt. Samples lopen door dezelfde keten
+   (highPass → filters → compressor → masterGain), dus Volume en de stopknop
+   werken ongewijzigd; de klanksliders van het sound lab zijn synth-only. */
+const PIANO_NOTES=['C2','Eb2','Gb2','A2','C3','Eb3','Gb3','A3','C4','Eb4','Gb4','A4','C5','Eb5','Gb5','A5','C6','Eb6','Gb6','A6','C7'];
+const PIANO_MIDI=PIANO_NOTES.map(n=>{const m=/^([A-G])(b?)(\d)$/.exec(n);return {C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]-(m[2]?1:0)+(Number(m[3])+1)*12});
+const PIANO_GAIN=8;     // gemeten (4 sep, OfflineAudioContext, C-majeur-drieklank): de FluidR3-samples
+                        // pieken op -21 dBFS; bij 8x is de RMS over de eerste 0,6 s gelijk aan die van
+                        // het synth-profiel, zodat Volume en Clip volume dezelfde betekenis houden
+const piano={raw:{},buf:{},ready:false};
+function pianoNearest(midi){let best=0;for(let i=1;i<PIANO_MIDI.length;i++)if(Math.abs(PIANO_MIDI[i]-midi)<Math.abs(PIANO_MIDI[best]-midi))best=i;return best}
+// bytes alvast ophalen bij het laden; decoden kan pas als er een AudioContext is
+PIANO_NOTES.forEach(n=>fetch('samples/'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status)).then(b=>{piano.raw[n]=b;pianoDecode()}).catch(()=>{}));
+function pianoDecode(){
+  if(!audioCtx||piano.ready)return;
+  const todo=PIANO_NOTES.filter(n=>piano.raw[n]&&!piano.buf[n]);
+  todo.forEach(n=>{const raw=piano.raw[n];delete piano.raw[n];audioCtx.decodeAudioData(raw).then(b=>{piano.buf[n]=b;piano.ready=PIANO_NOTES.every(x=>piano.buf[x])}).catch(()=>{})});
+}
+function pianoSample(freq,start,dur,gain){
+  const midi=69+12*Math.log2(freq/440),i=pianoNearest(midi);
+  const src=audioCtx.createBufferSource(),g=audioCtx.createGain();
+  src.buffer=piano.buf[PIANO_NOTES[i]];src.playbackRate.value=Math.pow(2,(midi-PIANO_MIDI[i])/12);
+  const lvl=Math.max(gain*PIANO_GAIN*tw('volume'),.0002);dur*=tw('decay');
+  g.gain.setValueAtTime(lvl,start);g.gain.setValueAtTime(lvl,start+Math.max(0,dur-.12));g.gain.exponentialRampToValueAtTime(.0001,start+dur+.25);
+  src.connect(g);g.connect(highPass);src.start(start);src.stop(start+dur+.3);
+  synthEndsAt=Math.max(synthEndsAt,start+dur+.3);activeAudioNodes.push(src);
+}
+function ensureAudio(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.62;highPass=audioCtx.createBiquadFilter();highPass.type='highpass';highPass.frequency.value=38;toneFilter=audioCtx.createBiquadFilter();toneFilter.type='lowpass';toneFilter.frequency.value=12500;toneFilter.Q.value=.35;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=18;compressor.ratio.value=2.2;compressor.attack.value=.002;compressor.release.value=.18;reverbDelay=audioCtx.createDelay(.45);reverbDelay.delayTime.value=.033;reverbFeedback=audioCtx.createGain();reverbFeedback.gain.value=.045;highPass.connect(toneFilter);toneFilter.connect(compressor);compressor.connect(masterGain);toneFilter.connect(reverbDelay);reverbDelay.connect(reverbFeedback);reverbFeedback.connect(reverbDelay);reverbDelay.connect(masterGain);masterGain.connect(audioCtx.destination);pianoDecode()}
 let synthEndsAt=0,playToggleBtn=null,playTogglePoll=null,playToggleAt=0;
 function stopSynth(){if(pendingPlayTimer){clearTimeout(pendingPlayTimer);pendingPlayTimer=null}activeAudioNodes.forEach(n=>{try{n.stop(0)}catch(e){}});activeAudioNodes=[];synthEndsAt=0}
 // Elke synth-start gaat via stopAudio, dus dit is de ene plek die borgt dat
@@ -1250,9 +1283,10 @@ function synthVoice(freq,start,dur,gain,type='sine',detune=0,attack=.01,decay=.1
 function pianoTone(freq,start,dur,gain=.1,retry){
   const p=validSounds.includes(soundProfile)?soundProfile:'default';
   if(!retry)hammerClick(start,gain*HAMMER_TO_TONE);
+  if(p==='default'&&piano.ready){pianoSample(freq,start,dur,gain);return}
 
-  // Default: previous Warm Deep profile.
-  if(p==='default'){
+  // Synth (de oude default): vangnet zolang de samples laden, en als eigen profiel.
+  if(p==='default'||p==='synth'){
     pianoVoice(freq,start,dur*1.16,gain*.82,-4,1,'triangle',.009,.14,.155,4300);
     pianoVoice(freq,start+.002,dur*.95,gain*.105,-6,.5,'sine',.011,.18,.12,3600);
     pianoVoice(freq,start+.004,dur*.78,gain*.18,3,2,'sine',.007,.12,.085,5200);
