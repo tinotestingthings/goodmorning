@@ -202,25 +202,34 @@
     return sec;
   }
 
-  // Which photo the Today tile shows. Read by home.js's photoTileKind().
-  // Local to this device (not synced) - a display preference, like the theme.
+  // Which Spotinus collection the Today photo tile draws from. The choices
+  // come from the app's own register (vogelspotinus/data/tiles.json, via
+  // home.js's window.PhotoTile) - same names as in the app, and a collection
+  // added there shows up here by itself. Local to this device, like the theme.
   function buildPhotoTile() {
     var sec = el("section", "settings-section");
     sec.appendChild(el("h2", null, "Photo tile"));
-    sec.appendChild(el("p", "settings-sub", "What the daily photo on Today shows."));
-    var cur = "birds";
-    try { cur = localStorage.getItem(k("home.tile")) || "birds"; } catch (e) {}
+    sec.appendChild(el("p", "settings-sub", "Which Spotinus collection the daily photo on Today comes from."));
+    var PT = window.PhotoTile;
+    if (!PT) return sec;
     var seg = el("div", "seg");
-    [["birds", "Birds"], ["buildings", "Buildings"], ["both", "Alternate"]].forEach(function (pair) {
-      var b = el("button", "seg-btn" + (cur === pair[0] ? " active" : ""), pair[1]);
-      b.type = "button";
-      b.addEventListener("click", function () {
-        try { localStorage.setItem(k("home.tile"), pair[0]); } catch (e) {}
-        render();
-      });
-      seg.appendChild(b);
-    });
     sec.appendChild(seg);
+    PT.kinds().then(function (index) {
+      var cur = PT.setting();
+      var choices = index.map(function (x) { return [x.kind, x.label]; });
+      choices.push([PT.MIX, "Afwisselend"]);
+      choices.forEach(function (pair) {
+        var b = el("button", "seg-btn" + (cur === pair[0] ? " active" : ""), pair[1]);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          try { localStorage.setItem(k("home.tile"), pair[0]); } catch (e) {}
+          render();
+        });
+        seg.appendChild(b);
+      });
+    }, function () {
+      sec.appendChild(el("p", "settings-sub", "Spotinus data could not be loaded."));
+    });
     return sec;
   }
 

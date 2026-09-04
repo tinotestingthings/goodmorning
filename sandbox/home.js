@@ -342,78 +342,47 @@
     });
   }
 
-  // ---- bird of the day tile (added 2026-08-18) --------------------------
+  // ---- photo tile: Spotinus item of the day (2026-08-18, reworked 2026-09-04) --
   // Same 92px footprint as the app tiles beside it, but the photo IS the tile.
-  // Data comes from `vogelspotinus/data/bird-tiles.json` (built by
-  // tools/build-bird-tiles.mjs) rather than the 1 MB birds.json, and the chosen
-  // bird is cached in localStorage so a second visit on the same day costs
-  // nothing.
+  // Which collection it draws from follows Spotinus' own register:
+  // tools/build-tiles.mjs writes data/tiles.json (kinds + Dutch labels) and one
+  // slim tiles-<kind>.json per kind. Settings > Photo tile picks a kind or
+  // "mix" (a different kind each day). The pick is cached in localStorage so a
+  // second visit on the same day costs nothing, and the link opens the app on
+  // exactly that item (?soort=<id>) - so you see what was on the thumbnail.
 
   var ICON_BIRD =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V5l-2 2h-3a4 4 0 0 0-4 4v1a4 4 0 0 1-4 4H4.5"/><path d="m14 9-3 3"/></svg>';
 
-  var ICON_BUILDING =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>';
+  var TILES_DIR = "vogelspotinus/data/";
+  var TILE_MIX = "mix";
+  // Prime, so consecutive days land far apart in a list and every entry comes
+  // round once before any repeats (for every list length that isn't a multiple).
+  var TILE_STRIDE = 269;
 
-  // Since 2026-09-04 the tile can also show a building (Settings > Photo tile).
-  // Birds come from the slim bird-tiles.json; buildings straight from
-  // arch-photos.json (160 photos, 44 kB) - small enough to skip a build step.
-  var TILE_KINDS = {
-    birds: {
-      src: "vogelspotinus/data/bird-tiles.json", label: "Vogels", icon: ICON_BIRD,
-      what: "Vogel", parse: function (list) { return list; }
-    },
-    buildings: {
-      src: "vogelspotinus/data/arch-photos.json", label: "Gebouwen", icon: ICON_BUILDING,
-      what: "Gebouw",
-      parse: function (byStyle) {
-        var out = [];
-        Object.keys(byStyle).forEach(function (style) {
-          byStyle[style].forEach(function (p) {
-            var name = String(p.a || "").split(" — ")[0].trim();
-            var u = shrinkThumb(p.u);
-            if (name && u) out.push({ n: name, u: u, o: u !== p.u ? p.u : undefined });
-          });
+  var tileIndexPromise = null;
+  function loadTileIndex() {
+    if (!tileIndexPromise) {
+      tileIndexPromise = fetch(TILES_DIR + "tiles.json")
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+        .then(function (list) {
+          return (Array.isArray(list) ? list : []).filter(function (x) { return x && x.kind && x.file; });
         });
-        return out;
-      }
+      tileIndexPromise.catch(function () { tileIndexPromise = null; });
     }
-  };
-  // Coprime with 561 (= 3 x 11 x 17) and with 160 (= 2^5 x 5), so consecutive
-  // days land far apart in the list and every entry comes round before a repeat.
-  var BIRD_STRIDE = 269;
-
-  // ponytail: duplicates `shrink` in tools/build-bird-tiles.mjs; generalise that
-  // script to emit arch-tiles.json once a third kind (dogs, street) joins.
-  // Same rule as tools/build-bird-tiles.mjs: only rewrite the width of a real
-  // /thumb/ URL (960px -> 500px); a direct file URL stays as it is. 500 and not
-  // 480: Wikimedia only serves the widths listed on https://w.wiki/GHai (2026).
-  function shrinkThumb(raw) {
-    var url = String(raw).trim();
-    if (url.indexOf("/thumb/") < 0) return url;
-    var cut = url.lastIndexOf("/");
-    return url.slice(0, cut + 1) + url.slice(cut + 1).replace(/\?.*$/, "").replace(/(^|-)\d+px-/, "$1500px-");
+    return tileIndexPromise;
   }
 
-  // "birds" | "buildings" | "both" (alternate day by day). Set in settings.js.
+  // A kind id from tiles.json, or TILE_MIX. Set in settings.js.
   function tileSetting() {
     var v = null;
     try { v = localStorage.getItem(k("home.tile")); } catch (e) {}
-    return (v === "both" || Object.prototype.hasOwnProperty.call(TILE_KINDS, v)) ? v : "birds";
+    // Values of the first sandbox round (2026-09-04, one day) - migrate anyway.
+    return { birds: "bird", buildings: "architecture", both: TILE_MIX }[v] || v || "bird";
   }
 
-  function dayIndex() {
-    return Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
-  }
-
-  function photoTileKind() {
-    var v = tileSetting();
-    if (v === "both") return dayIndex() % 2 ? "buildings" : "birds";
-    return v;
-  }
-
-  // v3: v1 kon een kapotte thumb-URL bevatten, v2 nog de 240px-variant.
-  function birdCacheKey(kindName) { return eventsPrefix() + "home-bird-v3-" + kindName; }
+  // settings.js builds its choice list from the same index.
+  window.PhotoTile = { kinds: loadTileIndex, setting: tileSetting, MIX: TILE_MIX };
 
   function todayKey() {
     var d = new Date();
@@ -422,28 +391,42 @@
       String(d.getDate()).padStart(2, "0");
   }
 
-  function birdForToday(list) {
-    if (!list || !list.length) return null;
-    var days = dayIndex();
-    // Alternating: each kind only sees every other day, and 2 x 269 shares a
-    // factor with 160 - count that kind's own days instead so no entry is skipped.
-    if (tileSetting() === "both") days = Math.floor(days / 2);
-    return list[((days * BIRD_STRIDE) % list.length + list.length) % list.length];
+  function dayIndex() {
+    return Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
   }
 
-  function readBirdCache(kindName) {
+  // Today's kind plus that kind's own day counter: in mix mode a kind only
+  // sees every n-th day, and counting those keeps the stride covering every entry.
+  function tileKindForToday(index, setting) {
+    var days = dayIndex();
+    if (setting === TILE_MIX && index.length) {
+      return { kind: index[days % index.length], days: Math.floor(days / index.length) };
+    }
+    var kind = index.filter(function (x) { return x.kind === setting; })[0] || index[0];
+    return { kind: kind, days: days };
+  }
+
+  function tileForDay(list, days) {
+    if (!list || !list.length) return null;
+    return list[((days * TILE_STRIDE) % list.length + list.length) % list.length];
+  }
+
+  // v4: one entry that carries the setting it was picked under, so changing
+  // the setting invalidates it. (v1-v3 were the bird-only tile.) Unknown or
+  // stale kinds fall back to the first kind in the index (birds).
+  function tileCacheKey() { return eventsPrefix() + "home-tile-v4"; }
+
+  function readTileCache() {
     try {
-      var raw = localStorage.getItem(birdCacheKey(kindName));
-      if (!raw) return null;
-      var v = JSON.parse(raw);
-      return (v && v.date === todayKey() && v.n && v.u) ? v : null;
+      var v = JSON.parse(localStorage.getItem(tileCacheKey()));
+      return (v && v.date === todayKey() && v.setting === tileSetting() && v.id && v.n && v.u) ? v : null;
     } catch (e) { return null; }
   }
 
-  function writeBirdCache(kindName, bird) {
+  function writeTileCache(setting, tile) {
     try {
-      localStorage.setItem(birdCacheKey(kindName), JSON.stringify({
-        date: todayKey(), n: bird.n, u: bird.u, o: bird.o
+      localStorage.setItem(tileCacheKey(), JSON.stringify({
+        date: todayKey(), setting: setting, id: tile.id, n: tile.n, u: tile.u
       }));
     } catch (e) {}
   }
@@ -457,9 +440,7 @@
     // al vol is kreeg de wrapper daardoor vrijwel geen ruimte toebedeeld.
     // (2026-08-18)
     var a = document.createElement("a");
-    a.href = "vogelspotinus/";
-    var kindName = photoTileKind();
-    var kind = TILE_KINDS[kindName];
+    var setting = tileSetting();
 
     function arrowNode() {
       var arrow = el("span", "app-tile-arrow");
@@ -471,20 +452,22 @@
     // afbeelding het laat afweten. Zo staat er altijd iets klikbaars.
     function showIcon() {
       a.className = "app-tile";
+      a.href = "vogelspotinus/";
       a.setAttribute("aria-label", "Open Vogelspotinus");
       a.innerHTML = "";
       a.appendChild(arrowNode());
       var ic = el("span", "app-tile-icon");
-      ic.innerHTML = kind.icon;
+      ic.innerHTML = ICON_BIRD;
       a.appendChild(ic);
-      var label = el("div", "app-tile-label", kind.label);
-      a.appendChild(label);
-      fitTileLabel(label);
+      var lab = el("div", "app-tile-label", "Spotinus");
+      a.appendChild(lab);
+      fitTileLabel(lab);
     }
 
-    function showBird(bird) {
+    function showTile(tile) {
       a.className = "app-tile app-tile-photo";
-      a.setAttribute("aria-label", "Open Vogelspotinus. " + kind.what + " van vandaag: " + bird.n);
+      a.href = "vogelspotinus/?soort=" + encodeURIComponent(tile.id);
+      a.setAttribute("aria-label", "Open Vogelspotinus bij " + tile.n);
       a.innerHTML = "";
 
       var img = document.createElement("img");
@@ -495,43 +478,37 @@
       // zit - precies wat hier gebeurt.
       img.loading = "eager";
       img.decoding = "async";
-      // Faalt de verkleinde variant, probeer dan eenmalig de originele URL uit
-      // birds.json - die gebruikt de Vogelspotinus-app zelf ook, dus die werkt.
-      // Pas als ook die faalt vallen we terug op het icoon.
-      var triedOriginal = false;
-      img.addEventListener("error", function () {
-        if (!triedOriginal && bird.o) {
-          triedOriginal = true;
-          img.src = bird.o;
-          return;
-        }
-        showIcon();
-      });
-      img.src = bird.u;
+      img.addEventListener("error", showIcon);
+      img.src = tile.u;
       a.appendChild(img);
 
       a.appendChild(arrowNode());
-      a.appendChild(el("div", "app-tile-photo-name", bird.n));
+      a.appendChild(el("div", "app-tile-photo-name", tile.n));
     }
 
     showIcon();
 
-    var cached = readBirdCache(kindName);
+    var cached = readTileCache();
     if (cached) {
-      showBird(cached);
+      showTile(cached);
       return a;
     }
 
-    fetch(kind.src)
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
-      .then(function (data) {
-        var bird = birdForToday(kind.parse(data));
-        if (!bird) return;
-        writeBirdCache(kindName, bird);
-        showBird(bird);
+    loadTileIndex()
+      .then(function (index) {
+        var pick = tileKindForToday(index, setting);
+        if (!pick.kind) return;
+        return fetch(TILES_DIR + pick.kind.file)
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+          .then(function (list) {
+            var tile = tileForDay(list, pick.days);
+            if (!tile) return;
+            writeTileCache(setting, tile);
+            showTile(tile);
+          });
       })
       .catch(function (e) {
-        console.warn("[bird tile] geen vogel geladen:", e);
+        console.warn("[photo tile] niets geladen:", e);
       });
 
     return a;

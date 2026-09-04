@@ -35,8 +35,10 @@ var SHELL_FILES = [
   "./wakeup.js",
   "./home.js",
   "./attentinus/dates.js",
-  "./vogelspotinus/data/bird-tiles.json",
-  "./vogelspotinus/data/arch-photos.json",
+  // Fototegel: alleen de index en de standaardsoort vooraf; de andere
+  // tiles-<kind>.json komen via de runtime-cache zodra ze een keer geladen zijn.
+  "./vogelspotinus/data/tiles.json",
+  "./vogelspotinus/data/tiles-bird.json",
   "./calendar.js",
   "./triage.js",
   "./practice.js",

@@ -15,7 +15,7 @@ import {
 } from "./core/i18n.js";
 import { EVENTS, on } from "./core/events.js";
 import { applyTheme, watchSystemColorScheme } from "./core/theme.js";
-import { loadBirds } from "./core/birds.js";
+import { loadBirds, speciesById } from "./core/birds.js";
 import { populateFamilyValues } from "./core/filters.js";
 import { loadFavorites } from "./core/favorites.js";
 import { applySeed, loadGames } from "./core/games.js";
@@ -24,6 +24,7 @@ import { loadExtraPhotos } from "./core/photos.js";
 import { currentScreenId, initNav, refreshScreen, showScreen } from "./core/nav.js";
 import { buildSeed } from "./data/seed-games.js";
 import { PLACEHOLDER_IMG } from "./ui/bird-media.js";
+import { openBirdDetail } from "./ui/detail-sheet.js";
 import { registerHomeScreen } from "./screens/home.js";
 import { registerBrowseScreen } from "./screens/browse.js";
 import { registerQuizScreen } from "./screens/quiz.js";
@@ -96,9 +97,25 @@ async function loadData() {
   applySeed(buildSeed());
   hideBootState();
   showScreen("home");
+  openLinkedSpecies();
   // Verrijking, geen dependency: de extra quizfoto's mogen na de eerste
   // render binnenkomen (en mogen falen -- dan blijft de ene basisfoto).
   loadExtraPhotos();
+}
+
+/**
+ * De fototegel op Today linkt naar `?soort=<id>`: open die soort meteen in de
+ * detailkaart, zodat je ziet wat er op de tegel stond. De parameter gaat
+ * daarna uit de URL, anders komt de kaart bij elke herlaadbeurt terug.
+ */
+function openLinkedSpecies() {
+  const url = new URL(location.href);
+  const id = url.searchParams.get("soort");
+  if (!id) return;
+  url.searchParams.delete("soort");
+  history.replaceState(null, "", url);
+  const species = speciesById(id);
+  if (species) openBirdDetail(species);
 }
 
 function boot() {

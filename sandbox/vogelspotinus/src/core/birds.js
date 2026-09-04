@@ -22,13 +22,17 @@ import { currentLanguage, otherLanguage } from "./i18n.js";
  * ontbrekend uitbreidingsbestand een app met minder categorieën, in plaats van
  * een app die niet start. Vogels zijn verplicht (`zonder` ontbreekt), de rest
  * mag falen. Eén regel per categorie -- photos.js leest `photos` uit deze
- * lijst, zodat er geen tweede register naast kan gaan lopen.
+ * lijst, zodat er geen tweede register naast kan gaan lopen. `kind` is de
+ * tag-waarde uit filters.js; tools/build-tiles.mjs (de fototegel op Today)
+ * leest dit register ook, dus een nieuwe categorie hier verschijnt daar vanzelf.
  */
 export const DATASETS = [
-  { url: "data/birds.json", photos: "data/bird-photos.json" },
-  { url: "data/dogs.json", photos: "data/dog-photos.json", zonder: "honden" },
-  { url: "data/arch.json", photos: "data/arch-photos.json", zonder: "bouwstijlen" },
-  { url: "data/street.json", photos: "data/street-photos.json", zonder: "straatobjecten" },
+  { kind: "bird", url: "data/birds.json", photos: "data/bird-photos.json" },
+  { kind: "dog", url: "data/dogs.json", photos: "data/dog-photos.json", zonder: "honden" },
+  // tilesFromPhotos: op de fototegel van Today zijn hier de foto's (gebouwen)
+  // het onderwerp, niet de stijl zelf -- zie tools/build-tiles.mjs.
+  { kind: "architecture", url: "data/arch.json", photos: "data/arch-photos.json", zonder: "bouwstijlen", tilesFromPhotos: true },
+  { kind: "street", url: "data/street.json", photos: "data/street-photos.json", zonder: "straatobjecten" },
 ];
 
 /** @type {Array<object>} */
@@ -73,17 +77,19 @@ export async function loadBirds() {
     DATASETS.map((d) => (d.zonder ? optioneel(d.url, d.zonder) : fetchList(d.url)))
   );
 
+  // Elke soort krijgt haar `kind` uit het register (birds.json kent het veld
+  // niet; de andere bestanden dragen het al, dus daar verandert niets).
+  lijsten.forEach((lijst, i) => {
+    for (const s of lijst) (s.tags ??= {}).kind ??= DATASETS[i].kind;
+  });
   birds = lijsten.flat();
   // Pre-compute the search haystack once instead of rebuilding it per keystroke
   // for all 566 birds (the old code did the latter, un-debounced). Hier krijgt
-  // elke soort ook zijn `id` en zijn `kind`: birds.json kent beide velden niet,
-  // en voor vogels IS de soortnaam de identiteit -- dat moet zo blijven, anders
-  // raakt elke opgeslagen sleutel zijn soort kwijt. Eén regel hier scheelt 566
-  // regels `"kind": "bird"` in het databestand.
+  // elke soort ook zijn `id`: birds.json kent het veld niet, en voor vogels IS
+  // de soortnaam de identiteit -- dat moet zo blijven, anders raakt elke
+  // opgeslagen sleutel zijn soort kwijt.
   for (const bird of birds) {
     bird.id ??= bird.scientificName;
-    bird.tags ??= {};
-    bird.tags.kind ??= "bird";
     bird.searchText = [bird.englishName, bird.dutchName, bird.scientificName]
       .filter(Boolean)
       .join(" ")
