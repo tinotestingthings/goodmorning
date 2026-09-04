@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-17) — ChordSprint piano: samples per noot gelijkgetrokken in niveau (de FluidR3-set was tot 7 dB ongelijk, vooral het hoogste octaaf) en de grondtoon een octaaf lager onder elk akkoord, zoals de oude synth via zijn sub-octaaflaag deed — I en V onderscheiden zich weer aan de bas
+
 ## 2026-09-04 (v2026.09.04-16) — ChordSprint: echte piano in plaats van de synth — 21 gesamplede vleugelnoten (FluidR3 GM, CC BY 3.0, ~530 KB) als standaardklank, tussenliggende noten via playbackRate; oude synth blijft als 'Synth'-profiel en als vangnet; volume geijkt op de synth (RMS-verhouding 0,98) zodat Volume en Clip volume hetzelfde betekenen
 
 ## 2026-09-04 (v2026.09.04-15) — Toen: zoeken op straatnaam (straal telt dan niet, stad wel), straal 2 km, cluster-klik zoomt sneller en verder (max 17), badge + '2/7 op dit adres' bij meerdere foto's op één plek. Incl. 6 review-fixes
