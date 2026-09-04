@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-12) — Utilities: Clipinus-tegel weg (app blijft bestaan, ChordSprint leent segue.js); Sandbox-tegel erbij (live → sandbox, sandbox → live, nieuw venster)
+
+
 ## 2026-09-04 (v2026.09.04-11) — Fototegel op Today toont ook Honden / Stijlen (gebouwen) / Straat of Afwisselend (Settings > Photo tile, namen uit Spotinus zelf) en linkt naar precies dat item; LinkedIn-tegel; Spotinus: alle foto's van een soort in het detailblad; Wikimedia-thumbs 500px
 
 

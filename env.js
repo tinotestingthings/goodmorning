@@ -12,7 +12,7 @@
     ns: isSandbox ? "sbx." : "dd.",
     // version: stamped by tools/stamp-sandbox-version.sh (pre-commit) for the
     // sandbox and by tools/promote.sh for live; shown in the badge + Settings.
-    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.09.04-11"
+    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.09.04-12"
   };
   g.k = function (name) { return g.DD_ENV.ns + name; };
   try { if (g.document) g.document.title = g.DD_ENV.titlePrefix + "Daily Digest"; } catch (e) {}
