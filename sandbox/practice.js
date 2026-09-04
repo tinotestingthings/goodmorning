@@ -24,12 +24,12 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
     luisterinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>',
-    clipinus:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.2 7.6 20 18M20 6 8.2 16.4"/></svg>',
     attentinus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><rect x="5.5" y="12" width="13" height="8.5"/><path d="M12 8v12.5"/><path d="M12 8c-1.8 0-4.5-.8-4.5-2.8C7.5 3.6 9 3 10 3c1.6 0 2 2.2 2 5zm0 0c1.8 0 4.5-.8 4.5-2.8C16.5 3.6 15 3 14 3c-1.6 0-2 2.2-2 5z"/></svg>',
     elpatroon:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H8L3.5 5.8 5.4 9.6 8 8.2V21h8V8.2l2.6 1.4 1.9-3.8L16 3h-1"/><path d="M9 3a3 3 0 0 0 6 0"/></svg>',
+    sandbox:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/><path d="M4.5 12 6 20h12l1.5-8"/><path d="M6.5 12V9.5a5.5 5.5 0 0 1 11 0V12"/><path d="M12 4v1.5"/></svg>',
     utrechttoen:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><rect x="9" y="7.5" width="6" height="4.5" rx="1"/><path d="M10.5 7.5V6.5h3v1"/></svg>'
   };
@@ -44,9 +44,14 @@
     { key: "events", label: "Events", url: "events/index.html" },
     { key: "attentinus", label: "Attentinus", url: "attentinus/index.html" },
     { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" },
-    { key: "clipinus", label: "Clipinus", url: "clipinus/index.html" },
     { key: "elpatroon", label: "El Patroon", url: "el-patroon/index.html" },
-    { key: "utrechttoen", label: "Toen", url: "utrecht-toen/index.html" }
+    { key: "utrechttoen", label: "Toen", url: "utrecht-toen/index.html" },
+    // Zelfde code op live en sandbox: live linkt naar de sandbox, de sandbox
+    // terug naar live. Opent in een nieuw venster — de hele app in een iframe
+    // (auth, sw, hash-routes) is vragen om ellende.
+    window.DD_ENV && DD_ENV.sandbox
+      ? { key: "sandbox", label: "Live", url: "../", external: true }
+      : { key: "sandbox", label: "Sandbox", url: "sandbox/", external: true }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()
@@ -155,7 +160,10 @@
       label.textContent = app.label;
       card.appendChild(label);
 
-      card.addEventListener("click", function () { openApp(app); });
+      card.addEventListener("click", function () {
+        if (app.external) window.open(app.url, "_blank", "noopener");
+        else openApp(app);
+      });
       grid.appendChild(card);
     });
     // INITIAL_SESSION dekt de boot, SIGNED_IN de login, SIGNED_OUT haalt de badge
