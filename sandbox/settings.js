@@ -44,19 +44,19 @@
   // list of days/times, e.g. to plan sessions with friends.
   var GYM_RE = /(gym|fitness|sportschool|krachttraining|work\s?-?\s?out)/i;
 
-  function gymScheduleText() {
+  // Days (from today, `n` ahead) that carry a gym item: [{ d, ds, times }].
+  // Shared with the wake-up's "gym not planned yet?" step (window.GymSchedule).
+  function gymDays(n) {
     var M = window.DayModel;
-    if (!M) return null;
+    if (!M) return [];
     var catName = {};
     (window.Cats ? window.Cats.load() : []).forEach(function (c) { catName[c.id] = c.name || ""; });
     function isGym(text, catId) { return GYM_RE.test(text || "") || GYM_RE.test(catName[catId] || ""); }
 
     var todos = M.loadTodos(), chores = M.loadChores();
-    var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     var now = new Date();
-    var lines = [];
-    for (var i = 0; i < 14; i++) {
+    var out = [];
+    for (var i = 0; i < n; i++) {
       var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
       var ds = M.localDateStr(d);
       var times = [];
@@ -77,10 +77,19 @@
           if (nd && M.localDateStr(nd) === ds) times.push("");
         }
       });
-      if (!times.length) continue;
-      var when = times.filter(Boolean).join(", ");
-      lines.push(DOW[(d.getDay() + 6) % 7] + " " + d.getDate() + " " + MON[d.getMonth()] + (when ? " — " + when : ""));
+      if (times.length) out.push({ d: d, ds: ds, times: times });
     }
+    return out;
+  }
+  window.GymSchedule = { days: gymDays };
+
+  function gymScheduleText() {
+    var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var lines = gymDays(14).map(function (g) {
+      var when = g.times.filter(Boolean).join(", ");
+      return DOW[(g.d.getDay() + 6) % 7] + " " + g.d.getDate() + " " + MON[g.d.getMonth()] + (when ? " — " + when : "");
+    });
     if (!lines.length) return null;
     return "My gym days (next 14 days):\n" + lines.join("\n");
   }
