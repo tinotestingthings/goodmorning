@@ -602,6 +602,28 @@
     return { known: true, green: fresh };
   }
 
+  // ---- Wake-up tile (added 2026-09-03) ----------------------------------
+  // Opens the start-the-day flow in wakeup.js. Stays after it's done today
+  // (dimmed, ticked) so the backlog step can be reused on an empty afternoon.
+  var ICON_SUNRISE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3"/><path d="M5.6 7.6l2.1 2.1"/><path d="M18.4 7.6l-2.1 2.1"/><path d="M3 16h18"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M6 20h12"/></svg>';
+
+  function renderWakeupTile() {
+    var done = window.Wakeup.doneToday();
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "app-tile wakeup-tile" + (done ? " wakeup-tile-done" : "");
+    b.setAttribute("aria-label", done ? "Wake-up done for today — open again" : "Start the day: wake-up");
+    var ic = el("span", "app-tile-icon");
+    ic.innerHTML = done ? CHECK_ICON : ICON_SUNRISE;
+    b.appendChild(ic);
+    var label = el("div", "app-tile-label", "Wake-up");
+    b.appendChild(label);
+    fitTileLabel(label);
+    b.addEventListener("click", function () { window.Wakeup.open(); });
+    return b;
+  }
+
   function renderTrainerTile() {
     // De <a> is zelf het flex-item in .hero-row (met width:92px en
     // flex-shrink:0 uit .app-tile). Een wrapper eromheen zou het flex-item
@@ -816,6 +838,7 @@
     var heroRow = el("div", "hero-row");
     var mwt = renderMiniWeatherTile();
     heroRow.appendChild(mwt.el);
+    if (window.Wakeup) heroRow.appendChild(renderWakeupTile());
     heroRow.appendChild(renderTrainerTile());   // kleine tegel; blijft weg als alles groen is
     heroRow.appendChild(renderBirdTile());
     wrap.appendChild(heroRow);
@@ -1205,7 +1228,7 @@
     var rank = { active: 0, todo: 1, idea: 2 };
     return window.Items.all().filter(function (x) {
       return x.type === type && (x.state === "idea" || x.state === "todo" || x.state === "active");
-    }).sort(function (a, b) { return (rank[a.state] || 0) - (rank[b.state] || 0); });
+    }).sort(function (a, b) { return (isPrio(b) - isPrio(a)) || (rank[a.state] || 0) - (rank[b.state] || 0); });
   }
 
   var ITEM_STATES = [["backlog", "Backlog"], ["idea", "Idea"], ["todo", "To-do"], ["active", "Active"], ["done", "Done"]];
@@ -1273,6 +1296,7 @@
     var li = el("div", "backlog-item app-item");
     var row = el("div", "backlog-row");
     row.appendChild(chip(item.state));
+    if (isPrio(item)) row.appendChild(el("span", "cal-badge-prio", "\u2605"));
     row.appendChild(el("span", "backlog-title", item.title));
     if (item.subtasks && item.subtasks.length) {
       var done = item.subtasks.filter(function (s) { return s.done; }).length;
@@ -2044,6 +2068,10 @@
       .slice(0, 30);
   }
 
+  // Wake-up priority: `prio` holds the date it was starred for (to-dos AND
+  // items), so it expires by itself. Set in wakeup.js / the ItemUI menu.
+  function isPrio(x) { return !!x && x.prio === localDateStr(); }
+
   function dueTodayTodos() {
     var today = localDateStr();
     return loadTodos().filter(function (t) { return !t.done && t.dueDate && t.dueDate === today; });
@@ -2092,7 +2120,7 @@
     row.appendChild(checkBtn);
 
     var textWrap = el("div", "todo-text-wrap");
-    textWrap.appendChild(el("div", "todo-text" + (t.done ? " todo-text-done" : ""), t.text));
+    textWrap.appendChild(el("div", "todo-text" + (t.done ? " todo-text-done" : ""), (isPrio(t) ? "\u2605 " : "") + t.text));
     var dueLabel = todoDueLabel(t);
     if (dueLabel) textWrap.appendChild(el("div", "todo-due", dueLabel));
     row.appendChild(textWrap);
@@ -2155,7 +2183,7 @@
       var list = loadTodos();
       var open = list.filter(function (t) { return !t.done; }).sort(function (a, b) {
         var ad = a.dueDate || "9999-99-99", bd = b.dueDate || "9999-99-99";
-        return ad < bd ? -1 : ad > bd ? 1 : 0;
+        return (isPrio(b) - isPrio(a)) || (ad < bd ? -1 : ad > bd ? 1 : 0);
       });
       var done = list.filter(function (t) { return t.done; });
       if (open.length === 0 && done.length === 0) {
@@ -2258,10 +2286,12 @@
   // device in the meantime must not be resurrected on the target day.
   // Pure data operation, exported on DayModel and shared with the calendar's
   // "All" view; returns how many to-dos actually moved.
-  function moveTodosTo(ids, ymdStr) {
+  // In-place on `list` (no load/save) so a caller can combine it with other
+  // edits in ONE save = one sync push; moveTodosTo wraps it.
+  function moveTodosIn(list, ids, ymdStr) {
     var byId = {};
     ids.forEach(function (id) { byId[id] = true; });
-    var list = loadTodos(), moved = 0;
+    var moved = 0;
     list.forEach(function (t) {
       if (!byId[t.id] || t.done) return;
       if (t.endDate && t.dueDate) {
@@ -2273,8 +2303,14 @@
       }
       t.dueDate = ymdStr;
       t.snoozes = (t.snoozes || 0) + 1;
+      t.prio = null;   // moved off today = not today's priority any more
       moved++;
     });
+    return moved;
+  }
+  function moveTodosTo(ids, ymdStr) {
+    var list = loadTodos();
+    var moved = moveTodosIn(list, ids, ymdStr);
     saveTodos(list);
     return moved;
   }
@@ -2379,6 +2415,8 @@
     return wrap;
   }
 
+  var prioOpenState = {};   // ⋯-panel open/closed per priority item, kept across re-renders
+
   function appendUrgentCards(container) {
     if (!window.ItemUI || !window.DayModel) return;
     var today = localDateStr();
@@ -2403,6 +2441,23 @@
     } else if (oTodos.length + todos.length >= OVERLOAD_MIN &&
                localStorage.getItem(k("today.overloadAsked")) !== today) {
       container.appendChild(overloadBanner(oTodos.length + todos.length));
+    }
+
+    // Priority (wake-up stars) first: to-dos pulled out of the lists below,
+    // plus starred tasks/projects from the items store. `prio` is a date, so
+    // yesterday's stars are simply not today's.
+    var prioTodos = loadTodos().filter(function (t) { return !t.done && isPrio(t); });
+    var prioItems = window.Items ? window.Items.all().filter(function (x) {
+      return isPrio(x) && (x.state === "idea" || x.state === "todo" || x.state === "active");
+    }) : [];
+    if (prioTodos.length || prioItems.length) {
+      oTodos = oTodos.filter(function (t) { return !isPrio(t); });
+      todos = todos.filter(function (t) { return !isPrio(t); });
+      container.appendChild(el("div", "home-today-head home-prio-head", "\u2605 Priority"));
+      var pList = el("div", "cal-item-list home-today-list");
+      prioTodos.forEach(function (t) { pList.appendChild(window.ItemUI.todoRow(t, homeItemOpts())); });
+      prioItems.forEach(function (it) { pList.appendChild(appItemRow(it, render, prioOpenState)); });
+      container.appendChild(pList);
     }
 
     // Overdue first — most pressing. The row carries the MISSED occurrence
@@ -2915,7 +2970,18 @@
     freqLabel: freqLabel,
     localDateStr: localDateStr,
     WEEKDAY_NAMES: WEEKDAY_NAMES,
-    toast: toast
+    toast: toast,
+    // for wakeup.js (+ ItemUI): priority predicate, due lists, greeting, and
+    // the same weather fetch/cache as the mini weather tile
+    isPrio: isPrio,
+    overdueTodos: overdueTodos,
+    dueTodayTodos: dueTodayTodos,
+    moveTodosIn: moveTodosIn,
+    greetingWord: greetingWord,
+    weather: loadWeather,
+    pickHourly: pickHourly,
+    weatherInfo: weatherInfo,
+    WEATHER_SLOTS: WEATHER_SLOTS
   };
 
   if (window.App && App.onShow) {

@@ -10,7 +10,9 @@
   g.DD_ENV = {
     sandbox: isSandbox,
     ns: isSandbox ? "sbx." : "dd.",
-    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.09.03-4"
+    // version: stamped by tools/stamp-sandbox-version.sh (pre-commit) for the
+    // sandbox and by tools/promote.sh for live; shown in the badge + Settings.
+    titlePrefix: isSandbox ? "SBX · " : "", version: "v2026.09.04-1"
   };
   g.k = function (name) { return g.DD_ENV.ns + name; };
   try { if (g.document) g.document.title = g.DD_ENV.titlePrefix + "Daily Digest"; } catch (e) {}

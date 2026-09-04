@@ -24,6 +24,7 @@
     root.appendChild(buildSounds());
     root.appendChild(buildIcsFeeds());
     root.appendChild(buildAgendaTools());
+    root.appendChild(buildReset());
     var ver = buildVersion();
     if (ver) root.appendChild(ver);
   }
@@ -98,6 +99,46 @@
           toast("Copied " + (text.split("\n").length - 1) + " gym day(s)");
         }, function () { toast("Copy failed — clipboard blocked"); });
       } else toast("Clipboard not available");
+    });
+    sec.appendChild(b);
+    return sec;
+  }
+
+  // Reset this device (2026-09-03): wipes every key in this environment's
+  // namespace plus its offline shell cache + service worker, then reloads — a
+  // fresh install. Synced data comes back on the next pull; agendasync's
+  // shrink guard refuses to push the emptied state, so the server copy is
+  // safe. Device-only settings are gone for real, hence the explicit text.
+  // Only when signed in: without a session the local agenda IS the only copy.
+  function buildReset() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Reset"));
+    sec.appendChild(el("p", "settings-sub", "Clears this device's app data and cached app files, then reloads — like a fresh install. Your agenda, tasks, notes and theme come back from the server. Device-only settings (categories, subscribed calendars, reminders, push alerts) have to be set again."));
+    var b = el("button", "btn btn-danger", "Reset this device\u2026");
+    b.type = "button";
+    function wipe() {
+      if (!window.confirm("Reset this device? Local app data and cached files are cleared; synced data returns after the reload.")) return;
+      Object.keys(localStorage).forEach(function (key) { if (key.indexOf(DD_ENV.ns) === 0) localStorage.removeItem(key); });
+      var shell = DD_ENV.ns.slice(0, -1) + "-shell-";   // sw.js: "dd-shell-" / "sbx-shell-"
+      var p = Promise.resolve();
+      if (window.caches && caches.keys) {
+        p = caches.keys().then(function (names) {
+          return Promise.all(names.filter(function (n) { return n.indexOf(shell) === 0; }).map(function (n) { return caches.delete(n); }));
+        });
+      }
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        p = p.then(function () { return navigator.serviceWorker.getRegistration(); })
+          .then(function (reg) { return reg ? reg.unregister() : null; });
+      }
+      var reload = function () { window.location.reload(); };
+      p.then(reload, reload);
+    }
+    b.addEventListener("click", function () {
+      if (!window.SB || !window.SB.auth) { wipe(); return; }
+      window.SB.auth.getSession().then(function (res) {
+        if (res && res.data && res.data.session) wipe();
+        else toast("Sign in first \u2014 otherwise this device's agenda is gone for good.");
+      }, wipe);
     });
     sec.appendChild(b);
     return sec;

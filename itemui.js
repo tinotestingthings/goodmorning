@@ -6,6 +6,9 @@
   // postpone 1 day), or hold / tap ⋯ for the full menu. opts:
   //   { refresh(), editTodo(t), editChore(c) }
   function M(){ return global.DayModel; }
+  // Tolerant of a stale home.js (HTTP-cached across a deploy): a missing
+  // export must never blank Today/Calendar — it happened on 2026-09-03.
+  function isPrio(t){ return !!(M().isPrio && M().isPrio(t)); }
   function el(t,cls,txt){ var n=document.createElement(t); if(cls)n.className=cls; if(txt!=null)n.textContent=txt; return n; }
   function pad(n){ return n<10?"0"+n:""+n; }
   function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
@@ -25,8 +28,8 @@
     M().saveTodos(list); if(nowDone)party(anchor); opts.refresh();
   }
   function setTodoDone(t,done,opts){ var list=M().loadTodos(); list.forEach(function(x){ if(x.id===t.id){ x.done=done; if(done)M().logTodoHistory(x.text,x.id); } }); M().saveTodos(list); if(done)party(document.body); opts.refresh(); }
-  function snoozeTodo(id,days,opts){ var list=M().loadTodos(); list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; } }); M().saveTodos(list); M().toast(days===7?"Pushed to next week":"Pushed to tomorrow"); opts.refresh(); }
-  function duplicateTodo(t,opts){ var list=M().loadTodos(); var copy={}; for(var k in t)copy[k]=t[k]; copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0; list.push(copy); M().saveTodos(list); M().toast("Duplicated"); opts.refresh(); }
+  function snoozeTodo(id,days,opts){ var list=M().loadTodos(); list.forEach(function(t){ if(t.id===id){ var base=t.dueDate?parseYmd(t.dueDate):new Date(); var nd=addDays(base,days); if(t.endDate&&t.dueDate){var sp=Math.round((parseYmd(t.endDate)-parseYmd(t.dueDate))/86400000);if(!(sp>=0))sp=0;t.endDate=ymd(addDays(nd,sp));} t.dueDate=ymd(nd); t.snoozes=(t.snoozes||0)+1; t.prio=null; } }); M().saveTodos(list); M().toast(days===7?"Pushed to next week":"Pushed to tomorrow"); opts.refresh(); }
+  function duplicateTodo(t,opts){ var list=M().loadTodos(); var copy={}; for(var k in t)copy[k]=t[k]; copy.id="todo-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.text=(t.text||"")+" (copy)"; copy.done=false; copy.snoozes=0; copy.prio=null; list.push(copy); M().saveTodos(list); M().toast("Duplicated"); opts.refresh(); }
   function duplicateChore(chore,opts){ var list=M().loadChores(); var copy={}; for(var k in chore)copy[k]=chore[k]; copy.id="chore-"+Date.now()+"-"+Math.random().toString(36).slice(2,7); copy.name=(chore.name||"")+" (copy)"; copy.lastDone=null; copy.log=[]; copy.exceptions={}; list.push(copy); M().saveChores(list); M().toast("Duplicated"); opts.refresh(); }
   // Postponing a MISSED (past) occurrence counts from today — "+1 day" must
   // land tomorrow, not on another day that's already gone.
@@ -63,6 +66,7 @@
     var body=el("div","cal-item-body");
     var tw=el("div","cal-item-titlewrap");
     tw.appendChild(el("span","cal-item-title"+(t.done?" cal-item-done":""),t.text));
+    if(isPrio(t))tw.appendChild(el("span","cal-badge-prio","★"));
     if(t.snoozes>0)tw.appendChild(el("span","cal-badge-snooze","⏰ postponed "+t.snoozes+"×"));
     if((t.reminders&&t.reminders.length)||t.reminderTime)tw.appendChild(el("span","cal-badge-remind","🔔"));
     if(t.url)tw.appendChild(linkChip(t.url));
@@ -110,6 +114,7 @@
     sheet.appendChild(el("div","item-menu-title",t.text));
     if(!t.done) sheet.appendChild(menuBtn("✓  Complete","im-done",function(){ closeMenu(); setTodoDone(t,true,opts); }));
     else sheet.appendChild(menuBtn("↺  Reopen",null,function(){ closeMenu(); setTodoDone(t,false,opts); }));
+    if(!t.done) sheet.appendChild(menuBtn(isPrio(t)?"☆  Not a priority":"★  Priority today",null,function(){ closeMenu(); var on=!isPrio(t); var l=M().loadTodos(); l.forEach(function(x){ if(x.id===t.id) x.prio=on?todayStr():null; }); M().saveTodos(l); opts.refresh(); }));
     sheet.appendChild(postponeBtn(t,1,"Postpone 1 day",opts));
     sheet.appendChild(postponeBtn(t,7,"Postpone 1 week",opts));
     if(opts.editTodo) sheet.appendChild(menuBtn("✎  Edit details",null,function(){ closeMenu(); opts.editTodo(t); }));
