@@ -1,85 +1,139 @@
 {
- "generated": "2026-09-02T04:50:13Z",
+ "generated": "2026-09-04T06:48:57+02:00",
  "daily": [
   {
    "id": "2026-08-31-eevidence-verordening-van-kracht-nederland-niet-operationeel",
    "title": "eEvidence-verordening geldt sinds 18 augustus, maar Nederland is er pas begin 2027 klaar voor — dienstverleners zitten er tussenin",
    "source": "Computable, Pim van der Beek (21 augustus 2026); Netkwesties Privacyjournaal week 35, Peter Olsthoorn (28 augustus 2026)",
    "url": "https://www.computable.nl/2026/08/21/eevidence-9-vragen-over-eu-wet-rondom-digitaal-bewijs/",
-   "date": "2026-08-31",
-   "summary": "Sinds 18 augustus 2026 is de Europese eEvidence-verordening (EU) 2023/1543 van toepassing in de hele EU. Die verplicht digitale dienstverleners om op een Europees verstrekkings- of bewaringsbevel digitaal bewijsmateriaal te leveren aan justitiële autoriteiten in andere lidstaten. Het bereik is breed: aanbieders van internet- en communicatiediensten, cloud- en opslagproviders, online platforms en marktplaatsen, en partijen die domeinnamen of ip-diensten beheren. Onder het bevel valt alles wat relevant kan zijn voor een strafzaak — contactgegevens, ip-adressen, dataverkeer, opgeslagen communicatie."
-  },
-  {
-   "id": "2026-09-01-npr-newsguard-chatbots-weerleggen-staatspropaganda-ai-overzichten-slechter",
-   "title": "NPR en NewsGuard testten zes chatbots op staatspropaganda — de bots deden het goed, de AI-overzichten in zoekmachines niet",
-   "source": "NPR i.s.m. NewsGuard (30 augustus 2026)",
-   "url": "https://www.npr.org/2026/08/30/nx-s1-5876436/chatbots-search-propaganda",
-   "date": "2026-09-01",
-   "summary": "NPR en NewsGuard hebben 30 vragen opgesteld op basis van valse narratieven die door China, Iran en Rusland (of aan die overheden gelieerde actoren) werden verspreid en die tussen december 2025 en juli 2026 voor het eerst opdoken. Die vragen zijn voorgelegd aan de bekende chatbots — ChatGPT, Gemini, Copilot, Meta AI, Grok en Claude — én aan de grootste zoekmachines. De uitkomst is opvallend positief: de chatbots weerlegden de onwaarheden in ruwweg driekwart van de gevallen, wat NPR zelf samenvat als \"surprisingly well\"."
+   "date": "2026-08-31 06:32",
+   "summary": "Sinds **18 augustus 2026** is de Europese **eEvidence-verordening (EU) 2023/1543** van toepassing in de hele EU. Die verplicht digitale dienstverleners om op een Europees verstrekkings- of bewaringsbevel digitaal bewijsmateriaal te leveren aan justitiële autoriteiten in **andere** lidstaten. Het bereik is breed: aanbieders van internet- en communicatiediensten, cloud- en opslagproviders, online platforms en marktplaatsen, en partijen die domeinnamen of ip-diensten beheren. Onder het bevel valt alles wat relevant kan zijn voor een strafzaak — contactgegevens, ip-adressen, dataverkeer, opgeslagen communicatie. De praktische klem zit in de timing. Dienstverleners moeten zich registreren in de **Court Database (CDB)** van de Europese Commissie zodat buitenlandse autoriteiten ze kunnen vinden, maar in Nederland kan die registratie naar verwachting **pas vanaf begin 2027** worden afgerond: de "
   },
   {
    "id": "2026-09-02-deense-dpa-staat-voetbalclubs-gezichtsherkenning-toe-met-voorwaarden",
    "title": "Deense privacytoezichthouder staat twee voetbalclubs automatische gezichtsherkenning toe — met een opvallend technische voorwaardenlijst",
    "source": "Security.NL (1 september 2026, 10:21), op basis van besluiten van Datatilsynet (juli/augustus 2026)",
    "url": "https://www.security.nl/posting/951290/Deense+voetbalclubs+mogen+automatische+gezichtsherkenning+inzetten",
-   "date": "2026-09-02",
-   "summary": "De Deense toezichthouder Datatilsynet heeft Lyngby Boldklub en AC Horsens toestemming gegeven om tijdens wedstrijden automatische gezichtsherkenning in te zetten. Doel is het identificeren van personen met een stadionverbod en het handhaven daarvan. De clubs hadden hier expliciet vergunning voor aangevraagd; de individuele besluiten dateren van juli 2026, de gebundelde persaankondiging van augustus, en Security.NL pikte het op 1 september op."
-  },
-  {
-   "id": "2026-09-02-kamervragen-patientdata-chinese-medische-apparatuur-derdelandtoegang",
-   "title": "Kamervragen over patiëntdata bij Chinese medische apparatuur — de derdelandvraag verschuift van cloud naar apparaat",
-   "source": "Security.NL (1 september 2026, 12:45), op basis van Kamervragen 2026Z17530 en berichtgeving in het FD",
-   "url": "https://www.security.nl/posting/951318/Kamervragen+over+privacy+pati%C3%ABntdata+bij+gebruik+Chinese+medische+apparatuur",
-   "date": "2026-09-02",
-   "summary": "VVD-Kamerleden Wendel en Rajkowski hebben op 1 september vragen gesteld aan minister Sterk van Langdurige Zorg over de privacy van patiëntgegevens bij het gebruik van Chinese medische apparatuur (kamerstuk 2026Z17530). Aanleiding is een FD-bericht dat Chinese fabrikanten van medische apparatuur voet aan de grond krijgen in Europa, ook in Nederland. De minister heeft drie weken om te antwoorden."
+   "date": "2026-09-02 06:28",
+   "summary": "De Deense toezichthouder **Datatilsynet** heeft **Lyngby Boldklub** en **AC Horsens** toestemming gegeven om tijdens wedstrijden **automatische gezichtsherkenning** in te zetten. Doel is het identificeren van personen met een **stadionverbod** en het handhaven daarvan. De clubs hadden hier expliciet vergunning voor aangevraagd; de individuele besluiten dateren van juli 2026, de gebundelde persaankondiging van augustus, en Security.NL pikte het op 1 september op. Juridisch is dit het interessante type beslissing: geen verbod en geen vrijbrief, maar een **vergunning onder voorwaarden**. Gezichtsherkenning levert biometrische gegevens op met als doel unieke identificatie — bijzondere persoonsgegevens onder art. 9 AVG, waarvoor Denemarken de nationale ruimte van art. 9(2)(g) benut via een toestemmingsstelsel bij de toezichthouder. Dat is een route die Nederland niet op deze manier kent, en h"
   },
   {
    "id": "2026-09-02-openai-astra-eerste-model-boven-kritieke-cyberdrempel",
    "title": "OpenAI's Astra is het eerste model boven de eigen \"critical cybersecurity threshold\" — en vindt zelfstandig zerodays",
    "source": "TechCrunch, Tim Fernholz (1 september 2026, 21:06 UTC), op basis van OpenAI's eigen blogpost \"Path to Astra\"",
    "url": "https://techcrunch.com/2026/09/01/open-ais-astra-model-is-on-the-way-and-very-good-at-breaking-into-computer-systems/",
-   "date": "2026-09-02",
-   "summary": "OpenAI heeft details gepubliceerd over Astra, het aankomende model dat volgens het bedrijf als eerste de eigen \"critical cybersecurity threshold\" haalt. De kern van die classificatie: Astra kan onbekende kwetsbaarheden vinden en exploiteren zonder menselijke sturing. Het model wordt \"binnenkort\" beschikbaar, maar de meest geavanceerde cybercapaciteiten worden achter beperktere toegang gezet. Dit is dezelfde categorie zorg die Anthropic eerder dit jaar over Mythos formuleerde, met vergelijkbare voorzorgsmaatregelen."
+   "date": "2026-09-02 06:28",
+   "summary": "OpenAI heeft details gepubliceerd over **Astra**, het aankomende model dat volgens het bedrijf als eerste de eigen **\"critical cybersecurity threshold\"** haalt. De kern van die classificatie: Astra kan **onbekende kwetsbaarheden vinden en exploiteren zonder menselijke sturing**. Het model wordt \"binnenkort\" beschikbaar, maar de meest geavanceerde cybercapaciteiten worden achter beperktere toegang gezet. Dit is dezelfde categorie zorg die Anthropic eerder dit jaar over **Mythos** formuleerde, met vergelijkbare voorzorgsmaatregelen. De harde cijfers die OpenAI zelf noemt: een **perfecte score op ExploitBench** (een evaluatie van het vermogen om bekende kwetsbaarheden te misbruiken), en in een door OpenAI-engineers aangepaste versie van die test ontdekte én exploiteerde het model **twee zerodays**. De aangekondigde waarborgen zijn deels bekend, deels vaag: verbeterde harness-detectie tegen "
   },
   {
    "id": "2026-09-02-pentagon-genai-mil-chatgpt-grok-drie-miljoen-medewerkers",
    "title": "Pentagon zet ChatGPT Mil en Grok open voor 3 miljoen medewerkers — en de risicodocumentatie ontbreekt publiekelijk",
    "source": "TechCrunch / DefenseScoop / Fortune / The Hill (31 augustus - 1 september 2026); risicokanttekeningen via BankInfoSecurity en TechTimes",
    "url": "https://defensescoop.com/2026/08/31/grok-chatgpt-added-to-genai-mil/",
-   "date": "2026-09-02",
-   "summary": "Het Amerikaanse ministerie van Defensie heeft op 31 augustus twee nieuwe modellen toegevoegd aan GenAI.mil, het centrale AI-portaal dat in december 2025 startte met Google's Gemini for Government. Daar komen nu ChatGPT Mil (OpenAI) en Grok for Government (xAI) bij, beschikbaar voor ruim 3 miljoen militaire en burgermedewerkers. Het portaal heeft inmiddels 1,7 miljoen unieke gebruikers. Alle drie de modellen zijn geautoriseerd op Impact Level 5 (IL5) — de hoogste autorisatie voor ongeclassificeerd defensiewerk."
+   "date": "2026-09-02 06:28",
+   "summary": "Het Amerikaanse ministerie van Defensie heeft op **31 augustus** twee nieuwe modellen toegevoegd aan **GenAI.mil**, het centrale AI-portaal dat in december 2025 startte met Google's Gemini for Government. Daar komen nu **ChatGPT Mil** (OpenAI) en **Grok for Government** (xAI) bij, beschikbaar voor ruim **3 miljoen militaire en burgermedewerkers**. Het portaal heeft inmiddels **1,7 miljoen unieke gebruikers**. Alle drie de modellen zijn geautoriseerd op **Impact Level 5 (IL5)** — de hoogste autorisatie voor ongeclassificeerd defensiewerk. De opzet zelf is precies wat een verstandige organisatie doet: één beheerde, geautoriseerde omgeving aanbieden zodat medewerkers gevoelige gegevens niet via consumentenkanalen naar buiten sturen. Dat is shadow-AI-beleid in de zuiverste vorm, en de adoptiecijfers (57% van het personeel binnen negen maanden) laten zien dat het werkt als het aanbod er is. D"
+  },
+  {
+   "id": "2026-09-03-ictrecht-chatgpt-advertenties-avg-telecomwet-toestemming",
+   "title": "ICTRecht: ChatGPT-advertenties botsen niet alleen met de AVG, maar vooral met de Telecommunicatiewet",
+   "source": "ICTRecht, Laura Monhemius (31 augustus 2026)",
+   "url": "https://www.ictrecht.nl/blog/van-assistent-naar-advertentieplatform-ook-chatgpt-toont-voortaan-advertenties",
+   "date": "2026-09-03 07:29",
+   "summary": "**Catch-up — dit stuk is van 31 augustus en is door de runs van 08-31 t/m 09-02 gemist** (die logden ICTRecht steeds als \"nieuwste blijft de jurisprudentieblog van 25 augustus\"). OpenAI heeft aangekondigd dat **Free- en Go-gebruikers** van ChatGPT advertenties krijgen. De uitrol begon in de VS en het VK; **Nederland volgt de komende maanden**. De advertenties zijn **context-gedreven vanuit elke chat** — vraag je om een recept, dan kan er een maaltijdbezorgdienst verschijnen. Bij gevoelige onderwerpen zoals gezondheid of politiek zegt OpenAI geen advertenties te tonen. Betaalde abonnementen (Plus, Pro, Enterprise, Business, Education) blijven vooralsnog advertentievrij. OpenAI stelt dat adverteerders geen inzage krijgen in individuele chats of geschiedenis: alleen geaggregeerde gegevens, vertoningen en clicks worden gedeeld."
+  },
+  {
+   "id": "2026-09-03-iusmentis-ontslag-op-staande-voet-werkbestanden-naar-gemini-uploaden",
+   "title": "Ontslag op staande voet omdat een directeur zijn hele zakelijke computer naar Google Gemini wilde uploaden",
+   "source": "Ius Mentis / Arnoud Engelfriet (2 september 2026), op vonnis ECLI:NL:RBAMS:2026:8257",
+   "url": "https://blog.iusmentis.com/2026/09/02/op-staande-voet-ontslagen-omdat-je-al-je-werkbestanden-in-google-gemini-wilde-schuiven-vanwege-een-arbeidsconflict/",
+   "date": "2026-09-03 07:23",
+   "summary": "Arnoud Engelfriet bespreekt een kort en kernachtig vonnis van de rechtbank Amsterdam (ECLI:NL:RBAMS:2026:8257). Een **senior directeur** stuurde meerdere bestanden uit de bedrijfsomgeving naar zijn **privé e-mailadres** en probeerde daarnaast op **19 november 2025 om 07:00 uur** het volledige bestand van zijn zakelijke computer te **uploaden naar Gemini (Google AI)**. Er liepen op dat moment beëindigingsonderhandelingen — er was dus al een arbeidsconflict. Het ontslag op staande voet houdt stand. De juridisch interessante laag zit in de opeenstapeling. Alleen al uit het arbeidsrecht volgt dat dit niet mag, maar hier stond het bovendien \"met heldere bewoordingen\" in de arbeidsovereenkomst én in de **Code of Business Conduct Policy** — en de rechter weegt mee dat het om een hoge functie \"met een bijbehorend salaris\" ging. Doorslaggevend was vooral de volgorde: de tweede actie (de Gemini-up"
+  },
+  {
+   "id": "2026-09-03-langflow-cve-2026-0768-actief-misbruikt-openai-aws-sleutels-gestolen",
+   "title": "Kritiek Langflow-lek (CVE-2026-0768) actief misbruikt om OpenAI- en AWS-sleutels te stelen",
+   "source": "BleepingComputer (Bill Toulas, 1 september 2026, 13:54), op onderzoek van VulnCheck; ook SecurityWeek, Dark Reading, Security Affairs",
+   "url": "https://www.bleepingcomputer.com/news/security/critical-langflow-flaw-exploited-to-steal-openai-and-aws-keys/",
+   "date": "2026-09-03 07:26",
+   "summary": "Aanvallers misbruiken **CVE-2026-0768**, een ongeauthenticeerde remote-code-execution-kwetsbaarheid (CVSS 9.8) in **Langflow** — het open-source, Python-gebaseerde low-code platform waarmee organisaties AI-applicaties, agents, chatbots en RAG-systemen bouwen. Het lek zit in de **code-validator van de custom-component-editor**: de `code`-parameter naar het `validate`-endpoint wordt niet gevalideerd voordat hij als Python wordt uitgevoerd. Resultaat: willekeurige code uitvoeren **als root, zonder inloggen**. Het lek werd al in **januari 2026** gepubliceerd door Trend Micro's Zero Day Initiative en treft Langflow 1.4.2 en ouder; versie 1.11.6 dicht alle bekende gaten. Wat dit meer maakt dan het zoveelste RCE-bericht is **wat de aanvallers ophalen**. Threat-intelligencebedrijf VulnCheck zag in het weekend minstens 50 exploitatiepogingen op Britse honeypots, oplopend tot **360 waargenomen aan"
+  },
+  {
+   "id": "2026-09-03-negentien-browserextensies-overgenomen-en-met-malware-geupdatet-socket",
+   "title": "Negentien browserextensies overgenomen en via automatische updates van malware voorzien",
+   "source": "BleepingComputer (30/31 augustus 2026), op onderzoek van Socket; ook Cybersecurity News, Digital Citizen, The Daily Hodl",
+   "url": "https://www.bleepingcomputer.com/news/security/chrome-web-store-extensions-caught-stealing-crypto-browser-data/",
+   "date": "2026-09-03 07:32",
+   "summary": "**Catch-up — dit stuk is van rond 30/31 augustus en is door de runs van 08-31 t/m 09-02 gemist**; het kwam boven via de \"Popular Stories\"-lijst op een opgehaalde BleepingComputer-artikelpagina, niet via gerichte search. Applicatiebeveiliger **Socket** heeft **negentien browserextensies** (18 voor Chrome, 1 voor Edge) gekoppeld aan één malwareoperatie die cryptowallet-secrets, wachtwoorden en andere gegevens steelt. De operatie loopt mogelijk al **sinds begin 2024**. De extensies presenteerden zich als nuttige hulpjes — zoekhulpen, prijsmonitors, \"copy unlocken\" — met namen als *Enable Right Click & Copy*, *RapidLens*, *QuickLens*, *Private Crypto News Reader* en *DeFi Pulse Tracker*. Geen van de kwaadaardige extensies staat op het moment van publicatie nog in de Chrome Web Store."
+  },
+  {
+   "id": "2026-09-04-cnil-boete-hopital-prive-de-la-loire-525000-patienten",
+   "title": "CNIL beboet Hôpital privé de la Loire met 500.000 euro na diefstal van gegevens van 525.000 patiënten",
+   "source": "CNIL-sanctiebesluit 3 september 2026, via DataBreaches.Net, Security.NL, BleepingComputer, Next en franceinfo",
+   "url": "https://databreaches.net/2026/09/03/cnil-health-data-breach-e500000-fine-imposed-on-the-loire-private-hospital/",
+   "date": "2026-09-04 06:29",
+   "summary": "De Franse toezichthouder CNIL legde op **3 september 2026** een boete van **€500.000** op aan het **Hôpital privé de la Loire** (Saint-Étienne) omdat het geen passende maatregelen had genomen om de gegevens van patiënten en hun naasten te beveiligen. In de zomer van 2025 wist een aanvaller in te loggen op het **elektronisch patiëntendossier (EPD)** waarin alle zorggegevens centraal staan, en kreeg daarmee toegang tot de gegevens van **524.867 patiënten** — voor een deel gezondheidsgegevens — plus **202.246 personen** die door patiënten waren aangewezen als *personne de confiance* (vertrouwenspersoon met toegang tot het dossier). Het interessante zit in de gebreken die de CNIL bij de audit vaststelde, want het is een opsomming van elementaire beveiliging die simpelweg ontbrak: **geen VPN, geen multifactorauthenticatie**, en — na afloop van het datalek — **identieke tijdelijke wachtwoorden"
+  },
+  {
+   "id": "2026-09-04-ec-wijst-chatgpt-reddit-roblox-aan-onder-dsa-chatgpt-als-zoekmachine",
+   "title": "Commissie wijst ChatGPT, Reddit en Roblox aan onder de DSA — ChatGPT als zoekmachine, niet als chatbot",
+   "source": "Europese Commissie (Digital Strategy news, 31 augustus 2026), gesignaleerd via ICTRecht \"Updates uit het veld | AI | september 2026\" (3 sept); ook Euronews en Computing",
+   "url": "https://digital-strategy.ec.europa.eu/en/news/commission-designates-chatgpt-reddit-roblox-under-digital-services-act",
+   "date": "2026-09-04 06:29",
+   "summary": "De Europese Commissie heeft **ChatGPT aangewezen als VLOSE** (Very Large Online Search Engine) en **Reddit en Roblox als VLOP** (Very Large Online Platform) onder de Digital Services Act. Alle drie gaven op dat ze de drempel van **45 miljoen gemiddelde maandelijkse gebruikers in de EU** halen. De gerapporteerde cijfers: ChatGPT's zoekfunctie gemiddeld **circa 159 miljoen** maandelijkse actieve gebruikers in de EU over de zes maanden tot maart 2026, Reddit **57,2 miljoen**, Roblox **circa 48 miljoen**. De juridisch opvallendste keuze is de kwalificatie. De Commissie redeneert dat ChatGPT's vermogen om **de live web te doorzoeken** het voor regelgevingsdoeleinden tot een zoekmachine maakt, niet tot \"slechts\" een AI-chatbot. Dat is een categoriebeslissing met bereik ver voorbij OpenAI: elke assistent met een ingebouwde webzoekfunctie kan langs dezelfde lijn onder de VLOSE-verplichtingen val"
+  },
+  {
+   "id": "2026-09-04-iusmentis-cybersecurity-specialist-collega-monitoren-doelbinding",
+   "title": "Mag een securityspecialist collega's monitoren omdat de directeur dat opdraagt?",
+   "source": "Ius Mentis / Arnoud Engelfriet (3 september 2026)",
+   "url": "https://blog.iusmentis.com/2026/09/03/mag-ik-als-cybersecurity-specialist-een-collega-monitoren-omdat-de-baas-dat-zegt/",
+   "date": "2026-09-04 06:29",
+   "summary": "Een lezersvraag die precies op het snijvlak zit waar Tinus' advieswerk zich afspeelt. Een cybersecurity-specialist bij een middelgrote IT-dienstverlener monitort het bedrijfsnetwerk en heeft daarbij toegang tot **e-mailonderwerpen, inloggegevens, IP-adressen (en dus geolocatie) en app-gebruik op beheerde apparaten**. Een directeur draagt hem nu op die logs regelmatig te analyseren om te bewijzen dat collega's zich niet aan afspraken houden over op tijd komen, eerder weggaan en thuiswerken — inclusief nagaan of iemand een **mouse jiggler** gebruikt. Zijn vraag: mag ik dit uitvoeren, dit valt buiten mijn takenpakket. Engelfriets analyse draait volledig om **doelbinding**. Al die gegevens zijn persoonsgegevens, en verwerken met het doel cyberbeveiliging is logisch en toegestaan. Maar wat de directeur vraagt is hergebruik voor een compleet ander doel — persoonsgericht monitoren en beoordelen"
+  },
+  {
+   "id": "2026-09-04-rijksoverheid-invulhulp-dpia-iama-fria-betaversie",
+   "title": "Rijksoverheid publiceert bèta van een digitale invulhulp voor DPIA's, IAMA's en FRIA's",
+   "source": "Rijksoverheid (invulhulpen.rijksapp.nl, bètaversie), gesignaleerd via ICTRecht \"Updates uit het veld | AI | september 2026\" (3 september 2026)",
+   "url": "https://invulhulpen.rijksapp.nl",
+   "date": "2026-09-04 06:29",
+   "summary": "De Rijksoverheid heeft een **bètaversie** van een digitale invulhulp online gezet die organisaties stap voor stap begeleidt bij het uitvoeren én vastleggen van drie beoordelingen die tot nu toe elk hun eigen losse Word-sjabloon hadden: de **DPIA** (gegevensbeschermingseffectbeoordeling, art. 35 AVG), de **IAMA** (Impact Assessment Mensenrechten en Algoritmes) en de **FRIA** (Fundamental Rights Impact Assessment, art. 27 AI-Act). Praktisch is dit direct relevant voor advieswerk. Het drietal DPIA/IAMA/FRIA overlapt sterk maar niet volledig, en in de praktijk is de grootste tijdkost niet het denkwerk maar het drie keer opnieuw invullen van dezelfde context in drie verschillende formats. Een tool die de drie in één doorloop legt, verandert vooral hoe je een opdracht inricht — en het feit dat het van de Rijksoverheid zelf komt, maakt het een de-facto referentiestructuur waar opdrachtgevers in"
+  },
+  {
+   "id": "2026-09-04-unit42-ai-agents-voerden-ransomware-aanval-uit-en-lieten-auditrapport-achter",
+   "title": "AI-agents voerden elke stap van een ransomware-aanval uit — en lieten een auditrapport van 80 pagina's achter",
+   "source": "Unit 42 (Palo Alto Networks) incidentrapport 2 september 2026, samengevat door The Register (Jessica Lyons) en DataBreaches.Net",
+   "url": "https://www.theregister.com/security/2026/09/02/ai-agents-carried-out-every-step-of-this-ransomware-attack-then-left-the-victim-an-80-page-security-audit/5294009",
+   "date": "2026-09-04 06:29",
+   "summary": "Unit 42 (Palo Alto Networks) publiceerde op 2 september het incidentonderzoek van een ransomware-aanval waarbij een **menselijke aanvaller in minder dan tien uur** een bedrijfsnetwerk volledig ontmantelde — werk waar een gecoördineerd menselijk red team normaal ongeveer **twee weken** over doet. De aanvaller vertelde het tijdens de losgeldonderhandelingen zelf: hij gebruikte frontier-modellen en agentic attack frameworks, waarbij AI-agents elke stap in de inbraak uitvoerden. Als afsluiting liet een agent een **rapport van 80 pagina's** achter waarin de beveiligingsgebreken van het slachtoffer stonden uitgewerkt, met \"dozens of exploited findings\". De kern van de bevinding is uitdrukkelijk **niet** dat er iets nieuws is uitgevonden. Unit 42: \"What made the attack stand out was AI-assisted operational efficiency, without the need for a novel zero-day or super elite tradecraft. The attacker"
   }
  ],
  "today": {
-  "date": "2026-09-02",
+  "date": "2026-09-04",
   "tasks": [
-   {
-    "id": "2026-08-19-wc-kitten",
-    "title": "WC kitten",
-    "status": "doing",
-    "detail": "De notitie bevat geen omschrijving — alleen de titel kwam uit de app mee, dus wat er precies aan de wc-kitten moet gebeuren staat nergens vast.",
-    "hint": "Staat op 'doing' sinds 19 augustus. Voeg één zin toe over wat er nog moet, anders verdwijnt hij.",
-    "notes": [],
-    "subtasks": []
-   },
    {
     "id": "2026-08-17-rotate-github-pat-before-18-september",
     "title": "Rotate the GitHub PAT before 18 September 2026",
     "status": "todo",
-    "detail": "De fine-grained token `tinotestingthings-token` waarmee de daily digest `feed.json` pusht verloopt vrijdag 18 september 2026.",
-    "hint": "Nog 16 dagen. Doe 'm in de week van 11 september, dan is er speling.",
+    "detail": "De fine-grained token `tinotestingthings-token` waarmee de daily digest `feed.json` naar de goodmorning-repo pusht verloopt vrijdag 18 september 2026.",
+    "hint": "Nog 14 dagen. Volgende week (11-15 sept) rotereren geeft nog speling voordat de feed stilvalt.",
     "notes": [],
     "subtasks": []
    },
    {
-    "id": "2026-08-22-openai-private-safety-processing-versus-anthropic-dataretentie",
-    "title": "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren",
+    "id": "2026-07-28-piano-learn-familiar",
+    "title": "Piano - learn Familiar",
+    "status": "doing",
+    "detail": "Familiar op piano leren spelen; staat sinds 4 augustus op 'doing' en er is sindsdien geen voortgang in de notitie bijgeschreven.",
+    "hint": "Een maand op 'doing' zonder update. Zet er één regel bij (welk deel zit al) of zet 'm terug op todo.",
+    "notes": [],
+    "subtasks": []
+   },
+   {
+    "id": "2026-08-23-tiktok-bytedance-400-miljoen-schikking-doj-kinderprivacy-coppa",
+    "title": "TikTok en ByteDance schikken voor 400 miljoen dollar met het Amerikaanse ministerie van Justitie over kinderprivacy",
     "status": "todo",
-    "detail": "OpenAI zette 19 augustus 'Private Safety Processing' in preview: misbruikdetectie via een afgebakend safety signal in plaats van Anthropics 30-dagenretentie; de technische white paper staat voor september gepland.",
-    "hint": "September is begonnen — goed moment om te checken of die white paper er is.",
-    "notes": [
-     "OpenAI zet \"Private Safety Processing\" tegenover Anthropics 30-dagenretentie: misbruikdetectie zonder de data te bewaren"
-    ],
+    "detail": "DOJ-schikking van 21 augustus 2026: 300 miljoen direct, 100 miljoen zodra het Musical.ly-consent-decree uit 2019 formeel wordt ingetrokken. De niet-financiële voorwaarden zijn nog niet uitgelezen.",
+    "hint": "Het precedent zit in de compliance-voorwaarden, niet in het bedrag — lees dat deel en noteer wat bruikbaar is.",
+    "notes": [],
     "subtasks": []
    }
   ],
@@ -100,7 +154,7 @@
     "title": "Goodmorning app improvements",
     "status": "active",
     "updated": "2026-08-26 07:12",
-    "line": "Hub project for improvements to the goodmorning app.",
+    "line": "Hub project for improvements to the goodmorning app. Per Tinus's instruction (app note, 2026-07-27): \"Make a Project with 'Goodmorning app improvements'. If I put notes here that are improvements to the app, add them as subtasks.\" Future app-improvement notes get added here as subtasks.",
     "notes": [],
     "subtasks": [
      {
@@ -113,6 +167,10 @@
      },
      {
       "text": "History view of projects and tasks in the app, with the option to re-open/edit them",
+      "done": false
+     },
+     {
+      "text": "Unify task/project architecture: make tasks and projects more alike in design (both have subtasks and idea/backlog → to-do → active → done → cancel states); no mandatory deadline like Google Calendar — tasks are one-offs, projects bigger things — *phase 1 (unified `sbx.items` store + free-transition states) built in sandbox 2026-08-01; phase 2 folds the vault tasks/projects onto the shared vocab. See build spec.*",
       "done": false
      },
      {
@@ -149,6 +207,10 @@
      },
      {
       "text": "Scan existing notes to check labelling is correct; if not, introduce table-style labelling (fit an existing label table, else add to it)",
+      "done": false
+     },
+     {
+      "text": "New \"Backlog\" list type — general (house fixes/cleaning) + recurring (chores tracked by last-done only); promote any item into a task or project, giving a Backlog → Note → Task → Project spectrum. Full build spec: [[2026-08-01-backlog-list-type-build-spec|Backlog list type — build spec]] — *phase 1 built in sandbox 2026-08-01 (backlog as a state; add/reorder/promote/schedule). Recurring-chore sub-type folds in with phase 2.*",
       "done": false
      },
      {
@@ -196,6 +258,10 @@
       "done": true
      },
      {
+      "text": "Integrate the standalone **Event Tracker** project as a utility app inside goodmorning, per Tinus's instruction \"de gelinkte event tracker net als alle andere apps in de goodmorning app, incl. backups en supabase verbindingen. Fix het.\" It was a local-only Next.js/Cloudflare/D1 app — rebuilt onto a static bundle + Supabase persistence (matching the other utility apps) at Tinus's choice, hosted as a new route inside this repo rather than a separate one. Built in sandbox, tested by Tinus, and **promoted to live 2026-08-13** (tab + `events/` app + service-worker cache bump, commit c4e439d). Only remaining piece: C9 backup leg drafted but not yet wired into the digest task. Full spec: [[2026-08-13-event-tracker-integration-and-backup-spec|Event Tracker — integration & backup spec]]. (Relates to the earlier backlog idea below: \"use ontdek-utrecht.nl/uitagendautrecht.nl to make an event radar for Utrecht\" — the Event Tracker's Utrecht event catalogue already covers this ground.)",
+      "done": false
+     },
+     {
       "text": "**Vogel van de dag als tegel op het homescreen** — vierkante fototegel naast NoteSprint/ChordSprint, elke dag een andere vogel, linkt naar Vogelspotinus met hetzelfde pijl-icoon rechtsboven. Gebouwd 2026-08-18 (commit 5d198d8, live + sandbox). Data uit een nieuw slank bestand `vogelspotinus/data/bird-tiles.json` (561 vogels, 107 kB) dat `tools/build-bird-tiles.mjs` uit `birds.json` (1 MB) genereert; thumbs teruggebracht van 960px naar 240px. Rotatie is deterministisch per datum met stride 269 — alle 561 vogels komen langs voordat er één herhaalt.",
       "done": true
      },
@@ -210,7 +276,7 @@
     "title": "Een AI app waarmee je mallen voor kleding kan maken.",
     "status": "active",
     "updated": "2026-08-18 07:10",
-    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "line": "",
     "notes": [],
     "subtasks": []
    },
@@ -218,26 +284,116 @@
     "id": "2026-08-19-vof-opzeggen",
     "title": "VOF opzeggen",
     "status": "active",
-    "updated": "2026-09-01 07:09",
-    "line": "<!-- app-subtasks:start -->",
+    "updated": "2026-09-03 07:24",
+    "line": "",
     "notes": [],
-    "subtasks": []
+    "subtasks": [
+     {
+      "text": "Maria informeren opzeggen vof",
+      "done": false
+     },
+     {
+      "text": "Formulier invullen",
+      "done": false
+     },
+     {
+      "text": "Nummer hein getten (erwin gevraagd)",
+      "done": false
+     },
+     {
+      "text": "Formulier op de post",
+      "done": false
+     },
+     {
+      "text": "Dingen downloaden van belastingdienst en archiveren",
+      "done": false
+     }
+    ]
    },
    {
     "id": "2026-08-20-be-better-with-claude",
     "title": "Be better with Claude",
     "status": "active",
-    "updated": "2026-09-01 07:09",
-    "line": "<!-- app-subtasks:start -->",
+    "updated": "2026-09-03 07:24",
+    "line": "",
     "notes": [],
-    "subtasks": []
+    "subtasks": [
+     {
+      "text": "Skills, when to use skill creators. I should think about what processes to automate via skills",
+      "done": false
+     },
+     {
+      "text": "Plugins = skills + more skills + hooks, mcp servers. Welke zijn cutting edge?",
+      "done": false
+     },
+     {
+      "text": "Test SUPER POWER SKILL",
+      "done": false
+     },
+     {
+      "text": "Test Get Shit Done (GSD). Dit opent meerdere subagents per task. Voorkomt contextrot. Kost tokens op korte termijn.",
+      "done": false
+     },
+     {
+      "text": "Use /review en /ultrareview. Check of hij dit zelf ook al doet of niet",
+      "done": false
+     },
+     {
+      "text": "Learn or use claude context mode. Waarom zou je die niet altijd gebruiken?",
+      "done": false
+     },
+     {
+      "text": "Try en test thedotmack/claude-mem. Alrijd gebruiken? Of niet.",
+      "done": false
+     },
+     {
+      "text": "\"/plugin marketplace add thedotmack/claude-mem\"",
+      "done": false
+     },
+     {
+      "text": "Try frontend-desifn (claude official) plugin",
+      "done": false
+     },
+     {
+      "text": "Use AwesomeDesign.md ofzoiets, wat lijkt op google stitch. Gebruik om NW formatting te pakken. Hergebruik die.",
+      "done": false
+     },
+     {
+      "text": "Is Ponytail nice?",
+      "done": false
+     },
+     {
+      "text": "Kijk of notebooklm-py in de bestaande workflow kan. Bijv op basis van een hoge kans op waardevolle nieuwsbericht een podcast maken en in de app zetten? Dit kan ook notes van youtube lezen bijv...",
+      "done": false
+     },
+     {
+      "text": "Gebruik draw.io om architecture diagrams te maken van apps.",
+      "done": false
+     },
+     {
+      "text": "Misschien kan Handy gebruikt worden voor speech to text",
+      "done": false
+     },
+     {
+      "text": "Test caveman, die haalt veel semantiek weg van claude wat tokens bespaart",
+      "done": false
+     },
+     {
+      "text": "grill-me skill = uitgebreid plan maken.",
+      "done": false
+     },
+     {
+      "text": "https://freesewing.dev/training/git/ hier staat git uitleg",
+      "done": false
+     }
+    ]
    },
    {
     "id": "2026-08-27-optimize-productivity-workflow",
     "title": "Optimize productivity workflow",
     "status": "active",
     "updated": "",
-    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "line": "",
     "notes": [],
     "subtasks": []
    },
@@ -300,7 +456,7 @@
     "title": "Visit every park in Utrecht.",
     "status": "idea-stage",
     "updated": "",
-    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "line": "",
     "notes": [],
     "subtasks": []
    },
@@ -309,7 +465,7 @@
     "title": "Mountainbiken?",
     "status": "idea-stage",
     "updated": "",
-    "line": "Nog geen omschrijving vastgelegd in de notitie.",
+    "line": "",
     "notes": [],
     "subtasks": []
    },
@@ -338,7 +494,7 @@
     "title": "Project: Cookie Scanner Applicatie",
     "status": "done",
     "updated": "2026-08-20 07:09",
-    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk).",
+    "line": "Referentie: mickbeer.com — Mick Beer, onafhankelijk privacy-onderzoeker (Harderwijk). Methode: forensische netwerkanalyse van websites/apps, met name voor vs. na consent vergelijkingen. Publiceert harde bewijsvoering (exacte requests, hostnamen, cookie-looptijden) gescheiden van interpretatie.",
     "notes": [],
     "subtasks": []
    },
@@ -346,8 +502,8 @@
     "id": "2026-07-15-daily-digest-app-instructions-and-build-prompt",
     "title": "Daily digest app — instructions & Claude Code build prompt",
     "status": "done",
-    "updated": "2026-08-19",
-    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed).",
+    "updated": "2026-08-19 (Clau",
+    "line": "Sub-doc of [[2026-07-11-daily-habits-hub-site|Project: daily habits hub site]] (bucket one: the swipe feed). Decisions made 2026-07-15:",
     "notes": [],
     "subtasks": []
    },
@@ -356,7 +512,7 @@
     "title": "Backlog list type — build spec",
     "status": "done",
     "updated": "2026-08-04 22:28",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Fleshes out the \"New Backlog list type\" subtask into scope, data model, and build steps.",
     "notes": [],
     "subtasks": []
    },
@@ -365,7 +521,7 @@
     "title": "Sandbox → live promotion — safety spec",
     "status": "done",
     "updated": "2026-08-04 22:28",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after the 2026-08-04 incident where promoting the sandbox build to live blanked the calendar and work planning, and after finding the same root cause behind the stale \"SBX\" title and the mislabeled reset button. This is a proposal — the immediate hotfixes (title, reset-button guard) are already shipped; th",
     "notes": [],
     "subtasks": []
    },
@@ -374,7 +530,7 @@
     "title": "Vogelspotinus — integration & backup spec",
     "status": "done",
     "updated": "2026-08-13 07:09",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus's 2026-08-10 chat instruction to bring **Vogelspotinus** (his bird-name learning PWA) into the goodmorning app \"just like the other utility apps\" (Kangaroo gym tracker, NoteSprint, ChordSprint, WijnWijs), and to draft the Supabase progress-backup leg for it.",
     "notes": [],
     "subtasks": []
    },
@@ -383,7 +539,7 @@
     "title": "Event Tracker — integration & backup spec",
     "status": "done",
     "updated": "2026-08-18 07:10",
-    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Sub-doc of [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Written after Tinus asked for his standalone \"Event tracker\" project (connected folder `Event tracker/`) to be integrated into goodmorning like the other utility apps (Kangaroo, WijnWijs, NoteSprint, ChordSprint, Vogelspotinus), including Supabase persistence and a daily-digest backup leg.",
     "notes": [],
     "subtasks": []
    },
@@ -392,16 +548,20 @@
     "title": "Ecosystem explainer — script & storyboard (Remotion)",
     "status": "done",
     "updated": "2026-08-27 07:21",
-    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]].",
+    "line": "Sub-doc van [[2026-07-28-goodmorning-app-improvements|Goodmorning app improvements]]. Korte explainer-video voor in een presentatie, over hoe kennis het systeem binnenkomt, in de app belandt, gereviewd wordt en tot actie leidt.",
     "notes": [],
     "subtasks": []
    }
   ],
   "radar": {
-   "updated": "2026-08-31",
+   "updated": "2026-09-03",
    "follow_ups": 1,
-   "headline": "Datatilsynet draagt SATS op de check-in-foto om te zetten naar art. 6(1)(f): contractuele noodzaak afgewezen, recht van bezwaar (art. 21) gaat aan (impact 4).",
+   "headline": "AP moet sinds 1 september elke AVG-sanctie verplicht openbaar maken — wettelijke plicht, geen beleidskeuze meer (impact 4).",
    "deadlines": [
+    {
+     "date": "2026-09-11",
+     "label": "Cyber Resilience Act art. 14: meldplicht actief misbruikte kwetsbaarheden gaat in"
+    },
     {
      "date": "2026-09-11",
      "label": "SATS moet de Datatilsynet-bevelen hebben uitgevoerd (grondslag + bezwaarafhandeling)"
@@ -425,10 +585,6 @@
     {
      "date": "2027-12-02",
      "label": "Zelfstandige high-risk AI-verplichtingen (Annex III) van toepassing"
-    },
-    {
-     "date": "2028-08-02",
-     "label": "High-risk AI in producten (Annex I) compliance-deadline"
     }
    ],
    "weekly": {
@@ -442,36 +598,10 @@
    }
   }
  },
- "radar_week": {
-  "week_of": "2026-08-31",
-  "items": [
-   {
-    "date": "2026-08-31",
-    "topic": "enforcement",
-    "impact": 4,
-    "title": "Datatilsynet × SATS — check-in-foto: art. 6(1)(b) afgewezen, art. 21 gaat aan",
-    "line": "Bevel + berisping, geen boete. Contractuele noodzaak dekt geen controle die alleen nuttig is; de FAQ met de verkeerde grondslag was zelf een transparantieschending."
-   },
-   {
-    "date": "2026-08-27",
-    "topic": "gdpr",
-    "impact": 4,
-    "title": "NL-rechters passen Brillen Rottler toe: vijf uitspraken, art. 15-verzoeker niet-ontvankelijk wegens misbruik van recht",
-    "line": "RBNHO ×4 + Rotterdam. Misbruik in Scapino ambtshalve vastgesteld; werkelijke proceskosten alleen toegewezen mét kostenspecificatie."
-   },
-   {
-    "date": "2026-08-27",
-    "topic": "gdpr",
-    "impact": 4,
-    "title": "HvJ (Grote Kamer) C-474/24 NADA Austria — wanneer gepubliceerde sanctiedata art. 9-gezondheidsgegevens worden",
-    "line": "Overtreding + schorsing op zich niet; het noemen van de stof kan het wél zijn via afleiding. Publicatie moet stoppen zodra de sanctie afloopt."
-   }
-  ]
- },
  "vaultNote": {
-  "title": "Umamibomkom Van Yvette Van Boven",
-  "excerpt": "Doordeweekse Recepten — Total Time: 30 min — Servings: 2 personen — Source: Ah.nl Ingredients - 1 liter kokend water - 1 groentebouillontablet - 30 g gedroogde paddenstoel - 2 kroppen Shanghai paksoi - 1 grote ui - 7 cm verse gember - 3 tenen knoflook - 2 middelgrote eieren - 2 el sesamolie - 2 el misopasta - 200 g zilvervliesrijst - 150 g shiitake - 5 wortelen - 2 bosuien - 2 el rijstazijn - 1 tl zwart sesamzaad",
-  "path": "Mijn Wiki/20 Sources/2026-07-13-umamibomkom-van-yvette-van-boven.md",
-  "noteDate": "2026-07-13"
+  "title": "English Muffins",
+  "excerpt": "Bereidingswijze Maak eerst de deegstarter door de bloem, het water en de gist even goed door elkaar te mengen zodat er geen klontjes meer in zitten. Dek het af met wat folie en laat het op kamertemperatuur minstens 1 uur rusten, maar tot 12 uren kan ook. Hoe langer je het laat staan deste beter het fermenteert en deste meer smaak het aan je english muffins zal geven. Het zal gelang de tijd steeds meer gaan bubbelen en verdubbelen in volume. Ik heb het ruim 5 uren laten staan. Wanneer je vind dat je deegstarter klaar is maak je het deeg. Meng daarvoor de melk met de gist en de deegstarter. Roer",
+  "path": "Mijn Wiki/20 Sources/2026-07-27-english-muffins.md",
+  "noteDate": "2026-07-27"
  }
 }
