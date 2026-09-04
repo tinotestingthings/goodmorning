@@ -1203,20 +1203,26 @@ const PIANO_MIDI=PIANO_NOTES.map(n=>{const m=/^([A-G])(b?)(\d)$/.exec(n);return 
 const PIANO_GAIN=8;     // gemeten (4 sep, OfflineAudioContext, C-majeur-drieklank): de FluidR3-samples
                         // pieken op -21 dBFS; bij 8x is de RMS over de eerste 0,6 s gelijk aan die van
                         // het synth-profiel, zodat Volume en Clip volume dezelfde betekenis houden
-const piano={raw:{},buf:{},ready:false};
+const piano={raw:{},buf:{},rms:{},norm:{},ready:false};
+// De FluidR3-samples zijn onderling niet even luid (C4 -32,7 dBFS, Eb4/Gb4/C5 rond
+// -39): welke noot luid klinkt hing dus af van het toevallige sample dat eronder
+// lag, en een akkoord kreeg een willekeurige balans. Na het decoden meten we de
+// RMS van elke sample (0-0,6 s) en trekken we alles gelijk aan C4 — de noot
+// waarop PIANO_GAIN geijkt is.
+function bufRms(b){const d=b.getChannelData(0),n=Math.min(d.length,Math.floor(b.sampleRate*.6));let s=0;for(let i=0;i<n;i++)s+=d[i]*d[i];return Math.sqrt(s/n)||1e-6}
 function pianoNearest(midi){let best=0;for(let i=1;i<PIANO_MIDI.length;i++)if(Math.abs(PIANO_MIDI[i]-midi)<Math.abs(PIANO_MIDI[best]-midi))best=i;return best}
 // bytes alvast ophalen bij het laden; decoden kan pas als er een AudioContext is
 PIANO_NOTES.forEach(n=>fetch('samples/'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status)).then(b=>{piano.raw[n]=b;pianoDecode()}).catch(()=>{}));
 function pianoDecode(){
   if(!audioCtx||piano.ready)return;
   const todo=PIANO_NOTES.filter(n=>piano.raw[n]&&!piano.buf[n]);
-  todo.forEach(n=>{const raw=piano.raw[n];delete piano.raw[n];audioCtx.decodeAudioData(raw).then(b=>{piano.buf[n]=b;piano.ready=PIANO_NOTES.every(x=>piano.buf[x])}).catch(()=>{})});
+  todo.forEach(n=>{const raw=piano.raw[n];delete piano.raw[n];audioCtx.decodeAudioData(raw).then(b=>{piano.buf[n]=b;piano.rms[n]=bufRms(b);if(PIANO_NOTES.every(x=>piano.buf[x])){const ref=piano.rms['C4'];PIANO_NOTES.forEach(x=>{piano.norm[x]=Math.min(4,Math.max(.25,ref/piano.rms[x]))});piano.ready=true}}).catch(()=>{})});
 }
 function pianoSample(freq,start,dur,gain){
   const midi=69+12*Math.log2(freq/440),i=pianoNearest(midi);
   const src=audioCtx.createBufferSource(),g=audioCtx.createGain();
   src.buffer=piano.buf[PIANO_NOTES[i]];src.playbackRate.value=Math.pow(2,(midi-PIANO_MIDI[i])/12);
-  const lvl=Math.max(gain*PIANO_GAIN*tw('volume'),.0002);dur*=tw('decay');
+  const lvl=Math.max(gain*PIANO_GAIN*(piano.norm[PIANO_NOTES[i]]||1)*tw('volume'),.0002);dur*=tw('decay');
   g.gain.setValueAtTime(lvl,start);g.gain.setValueAtTime(lvl,start+Math.max(0,dur-.12));g.gain.exponentialRampToValueAtTime(.0001,start+dur+.25);
   src.connect(g);g.connect(highPass);src.start(start);src.stop(start+dur+.3);
   synthEndsAt=Math.max(synthEndsAt,start+dur+.3);activeAudioNodes.push(src);
@@ -1377,7 +1383,14 @@ function pianoTone(freq,start,dur,gain=.1,retry){
 }
 function tonicMidi(){return 60+keyRootPc[key]}
 function chordMidiNotes(degree,rootOverride=null){const root=rootOverride??(tonicMidi()+stepForDegree(degree));const intervals={maj:[0,4,7],min:[0,3,7],dim:[0,3,6]}[qualityForDegree(degree)]||[0,4,7];return intervals.map(i=>root+i)}
-function playChord(roman,when,rootOverride=null){chordMidiNotes(roman,rootOverride).forEach((m,i)=>pianoTone(midiToFreq(m),when+i*.006,.96,.095))}
+// Bas onder het akkoord (4 sep 2026): de oude synth had onder elke noot een
+// sub-octaaf-sinus als op één na luidste stem, waardoor de grondtoon domineerde —
+// en de grondtoon is wat I van V onderscheidt. De gesamplede piano speelt anders
+// een kale drieklank in nauwe ligging. Dus: grondtoon een octaaf lager erbij,
+// zachter, zoals een linkerhand. Alleen voor de piano; de synthprofielen hebben
+// hun eigen laag al.
+const CHORD_BASS_GAIN=.7;
+function playChord(roman,when,rootOverride=null){const notes=chordMidiNotes(roman,rootOverride);notes.forEach((m,i)=>pianoTone(midiToFreq(m),when+i*.006,.96,.095));if(soundProfile==='default'&&piano.ready&&notes.length)pianoTone(midiToFreq(notes[0]-12),when,1.0,.095*CHORD_BASS_GAIN)}
 function playTone(rootMidi,when,dur=.78,gain=.13){pianoTone(midiToFreq(rootMidi),when,dur,gain)}
 function playDegreeSound(degree,when,rootOverride=null){const root=rootOverride??(tonicMidi()+stepForDegree(degree));if(playbackMode==='tones')playTone(root,when,.78,.14);else playChord(degree,when,root)}
 function playRoot(){ensureAudio();stopAudio();if(audioCtx.state==='suspended')audioCtx.resume();if(practiceType==='intervals'||practiceType==='moves')playTone(tonicMidi(),audioCtx.currentTime+.08,.82,.14);else if(practiceType==='inkey')playTone(inKeyCurrentStepStartMidi(),audioCtx.currentTime+.08,.82,.14);else playDegreeSound('1',audioCtx.currentTime+.08,tonicMidi())}
