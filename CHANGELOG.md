@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-3) — Toen: stadskeuze toont alleen steden met foto's
+
+
 ## 2026-09-04 (v2026.09.04-2) — Toen: stadskeuze (Utrecht, Amsterdam; Deventer/Groningen nog leeg) en 100 Amsterdamse foto's op gebouwniveau — 513 foto's
 
 
