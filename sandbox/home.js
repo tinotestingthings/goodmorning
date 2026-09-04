@@ -352,13 +352,68 @@
   var ICON_BIRD =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V5l-2 2h-3a4 4 0 0 0-4 4v1a4 4 0 0 1-4 4H4.5"/><path d="m14 9-3 3"/></svg>';
 
-  var BIRD_TILE_SRC = "vogelspotinus/data/bird-tiles.json";
-  // Coprime with 561 (= 3 x 11 x 17), so consecutive days land far apart in the
-  // list and every bird comes round once before any repeats.
+  var ICON_BUILDING =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>';
+
+  // Since 2026-09-04 the tile can also show a building (Settings > Photo tile).
+  // Birds come from the slim bird-tiles.json; buildings straight from
+  // arch-photos.json (160 photos, 44 kB) - small enough to skip a build step.
+  var TILE_KINDS = {
+    birds: {
+      src: "vogelspotinus/data/bird-tiles.json", label: "Vogels", icon: ICON_BIRD,
+      what: "Vogel", parse: function (list) { return list; }
+    },
+    buildings: {
+      src: "vogelspotinus/data/arch-photos.json", label: "Gebouwen", icon: ICON_BUILDING,
+      what: "Gebouw",
+      parse: function (byStyle) {
+        var out = [];
+        Object.keys(byStyle).forEach(function (style) {
+          byStyle[style].forEach(function (p) {
+            var name = String(p.a || "").split(" — ")[0].trim();
+            var u = shrinkThumb(p.u);
+            if (name && u) out.push({ n: name, u: u, o: u !== p.u ? p.u : undefined });
+          });
+        });
+        return out;
+      }
+    }
+  };
+  // Coprime with 561 (= 3 x 11 x 17) and with 160 (= 2^5 x 5), so consecutive
+  // days land far apart in the list and every entry comes round before a repeat.
   var BIRD_STRIDE = 269;
 
+  // ponytail: duplicates `shrink` in tools/build-bird-tiles.mjs; generalise that
+  // script to emit arch-tiles.json once a third kind (dogs, street) joins.
+  // Same rule as tools/build-bird-tiles.mjs: only rewrite the width of a real
+  // /thumb/ URL (960px -> 500px); a direct file URL stays as it is. 500 and not
+  // 480: Wikimedia only serves the widths listed on https://w.wiki/GHai (2026).
+  function shrinkThumb(raw) {
+    var url = String(raw).trim();
+    if (url.indexOf("/thumb/") < 0) return url;
+    var cut = url.lastIndexOf("/");
+    return url.slice(0, cut + 1) + url.slice(cut + 1).replace(/\?.*$/, "").replace(/(^|-)\d+px-/, "$1500px-");
+  }
+
+  // "birds" | "buildings" | "both" (alternate day by day). Set in settings.js.
+  function tileSetting() {
+    var v = null;
+    try { v = localStorage.getItem(k("home.tile")); } catch (e) {}
+    return (v === "both" || Object.prototype.hasOwnProperty.call(TILE_KINDS, v)) ? v : "birds";
+  }
+
+  function dayIndex() {
+    return Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
+  }
+
+  function photoTileKind() {
+    var v = tileSetting();
+    if (v === "both") return dayIndex() % 2 ? "buildings" : "birds";
+    return v;
+  }
+
   // v3: v1 kon een kapotte thumb-URL bevatten, v2 nog de 240px-variant.
-  function birdCacheKey() { return eventsPrefix() + "home-bird-v3"; }
+  function birdCacheKey(kindName) { return eventsPrefix() + "home-bird-v3-" + kindName; }
 
   function todayKey() {
     var d = new Date();
@@ -369,22 +424,25 @@
 
   function birdForToday(list) {
     if (!list || !list.length) return null;
-    var days = Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
+    var days = dayIndex();
+    // Alternating: each kind only sees every other day, and 2 x 269 shares a
+    // factor with 160 - count that kind's own days instead so no entry is skipped.
+    if (tileSetting() === "both") days = Math.floor(days / 2);
     return list[((days * BIRD_STRIDE) % list.length + list.length) % list.length];
   }
 
-  function readBirdCache() {
+  function readBirdCache(kindName) {
     try {
-      var raw = localStorage.getItem(birdCacheKey());
+      var raw = localStorage.getItem(birdCacheKey(kindName));
       if (!raw) return null;
       var v = JSON.parse(raw);
       return (v && v.date === todayKey() && v.n && v.u) ? v : null;
     } catch (e) { return null; }
   }
 
-  function writeBirdCache(bird) {
+  function writeBirdCache(kindName, bird) {
     try {
-      localStorage.setItem(birdCacheKey(), JSON.stringify({
+      localStorage.setItem(birdCacheKey(kindName), JSON.stringify({
         date: todayKey(), n: bird.n, u: bird.u, o: bird.o
       }));
     } catch (e) {}
@@ -400,6 +458,8 @@
     // (2026-08-18)
     var a = document.createElement("a");
     a.href = "vogelspotinus/";
+    var kindName = photoTileKind();
+    var kind = TILE_KINDS[kindName];
 
     function arrowNode() {
       var arrow = el("span", "app-tile-arrow");
@@ -415,16 +475,16 @@
       a.innerHTML = "";
       a.appendChild(arrowNode());
       var ic = el("span", "app-tile-icon");
-      ic.innerHTML = ICON_BIRD;
+      ic.innerHTML = kind.icon;
       a.appendChild(ic);
-      var label = el("div", "app-tile-label", "Vogels");
+      var label = el("div", "app-tile-label", kind.label);
       a.appendChild(label);
       fitTileLabel(label);
     }
 
     function showBird(bird) {
       a.className = "app-tile app-tile-photo";
-      a.setAttribute("aria-label", "Open Vogelspotinus. Vogel van vandaag: " + bird.n);
+      a.setAttribute("aria-label", "Open Vogelspotinus. " + kind.what + " van vandaag: " + bird.n);
       a.innerHTML = "";
 
       var img = document.createElement("img");
@@ -456,18 +516,18 @@
 
     showIcon();
 
-    var cached = readBirdCache();
+    var cached = readBirdCache(kindName);
     if (cached) {
       showBird(cached);
       return a;
     }
 
-    fetch(BIRD_TILE_SRC)
+    fetch(kind.src)
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
-      .then(function (list) {
-        var bird = birdForToday(list);
+      .then(function (data) {
+        var bird = birdForToday(kind.parse(data));
         if (!bird) return;
-        writeBirdCache(bird);
+        writeBirdCache(kindName, bird);
         showBird(bird);
       })
       .catch(function (e) {

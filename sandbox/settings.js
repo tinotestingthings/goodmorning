@@ -19,6 +19,7 @@
     root.appendChild(buildAppearance());
     root.appendChild(buildCategories());
     root.appendChild(buildRadarThresholds());
+    root.appendChild(buildPhotoTile());
     root.appendChild(buildNotifications());
     root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
@@ -198,6 +199,28 @@
     var refresh2 = el("button", "btn btn-ghost", "Refresh feeds"); refresh2.type = "button";
     refresh2.addEventListener("click", function () { refresh2.textContent = "Refreshing…"; window.Ics.refresh(function () { render(); }); });
     if (feeds.length) sec.appendChild(refresh2);
+    return sec;
+  }
+
+  // Which photo the Today tile shows. Read by home.js's photoTileKind().
+  // Local to this device (not synced) - a display preference, like the theme.
+  function buildPhotoTile() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Photo tile"));
+    sec.appendChild(el("p", "settings-sub", "What the daily photo on Today shows."));
+    var cur = "birds";
+    try { cur = localStorage.getItem(k("home.tile")) || "birds"; } catch (e) {}
+    var seg = el("div", "seg");
+    [["birds", "Birds"], ["buildings", "Buildings"], ["both", "Alternate"]].forEach(function (pair) {
+      var b = el("button", "seg-btn" + (cur === pair[0] ? " active" : ""), pair[1]);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        try { localStorage.setItem(k("home.tile"), pair[0]); } catch (e) {}
+        render();
+      });
+      seg.appendChild(b);
+    });
+    sec.appendChild(seg);
     return sec;
   }
 
