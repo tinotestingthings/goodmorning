@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-2) — Toen: stadskeuze (Utrecht, Amsterdam; Deventer/Groningen nog leeg) en 100 Amsterdamse foto's op gebouwniveau — 513 foto's
+
+
 ## 2026-09-04 (v2026.09.04-1) — Wake-up-module (start-de-dag-flow met weer per dagdeel, sterren op to-do's/taken/backlog, rest → morgen), prio-sterren + 'Priority'-blok op Today, ★ in het to-do-menu; Settings → Reset this device; sandbox-testlus (buildstempel in badge, cache-verversing)
 
 

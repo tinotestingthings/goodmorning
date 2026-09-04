@@ -46,7 +46,7 @@
     { key: "luisterinus", label: "Luisterinus", url: "luisterinus/index.html" },
     { key: "clipinus", label: "Clipinus", url: "clipinus/index.html" },
     { key: "elpatroon", label: "El Patroon", url: "el-patroon/index.html" },
-    { key: "utrechttoen", label: "Utrecht Toen", url: "utrecht-toen/index.html" }
+    { key: "utrechttoen", label: "Toen", url: "utrecht-toen/index.html" }
   ];
 
   // Tegelformaat: vrij schaalbaar via een slider, bewaard per omgeving via k()

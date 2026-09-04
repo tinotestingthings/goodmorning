@@ -10,6 +10,8 @@
   // bronrepo en zit bewust niet in deze app.
 
   var UTRECHT = { latitude: 52.0907, longitude: 5.1214 };
+  // Steden komen uit data.json (cities); het zoekmiddelpunt en de kaart volgen de gekozen stad.
+  var cities = [], city = null;
   var YEAR_MIN = 1800, YEAR_MAX = 1997;
   var EARTH_RADIUS_M = 6371008.8, M_PER_DEG = 111320;
   var TIER_LABEL = { exact: "Exacte plek", building: "Ongeveer bij dit gebouw of object", street: "Ergens aan deze straat" };
@@ -29,7 +31,7 @@
     calculated_from_subject: "berekend uit het onderwerp", calculated_from_street_direction: "berekend uit de straatrichting"
   };
   var CONFIDENCE = { high: "hoge", medium: "middelmatige", low: "lage" };
-  var SOURCE = { wikimedia_commons: "Wikimedia Commons", utrecht_archief: "Het Utrechts Archief", europeana: "Europeana", nationaal_archief: "Nationaal Archief" };
+  var SOURCE = { wikimedia_commons: "Wikimedia Commons", utrecht_archief: "Het Utrechts Archief", stadsarchief_deventer: "Stadsarchief Deventer", groninger_archieven: "Groninger Archieven", stadsarchief_amsterdam: "Stadsarchief Amsterdam", europeana: "Europeana", nationaal_archief: "Nationaal Archief" };
 
   var $ = function (id) { return document.getElementById(id); };
   var app = $("app"), dock = $("dock"), sheet = $("sheet"), full = $("full"), msg = $("msg");
@@ -534,6 +536,21 @@
     refresh();
   }
 
+  // Stadskeuze: verplaatst het zoekmiddelpunt en de kaart; de foto's zelf blijven één verzameling.
+  function renderCities() {
+    var sel = $("city"); sel.innerHTML = "";
+    cities.forEach(function (c) {
+      var o = document.createElement("option"); o.value = c.id; o.textContent = c.name; sel.appendChild(o);
+    });
+    city = cities[0] || null;
+    sel.parentNode.style.display = cities.length > 1 ? "" : "none";
+    sel.onchange = function () {
+      city = cities.filter(function (c) { return c.id === sel.value; })[0] || city;
+      center = city.center; selectedId = null; say(""); refresh();
+      if (mapReady) map.flyTo({ center: [center.longitude, center.latitude], zoom: 13.25, duration: 900 });
+    };
+  }
+
   $("near").onclick = function () {
     var btn = this;
     if (!navigator.geolocation) { say("Locatie is niet beschikbaar; Utrecht blijft in beeld."); return; }
@@ -543,12 +560,15 @@
       center = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
       selectedId = null; refresh();
       if (mapReady) map.flyTo({ center: [center.longitude, center.latitude], zoom: 14, duration: 900 });
-      if (distance(center, UTRECHT) > 15000) say("Je staat buiten Utrecht; de collectie is voorlopig beperkt tot de stad.");
+      // Dichtstbijzijnde bekende stad wordt de actieve stad; ver van alle steden: melden.
+      var nearest = cities.slice().sort(function (a, b) { return distance(center, a.center) - distance(center, b.center); })[0];
+      if (nearest) { city = nearest; $("city").value = nearest.id; }
+      if (!nearest || distance(center, nearest.center) > 15000) say("Je staat buiten de steden in de collectie (" + cities.map(function (c) { return c.name; }).join(", ") + ").");
     }, function () {
       btn.disabled = false; btn.lastElementChild.textContent = "Dicht bij mij";
-      center = UTRECHT; refresh();
+      center = city ? city.center : UTRECHT; refresh();
       say("Geen locatietoegang. We tonen het centrum van Utrecht.");
-      if (mapReady) map.flyTo({ center: [UTRECHT.longitude, UTRECHT.latitude], zoom: 13.25 });
+      if (mapReady) map.flyTo({ center: [center.longitude, center.latitude], zoom: 13.25 });
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
   msg.querySelector("button").onclick = function () { say(""); };
@@ -559,6 +579,8 @@
 
   fetch("data.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (d) {
     providers = d.providers;
+    cities = d.cities || [];
+    renderCities();
     all = d.photos.map(function (p) { p.all_contributions = p.context_contributions; return p; });
     providers.forEach(function (pr) { enabled[pr.id] = true; });
     renderProviders();

@@ -5,7 +5,7 @@
   <script>try { if (window.top !== window.self) document.documentElement.className = "embedded"; } catch (e) {}</script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Utrecht Toen</title>
+  <title>Toen</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.8.0/maplibre-gl.css" />
   <style>
     /* Vangnet als ../design.css niet laadt: anders valt elke var() weg. */
@@ -135,6 +135,7 @@
 
     <div class="bar">
       <button type="button" class="chip primary" id="near"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg><span>Dicht bij mij</span></button>
+      <label class="chip"><select id="city" aria-label="Stad"></select></label>
       <label class="chip"><span class="n">Straal</span><select id="radius" aria-label="Zoekstraal">
         <option value="250">250 m</option><option value="500">500 m</option><option value="1000" selected>1 km</option><option value="5000">5 km</option>
       </select></label>
