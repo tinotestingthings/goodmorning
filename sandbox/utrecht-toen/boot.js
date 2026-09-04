@@ -31,7 +31,7 @@
     calculated_from_subject: "berekend uit het onderwerp", calculated_from_street_direction: "berekend uit de straatrichting"
   };
   var CONFIDENCE = { high: "hoge", medium: "middelmatige", low: "lage" };
-  var SOURCE = { wikimedia_commons: "Wikimedia Commons", utrecht_archief: "Het Utrechts Archief", stadsarchief_deventer: "Stadsarchief Deventer", groninger_archieven: "Groninger Archieven", europeana: "Europeana", nationaal_archief: "Nationaal Archief" };
+  var SOURCE = { wikimedia_commons: "Wikimedia Commons", utrecht_archief: "Het Utrechts Archief", stadsarchief_deventer: "Stadsarchief Deventer", groninger_archieven: "Groninger Archieven", stadsarchief_amsterdam: "Stadsarchief Amsterdam", europeana: "Europeana", nationaal_archief: "Nationaal Archief" };
 
   var $ = function (id) { return document.getElementById(id); };
   var app = $("app"), dock = $("dock"), sheet = $("sheet"), full = $("full"), msg = $("msg");
