@@ -579,9 +579,12 @@
 
   fetch("data.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (d) {
     providers = d.providers;
-    cities = d.cities || [];
-    renderCities();
     all = d.photos.map(function (p) { p.all_contributions = p.context_contributions; return p; });
+    // Alleen steden met foto's in de keuze (niets zichtbaar zonder data).
+    cities = (d.cities || []).filter(function (c) {
+      return all.some(function (p) { return (p.city || "utrecht") === c.id; });
+    });
+    renderCities();
     providers.forEach(function (pr) { enabled[pr.id] = true; });
     renderProviders();
   }).catch(function () { say("De foto’s konden niet worden geladen.", true); });
