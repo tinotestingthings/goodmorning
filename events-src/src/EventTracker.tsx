@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { EventRecord, EventState, ScheduledAction, SourceRecord, View } from "./types";
 import type { MonitoredFilm } from "./monitored-films";
 import { filmSnapshotMeta } from "./film-snapshot";
+import { catalogueRefreshedAt } from "./data";
 import { loadState, setEventState, addManualEvent, setSourceOverride, addPreference, addRegion, removePreference, removeRegion, saveUnseenCount } from "./storage";
 import { festivals, festivalEventId, festivalToEvent, festivalEvents, nextIsLive, inRegions, GENRES, SIZES, type Festival, type Genre } from "./festivals";
 
@@ -162,7 +163,9 @@ export function EventTracker({ initialEvents, sources: initialSources, scheduled
     return events.filter((event) => {
       // Discover keeps running multi-day events visible until they end.
       if (view === "discover" && (event.state === "dismissed" || +new Date(event.endAt ?? event.startAt) < +today)) return false;
-      if (view === "inbox" && event.state !== "unseen") return false;
+      // The inbox is a queue of things you can still act on: once an event has
+      // ended it drops out, even if the catalogue still carries it.
+      if (view === "inbox" && (event.state !== "unseen" || +new Date(event.endAt ?? event.startAt) < +today)) return false;
       if (view === "saved" && !["saved", "planned", "booked"].includes(event.state)) return false;
       if (view === "archive" && !["dismissed", "attended", "seen"].includes(event.state)) return false;
       if (filter === "This month" && (+new Date(event.startAt) >= +monthEnd || +new Date(event.endAt ?? event.startAt) < +monthStart)) return false;
@@ -206,7 +209,7 @@ export function EventTracker({ initialEvents, sources: initialSources, scheduled
     const now = startOfToday();
     const weekAhead = new Date(+now + 7 * 86400000);
     return {
-      inbox: events.filter((e) => e.state === "unseen").length,
+      inbox: events.filter((e) => e.state === "unseen" && +new Date(e.endAt ?? e.startAt) >= +now).length,
       actions: events.filter((e) => trackedStates.includes(e.state) && (e.urgency >= 70 || e.milestones.length)).length + scheduledActions.length,
       changed: events.filter((e) => trackedStates.includes(e.state) && e.changes.length).length,
       deadlines: events.flatMap((e) => e.milestones).filter((m) => +new Date(m.occursAt) >= +now && +new Date(m.occursAt) < +weekAhead).length,
@@ -293,7 +296,7 @@ export function EventTracker({ initialEvents, sources: initialSources, scheduled
           {view === "actions" && <PageHeader title="Actions" description="Deadlines, preparation and ticket moments sorted by date." />}
           {view === "timeline" && <PageHeader title="Timeline" description="A calm chronological view of your upcoming events." />}
           {view === "sources" && <PageHeader title="Sources" description="What feeds the catalogue, and when it was last scanned." action={<button className="primary" onClick={() => setManualOpen(true)}>Import event</button>} />}
-          {view === "archive" && <PageHeader title="Archive" description="Dismissed and past events stay available until you remove them." />}
+          {view === "archive" && <PageHeader title="Archive" description="Dismissed, seen and attended events, for as long as they are in the catalogue." />}
           {view === "settings" && <PageHeader title="Settings" description="Regions, interests and film monitoring." />}
 
           {(["discover", "inbox", "saved", "archive"] as View[]).includes(view) && <>
@@ -308,8 +311,8 @@ export function EventTracker({ initialEvents, sources: initialSources, scheduled
           {view === "actions" && <Actions events={events} scheduledActions={scheduledActions} onOpen={setDetail} />}
           {view === "festivals" && <Festivals events={events} onSave={saveFestival} onOpen={setDetail} />}
           {view === "timeline" && <Timeline events={filtered} onOpen={setDetail} />}
-          {view === "sources" && <Sources sources={sources} onToggle={toggleSource} />}
-          {view === "settings" && <Settings sources={sources} onToggle={toggleSource} monitoredFilms={monitoredFilms} preferences={preferences} regions={regions} onAddPreference={() => setSettingsModal("preference")} onAddRegion={() => setSettingsModal("region")} onRemovePreference={dropPreference} onRemoveRegion={dropRegion} />}
+          {view === "sources" && <Sources sources={sources} events={events} onToggle={toggleSource} />}
+          {view === "settings" && <Settings sources={sources} events={events} onToggle={toggleSource} monitoredFilms={monitoredFilms} preferences={preferences} regions={regions} onAddPreference={() => setSettingsModal("preference")} onAddRegion={() => setSettingsModal("region")} onRemovePreference={dropPreference} onRemoveRegion={dropRegion} />}
         </div>
       </main>
 
@@ -466,14 +469,29 @@ function Timeline({ events, onOpen }: { events: EventRecord[]; onOpen: (event: E
   return <div className="timeline">{Array.from(groups).map(([month, items]) => <section key={month}><h2>{month}</h2>{items.map(event => <button key={event.id} onClick={() => onOpen(event)}><time><b>{dateParts(event.startAt).day}</b>{weekdayLabel(event.startAt)}</time><i className={`dot ${event.accent}`} /><div><strong>{event.title}</strong><p>{event.venueName} · {event.city}</p></div>{stateLabels[event.state] && <span className="tracking-badge">{stateLabels[event.state]}</span>}</button>)}</section>)}</div>;
 }
 
-function Sources({ sources, onToggle }: { sources: SourceRecord[]; onToggle: (id: string) => void }) {
-  const scan = new Date(filmSnapshotMeta.scrapedAt);
-  return <><div className="source-stats"><div><strong>{formatNumber(sources.reduce((n,s)=>n+s.events,0))}</strong><span>source records</span></div><div><strong>{sources.reduce((n,s)=>n+s.newEvents,0)}</strong><span>new this scan</span></div><div><strong>{sources.filter(s => s.enabled).length}/{sources.length}</strong><span>sources active</span></div><div><strong>{scan.getDate()} {shortMonths[scan.getMonth()]}</strong><span>last film scan</span></div></div>
-    <div className="source-list">{sources.map(source => <div className="source-line" key={source.id}><div className="source-name"><a href={source.url} target="_blank" rel="noreferrer">{source.name} ↗</a><small>{source.type} · {source.scope} · scanned {source.lastScan}</small></div><span className="source-count"><b>{source.events}</b><small>{source.newEvents} new</small></span><span className={`health ${source.health.toLowerCase()}`}>{source.health}</span><button className={source.enabled ? "toggle on" : "toggle"} aria-label={`Toggle ${source.name}`} aria-pressed={source.enabled} onClick={() => onToggle(source.id)}><i /></button></div>)}</div></>;
+// How many catalogue records name each source. Counted, never stored — a stored
+// count is a number nothing produced (DESIGN.md: geen verzonnen cijfers).
+const countBySource = (events: EventRecord[]) => {
+  const counts = new Map<string, number>();
+  for (const event of events) for (const ref of new Set(event.sources.map((s) => s.id))) counts.set(ref, (counts.get(ref) ?? 0) + 1);
+  return counts;
+};
+const shortDate = (value: string) => { const { day, month } = dateParts(value); return `${day} ${shortMonths[month - 1]}`; };
+
+// Every number here is counted from the catalogue in front of you: how many of
+// its records name this source, and when the catalogue was last refreshed.
+function Sources({ sources, events, onToggle }: { sources: SourceRecord[]; events: EventRecord[]; onToggle: (id: string) => void }) {
+  const filmScan = filmSnapshotMeta.scrapedAt.slice(0, 10);
+  const scanDate = (source: SourceRecord) => filmSourceIds.has(source.id) ? filmScan : catalogueRefreshedAt;
+  const counts = countBySource(events);
+  const added = events.filter((e) => e.discoveredAt === catalogueRefreshedAt).length;
+  return <><div className="source-stats"><div><strong>{formatNumber(events.length)}</strong><span>events in the catalogue</span></div><div><strong>{added}</strong><span>added in the last refresh</span></div><div><strong>{sources.filter(s => s.enabled).length}/{sources.length}</strong><span>sources active</span></div><div><strong>{shortDate(catalogueRefreshedAt)}</strong><span>last catalogue refresh</span></div></div>
+    <div className="source-list">{sources.map(source => <div className="source-line" key={source.id}><div className="source-name"><a href={source.url} target="_blank" rel="noreferrer">{source.name} ↗</a><small>{source.type} · {source.scope} · {source.enabled ? `checked ${shortDate(scanDate(source))}` : "paused, not checked"}</small></div><span className="source-count"><b>{counts.get(source.id) ?? 0}</b><small>in catalogue</small></span><span className={`health ${source.health.toLowerCase()}`}>{source.health}</span><button className={source.enabled ? "toggle on" : "toggle"} aria-label={`Toggle ${source.name}`} aria-pressed={source.enabled} onClick={() => onToggle(source.id)}><i /></button></div>)}</div></>;
 }
 
-function Settings({ sources, onToggle, monitoredFilms, preferences, regions, onAddPreference, onAddRegion, onRemovePreference, onRemoveRegion }: { sources: SourceRecord[]; onToggle: (id: string) => void; monitoredFilms: MonitoredFilm[]; preferences: string[]; regions: string[]; onAddPreference: () => void; onAddRegion: () => void; onRemovePreference: (value: string) => void; onRemoveRegion: (value: string) => void }) {
+function Settings({ sources, events, onToggle, monitoredFilms, preferences, regions, onAddPreference, onAddRegion, onRemovePreference, onRemoveRegion }: { sources: SourceRecord[]; events: EventRecord[]; onToggle: (id: string) => void; monitoredFilms: MonitoredFilm[]; preferences: string[]; regions: string[]; onAddPreference: () => void; onAddRegion: () => void; onRemovePreference: (value: string) => void; onRemoveRegion: (value: string) => void }) {
   const filmSources = sources.filter((source) => filmSourceIds.has(source.id));
+  const counts = countBySource(events);
   return <div className="settings-grid">
     <SettingsCard title="Regions" hint="Utrecht is home base. Festivals in your regions also land in the inbox; other regions stay on the Festivals tab.">
       <div className="region-line"><b>Utrecht</b><span>Home · 25 km radius</span></div>
@@ -486,7 +504,7 @@ function Settings({ sources, onToggle, monitoredFilms, preferences, regions, onA
     </SettingsCard>
     <section className="settings-card film-monitor">
       <div className="film-title"><div><h2>Film monitoring</h2><p>Premieres, rare screenings and short runs from Utrecht's film houses and the national release list.</p></div><span>{filmSources.filter((source) => source.enabled).length} of {filmSources.length} sources on</span></div>
-      <div className="film-source-list">{filmSources.map((source) => <div key={source.id}><a href={source.url} target="_blank" rel="noreferrer"><b>{source.name} ↗</b><small>{source.scope} · {source.health === "Warning" ? "scan incomplete" : `${source.events} records`}</small></a><button className={source.enabled ? "toggle on" : "toggle"} aria-label={`Toggle ${source.name}`} aria-pressed={source.enabled} onClick={() => onToggle(source.id)}><i /></button></div>)}</div>
+      <div className="film-source-list">{filmSources.map((source) => <div key={source.id}><a href={source.url} target="_blank" rel="noreferrer"><b>{source.name} ↗</b><small>{source.scope} · {source.health === "Warning" ? "scan incomplete" : `${counts.get(source.id) ?? 0} in catalogue`}</small></a><button className={source.enabled ? "toggle on" : "toggle"} aria-label={`Toggle ${source.name}`} aria-pressed={source.enabled} onClick={() => onToggle(source.id)}><i /></button></div>)}</div>
       <div className="monitoring-rules">{monitoredFilms.map((film) => <div key={film.id}><span>Watching</span><b>{film.title}</b><small>{film.monitoringSignals.join(" · ")}</small></div>)}<div><span>Yearly review</span><b>Most anticipated films</b><small>Every 5 January · next run 5 Jan 2027</small></div></div>
     </section>
   </div>;

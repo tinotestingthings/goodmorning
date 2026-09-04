@@ -41,7 +41,8 @@ export type EventRecord = {
   notes?: string;
 };
 
+// Counts and scan dates are NOT stored here — the Sources page derives them from
+// the catalogue itself, so the page can never show a number nothing produced.
 export type SourceRecord = {
   id: string; name: string; url: string; type: string; scope: string; enabled: boolean; health: "Healthy" | "Warning" | "Paused";
-  lastScan: string; events: number; newEvents: number; duplicates: number; saves: number; saveRate: number; leadTime: number; earliest: number;
 };

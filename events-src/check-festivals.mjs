@@ -25,4 +25,9 @@ if (errors.length) {
   console.error(`✗ src/festivals.ts — ${errors.length} problem(s):\n  ${errors.join("\n  ")}`);
   process.exit(1);
 }
+// Not an error — the next edition simply hasn't been announced yet. But a stale
+// `next` makes the tab advertise an edition that is over, so say which ones.
+const today = new Date().toISOString().slice(0, 10);
+const stale = festivals.filter((f) => f.next && f.next.end < today).map((f) => `${f.id} (ended ${f.next.end})`);
 console.log(`✓ src/festivals.ts: ${festivals.length} festivals valid`);
+if (stale.length) console.log(`! next edition is over, needs new dates or removal: ${stale.join(", ")}`);

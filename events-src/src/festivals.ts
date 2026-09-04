@@ -35,6 +35,7 @@ export type Festival = {
   month: number;         // usual start month 1–12 (sort/filter fallback when `next` is unknown)
   when: string;          // "early Nov", "Saturday around 11 Nov"
   next?: { start: string; end: string; verifiedAt?: string }; // next edition, ISO dates; verifiedAt = the day the dates were seen on the official site
+  addedAt?: string;      // day this festival entered the catalogue; without it, re-verifying a date reads as "added"
   url: string;           // official site
   blurb: string;         // one sentence
   venue?: string;
@@ -58,7 +59,7 @@ export const festivals: Festival[] = [
     next: { start: "2027-06-04", end: "2027-06-13", verifiedAt: "2026-08-22" },
     url: "https://www.tweetakt.nl/", venue: "Theatres + Fort Ruigenhoek", blurb: "Festival of theatre, performance and art for a young audience — and everyone who comes along." },
   { id: "de-parade", name: "De Parade Utrecht", city: "Utrecht", province: "Utrecht", size: "medium", genres: ["theatre"], month: 8, when: "mid–late Aug (closing city of the tour)",
-    next: { start: "2026-08-14", end: "2026-08-30", verifiedAt: "2026-08-12" }, price: "Programme dependent",
+    price: "Programme dependent",
     url: "https://deparade.nl/informatie/data-tijden-en-prijzen/", venue: "Moreelsepark", blurb: "The travelling theatre festival closes its tour in Utrecht, with performances and KinderParade in Moreelsepark." },
   { id: "festival-oude-muziek", name: "Festival Oude Muziek Utrecht", city: "Utrecht", province: "Utrecht", size: "large", genres: ["jazz-classical"], month: 8, when: "late Aug–early Sep",
     next: { start: "2026-08-28", end: "2026-09-06", verifiedAt: "2026-08-13" }, price: "Programme dependent",
@@ -69,6 +70,12 @@ export const festivals: Festival[] = [
   { id: "gaudeamus", name: "Gaudeamus Muziekweek", city: "Utrecht", province: "Utrecht", size: "small", genres: ["jazz-classical"], month: 9, when: "mid Sep",
     next: { start: "2026-09-09", end: "2026-09-13", verifiedAt: "2026-08-21" }, price: "Programme dependent",
     url: "https://gaudeamus.nl/", venue: "TivoliVredenburg + city venues", blurb: "Fifty-plus concerts of brand-new and experimental music by the next generation of composers." },
+  { id: "leidsche-rijn-festival", addedAt: "2026-09-04", name: "Leidsche Rijn Festival", city: "Utrecht", province: "Utrecht", size: "medium", genres: ["theatre"], month: 9, when: "first Sunday of Sep", free: true,
+    next: { start: "2026-09-06", end: "2026-09-06", verifiedAt: "2026-09-04" },
+    url: "https://leidscherijnfestival.nl/", venue: "Castellum Hoge Woerd, De Meern", blurb: "Free art and culture festival for children at Castellum Hoge Woerd, with theatre, music and workshops across the site." },
+  { id: "ilfu", addedAt: "2026-09-04", name: "ILFU — International Literature Festival Utrecht", city: "Utrecht", province: "Utrecht", size: "medium", genres: ["literature"], month: 9, when: "mid Sep–early Oct",
+    next: { start: "2026-09-19", end: "2026-10-03", verifiedAt: "2026-09-04" }, price: "Per programme",
+    url: "https://ilfu.com/", venue: "Venues across Utrecht", blurb: "The country's largest international literature festival: two weeks of readings, talks and performances by Dutch and international authors." },
   { id: "utrechts-uitfeest", name: "Utrechts Uitfeest", city: "Utrecht", province: "Utrecht", size: "medium", genres: ["theatre", "pop-rock"], month: 9, when: "mid Sep", free: true,
     url: "https://uitfeest.nl/", venue: "City centre", blurb: "Opening of the cultural season: free previews, performances and open doors across the city centre." },
   { id: "nederlands-film-festival", name: "Nederlands Film Festival", city: "Utrecht", province: "Utrecht", size: "large", genres: ["film"], month: 9, when: "late Sep–early Oct",
@@ -132,7 +139,7 @@ export const nextIsLive = (f: Festival, today: Date) => Boolean(f.next && +new D
 export function festivalToEvent(f: Festival, today: Date, state: EventState = "unseen"): EventRecord | null {
   if (!f.next) return null;
   const genre = GENRES[f.genres[0]];
-  const seen = f.next.verifiedAt ?? f.next.start;
+  const seen = f.addedAt ?? f.next.verifiedAt ?? f.next.start;
   const daysAhead = Math.round((+new Date(`${f.next.start}T00:00:00`) - +today) / 86400000);
   return {
     id: festivalEventId(f), title: `${f.name} ${f.next.start.slice(0, 4)}`, shortDescription: f.blurb,
@@ -144,7 +151,7 @@ export function festivalToEvent(f: Festival, today: Date, state: EventState = "u
     relevance: 75, rarity: rarity[f.size], preparation: f.free ? 30 : 55, urgency: daysAhead <= 14 ? 85 : daysAhead <= 60 ? 65 : 45,
     whyRelevant: f.blurb, whyNow: f.next.verifiedAt ? "Dates confirmed on the official site." : undefined, recommendedAction: "Check the programme and tickets",
     state, discoveredAt: seen, accent: genre.accent,
-    sources: [{ id: f.id, name: `${f.name} — official`, firstSeenAt: seen, url: f.url }], milestones: [], changes: [],
+    sources: [{ id: "festivals", name: `${f.name} — official`, firstSeenAt: seen, url: f.url }], milestones: [], changes: [],
     dateStatus: f.next.verifiedAt ? "verified" : "manual", dateVerifiedAt: f.next.verifiedAt,
   };
 }

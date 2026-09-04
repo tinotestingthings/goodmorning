@@ -15,9 +15,23 @@ source review: 2026-08-21.
 - Every event needs a real source URL; never invent dates. Unverifiable dates
   get `dateStatus: "manual"`, verified ones `dateStatus: "verified"` +
   `dateVerifiedAt`.
-- Drop events whose end date has passed; keep the catalogue ±6 months ahead.
 - Region field must be exactly `"Utrecht"` or `"Amsterdam"` (UI filter matches
   on string).
+- Never invent counts or scan times. The Sources page derives every number from
+  the catalogue itself; `SourceRecord` deliberately has no stats fields.
+
+## Every run, before adding anything
+
+1. **Delete events that have ended** (`endAt`, or `startAt` when there is no
+   `endAt`, before today) from `src/data.ts` **and** `src/film-snapshot.ts`.
+   The app hides them from the inbox, but a catalogue full of last month's
+   screenings hides what is actually coming.
+2. **Bump `catalogueRefreshedAt`** in `src/data.ts` to the run date — the
+   Sources page shows it as "last catalogue refresh", and "added in the last
+   refresh" counts events whose `discoveredAt` matches it. So set
+   `discoveredAt` on everything you add to that same date.
+3. Keep the catalogue ±6 months ahead; recurring festivals go to
+   `src/festivals.ts` (see below), not here.
 
 ## Structural sources — Utrecht (check weekly)
 
@@ -59,6 +73,10 @@ Per record: `id` (stable slug, never changes), `name`, `city`, `province`
 `venue`, `price`, `free` and `next`.
 
 Weekly:
+- Set `addedAt` (today's date) on a festival you add. Without it, re-verifying
+  an existing festival's dates counts as "added in the last refresh" on the
+  Sources page. Derived festival events cite source id `festivals`, so they roll
+  up into the "Festival calendar" row — keep that row in `data.ts`.
 - `next = { start, end, verifiedAt }` for the next edition as soon as the
   official site publishes dates (ISO `YYYY-MM-DD`; `verifiedAt` = the day you
   saw it there). Never guess; without dates leave `next` out — the tab then
