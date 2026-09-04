@@ -6,7 +6,13 @@
 import { h, icon } from "../core/dom.js";
 import { t } from "../core/i18n.js";
 import { photoUrl, primaryName } from "../core/birds.js";
-import { hasMultiplePhotos, photoAttribution, quizPhotoUrl } from "../core/photos.js";
+import {
+  hasMultiplePhotos,
+  photoAttribution,
+  photoVariants,
+  photosReady,
+  quizPhotoUrl,
+} from "../core/photos.js";
 import { toggleSound } from "../core/sound.js";
 import { openLightbox } from "./lightbox.js";
 
@@ -85,6 +91,120 @@ export function birdPhoto(
     });
   }
   return frame;
+}
+
+/**
+ * Alle foto's van een soort naast elkaar, om doorheen te schuiven.
+ *
+ * Bij een bouwstijl is dit het punt van de hele kaart: acht gebouwen laten
+ * zien wat "Jugendstil" betekent, waar een enkele foto je alleen dát gebouw
+ * leert. Zelfde winst bij honden (verschillende dieren van hetzelfde ras) en
+ * bij vogels (zomer- en winterkleed uit de iNaturalist-set).
+ *
+ * Heeft de soort maar een foto, dan is dit gewoon birdPhoto() -- geen lege
+ * puntjesrij, geen strip om niets.
+ */
+export function birdPhotoStrip(bird, { fit = "cover" } = {}) {
+  const urls = photoVariants(bird);
+  if (urls.length <= 1) {
+    // main.js laadt de extra foto's ná de eerste render, dus wie meteen een
+    // kaart opent zou stil de oude ene-foto-versie krijgen. Zodra de rest
+    // binnen is, vervangen we de foto alsnog door de strip.
+    const losse = birdPhoto(bird, { fit });
+    photosReady()?.then(() => {
+      if (losse.isConnected && photoVariants(bird).length > 1) {
+        losse.replaceWith(birdPhotoStrip(bird, { fit }));
+      }
+    });
+    return losse;
+  }
+
+  const naam = primaryName(bird) ?? t("a11yBirdPhoto");
+  const bijschrift = h("p", { class: "photo-caption" });
+  const spoor = h("div", { class: "photo-track" });
+
+  const frames = urls.map((url, i) => {
+    const positie = `${i + 1} / ${urls.length}`;
+    const frame = h(
+      "div",
+      {
+        class: `photo photo-${fit} photo-zoomable`,
+        role: "button",
+        // Alleen de foto die in beeld staat doet mee met Tab; anders levert
+        // een stijl met acht foto's acht identieke tabstops op.
+        tabIndex: i === 0 ? 0 : -1,
+        "aria-label": `${positie} — ${t("a11yViewPhotoFullscreen")}`,
+      },
+      h("img", {
+        src: url,
+        alt: i === 0 ? naam : "",
+        loading: i === 0 ? "eager" : "lazy",
+        decoding: "async",
+      })
+    );
+    // De eerste foto heeft een hogere-resolutie versie in de data; de rest
+    // bestaat alleen als thumb. Zonder dit toont de lightbox een opgeblazen
+    // thumbnail waar hij eerder het origineel gaf.
+    const groot = i === 0 ? photoUrl(bird, { full: true }) ?? url : url;
+    const bron = photoAttribution(bird, url);
+    const open = () => openLightbox(groot, bron ? `${naam} — ${bron}` : naam);
+    frame.addEventListener("click", open);
+    frame.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      }
+    });
+    spoor.append(frame);
+    return frame;
+  });
+
+  // Knoppen, geen stipjes: op een laptop zonder touchpad-veeg is dit de enige
+  // manier om bij foto 2 te komen (een verticaal scrollwiel schuift de strip
+  // niet, en de scrollbar is verborgen).
+  const stippen = urls.map((_, i) =>
+    h("button", {
+      type: "button",
+      "aria-label": `${t("photoNr")} ${i + 1} / ${urls.length}`,
+      // Het verschil in offsetLeft is precies de afstand vanaf het begin van de
+      // strip. Niet scrollIntoView: dat scrolt ook het blad eronder verticaal
+      // mee. En niet clientWidth * i: die breedte is 0 zolang het blad nog
+      // niet is uitgemeten, en dan schuift de strip nergens heen.
+      onclick: () =>
+        spoor.scrollTo({ left: frames[i].offsetLeft - frames[0].offsetLeft, behavior: "smooth" }),
+    })
+  );
+
+  // Welke foto in beeld staat volgt uit de scrollpositie, zodat de puntjes en
+  // de bronregel niet uit de pas kunnen lopen met wat je ziet. De guard vangt
+  // een breedte van 0 (blad nog niet zichtbaar) en een index buiten de reeks.
+  const toon = () => {
+    const breedte = spoor.clientWidth;
+    const ruw = breedte > 0 ? Math.round(spoor.scrollLeft / breedte) : 0;
+    const i = Math.min(urls.length - 1, Math.max(0, ruw));
+    stippen.forEach((s, j) => s.classList.toggle("on", j === i));
+    frames.forEach((f, j) => {
+      f.tabIndex = j === i ? 0 : -1;
+    });
+    const bron = photoAttribution(bird, urls[i]) ?? "";
+    bijschrift.textContent = bron;
+    // Volledige tekst als tooltip: sommige bronnen zijn een hele
+    // rijksmonument-omschrijving en worden in één regel afgekapt.
+    bijschrift.title = bron;
+  };
+  spoor.addEventListener("scroll", toon, { passive: true });
+  // Bij draaien verandert clientWidth en klopt de afgeleide index niet meer --
+  // dan zou de bronregel bij de verkeerde foto staan.
+  new ResizeObserver(toon).observe(spoor);
+  toon();
+
+  return h(
+    "div",
+    { class: "photo-strip" },
+    spoor,
+    h("div", { class: "photo-dots", role: "group", "aria-label": `${urls.length} ${t("photoCount")}` }, ...stippen),
+    bijschrift
+  );
 }
 
 /**

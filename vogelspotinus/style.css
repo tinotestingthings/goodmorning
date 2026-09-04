@@ -739,6 +739,95 @@ header.top h1 {
   object-fit: contain;
 }
 
+/* --- Fotostrip: alle foto's van een soort, om doorheen te schuiven --------
+   Native scroll-snap in plaats van een carrousel in JS: swipen op de telefoon,
+   twee vingers op de trackpad, en pijltjes zodra de strip focus heeft. */
+
+.photo-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* De strip ligt op een telefoon tegen de schermrand. Zonder dit ketent het
+     doorvegen voorbij de laatste foto door naar de browser, die het als
+     terug-navigatie leest -- je vliegt dan uit de app. */
+  overscroll-behavior-x: contain;
+}
+
+.photo-track::-webkit-scrollbar {
+  display: none;
+}
+
+.photo-track > .photo {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
+/* De track scrollt, dus een focusring buiten de foto valt weg. Naar binnen. */
+.photo-track > .photo:focus-visible {
+  outline-offset: -2px;
+}
+
+.photo-dots {
+  display: flex;
+  justify-content: center;
+}
+
+/* Aantikbaar, en groot genoeg om te raken: dit is op een laptop zonder
+   veeggebaar de enige manier om bij de volgende foto te komen. --muted en niet
+   --border, want die laatste heeft in elk thema te weinig contrast om te zien
+   hoeveel foto's er zijn. */
+/* Klein puntje, groot raakgebied: de stip zelf is 8px (rustig), maar de knop
+   eromheen is 32px zodat je hem met een vinger of muis raakt. Aantikbaar is
+   nodig -- op een laptop zonder veeggebaar is dit de enige manier om bij de
+   volgende foto te komen, want een verticaal scrollwiel schuift de strip niet
+   en de scrollbar is verborgen. */
+.photo-dots button {
+  width: var(--space-6);
+  height: var(--space-5);
+  padding: 0;
+  border: none;
+  background: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.photo-dots button::before {
+  content: "";
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  /* --muted, niet --border: die laatste heeft in elk van de vijf thema's te
+     weinig contrast om te zien hoeveel foto's er zijn. */
+  background: var(--muted);
+  opacity: 0.4;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    opacity var(--duration-fast) var(--ease);
+}
+
+.photo-dots button.on::before {
+  background: var(--accent);
+  opacity: 1;
+}
+
+.photo-caption {
+  /* Eén regel, altijd: bronvermeldingen lopen tot ~190 tekens (Wikidata zet er
+     soms een hele monumentomschrijving in) en zouden de tekst eronder laten
+     verspringen tijdens het schuiven. De gebouwnaam staat vooraan, dus die
+     blijft leesbaar; de volledige tekst zit in de tooltip. */
+  min-height: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: var(--space-1) var(--space-4) 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
 .photo-zoomable {
   cursor: zoom-in;
   border: none;
@@ -1255,6 +1344,23 @@ button.secondary.playing {
 
 /* The full text is always one tap away in the detail sheet; here it only has
    to whet the appetite, and it must not push "next bird" off the screen. */
+/* Herkenkenmerken bij een bouwstijl of straatobject: de reden waarom dit het
+   goede antwoord was. Compact label + waarde op één blok, zoals de veldrijen
+   in het detailblad, zodat het niet met het weetje concurreert. */
+.quiz-answer-features {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+}
+
+.quiz-answer-label {
+  display: block;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: var(--space-1);
+}
+
 .quiz-answer-fact {
   font-size: var(--text-sm);
   color: var(--muted);

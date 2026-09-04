@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-11) — Fototegel op Today toont ook Honden / Stijlen (gebouwen) / Straat of Afwisselend (Settings > Photo tile, namen uit Spotinus zelf) en linkt naar precies dat item; LinkedIn-tegel; Spotinus: alle foto's van een soort in het detailblad; Wikimedia-thumbs 500px
+
+
 ## 2026-09-04 (v2026.09.04-10) — Utrecht Toen: 909 foto's (data bijgewerkt uit utrecht-in-beeld)
 
 

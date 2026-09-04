@@ -19,6 +19,7 @@
     root.appendChild(buildAppearance());
     root.appendChild(buildCategories());
     root.appendChild(buildRadarThresholds());
+    root.appendChild(buildPhotoTile());
     root.appendChild(buildNotifications());
     root.appendChild(buildPushAlerts());
     root.appendChild(buildSounds());
@@ -198,6 +199,37 @@
     var refresh2 = el("button", "btn btn-ghost", "Refresh feeds"); refresh2.type = "button";
     refresh2.addEventListener("click", function () { refresh2.textContent = "Refreshing…"; window.Ics.refresh(function () { render(); }); });
     if (feeds.length) sec.appendChild(refresh2);
+    return sec;
+  }
+
+  // Which Spotinus collection the Today photo tile draws from. The choices
+  // come from the app's own register (vogelspotinus/data/tiles.json, via
+  // home.js's window.PhotoTile) - same names as in the app, and a collection
+  // added there shows up here by itself. Local to this device, like the theme.
+  function buildPhotoTile() {
+    var sec = el("section", "settings-section");
+    sec.appendChild(el("h2", null, "Photo tile"));
+    sec.appendChild(el("p", "settings-sub", "Which Spotinus collection the daily photo on Today comes from."));
+    var PT = window.PhotoTile;
+    if (!PT) return sec;
+    var seg = el("div", "seg");
+    sec.appendChild(seg);
+    PT.kinds().then(function (index) {
+      var cur = PT.setting();
+      var choices = index.map(function (x) { return [x.kind, x.label]; });
+      choices.push([PT.MIX, "Afwisselend"]);
+      choices.forEach(function (pair) {
+        var b = el("button", "seg-btn" + (cur === pair[0] ? " active" : ""), pair[1]);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          try { localStorage.setItem(k("home.tile"), pair[0]); } catch (e) {}
+          render();
+        });
+        seg.appendChild(b);
+      });
+    }, function () {
+      sec.appendChild(el("p", "settings-sub", "Spotinus data could not be loaded."));
+    });
     return sec;
   }
 

@@ -342,23 +342,47 @@
     });
   }
 
-  // ---- bird of the day tile (added 2026-08-18) --------------------------
+  // ---- photo tile: Spotinus item of the day (2026-08-18, reworked 2026-09-04) --
   // Same 92px footprint as the app tiles beside it, but the photo IS the tile.
-  // Data comes from `vogelspotinus/data/bird-tiles.json` (built by
-  // tools/build-bird-tiles.mjs) rather than the 1 MB birds.json, and the chosen
-  // bird is cached in localStorage so a second visit on the same day costs
-  // nothing.
+  // Which collection it draws from follows Spotinus' own register:
+  // tools/build-tiles.mjs writes data/tiles.json (kinds + Dutch labels) and one
+  // slim tiles-<kind>.json per kind. Settings > Photo tile picks a kind or
+  // "mix" (a different kind each day). The pick is cached in localStorage so a
+  // second visit on the same day costs nothing, and the link opens the app on
+  // exactly that item (?soort=<id>) - so you see what was on the thumbnail.
 
   var ICON_BIRD =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V5l-2 2h-3a4 4 0 0 0-4 4v1a4 4 0 0 1-4 4H4.5"/><path d="m14 9-3 3"/></svg>';
 
-  var BIRD_TILE_SRC = "vogelspotinus/data/bird-tiles.json";
-  // Coprime with 561 (= 3 x 11 x 17), so consecutive days land far apart in the
-  // list and every bird comes round once before any repeats.
-  var BIRD_STRIDE = 269;
+  var TILES_DIR = "vogelspotinus/data/";
+  var TILE_MIX = "mix";
+  // Prime, so consecutive days land far apart in a list and every entry comes
+  // round once before any repeats (for every list length that isn't a multiple).
+  var TILE_STRIDE = 269;
 
-  // v3: v1 kon een kapotte thumb-URL bevatten, v2 nog de 240px-variant.
-  function birdCacheKey() { return eventsPrefix() + "home-bird-v3"; }
+  var tileIndexPromise = null;
+  function loadTileIndex() {
+    if (!tileIndexPromise) {
+      tileIndexPromise = fetch(TILES_DIR + "tiles.json")
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+        .then(function (list) {
+          return (Array.isArray(list) ? list : []).filter(function (x) { return x && x.kind && x.file; });
+        });
+      tileIndexPromise.catch(function () { tileIndexPromise = null; });
+    }
+    return tileIndexPromise;
+  }
+
+  // A kind id from tiles.json, or TILE_MIX. Set in settings.js.
+  function tileSetting() {
+    var v = null;
+    try { v = localStorage.getItem(k("home.tile")); } catch (e) {}
+    // Values of the first sandbox round (2026-09-04, one day) - migrate anyway.
+    return { birds: "bird", buildings: "architecture", both: TILE_MIX }[v] || v || "bird";
+  }
+
+  // settings.js builds its choice list from the same index.
+  window.PhotoTile = { kinds: loadTileIndex, setting: tileSetting, MIX: TILE_MIX };
 
   function todayKey() {
     var d = new Date();
@@ -367,25 +391,42 @@
       String(d.getDate()).padStart(2, "0");
   }
 
-  function birdForToday(list) {
-    if (!list || !list.length) return null;
-    var days = Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
-    return list[((days * BIRD_STRIDE) % list.length + list.length) % list.length];
+  function dayIndex() {
+    return Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
   }
 
-  function readBirdCache() {
+  // Today's kind plus that kind's own day counter: in mix mode a kind only
+  // sees every n-th day, and counting those keeps the stride covering every entry.
+  function tileKindForToday(index, setting) {
+    var days = dayIndex();
+    if (setting === TILE_MIX && index.length) {
+      return { kind: index[days % index.length], days: Math.floor(days / index.length) };
+    }
+    var kind = index.filter(function (x) { return x.kind === setting; })[0] || index[0];
+    return { kind: kind, days: days };
+  }
+
+  function tileForDay(list, days) {
+    if (!list || !list.length) return null;
+    return list[((days * TILE_STRIDE) % list.length + list.length) % list.length];
+  }
+
+  // v4: one entry that carries the setting it was picked under, so changing
+  // the setting invalidates it. (v1-v3 were the bird-only tile.) Unknown or
+  // stale kinds fall back to the first kind in the index (birds).
+  function tileCacheKey() { return eventsPrefix() + "home-tile-v4"; }
+
+  function readTileCache() {
     try {
-      var raw = localStorage.getItem(birdCacheKey());
-      if (!raw) return null;
-      var v = JSON.parse(raw);
-      return (v && v.date === todayKey() && v.n && v.u) ? v : null;
+      var v = JSON.parse(localStorage.getItem(tileCacheKey()));
+      return (v && v.date === todayKey() && v.setting === tileSetting() && v.id && v.n && v.u) ? v : null;
     } catch (e) { return null; }
   }
 
-  function writeBirdCache(bird) {
+  function writeTileCache(setting, tile) {
     try {
-      localStorage.setItem(birdCacheKey(), JSON.stringify({
-        date: todayKey(), n: bird.n, u: bird.u, o: bird.o
+      localStorage.setItem(tileCacheKey(), JSON.stringify({
+        date: todayKey(), setting: setting, id: tile.id, n: tile.n, u: tile.u
       }));
     } catch (e) {}
   }
@@ -399,7 +440,7 @@
     // al vol is kreeg de wrapper daardoor vrijwel geen ruimte toebedeeld.
     // (2026-08-18)
     var a = document.createElement("a");
-    a.href = "vogelspotinus/";
+    var setting = tileSetting();
 
     function arrowNode() {
       var arrow = el("span", "app-tile-arrow");
@@ -411,20 +452,22 @@
     // afbeelding het laat afweten. Zo staat er altijd iets klikbaars.
     function showIcon() {
       a.className = "app-tile";
+      a.href = "vogelspotinus/";
       a.setAttribute("aria-label", "Open Vogelspotinus");
       a.innerHTML = "";
       a.appendChild(arrowNode());
       var ic = el("span", "app-tile-icon");
       ic.innerHTML = ICON_BIRD;
       a.appendChild(ic);
-      var label = el("div", "app-tile-label", "Vogels");
-      a.appendChild(label);
-      fitTileLabel(label);
+      var lab = el("div", "app-tile-label", "Spotinus");
+      a.appendChild(lab);
+      fitTileLabel(lab);
     }
 
-    function showBird(bird) {
+    function showTile(tile) {
       a.className = "app-tile app-tile-photo";
-      a.setAttribute("aria-label", "Open Vogelspotinus. Vogel van vandaag: " + bird.n);
+      a.href = "vogelspotinus/?soort=" + encodeURIComponent(tile.id);
+      a.setAttribute("aria-label", "Open Vogelspotinus bij " + tile.n);
       a.innerHTML = "";
 
       var img = document.createElement("img");
@@ -435,43 +478,37 @@
       // zit - precies wat hier gebeurt.
       img.loading = "eager";
       img.decoding = "async";
-      // Faalt de verkleinde variant, probeer dan eenmalig de originele URL uit
-      // birds.json - die gebruikt de Vogelspotinus-app zelf ook, dus die werkt.
-      // Pas als ook die faalt vallen we terug op het icoon.
-      var triedOriginal = false;
-      img.addEventListener("error", function () {
-        if (!triedOriginal && bird.o) {
-          triedOriginal = true;
-          img.src = bird.o;
-          return;
-        }
-        showIcon();
-      });
-      img.src = bird.u;
+      img.addEventListener("error", showIcon);
+      img.src = tile.u;
       a.appendChild(img);
 
       a.appendChild(arrowNode());
-      a.appendChild(el("div", "app-tile-photo-name", bird.n));
+      a.appendChild(el("div", "app-tile-photo-name", tile.n));
     }
 
     showIcon();
 
-    var cached = readBirdCache();
+    var cached = readTileCache();
     if (cached) {
-      showBird(cached);
+      showTile(cached);
       return a;
     }
 
-    fetch(BIRD_TILE_SRC)
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
-      .then(function (list) {
-        var bird = birdForToday(list);
-        if (!bird) return;
-        writeBirdCache(bird);
-        showBird(bird);
+    loadTileIndex()
+      .then(function (index) {
+        var pick = tileKindForToday(index, setting);
+        if (!pick.kind) return;
+        return fetch(TILES_DIR + pick.kind.file)
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+          .then(function (list) {
+            var tile = tileForDay(list, pick.days);
+            if (!tile) return;
+            writeTileCache(setting, tile);
+            showTile(tile);
+          });
       })
       .catch(function (e) {
-        console.warn("[bird tile] geen vogel geladen:", e);
+        console.warn("[photo tile] niets geladen:", e);
       });
 
     return a;
@@ -600,6 +637,31 @@
     var m = markers[app.id];
     var fresh = !!(m && m.hash !== hash && trainerDayKey(row && row.updated_at) === today);
     return { known: true, green: fresh };
+  }
+
+  // ---- LinkedIn tile (added 2026-08-25) ---------------------------------
+  // Enige externe link op Today. Opent in een nieuw venster, anders navigeert
+  // de PWA-shell zichzelf weg naar linkedin.com en ben je de app kwijt.
+  var ICON_LINKEDIN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 10.8V17"/><path d="M8 7.4h.01"/><path d="M12 17v-6.2"/><path d="M12 13.4a2.4 2.4 0 0 1 4.8 0V17"/></svg>';
+
+  function renderLinkedInTile() {
+    var a = document.createElement("a");
+    a.className = "app-tile";
+    a.href = "https://www.linkedin.com/feed/";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.setAttribute("aria-label", "Open LinkedIn");
+    var arrow = el("span", "app-tile-arrow");
+    arrow.innerHTML = ICON_ARROW_OUT;
+    a.appendChild(arrow);
+    var ic = el("span", "app-tile-icon");
+    ic.innerHTML = ICON_LINKEDIN;
+    a.appendChild(ic);
+    var label = el("div", "app-tile-label", "LinkedIn");
+    a.appendChild(label);
+    fitTileLabel(label);
+    return a;
   }
 
   // ---- Wake-up tile (added 2026-09-03) ----------------------------------
@@ -841,6 +903,7 @@
     if (window.Wakeup) heroRow.appendChild(renderWakeupTile());
     heroRow.appendChild(renderTrainerTile());   // kleine tegel; blijft weg als alles groen is
     heroRow.appendChild(renderBirdTile());
+    heroRow.appendChild(renderLinkedInTile());
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");
