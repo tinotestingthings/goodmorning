@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-7) — ChordSprint v1.86: Clip lab-liniaal toont de hele/halve-tonenvolgorde (W W H W W W H); omhoog-rij boven omlaag en per kolom hetzelfde interval
+
+
 ## 2026-09-04 (v2026.09.04-6) — Utrecht Toen: 713 foto's (data bijgewerkt uit utrecht-in-beeld)
 
 

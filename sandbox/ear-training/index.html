@@ -6,7 +6,7 @@
 <script src="boot.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>ChordSprint v1.85</title>
+<title>ChordSprint v1.86</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#151823;--muted:#6b7280;--line:#d9deea;--accent:#3b82f6;--good:#22c55e;--bad:#ef4444;--btn:#eef2ff;--btnText:#1f2937;--shadow:0 12px 28px rgba(15,23,42,.12);--radius:24px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 [data-theme="emoji"]{--bg:#fff4cf;--card:#fffaf0;--text:#251b12;--muted:#7c5e37;--line:#f2b84b;--accent:#ff8a00;--good:#16a34a;--bad:#ef4444;--btn:#fff0b8;--btnText:#251b12;--shadow:0 8px 0 #df9826,0 16px 26px rgba(111,74,18,.16);--radius:26px}[data-theme="emoji"] .logo:before{content:"🎧 "}[data-theme="emoji"] .card{border-width:2px}[data-theme="emoji"] .btn{border-width:2px;box-shadow:0 4px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(128,86,20,.25)}[data-theme="emoji"] .bigEmoji{display:inline}
@@ -56,7 +56,7 @@
 #clipStage{display:none;margin:10px 0;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
 #clipStage.on{display:block}
 #clipStage iframe{width:100%;height:100%;border:0;display:block}
-#clipRuler .rRow{display:flex;gap:1px;margin:8px 0 2px}
+#clipRuler .rRow{display:grid;grid-template-columns:repeat(25,minmax(0,1fr));gap:1px;margin:8px 0 2px}#clipRuler .rSteps{display:grid;grid-template-columns:repeat(25,minmax(0,1fr));gap:1px;margin-bottom:2px}#clipRuler .rStep{grid-row:1;font-size:9px;line-height:12px;font-weight:800;color:var(--muted);text-align:center}
 #clipRuler .rSlot{flex:1;height:26px;border-radius:3px;background:var(--btn);display:flex;align-items:flex-end;justify-content:center}
 #clipRuler .rSlot span{font-size:9px;line-height:12px;color:var(--muted)}
 #clipRuler .rSlot.rIn{background:var(--line)}
@@ -66,7 +66,7 @@
 #clipRuler .rSlot.rTonic span{color:var(--card)}
 #clipRuler .rSlot.rNu{background:var(--accent)}
 #clipRuler .rSlot.rNu span{color:#fff}
-#clipRuler .rLegend{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:8px}
+#clipRuler .rLegend{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px}#clipRuler .rPat{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-bottom:8px}#clipRuler .rPat b{font-size:11px;letter-spacing:.16em;color:var(--text)}
 .cRow{display:flex;gap:2px;margin-bottom:4px}
 .cChip{flex:1;min-width:0;padding:4px 0;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--text);display:flex;flex-direction:column;align-items:center;cursor:pointer;font:inherit}
 .cChip b{font-size:10px;font-weight:700;line-height:13px}
@@ -115,7 +115,7 @@
   </section>
 
   <section id="practiceScreen" class="screen">
-    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.85 · Phrases oproepen tijdens en na de ronde</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
+    <div class="top"><div><div class="logo">ChordSprint</div><div class="version">v1.86 · Liniaal toont hele en halve tonen</div></div><div class="topActions"><button class="btn ghost smallBtn" id="playPhraseBtn" title="Phrases">📝</button><button class="btn ghost smallBtn" id="playPlaygroundBtn" title="Playground">🛝</button><button class="btn ghost smallBtn" id="playHelpBtn" title="Help">❔</button><button class="btn ghost smallBtn" id="playSettingsBtn" title="Settings">⚙️</button><button class="btn ghost smallBtn" id="backHomeBtn">Home</button></div></div>
     <div class="card" style="padding:10px 12px"><div class="statsMini"><div class="stat"><b id="score">0</b><span>Score</span></div><div class="stat"><b id="streak">0</b><span>Streak</span></div><div class="stat"><b id="accuracy">0%</b><span>Accuracy</span></div></div></div>
     <div class="card playCard">
       <div class="progressShell">
@@ -2370,8 +2370,10 @@ function renderClipLiniaal(){
   if(!el)return;
   const perBew=clipPerBeweging(),hier=clipHuidigeOffset();
   let html='';
+  const ladder=[];                    // de offsets die in de toonladder vallen
   for(let off=-12;off<=12;off++){
     const l=clipLanding(off);
+    if(l.graad)ladder.push(off);
     const klas=['rSlot'];
     if(off===0)klas.push('rTonic');
     if(l.graad)klas.push('rIn');
@@ -2380,16 +2382,32 @@ function renderClipLiniaal(){
     if(hier!==null&&off!==0&&off!==hier&&off>Math.min(0,hier)&&off<Math.max(0,hier))klas.push('rSpan');
     html+='<div class="'+klas.join(' ')+'"><span>'+(l.graad?l.graad:'')+'</span></div>';
   }
-  el.innerHTML='<div class="rRow">'+html+'</div><div class="rLegend"><span>octaaf onder</span><span>1</span><span>octaaf boven</span></div>';
+  /* De hele-en-halve-tonenvolgorde tussen de trappen: W W H W W W H in majeur,
+     W H W W H W W in mineur. Een halve stap heeft geen vakje tussen zich in, dus
+     het teken overspant beide trappen (kolom 1..25 = offset -12..+12). */
+  const stapNaam=d=>d===1?'H':d===2?'W':String(d);
+  let stappen='';
+  for(let i=0;i<ladder.length-1;i++){
+    stappen+='<div class="rStep" style="grid-column:'+(ladder[i]+13)+'/'+(ladder[i+1]+14)+'">'
+      +stapNaam(ladder[i+1]-ladder[i])+'</div>';
+  }
+  // het ezelsbruggetje zelf: één octaaf omhoog vanaf de 1
+  const oct=ladder.filter(o=>o>=0&&o<=12);
+  const patroon=oct.slice(1).map((o,n)=>stapNaam(o-oct[n])).join(' ');
+  el.innerHTML='<div class="rRow">'+html+'</div>'
+    +'<div class="rSteps">'+stappen+'</div>'
+    +'<div class="rLegend"><span>octaaf onder</span><span>1</span><span>octaaf boven</span></div>'
+    +'<div class="rPat"><b>'+patroon+'</b><span>'+(clipMode()==='minor'?'mineur':'majeur')
+    +' · W = hele toon, H = halve</span></div>';
 }
 function renderClipChips(){
   const el=$('clipChips');
   if(!el)return;
   const perBew=clipPerBeweging(),hier=clipHuidigeOffset();
   const alle=clipList();
-  // De omlaag-rij loopt gespiegeld (P8 eerst): dan staat links=laag en midden=1,
-  // dezelfde richting als de liniaal erboven.
-  const rij=(richting,teken)=>(richting==='down'?intervalAll.slice().reverse():intervalAll).map(iv=>{
+  // Beide rijen in dezelfde volgorde (m2 … P8), zodat elk interval omhoog recht
+  // boven hetzelfde interval omlaag staat: één kolom = één interval, twee richtingen.
+  const rij=(richting,teken)=>intervalAll.map(iv=>{
     const off=(richting==='down'?-1:1)*(intervalDefs[iv]?.semitones||0);
     const l=clipLanding(off),lijst=perBew[off];
     const kort=lijst&&lijst.some(n=>{const f=alle[n];return f.end>f.start&&f.end-f.start<=20});
@@ -2403,7 +2421,8 @@ function renderClipChips(){
     ?'<p class="small">Zonder beweging:</p><div class="cRow">'+los.map(x=>
         '<button type="button" class="cChip cUit cHeeft'+(x.i===clipIdx?' cNu':'')+'" data-clipclip="'+x.i+'"><b>'+htmlEscape(String(x.c.label||'?').slice(0,6))+'</b><i>'+Segue.clock(x.c.start)+'</i></button>').join('')+'</div>'
     :'';
-  el.innerHTML='<div class="cRow">'+rij('down','↓')+'</div><div class="cRow">'+rij('up','↑')+'</div>'+rijLos;
+  // omhoog boven, omlaag eronder — zoals je het ook hoort
+  el.innerHTML='<div class="cRow">'+rij('up','↑')+'</div><div class="cRow">'+rij('down','↓')+'</div>'+rijLos;
   el.querySelectorAll('[data-clipmove]').forEach(b=>b.onclick=()=>clipKiesBeweging(+b.dataset.clipmove));
   el.querySelectorAll('[data-clipclip]').forEach(b=>b.onclick=()=>{clipVerhangen=false;clipDoel=null;clipKies(+b.dataset.clipclip);renderClipSelect()});
 }
