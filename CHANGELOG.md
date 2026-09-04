@@ -2,6 +2,8 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-18) — ChordSprint: de bas onder akkoorden is nu een instelling — Root boost-slider (standaard 0% = uit, zoals het was) plus schakelaar 'Root an octave lower' (standaard uit), in Settings → Sound boven de vouw; alleen voor de piano
+
 ## 2026-09-04 (v2026.09.04-17) — ChordSprint piano: samples per noot gelijkgetrokken in niveau (de FluidR3-set was tot 7 dB ongelijk, vooral het hoogste octaaf) en de grondtoon een octaaf lager onder elk akkoord, zoals de oude synth via zijn sub-octaaflaag deed — I en V onderscheiden zich weer aan de bas
 
 ## 2026-09-04 (v2026.09.04-16) — ChordSprint: echte piano in plaats van de synth — 21 gesamplede vleugelnoten (FluidR3 GM, CC BY 3.0, ~530 KB) als standaardklank, tussenliggende noten via playbackRate; oude synth blijft als 'Synth'-profiel en als vangnet; volume geijkt op de synth (RMS-verhouding 0,98) zodat Volume en Clip volume hetzelfde betekenen

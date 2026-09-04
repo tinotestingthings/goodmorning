@@ -177,7 +177,7 @@ details.more.heroMore{position:absolute;top:12px;right:12px}
       </div>
 
       <div class="settingsPanel" data-settings-panel="sound">
-        <div class="settingsPanelIntro"><b>🎧 Sound</b><span>How loud the piano and the recorded fragments play. Instrument and fine-tuning live under Advanced.</span></div>
+        <div class="settingsPanelIntro"><b>🎧 Sound</b><span>How loud the piano and the recorded fragments play, and how much extra weight the root of each chord gets. Instrument and fine-tuning live under Advanced.</span></div>
         <div id="soundBasic"></div>
         <details class="advancedPractice" id="advancedSoundDetails">
           <summary>Advanced — instrument and sound lab</summary>
@@ -553,10 +553,11 @@ let inKeyLadderState=loadInKeyLadderState();
 let inKeyLevelMenuOpen=false;
 let phraseOverrides=loadPhraseOverrides();
 if(!['chords','tones'].includes(playbackMode)) playbackMode='chords';
-const defaultSoundTweak={volume:100,clipVolume:22,brightness:100,attack:100,decay:100,body:100,sparkle:100,hammer:100,width:100,hammerOn:false};
+const defaultSoundTweak={volume:100,clipVolume:22,bass:0,bassOctave:false,brightness:100,attack:100,decay:100,body:100,sparkle:100,hammer:100,width:100,hammerOn:false};
 const SOUND_TWEAK_ROWS=[
  ['volume','Volume','Overall loudness',50,150,'%'],
  ['clipVolume','Clip volume','Recorded fragments next to the piano — a mastered clip is far louder than the synth',5,100,'%'],
+ ['bass','Root boost','Extra weight on the root of each chord (piano only). 0% = off',0,150,'%'],
  ['brightness','Brightness','Filter and hammer brightness',50,180,'%'],
  ['attack','Attack','Lower = sharper hit, higher = softer start',40,220,'%'],
  ['decay','Decay / length','How long chords ring out',50,180,'%'],
@@ -866,14 +867,14 @@ function renderHomeModes(){
 }
 // Junk or out-of-range values in localStorage are repaired here, at the single entry point,
 // so storage, sliders and audio always agree; a NaN reaching an AudioParam throws.
-function loadSoundTweak(){try{const saved=JSON.parse(localStorage.getItem('cpt_soundTweak')||'null');const t={...defaultSoundTweak,...(saved||{})};for(const k in SOUND_TWEAK_RANGE){const[min,max]=SOUND_TWEAK_RANGE[k];t[k]=(typeof t[k]==='number'&&isFinite(t[k]))?Math.min(max,Math.max(min,t[k])):100}t.hammerOn=t.hammerOn===true;return t}catch(e){return {...defaultSoundTweak}}}
+function loadSoundTweak(){try{const saved=JSON.parse(localStorage.getItem('cpt_soundTweak')||'null');const t={...defaultSoundTweak,...(saved||{})};for(const k in SOUND_TWEAK_RANGE){const[min,max]=SOUND_TWEAK_RANGE[k];t[k]=(typeof t[k]==='number'&&isFinite(t[k]))?Math.min(max,Math.max(min,t[k])):100}t.hammerOn=t.hammerOn===true;t.bassOctave=t.bassOctave===true;return t}catch(e){return {...defaultSoundTweak}}}
 function saveSoundTweak(){localStorage.setItem('cpt_soundTweak',JSON.stringify(soundTweak))}
 // Sliders are percentages of the normal value; tw() is the multiplier the audio graph uses.
 function tw(n){const v=soundTweak[n];return (typeof v==='number'&&isFinite(v))?v/100:1}
 /* Fragmenten (opnames) tegenover de synth. De schaal zelf is met het oor
    gezet; de Clip volume-slider in het Sound lab is de fijnregeling. */
 function clipGain(){return Math.min(1,Math.max(0,tw('clipVolume')*tw('volume')))}
-function renderSoundLab(){const lab=$('soundLab');if(!lab)return;const BASIC=['volume','clipVolume'];const row=([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`;const basic=$('soundBasic');if(basic)basic.innerHTML=SOUND_TWEAK_ROWS.filter(r=>BASIC.includes(r[0])).map(row).join('');const rows=SOUND_TWEAK_ROWS.filter(r=>!BASIC.includes(r[0]));lab.innerHTML=rows.map(([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`).join('')+`<div class="soundToggle"><button class="btn ${soundTweak.hammerOn?'active':''}" id="hammerToggleBtn">${soundTweak.hammerOn?'✓ ':''}Hammer on</button><button class="btn" id="neutralSoundBtn">Set neutral</button></div>`;document.querySelectorAll('[data-soundtweak]').forEach(inp=>inp.oninput=()=>{soundTweak[inp.dataset.soundtweak]=+inp.value;saveSoundTweak();$('soundVal_'+inp.dataset.soundtweak).textContent=inp.value+'%'});$('hammerToggleBtn').onclick=()=>{soundTweak.hammerOn=!soundTweak.hammerOn;saveSoundTweak();renderSoundLab();playRoot()};$('neutralSoundBtn').onclick=()=>{soundTweak={...defaultSoundTweak};saveSoundTweak();renderSoundLab();playRoot()}}
+function renderSoundLab(){const lab=$('soundLab');if(!lab)return;const BASIC=['volume','clipVolume','bass'];const row=([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`;const basic=$('soundBasic');if(basic){basic.innerHTML=SOUND_TWEAK_ROWS.filter(r=>BASIC.includes(r[0])).map(row).join('')+`<div class="soundToggle"><button class="btn ${soundTweak.bassOctave?'active':''}" id="bassOctaveBtn">${soundTweak.bassOctave?'✓ ':''}Root an octave lower</button></div>`;$('bassOctaveBtn').onclick=()=>{soundTweak.bassOctave=!soundTweak.bassOctave;saveSoundTweak();renderSoundLab();playRoot()}}const rows=SOUND_TWEAK_ROWS.filter(r=>!BASIC.includes(r[0]));lab.innerHTML=rows.map(([k,name,desc,min,max,suffix])=>`<div class="soundRow"><label>${name}<small>${desc}</small></label><div><input type="range" min="${min}" max="${max}" value="${soundTweak[k]}" data-soundtweak="${k}"><div class="soundValue" id="soundVal_${k}">${soundTweak[k]}${suffix}</div></div></div>`).join('')+`<div class="soundToggle"><button class="btn ${soundTweak.hammerOn?'active':''}" id="hammerToggleBtn">${soundTweak.hammerOn?'✓ ':''}Hammer on</button><button class="btn" id="neutralSoundBtn">Set neutral</button></div>`;document.querySelectorAll('[data-soundtweak]').forEach(inp=>inp.oninput=()=>{soundTweak[inp.dataset.soundtweak]=+inp.value;saveSoundTweak();$('soundVal_'+inp.dataset.soundtweak).textContent=inp.value+'%'});$('hammerToggleBtn').onclick=()=>{soundTweak.hammerOn=!soundTweak.hammerOn;saveSoundTweak();renderSoundLab();playRoot()};$('neutralSoundBtn').onclick=()=>{soundTweak={...defaultSoundTweak};saveSoundTweak();renderSoundLab();playRoot()}}
 function renderSettings(){
   document.querySelectorAll('[data-practice-type]').forEach(b=>b.classList.toggle('active',b.dataset.practiceType===practiceType));
   document.querySelectorAll('[data-tonality]').forEach(b=>b.classList.toggle('active',b.dataset.tonality===tonalityMode));
@@ -1388,9 +1389,10 @@ function chordMidiNotes(degree,rootOverride=null){const root=rootOverride??(toni
 // en de grondtoon is wat I van V onderscheidt. De gesamplede piano speelt anders
 // een kale drieklank in nauwe ligging. Dus: grondtoon een octaaf lager erbij,
 // zachter, zoals een linkerhand. Alleen voor de piano; de synthprofielen hebben
-// hun eigen laag al.
-const CHORD_BASS_GAIN=.7;
-function playChord(roman,when,rootOverride=null){const notes=chordMidiNotes(roman,rootOverride);notes.forEach((m,i)=>pianoTone(midiToFreq(m),when+i*.006,.96,.095));if(soundProfile==='default'&&piano.ready&&notes.length)pianoTone(midiToFreq(notes[0]-12),when,1.0,.095*CHORD_BASS_GAIN)}
+// hun eigen laag al. Sterkte = de Root boost-slider (Settings → Sound), standaard
+// 0% = uit (besluit Tinus 4 sep: "hoe het was"); de schakelaar eronder kiest of
+// de extra grondtoon op zijn eigen plek klinkt (dus gewoon harder) of een octaaf lager.
+function playChord(roman,when,rootOverride=null){const notes=chordMidiNotes(roman,rootOverride);notes.forEach((m,i)=>pianoTone(midiToFreq(m),when+i*.006,.96,.095));const boost=tw('bass');if(boost>0&&soundProfile==='default'&&piano.ready&&notes.length)pianoTone(midiToFreq(notes[0]-(soundTweak.bassOctave?12:0)),when,1.0,.095*boost)}
 function playTone(rootMidi,when,dur=.78,gain=.13){pianoTone(midiToFreq(rootMidi),when,dur,gain)}
 function playDegreeSound(degree,when,rootOverride=null){const root=rootOverride??(tonicMidi()+stepForDegree(degree));if(playbackMode==='tones')playTone(root,when,.78,.14);else playChord(degree,when,root)}
 function playRoot(){ensureAudio();stopAudio();if(audioCtx.state==='suspended')audioCtx.resume();if(practiceType==='intervals'||practiceType==='moves')playTone(tonicMidi(),audioCtx.currentTime+.08,.82,.14);else if(practiceType==='inkey')playTone(inKeyCurrentStepStartMidi(),audioCtx.currentTime+.08,.82,.14);else playDegreeSound('1',audioCtx.currentTime+.08,tonicMidi())}
