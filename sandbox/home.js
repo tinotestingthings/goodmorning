@@ -664,17 +664,15 @@
   // ---- Wake-up tile (added 2026-09-03) ----------------------------------
   // Opens the start-the-day flow in wakeup.js. Stays after it's done today
   // (dimmed, ticked) so the backlog step can be reused on an empty afternoon.
-  var ICON_SUNRISE =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3"/><path d="M5.6 7.6l2.1 2.1"/><path d="M18.4 7.6l-2.1 2.1"/><path d="M3 16h18"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M6 20h12"/></svg>';
-
   function renderWakeupTile() {
     var done = window.Wakeup.doneToday();
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "app-tile wakeup-tile" + (done ? " wakeup-tile-done" : "");
+    b.className = "app-tile wakeup-tile" + (done ? " wakeup-tile-done" : "") +
+      (done && window.Wakeup.popPending() ? " wakeup-tile-pop" : "");   // tick pops once, not on every re-render
     b.setAttribute("aria-label", done ? "Wake-up done for today — open again" : "Start the day: wake-up");
     var ic = el("span", "app-tile-icon");
-    ic.innerHTML = done ? CHECK_ICON : ICON_SUNRISE;
+    ic.innerHTML = done ? CHECK_ICON : window.Wakeup.ICON_SUNRISE;
     b.appendChild(ic);
     var label = el("div", "app-tile-label", "Wake-up");
     b.appendChild(label);

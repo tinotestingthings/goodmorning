@@ -1927,13 +1927,14 @@ body:has(#view-triage:not([hidden])) .capture-fab { display: none; }
   line-height: 1.3;
 }
 
-/* ---- view transitions (progressive enhancement, no-op if unsupported) ---- */
+/* ---- view transitions (progressive enhancement, no-op if unsupported) ----
+   In-app view switches (app.js) and the wake-up overlay: a quick fade. Named
+   explicitly so design.css's app-launch zoom (cross-document) doesn't leak in. */
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.18s;
-  animation-timing-function: ease-out;
-}
+::view-transition-old(root) { animation: 0.18s ease-out both vt-fade-out; }
+::view-transition-new(root) { animation: 0.18s ease-out both vt-fade-in; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
 
 
 .sandbox-reset-btn {
@@ -3469,9 +3470,16 @@ a.cal-allday-attent { text-decoration: none; }
    Full-screen start-the-day flow. Motion is CSS only: slots slide in staggered,
    icons drift, the temperature counts up in JS. Reduced motion = no motion. */
 .wakeup-tile { cursor: pointer; font: inherit; }
-.wakeup-tile .app-tile-icon { color: var(--warn); }
+.wakeup-tile .app-tile-icon { color: var(--warn); view-transition-name: wk-sun; }
+body:has(.wk-overlay) .wakeup-tile .app-tile-icon { view-transition-name: none; }  /* the slot icon owns the name while the flow is open */
+.wakeup-tile:not(.wakeup-tile-done) .app-tile-icon { animation: wk-sunrise 3.6s ease-in-out infinite; }
 .wakeup-tile-done { opacity: 0.55; }
 .wakeup-tile-done .app-tile-icon { color: var(--keep); }
+.wakeup-tile-pop .app-tile-icon { animation: wk-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes wk-sunrise {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 transparent); }
+  50% { transform: translateY(-2px); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--warn) 70%, transparent)); }
+}
 .home-prio-head { color: var(--warn); }
 .cal-badge-prio { color: var(--warn); font-size: 0.85rem; line-height: 1; }
 
@@ -3503,11 +3511,17 @@ a.cal-allday-attent { text-decoration: none; }
   animation: wk-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .wk-slot-icon { width: 36px; height: 36px; flex-shrink: 0; color: var(--skip); animation: wk-float 3.2s ease-in-out infinite; }
+.wk-slot-icon-first { view-transition-name: wk-sun; }
 .wk-slot-icon svg { width: 100%; height: 100%; display: block; }
 .wk-slot-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .wk-slot-label { font-weight: 600; }
 .wk-slot-cond { color: var(--text-dim); font-size: 0.85rem; }
 .wk-slot-temp { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 2.5ch; text-align: right; }
+.wk-slot-temp:empty {   /* skeleton shimmer until the forecast lands (countUp fills it) */
+  height: 1.1em; border-radius: 6px;
+  background: linear-gradient(90deg, var(--border) 30%, color-mix(in srgb, var(--border) 35%, var(--card-bg)) 50%, var(--border) 70%);
+  background-size: 200% 100%; animation: wk-shimmer 1.3s linear infinite;
+}
 
 .wk-list { display: flex; flex-direction: column; gap: 8px; }
 .wk-row {
@@ -3536,8 +3550,9 @@ a.cal-allday-attent { text-decoration: none; }
 @keyframes wk-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @keyframes wk-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes wk-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+@keyframes wk-shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .wk-overlay, .wk-overlay * { animation: none; }
+  .wk-overlay, .wk-overlay *, .wakeup-tile .app-tile-icon { animation: none; }
 }
 
 /* wake-up: gym day picker (7 rolling days) */

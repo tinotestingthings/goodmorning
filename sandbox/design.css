@@ -113,3 +113,17 @@
   --text-dim: #8a7fa8; --border: #ecdcfb;
   --keep: #2fae66; --dismiss: #f0616f; --skip: #7c5cff; --accent: #ff9f43;
 }
+
+/* ---- app launch (cross-document view transitions) ----------------------
+   Navigating between the main app and a utility app: the old page stays on
+   screen until the new one can paint, then the new page zooms in like an app
+   launch. No-op in browsers without support. The main app's style.css
+   overrides root with a plain fade, so only the utility apps zoom in. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: 0.2s ease-out both vt-launch-out; }
+::view-transition-new(root) { animation: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both vt-launch-in; }
+@keyframes vt-launch-out { to { opacity: 0; } }
+@keyframes vt-launch-in { from { opacity: 0; transform: scale(0.92); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}

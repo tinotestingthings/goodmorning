@@ -10,6 +10,9 @@
   // to-dos/items store. Today shows starred things in a "Priority" block at
   // the top (home.js appendUrgentCards).
   var DONE_KEY = k("wakeup.done");   // per device, like the overload banner
+  var ICON_SUNRISE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3"/><path d="M5.6 7.6l2.1 2.1"/><path d="M18.4 7.6l-2.1 2.1"/><path d="M3 16h18"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M6 20h12"/></svg>';
+  var popPending = false;            // home.js pops the tick once, right after markDone
 
   function M() { return global.DayModel; }
   function el(tag, cls, txt) {
@@ -27,7 +30,7 @@
   function today() { return M().localDateStr(); }
   function tomorrow() { var d = new Date(); d.setDate(d.getDate() + 1); return M().localDateStr(d); }
   function doneToday() { try { return localStorage.getItem(DONE_KEY) === today(); } catch (e) { return false; } }
-  function markDone() { try { localStorage.setItem(DONE_KEY, today()); } catch (e) {} }
+  function markDone() { popPending = true; try { localStorage.setItem(DONE_KEY, today()); } catch (e) {} }
   function isOpenItem(x) { return x.state === "idea" || x.state === "todo" || x.state === "active"; }
   function openItems() { return global.Items ? global.Items.all().filter(isOpenItem) : []; }
   function backlogItems() {
@@ -87,7 +90,15 @@
     ov.scrollTop = 0;
   }
 
+  // The tile's sunrise morphs into the first weather slot (view-transition-name
+  // wk-sun in style.css); without the API it simply appears.
   function open() {
+    if (document.startViewTransition) {
+      var vt = document.startViewTransition(openNow);
+      if (vt && vt.finished && vt.finished.catch) vt.finished.catch(function () {});
+    } else openNow();
+  }
+  function openNow() {
     close();
     steps = [stepDay, stepTodos];
     if (global.GymSchedule && !global.GymSchedule.days(7).length) steps.push(stepGym);
@@ -114,6 +125,7 @@
     if (meta) body.appendChild(el("span", "wk-row-meta", meta));
     r.appendChild(body);
     r.addEventListener("click", function () {
+      if (navigator.vibrate) navigator.vibrate(8);   // Android only; iOS ignores it
       sel[id] = !sel[id];
       r.classList.toggle("wk-row-on", !!sel[id]);
       r.setAttribute("aria-pressed", sel[id] ? "true" : "false");
@@ -147,8 +159,9 @@
     var faces = M().WEATHER_SLOTS.map(function (s, i) {
       var slot = el("div", "wk-slot");
       slot.style.animationDelay = (0.25 + i * 0.22) + "s";
-      var icon = el("span", "wk-slot-icon");
+      var icon = el("span", "wk-slot-icon" + (i ? "" : " wk-slot-icon-first"));
       icon.style.animationDelay = (i * 0.6) + "s";
+      if (!i) icon.innerHTML = ICON_SUNRISE;   // morph target; the forecast icon replaces it
       slot.appendChild(icon);
       var txt = el("span", "wk-slot-text");
       txt.appendChild(el("span", "wk-slot-label", s.label));
@@ -165,7 +178,7 @@
     M().weather().then(function (json) {
       faces.forEach(function (f) {
         var r = M().pickHourly(json, f.hour);
-        if (!r || r.temp == null) { f.cond.textContent = "—"; return; }
+        if (!r || r.temp == null) { f.cond.textContent = "—"; f.temp.remove(); return; }
         var info = M().weatherInfo(r.code);
         f.icon.innerHTML = info.icon;
         f.cond.textContent = info.label;
@@ -314,5 +327,8 @@
     actions(card).appendChild(btn("Start the day", "btn-primary", function () { markDone(); next(); }));
   }
 
-  global.Wakeup = { open: open, close: close, doneToday: doneToday };
+  global.Wakeup = {
+    open: open, close: close, doneToday: doneToday, ICON_SUNRISE: ICON_SUNRISE,
+    popPending: function () { var p = popPending; popPending = false; return p; }
+  };
 })(window);
