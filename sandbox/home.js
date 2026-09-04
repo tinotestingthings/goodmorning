@@ -639,6 +639,31 @@
     return { known: true, green: fresh };
   }
 
+  // ---- LinkedIn tile (added 2026-08-25) ---------------------------------
+  // Enige externe link op Today. Opent in een nieuw venster, anders navigeert
+  // de PWA-shell zichzelf weg naar linkedin.com en ben je de app kwijt.
+  var ICON_LINKEDIN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 10.8V17"/><path d="M8 7.4h.01"/><path d="M12 17v-6.2"/><path d="M12 13.4a2.4 2.4 0 0 1 4.8 0V17"/></svg>';
+
+  function renderLinkedInTile() {
+    var a = document.createElement("a");
+    a.className = "app-tile";
+    a.href = "https://www.linkedin.com/feed/";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.setAttribute("aria-label", "Open LinkedIn");
+    var arrow = el("span", "app-tile-arrow");
+    arrow.innerHTML = ICON_ARROW_OUT;
+    a.appendChild(arrow);
+    var ic = el("span", "app-tile-icon");
+    ic.innerHTML = ICON_LINKEDIN;
+    a.appendChild(ic);
+    var label = el("div", "app-tile-label", "LinkedIn");
+    a.appendChild(label);
+    fitTileLabel(label);
+    return a;
+  }
+
   // ---- Wake-up tile (added 2026-09-03) ----------------------------------
   // Opens the start-the-day flow in wakeup.js. Stays after it's done today
   // (dimmed, ticked) so the backlog step can be reused on an empty afternoon.
@@ -878,6 +903,7 @@
     if (window.Wakeup) heroRow.appendChild(renderWakeupTile());
     heroRow.appendChild(renderTrainerTile());   // kleine tegel; blijft weg als alles groen is
     heroRow.appendChild(renderBirdTile());
+    heroRow.appendChild(renderLinkedInTile());
     wrap.appendChild(heroRow);
 
     var weatherAccordion = el("div", "accordion-body");
