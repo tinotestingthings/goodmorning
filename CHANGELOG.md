@@ -2,6 +2,9 @@
 
 Newest first. One line per deploy to the live root.
 
+## 2026-09-04 (v2026.09.04-9) — Toen: Deventer verschijnt met 5 foto's op exacte camerastandplaats — 733 foto's
+
+
 ## 2026-09-04 (v2026.09.04-8) — Toen: 728 foto's (Amsterdam-centrum +15 op gebouwniveau)
 
 
