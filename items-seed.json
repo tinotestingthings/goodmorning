@@ -239,6 +239,16 @@
   "recurrence": null
  },
  {
+  "id": "2026-08-31-eevidence-verordening-van-kracht-nederland-niet-operationeel",
+  "type": "task",
+  "title": "eEvidence-verordening geldt sinds 18 augustus, maar Nederland is er pas begin 2027 klaar voor — dienstverleners zitten er tussenin",
+  "note": "Sinds **18 augustus 2026** is de Europese **eEvidence-verordening (EU) 2023/1543** van toepassing in de hele EU. Die verplicht digitale dienstverleners om op een Europees verstrekkings- of bewaringsbevel digitaal bewijsmateriaal te leveren aan justitiële autoriteiten in **andere** lidstaten. Het bereik is breed: aanbieders van internet- en communicatiediensten, cloud- en opslagproviders, online platforms en marktplaatsen, en partijen die domeinnamen of ip-diensten beheren. Onder het bevel valt alles wat relevant kan zijn voor een strafzaak — contactgegevens, ip-adressen, dataverkeer, opgeslagen communicatie.",
+  "subtasks": [],
+  "state": "todo",
+  "source": "vault",
+  "recurrence": null
+ },
+ {
   "id": "2026-07-11-cooking-improving-recipes-using-second-brain",
   "type": "project",
   "title": "Cooking — improving recipes",
